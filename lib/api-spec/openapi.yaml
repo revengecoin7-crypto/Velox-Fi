@@ -3,13 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: VeloxFi API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: accounts
+    description: Financial accounts
+  - name: transactions
+    description: Financial transactions
+  - name: budgets
+    description: Budget categories
+  - name: goals
+    description: Savings goals
+  - name: dashboard
+    description: Dashboard analytics
 paths:
   /healthz:
     get:
@@ -24,6 +34,423 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [accounts]
+      summary: List all accounts
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountBody"
+      responses:
+        "201":
+          description: Created account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get account by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateAccount
+      tags: [accounts]
+      summary: Update an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountBody"
+      responses:
+        "200":
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteAccount
+      tags: [accounts]
+      summary: Delete an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List transactions
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: ["integer", "null"]
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Create a transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionBody"
+      responses:
+        "201":
+          description: Created transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /transactions/{id}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get transaction by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateTransaction
+      tags: [transactions]
+      summary: Update a transaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransactionBody"
+      responses:
+        "200":
+          description: Updated transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteTransaction
+      tags: [transactions]
+      summary: Delete a transaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /budgets:
+    get:
+      operationId: listBudgets
+      tags: [budgets]
+      summary: List all budgets
+      responses:
+        "200":
+          description: List of budgets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Budget"
+    post:
+      operationId: createBudget
+      tags: [budgets]
+      summary: Create a budget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBudgetBody"
+      responses:
+        "201":
+          description: Created budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Budget"
+
+  /budgets/{id}:
+    patch:
+      operationId: updateBudget
+      tags: [budgets]
+      summary: Update a budget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBudgetBody"
+      responses:
+        "200":
+          description: Updated budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Budget"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteBudget
+      tags: [budgets]
+      summary: Delete a budget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /goals:
+    get:
+      operationId: listGoals
+      tags: [goals]
+      summary: List all savings goals
+      responses:
+        "200":
+          description: List of goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Goal"
+    post:
+      operationId: createGoal
+      tags: [goals]
+      summary: Create a savings goal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGoalBody"
+      responses:
+        "201":
+          description: Created goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+
+  /goals/{id}:
+    patch:
+      operationId: updateGoal
+      tags: [goals]
+      summary: Update a savings goal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGoalBody"
+      responses:
+        "200":
+          description: Updated goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteGoal
+      tags: [goals]
+      summary: Delete a goal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get financial dashboard summary
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/spending-by-category:
+    get:
+      operationId: getSpendingByCategory
+      tags: [dashboard]
+      summary: Get spending breakdown by category
+      parameters:
+        - name: month
+          in: query
+          required: false
+          schema:
+            type: ["string", "null"]
+          description: "Month in YYYY-MM format, defaults to current month"
+      responses:
+        "200":
+          description: Spending by category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategorySpending"
+
+  /dashboard/monthly-trend:
+    get:
+      operationId: getMonthlyTrend
+      tags: [dashboard]
+      summary: Get monthly income vs expense trend for last 6 months
+      responses:
+        "200":
+          description: Monthly trend data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyTrend"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +461,365 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          description: "checking, savings, credit, investment"
+        balance:
+          type: number
+        currency:
+          type: string
+        institution:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - balance
+        - currency
+        - institution
+        - color
+        - createdAt
+        - updatedAt
+
+    CreateAccountBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        balance:
+          type: number
+        currency:
+          type: string
+        institution:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+      required:
+        - name
+        - type
+        - balance
+        - currency
+
+    UpdateAccountBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        type:
+          type: ["string", "null"]
+        balance:
+          type: ["number", "null"]
+        currency:
+          type: ["string", "null"]
+        institution:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        accountId:
+          type: integer
+        amount:
+          type: number
+        type:
+          type: string
+          description: "income or expense"
+        category:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - accountId
+        - amount
+        - type
+        - category
+        - description
+        - date
+        - notes
+        - createdAt
+        - updatedAt
+
+    CreateTransactionBody:
+      type: object
+      properties:
+        accountId:
+          type: integer
+        amount:
+          type: number
+        type:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        notes:
+          type: ["string", "null"]
+      required:
+        - accountId
+        - amount
+        - type
+        - category
+        - description
+        - date
+
+    UpdateTransactionBody:
+      type: object
+      properties:
+        accountId:
+          type: ["integer", "null"]
+        amount:
+          type: ["number", "null"]
+        type:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        date:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    Budget:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        limit:
+          type: number
+        spent:
+          type: number
+        period:
+          type: string
+          description: "monthly or weekly"
+        color:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - category
+        - limit
+        - spent
+        - period
+        - color
+        - createdAt
+        - updatedAt
+
+    CreateBudgetBody:
+      type: object
+      properties:
+        category:
+          type: string
+        limit:
+          type: number
+        spent:
+          type: number
+        period:
+          type: string
+        color:
+          type: ["string", "null"]
+      required:
+        - category
+        - limit
+        - spent
+        - period
+
+    UpdateBudgetBody:
+      type: object
+      properties:
+        category:
+          type: ["string", "null"]
+        limit:
+          type: ["number", "null"]
+        spent:
+          type: ["number", "null"]
+        period:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+
+    Goal:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        targetAmount:
+          type: number
+        currentAmount:
+          type: number
+        targetDate:
+          type: ["string", "null"]
+          format: date-time
+        category:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - targetAmount
+        - currentAmount
+        - targetDate
+        - category
+        - color
+        - createdAt
+        - updatedAt
+
+    CreateGoalBody:
+      type: object
+      properties:
+        name:
+          type: string
+        targetAmount:
+          type: number
+        currentAmount:
+          type: number
+        targetDate:
+          type: ["string", "null"]
+          format: date-time
+        category:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+      required:
+        - name
+        - targetAmount
+        - currentAmount
+
+    UpdateGoalBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        targetAmount:
+          type: ["number", "null"]
+        currentAmount:
+          type: ["number", "null"]
+        targetDate:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalBalance:
+          type: number
+        totalIncome:
+          type: number
+        totalExpenses:
+          type: number
+        netSavings:
+          type: number
+        accountCount:
+          type: integer
+        transactionCount:
+          type: integer
+        budgetCount:
+          type: integer
+        goalCount:
+          type: integer
+      required:
+        - totalBalance
+        - totalIncome
+        - totalExpenses
+        - netSavings
+        - accountCount
+        - transactionCount
+        - budgetCount
+        - goalCount
+
+    CategorySpending:
+      type: object
+      properties:
+        category:
+          type: string
+        amount:
+          type: number
+        percentage:
+          type: number
+        transactionCount:
+          type: integer
+      required:
+        - category
+        - amount
+        - percentage
+        - transactionCount
+
+    MonthlyTrend:
+      type: object
+      properties:
+        month:
+          type: string
+        income:
+          type: number
+        expenses:
+          type: number
+        net:
+          type: number
+      required:
+        - month
+        - income
+        - expenses
+        - net
