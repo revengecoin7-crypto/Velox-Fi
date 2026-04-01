@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Twitter, MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords } from "lucide-react";
+import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords } from "lucide-react";
 
 const BATTLES = [
   {
@@ -213,6 +213,7 @@ export default function Home() {
               <Swords className="w-5 h-5 text-white" />
             </div>
             <span className="font-orbitron font-black text-lg tracking-wider gradient-text">VELOXFI</span>
+            <span className="text-lg" aria-hidden="true">🐺</span>
           </a>
 
           {/* Nav links */}
@@ -503,10 +504,10 @@ export default function Home() {
           style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12))", border: "1px solid rgba(124,58,237,0.2)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.08) 0%, transparent 70%)" }} />
           <h2 className="font-orbitron font-black text-3xl md:text-4xl text-white mb-4 relative z-10">
-            YOUR COIN <span className="gradient-text">DESERVES</span> TO WIN
+            THE BATTLEFIELD IS <span className="gradient-text">ALMOST OPEN</span>
           </h2>
           <p className="text-gray-400 mb-8 max-w-md mx-auto relative z-10">
-            Don't let your bags sit idle. Send them into battle and let the market crown the victor.
+            Be one of the first 100 warriors. Join the presale and claim your OG badge.
           </p>
           <button data-testid="btn-cta-launch" className="btn-primary px-10 py-4 rounded-xl text-base relative z-10">
             <span className="font-orbitron tracking-wider">START A BATTLE</span>
@@ -527,7 +528,7 @@ export default function Home() {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
-            {["Terms", "Privacy", "Docs", "Audit"].map((link) => (
+            {["Terms", "Privacy", "Whitepaper", "Audit"].map((link) => (
               <a key={link} href="#" data-testid={`footer-link-${link.toLowerCase()}`} className="hover:text-gray-300 transition-colors">
                 {link}
               </a>
@@ -543,9 +544,9 @@ export default function Home() {
               data-testid="social-twitter"
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
               style={{ background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.2)" }}
-              aria-label="Twitter"
+              aria-label="X (Twitter)"
             >
-              <Twitter className="w-4 h-4 text-blue-400" />
+              <span className="text-blue-400 font-black text-sm leading-none" style={{ fontFamily: "sans-serif" }}>𝕏</span>
             </a>
             <a
               href="https://discord.com"
