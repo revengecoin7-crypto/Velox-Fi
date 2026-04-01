@@ -29,26 +29,26 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     icon: <Zap className="w-6 h-6" />,
-    title: "CREATE OR PICK YOUR COIN",
-    desc: "Launch a fresh memecoin on Solana or select an existing one from our battle registry.",
+    title: "GET YOUR WALLET READY",
+    desc: "Buy $BATTLE tokens and connect your Phantom wallet to the VeloxFi arena.",
   },
   {
     step: "02",
     icon: <Swords className="w-6 h-6" />,
-    title: "CHALLENGE AN OPPONENT",
-    desc: "Issue a battle challenge. Set the duration, stake SOL as the wager, and wait for acceptance.",
+    title: "CREATE YOUR MEMECOIN",
+    desc: "Launch your memecoin directly on VeloxFi — no external tools needed.",
   },
   {
     step: "03",
     icon: <TrendingUp className="w-6 h-6" />,
-    title: "MARKET DECIDES THE WINNER",
-    desc: "Over the battle window, price performance on-chain determines which coin reigns supreme.",
+    title: "CHALLENGE A RIVAL",
+    desc: "Challenge another coin to a battle — choose your duration: 1h, 3h, 12h, 24h, or 7 days.",
   },
   {
     step: "04",
     icon: <Trophy className="w-6 h-6" />,
-    title: "CLAIM YOUR SPOILS",
-    desc: "Winners auto-receive the staked SOL plus a share of trading fees generated during the battle.",
+    title: "WIN THE SPOILS",
+    desc: "Highest % price surge wins. The victor earns 30% of the loser's tokens automatically.",
   },
 ];
 
@@ -318,6 +318,9 @@ export default function Home() {
           <button data-testid="btn-view-all-battles" className="btn-outline px-8 py-3 rounded-xl text-sm">
             VIEW ALL BATTLES
           </button>
+          <p className="text-gray-600 text-xs font-orbitron tracking-widest mt-4">
+            DEMO BATTLES &mdash; REAL BATTLES COMING SOON
+          </p>
         </div>
       </section>
 
@@ -534,7 +537,7 @@ export default function Home() {
           {/* Social */}
           <div className="flex items-center gap-4">
             <a
-              href="https://twitter.com"
+              href="https://twitter.com/VeloxFi"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="social-twitter"
@@ -571,7 +574,7 @@ export default function Home() {
 
         <div className="max-w-5xl mx-auto mt-8 pt-6 text-center text-xs text-gray-700 font-orbitron tracking-widest"
           style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-          © 2025 VELOXFI. ALL RIGHTS RESERVED. NOT FINANCIAL ADVICE.
+          © 2026 VELOXFI. ALL RIGHTS RESERVED. NOT FINANCIAL ADVICE.
         </div>
       </footer>
     </div>
