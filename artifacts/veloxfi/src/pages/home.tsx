@@ -220,7 +220,7 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {["Battles", "Leaderboard", "Create Coin", "Whitepaper"].map((item) => (
+            {["Leaderboard", "Create Coin", "Whitepaper"].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -230,6 +230,14 @@ export default function Home() {
                 {item}
               </a>
             ))}
+            <button
+              data-testid="nav-link-battles"
+              onClick={() => navigate("/battles")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#34d399", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Battles
+            </button>
             <button
               data-testid="nav-link-presale"
               onClick={() => navigate("/presale")}

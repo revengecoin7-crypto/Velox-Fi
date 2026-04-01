@@ -5,6 +5,7 @@ import Home from "@/pages/home";
 import Demo from "@/pages/demo";
 import Presale from "@/pages/presale";
 import Admin from "@/pages/admin";
+import Battles from "@/pages/battles";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/battles" component={Battles} />
       <Route path="/demo" component={Demo} />
       <Route path="/presale" component={Presale} />
       <Route path="/admin" component={Admin} />
