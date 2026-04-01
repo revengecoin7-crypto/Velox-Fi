@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Zap, Shield, TrendingUp, Clock, AlertTriangle, Copy, Check } from "lucide-react";
 
-const PRESALE_LAUNCH = new Date("2026-05-01T00:00:00Z").getTime();
+const PRESALE_LAUNCH = new Date("2026-06-01T00:00:00Z").getTime();
 const TOTAL_SUPPLY = 1_000_000_000;
 const SOL_GOAL = 500;
 const SOL_RAISED = 0;
@@ -112,7 +112,7 @@ export default function Presale() {
                 className="w-1.5 h-1.5 rounded-full animate-pulse"
                 style={{ background: "#60a5fa" }}
               />
-              PRESALE SOON
+              COMING SOON
             </span>
             <button
               onClick={() => navigate("/")}
@@ -213,7 +213,7 @@ export default function Presale() {
           </div>
 
           <p className="text-gray-700 text-xs font-orbitron tracking-widest mt-4">
-            MAY 1, 2026 · 00:00 UTC
+            JUN 1, 2026 · 00:00 UTC
           </p>
         </div>
 
@@ -336,10 +336,10 @@ export default function Presale() {
 
           <div className="space-y-3">
             {[
-              { label: "Presale", pct: 30, color: "#2563eb" },
-              { label: "Liquidity / DEX", pct: 40, color: "#7c3aed" },
-              { label: "Battle Rewards", pct: 20, color: "#0ea5e9" },
-              { label: "Team & Dev", pct: 10, color: "#6366f1" },
+              { label: "Public market", pct: 60, color: "#2563eb" },
+              { label: "Platform reserves", pct: 20, color: "#7c3aed" },
+              { label: "Community & marketing", pct: 10, color: "#0ea5e9" },
+              { label: "Developer (locked 1 year)", pct: 10, color: "#6366f1" },
             ].map(({ label, pct, color }) => (
               <div key={label}>
                 <div className="flex justify-between text-xs mb-1.5">
@@ -433,6 +433,14 @@ export default function Presale() {
               COMING SOON
             </span>
           </button>
+
+          {/* Fee notice */}
+          <p
+            className="text-center text-xs font-orbitron tracking-widest"
+            style={{ color: "#6b7280" }}
+          >
+            ⚠ 5% fee applies to all presale purchases
+          </p>
 
           <button
             onClick={handleCopy}
