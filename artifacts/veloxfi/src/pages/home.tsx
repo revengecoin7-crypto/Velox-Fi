@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords } from "lucide-react";
 
 const BATTLES = [
@@ -187,6 +188,7 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 40);
@@ -218,24 +220,24 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {[
-              { label: "Battles", href: "#" },
-              { label: "Leaderboard", href: "#" },
-              { label: "Create Coin", href: "#" },
-              { label: "Demo", href: "/demo" },
-              { label: "Presale", href: "#" },
-              { label: "Whitepaper", href: "#" },
-            ].map((item) => (
+            {["Battles", "Leaderboard", "Create Coin", "Presale", "Whitepaper"].map((item) => (
               <a
-                key={item.label}
-                href={item.href}
-                data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                key={item}
+                href="#"
+                data-testid={`nav-link-${item.toLowerCase().replace(/\s+/g, "-")}`}
                 className="text-sm text-gray-400 hover:text-white transition-colors font-medium tracking-wide"
-                style={item.label === "Demo" ? { color: "#a78bfa" } : undefined}
               >
-                {item.label}
+                {item}
               </a>
             ))}
+            <button
+              data-testid="nav-link-demo"
+              onClick={() => navigate("/demo")}
+              className="text-sm font-medium tracking-wide transition-colors"
+              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Demo
+            </button>
           </div>
 
           {/* Connect Wallet */}
