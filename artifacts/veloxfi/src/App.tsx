@@ -54,8 +54,11 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    if (sessionStorage.getItem("vfx_session_counted")) return;
-    sessionStorage.setItem("vfx_session_counted", "1");
+    /* Only count this browser as a visitor once, ever.
+       localStorage persists across refreshes and sessions — unlike
+       sessionStorage which can reset in embedded/iframe contexts. */
+    if (localStorage.getItem("vfx_visitor_id")) return;
+    localStorage.setItem("vfx_visitor_id", crypto.randomUUID());
     const prev = parseInt(localStorage.getItem("vfx_visitors") ?? "0", 10) || 0;
     localStorage.setItem("vfx_visitors", String(prev + 1));
   }, []);
