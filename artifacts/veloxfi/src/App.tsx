@@ -6,6 +6,7 @@ import Demo from "@/pages/demo";
 import Presale from "@/pages/presale";
 import Admin from "@/pages/admin";
 import Battles from "@/pages/battles";
+import Leaderboard from "@/pages/leaderboard";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/battles" component={Battles} />
+      <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/demo" component={Demo} />
       <Route path="/presale" component={Presale} />
       <Route path="/admin" component={Admin} />
