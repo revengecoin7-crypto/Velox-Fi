@@ -218,14 +218,22 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {["Battles", "Leaderboard", "Create Coin", "Demo", "Presale", "Whitepaper"].map((item) => (
+            {[
+              { label: "Battles", href: "#" },
+              { label: "Leaderboard", href: "#" },
+              { label: "Create Coin", href: "#" },
+              { label: "Demo", href: "/demo" },
+              { label: "Presale", href: "#" },
+              { label: "Whitepaper", href: "#" },
+            ].map((item) => (
               <a
-                key={item}
-                href="#"
-                data-testid={`nav-link-${item.toLowerCase().replace(/\s+/g, "-")}`}
+                key={item.label}
+                href={item.href}
+                data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                 className="text-sm text-gray-400 hover:text-white transition-colors font-medium tracking-wide"
+                style={item.label === "Demo" ? { color: "#a78bfa" } : undefined}
               >
-                {item}
+                {item.label}
               </a>
             ))}
           </div>
