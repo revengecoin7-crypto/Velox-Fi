@@ -162,7 +162,7 @@ function BattleCard({ battle }: { battle: typeof BATTLES[0] }) {
         data-testid={`btn-battle-vote-${battle.id}`}
         className="w-full btn-primary py-2.5 rounded-lg text-xs"
       >
-        <span className="font-orbitron tracking-widest">PLACE BET</span>
+        <span className="font-orbitron tracking-widest">JOIN BATTLE</span>
       </button>
     </div>
   );
@@ -215,7 +215,7 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {["Battles", "Leaderboard", "Create Coin", "Docs"].map((item) => (
+            {["Battles", "Leaderboard", "Create Coin", "Demo", "Presale", "Whitepaper"].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -285,9 +285,9 @@ export default function Home() {
       {/* ── STATS ── */}
       <section data-testid="stats-section" className="max-w-5xl mx-auto px-6 pb-24">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <StatCard value="14,209" label="BATTLES FOUGHT" icon={<Swords className="w-6 h-6" />} />
-          <StatCard value="$48.3M" label="TOTAL VOLUME" icon={<TrendingUp className="w-6 h-6" />} />
-          <StatCard value="3,847" label="COINS CREATED" icon={<Zap className="w-6 h-6" />} />
+          <StatCard value="0" label="BATTLES FOUGHT" icon={<Swords className="w-6 h-6" />} />
+          <StatCard value="$0" label="TOTAL VOLUME" icon={<TrendingUp className="w-6 h-6" />} />
+          <StatCard value="0" label="COINS CREATED" icon={<Zap className="w-6 h-6" />} />
         </div>
       </section>
 
@@ -355,6 +355,87 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── LEADERBOARD PREVIEW ── */}
+      <section data-testid="leaderboard-section" className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white">
+              TOP <span className="gradient-text">WARRIORS</span>
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">Season 1 leaderboard — be the first to claim a spot</p>
+          </div>
+          <button data-testid="btn-view-leaderboard" className="btn-outline px-5 py-2.5 rounded-lg text-xs">
+            FULL LEADERBOARD
+          </button>
+        </div>
+
+        <div className="card-dark rounded-xl overflow-hidden">
+          {/* Header row */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-orbitron text-gray-600 tracking-widest"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            <div className="col-span-1">RANK</div>
+            <div className="col-span-5">PLAYER</div>
+            <div className="col-span-2 text-right">BATTLES</div>
+            <div className="col-span-2 text-right">WIN RATE</div>
+            <div className="col-span-2 text-right">PNL</div>
+          </div>
+
+          {/* Empty top 3 rows */}
+          {[
+            { rank: 1, medal: "🥇", color: "#FFD700", glowColor: "rgba(255,215,0,0.15)" },
+            { rank: 2, medal: "🥈", color: "#C0C0C0", glowColor: "rgba(192,192,192,0.1)" },
+            { rank: 3, medal: "🥉", color: "#CD7F32", glowColor: "rgba(205,127,50,0.1)" },
+          ].map((row) => (
+            <div
+              key={row.rank}
+              data-testid={`leaderboard-row-${row.rank}`}
+              className="grid grid-cols-12 gap-4 px-6 py-4 items-center transition-colors hover:bg-white/[0.02]"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
+            >
+              {/* Rank */}
+              <div className="col-span-1 font-orbitron font-black text-lg" style={{ color: row.color }}>
+                {row.medal}
+              </div>
+
+              {/* Player */}
+              <div className="col-span-5 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))`, border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span className="text-gray-600 text-xs font-orbitron">?</span>
+                </div>
+                <div>
+                  <div className="font-orbitron text-sm font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    — UNCLAIMED —
+                  </div>
+                  <div className="text-xs text-gray-700 font-orbitron tracking-widest">RANK #{row.rank} OPEN</div>
+                </div>
+              </div>
+
+              {/* Battles */}
+              <div className="col-span-2 text-right font-orbitron text-sm text-gray-700">—</div>
+
+              {/* Win rate */}
+              <div className="col-span-2 text-right font-orbitron text-sm text-gray-700">—</div>
+
+              {/* PNL */}
+              <div className="col-span-2 text-right">
+                <span className="font-orbitron text-sm text-gray-700">—</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Launch CTA row */}
+          <div className="px-6 py-5 text-center" style={{ background: "rgba(37,99,235,0.03)" }}>
+            <p className="text-gray-600 text-xs font-orbitron tracking-widest mb-3">
+              SEASON 1 JUST LAUNCHED — YOUR NAME COULD BE HERE
+            </p>
+            <button data-testid="btn-leaderboard-join" className="btn-primary px-6 py-2.5 rounded-lg text-xs">
+              <span className="font-orbitron tracking-wider">ENTER THE ARENA</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA BANNER ── */}
       <section data-testid="cta-section" className="max-w-5xl mx-auto px-6 pb-24">
         <div className="rounded-2xl p-10 text-center relative overflow-hidden"
@@ -367,7 +448,7 @@ export default function Home() {
             Don't let your bags sit idle. Send them into battle and let the market crown the victor.
           </p>
           <button data-testid="btn-cta-launch" className="btn-primary px-10 py-4 rounded-xl text-base relative z-10">
-            <span className="font-orbitron tracking-wider">LAUNCH YOUR COIN</span>
+            <span className="font-orbitron tracking-wider">START A BATTLE</span>
           </button>
         </div>
       </section>
