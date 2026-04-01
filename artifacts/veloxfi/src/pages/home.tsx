@@ -175,7 +175,9 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
         <div className="text-blue-400">{icon}</div>
       </div>
       <div>
-        <div className="font-orbitron text-3xl font-bold gradient-text">{value}</div>
+        <div className="text-3xl font-bold text-white" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: "0.02em" }}>
+          {value}
+        </div>
         <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">{label}</div>
       </div>
     </div>
@@ -249,9 +251,9 @@ export default function Home() {
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-orbitron tracking-widest"
-          style={{ background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.3)", color: "#60a5fa" }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          LIVE ON SOLANA
+          style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+          COMING SOON
         </div>
 
         {/* Headline */}
@@ -278,7 +280,7 @@ export default function Home() {
 
         {/* Trust line */}
         <p className="text-xs text-gray-600 font-orbitron tracking-widest">
-          POWERED BY SOLANA &middot; NON-CUSTODIAL &middot; PERMISSIONLESS
+          BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE COMING SOON
         </p>
       </section>
 
@@ -432,6 +434,62 @@ export default function Home() {
             <button data-testid="btn-leaderboard-join" className="btn-primary px-6 py-2.5 rounded-lg text-xs">
               <span className="font-orbitron tracking-wider">ENTER THE ARENA</span>
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── $BATTLE TOKEN ── */}
+      <section data-testid="token-section" className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="text-center mb-10">
+          <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white mb-3">
+            THE <span style={{ background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>$BATTLE</span> TOKEN
+          </h2>
+          <p className="text-gray-500 text-sm max-w-md mx-auto">The fuel of the VeloxFi arena — stake, earn, and govern</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Total Supply */}
+          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-blue-800/30 transition-all duration-300">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.06), transparent)" }} />
+            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
+              <Zap className="w-5 h-5" style={{ color: "#60a5fa" }} />
+            </div>
+            <div className="font-orbitron text-2xl font-black mb-1"
+              style={{ background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              1,000,000,000
+            </div>
+            <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">TOTAL SUPPLY</div>
+          </div>
+
+          {/* Presale */}
+          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-purple-800/30 transition-all duration-300"
+            style={{ border: "1px solid rgba(124,58,237,0.25)" }}>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at center, rgba(124,58,237,0.06), transparent)" }} />
+            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)" }}>
+              <Trophy className="w-5 h-5" style={{ color: "#a78bfa" }} />
+            </div>
+            <div className="font-orbitron text-lg font-black mb-1 text-purple-400 tracking-wider">PRESALE</div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron mt-1"
+              style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              COMING SOON
+            </div>
+          </div>
+
+          {/* Built on Solana */}
+          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-blue-800/30 transition-all duration-300">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.06), transparent)" }} />
+            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
+              <Shield className="w-5 h-5" style={{ color: "#60a5fa" }} />
+            </div>
+            <div className="font-orbitron text-lg font-black mb-1 text-blue-400 tracking-wider">SOLANA</div>
+            <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">BUILT ON SOL</div>
           </div>
         </div>
       </section>
