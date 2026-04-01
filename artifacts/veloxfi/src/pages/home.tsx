@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords } from "lucide-react";
+import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
 
 const BATTLES = [
   {
@@ -187,8 +187,14 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
+
+  function navGo(path: string) {
+    setMobileOpen(false);
+    navigate(path);
+  }
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 40);
@@ -218,66 +224,129 @@ export default function Home() {
             <span className="text-lg" aria-hidden="true">🐺</span>
           </a>
 
-          {/* Nav links */}
+          {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-8">
             <button
-              data-testid="nav-link-whitepaper"
-              onClick={() => navigate("/whitepaper")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Whitepaper
-            </button>
-            <button
-              data-testid="nav-link-create-coin"
-              onClick={() => navigate("/create")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Create Coin
-            </button>
-            <button
-              data-testid="nav-link-leaderboard"
-              onClick={() => navigate("/leaderboard")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Leaderboard
-            </button>
-            <button
               data-testid="nav-link-battles"
-              onClick={() => navigate("/battles")}
+              onClick={() => navGo("/battles")}
               className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
               style={{ color: "#34d399", background: "none", border: "none", cursor: "pointer" }}
             >
               Battles
             </button>
             <button
+              data-testid="nav-link-leaderboard"
+              onClick={() => navGo("/leaderboard")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Leaderboard
+            </button>
+            <button
+              data-testid="nav-link-create-coin"
+              onClick={() => navGo("/create")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Create Coin
+            </button>
+            <button
+              data-testid="nav-link-demo"
+              onClick={() => navGo("/demo")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Demo
+            </button>
+            <button
               data-testid="nav-link-presale"
-              onClick={() => navigate("/presale")}
+              onClick={() => navGo("/presale")}
               className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
               style={{ color: "#60a5fa", background: "none", border: "none", cursor: "pointer" }}
             >
               Presale
             </button>
             <button
-              data-testid="nav-link-demo"
-              onClick={() => navigate("/demo")}
+              data-testid="nav-link-whitepaper"
+              onClick={() => navGo("/whitepaper")}
               className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
+              style={{ color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
             >
-              Demo
+              Whitepaper
             </button>
           </div>
 
-          {/* Connect Wallet */}
-          <button
-            data-testid="btn-connect-wallet"
-            className="btn-primary px-5 py-2.5 rounded-lg text-sm"
-          >
-            <span className="font-orbitron tracking-wider text-xs">CONNECT WALLET</span>
-          </button>
+          {/* Right side: Connect Wallet + hamburger */}
+          <div className="flex items-center gap-3">
+            <button
+              data-testid="btn-connect-wallet"
+              className="btn-primary px-4 py-2.5 rounded-lg text-sm"
+            >
+              <span className="font-orbitron tracking-wider text-xs">CONNECT WALLET</span>
+            </button>
+
+            {/* Hamburger — mobile only */}
+            <button
+              data-testid="btn-mobile-menu"
+              onClick={() => setMobileOpen((o) => !o)}
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
+              style={{
+                background: mobileOpen ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                cursor: "pointer",
+                color: "white",
+              }}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile dropdown */}
+        {mobileOpen && (
+          <div
+            className="md:hidden border-t"
+            style={{
+              borderColor: "rgba(255,255,255,0.06)",
+              background: "rgba(5,8,15,0.98)",
+            }}
+          >
+            <div className="flex flex-col py-2">
+              {[
+                { label: "Battles",     path: "/battles",     color: "#34d399" },
+                { label: "Leaderboard", path: "/leaderboard", color: "#f59e0b" },
+                { label: "Create Coin", path: "/create",      color: "#a78bfa" },
+                { label: "Demo",        path: "/demo",        color: "#a78bfa" },
+                { label: "Presale",     path: "/presale",     color: "#60a5fa" },
+                { label: "Whitepaper",  path: "/whitepaper",  color: "#6b7280" },
+              ].map(({ label, path, color }) => (
+                <button
+                  key={path}
+                  onClick={() => navGo(path)}
+                  className="w-full text-left px-6 py-3.5 text-sm font-medium tracking-wide transition-colors flex items-center gap-3"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#9ca3af",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = color;
+                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "#9ca3af";
+                    (e.currentTarget as HTMLButtonElement).style.background = "none";
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── HERO ── */}
