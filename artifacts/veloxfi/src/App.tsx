@@ -1,9 +1,10 @@
-import { useSyncExternalStore, useCallback } from "react";
+import { useSyncExternalStore, useCallback, useEffect, useRef } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/home";
 import Demo from "@/pages/demo";
 import Presale from "@/pages/presale";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -37,12 +38,21 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/demo" component={Demo} />
       <Route path="/presale" component={Presale} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const counted = useRef(false);
+  useEffect(() => {
+    if (counted.current) return;
+    counted.current = true;
+    const prev = parseInt(localStorage.getItem("vfx_visitors") ?? "0", 10) || 0;
+    localStorage.setItem("vfx_visitors", String(prev + 1));
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter hook={useHashLocation}>
