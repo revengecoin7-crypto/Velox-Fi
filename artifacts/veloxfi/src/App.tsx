@@ -1,4 +1,4 @@
-import { useSyncExternalStore, useCallback, useEffect, useRef } from "react";
+import { useSyncExternalStore, useCallback, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/home";
@@ -53,10 +53,9 @@ function Router() {
 }
 
 function App() {
-  const counted = useRef(false);
   useEffect(() => {
-    if (counted.current) return;
-    counted.current = true;
+    if (sessionStorage.getItem("vfx_session_counted")) return;
+    sessionStorage.setItem("vfx_session_counted", "1");
     const prev = parseInt(localStorage.getItem("vfx_visitors") ?? "0", 10) || 0;
     localStorage.setItem("vfx_visitors", String(prev + 1));
   }, []);
