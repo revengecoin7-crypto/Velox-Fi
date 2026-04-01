@@ -8,6 +8,7 @@ import Admin from "@/pages/admin";
 import Battles from "@/pages/battles";
 import Leaderboard from "@/pages/leaderboard";
 import Create from "@/pages/create";
+import Whitepaper from "@/pages/whitepaper";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/battles" component={Battles} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/create" component={Create} />
+      <Route path="/whitepaper" component={Whitepaper} />
       <Route path="/demo" component={Demo} />
       <Route path="/presale" component={Presale} />
       <Route path="/admin" component={Admin} />

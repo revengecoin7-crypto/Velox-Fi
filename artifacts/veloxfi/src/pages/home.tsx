@@ -220,16 +220,14 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {["Whitepaper"].map((item) => (
-              <a
-                key={item}
-                href="#"
-                data-testid={`nav-link-${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="text-sm text-gray-400 hover:text-white transition-colors font-medium tracking-wide"
-              >
-                {item}
-              </a>
-            ))}
+            <button
+              data-testid="nav-link-whitepaper"
+              onClick={() => navigate("/whitepaper")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Whitepaper
+            </button>
             <button
               data-testid="nav-link-create-coin"
               onClick={() => navigate("/create")}
