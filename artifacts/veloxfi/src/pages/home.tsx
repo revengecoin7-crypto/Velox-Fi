@@ -220,7 +220,7 @@ export default function Home() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {["Battles", "Leaderboard", "Create Coin", "Presale", "Whitepaper"].map((item) => (
+            {["Battles", "Leaderboard", "Create Coin", "Whitepaper"].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -231,9 +231,17 @@ export default function Home() {
               </a>
             ))}
             <button
+              data-testid="nav-link-presale"
+              onClick={() => navigate("/presale")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#60a5fa", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Presale
+            </button>
+            <button
               data-testid="nav-link-demo"
               onClick={() => navigate("/demo")}
-              className="text-sm font-medium tracking-wide transition-colors"
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
               style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
             >
               Demo
@@ -519,8 +527,12 @@ export default function Home() {
           <p className="text-gray-400 mb-8 max-w-md mx-auto relative z-10">
             Be one of the first 100 warriors. Join the presale and claim your OG badge.
           </p>
-          <button data-testid="btn-cta-launch" className="btn-primary px-10 py-4 rounded-xl text-base relative z-10">
-            <span className="font-orbitron tracking-wider">START A BATTLE</span>
+          <button
+            data-testid="btn-cta-launch"
+            onClick={() => navigate("/presale")}
+            className="btn-primary px-10 py-4 rounded-xl text-base relative z-10"
+          >
+            <span className="font-orbitron tracking-wider">JOIN THE PRESALE →</span>
           </button>
         </div>
       </section>

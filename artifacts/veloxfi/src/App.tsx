@@ -3,6 +3,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/home";
 import Demo from "@/pages/demo";
+import Presale from "@/pages/presale";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/demo" component={Demo} />
+      <Route path="/presale" component={Presale} />
       <Route component={NotFound} />
     </Switch>
   );
