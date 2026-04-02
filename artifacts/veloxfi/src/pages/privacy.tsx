@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { ArrowLeft, Swords, Eye, Database, Wallet, Cookie, Link2, Mail, ChevronRight, Lock } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const SECTIONS = [
   {
@@ -106,6 +107,11 @@ This Privacy Policy was last updated in April 2026. We may update it from time t
 ];
 
 export default function Privacy() {
+  usePageMeta({
+    title: "Privacy Policy — VeloxFi",
+    description: "Read the VeloxFi Privacy Policy. We collect minimal data, never sell it, and never access your private keys. Privacy by default.",
+    canonical: "https://veloxfi.io/#/privacy",
+  });
   const [, navigate] = useLocation();
 
   return (

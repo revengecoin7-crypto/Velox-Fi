@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { Trophy, Swords, Medal, Wallet, Crown, Star, RotateCcw, Calendar } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /* ───────────────────────────────────────────
    Types & data
@@ -129,6 +130,11 @@ function PodiumCard({ entry, order }: { entry: (typeof PODIUM)[number]; order: n
    Main Page
 ─────────────────────────────────────────── */
 export default function Leaderboard() {
+  usePageMeta({
+    title: "Leaderboard — Top Battle Champions | VeloxFi",
+    description: "See the top-performing memecoins and battle champions on VeloxFi. Rankings updated in real time on Solana.",
+    canonical: "https://veloxfi.io/#/leaderboard",
+  });
   const [, navigate] = useLocation();
 
   return (

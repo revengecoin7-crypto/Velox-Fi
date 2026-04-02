@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import { useWallet } from "@/context/WalletContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /* ───────────────────────────────────────────
    Live Preview Card
@@ -235,6 +236,11 @@ const INPUT_STYLE: React.CSSProperties = {
    Main Page
 ─────────────────────────────────────────── */
 export default function Create() {
+  usePageMeta({
+    title: "Launch Coin — Create Your Memecoin | VeloxFi",
+    description: "Create and launch your own memecoin on Solana, then challenge rivals in the VeloxFi battle arena. $BATTLE token required.",
+    canonical: "https://veloxfi.io/#/create",
+  });
   const [, navigate] = useLocation();
   const { status } = useWallet();
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { ChevronDown, HelpCircle } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const faqs = [
   {
@@ -84,6 +85,11 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  usePageMeta({
+    title: "FAQ — Frequently Asked Questions | VeloxFi",
+    description: "Answers to common questions about VeloxFi, the $BATTLE token, how memecoin battles work, wallet requirements, and presale details.",
+    canonical: "https://veloxfi.io/#/faq",
+  });
   const [, navigate] = useLocation();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 

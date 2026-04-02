@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { ArrowLeft, Shield, Swords, FileText, AlertTriangle, Scale, Globe, Ban, RefreshCw, ChevronRight } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const SECTIONS = [
   {
@@ -123,6 +124,11 @@ These Terms shall be governed by and construed in accordance with applicable law
 ];
 
 export default function Terms() {
+  usePageMeta({
+    title: "Terms of Service — VeloxFi",
+    description: "Read the VeloxFi Terms of Service. Governs your use of the memecoin battle arena, $BATTLE token, presale, and all related platform features.",
+    canonical: "https://veloxfi.io/#/terms",
+  });
   const [, navigate] = useLocation();
 
   return (

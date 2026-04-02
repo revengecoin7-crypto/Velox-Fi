@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Swords, TrendingUp, TrendingDown, Clock, Trophy, RotateCcw, Zap } from "lucide-react";
 import confetti from "canvas-confetti";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const OPPONENTS = [
   { ticker: "PEPE", icon: "🐸" },
@@ -19,6 +20,11 @@ function pct(n: number) {
 }
 
 export default function Demo() {
+  usePageMeta({
+    title: "Demo — Try a Mock Battle | VeloxFi",
+    description: "Try the VeloxFi memecoin battle arena with a free demo. No wallet needed. See how price surge battles work on Solana.",
+    canonical: "https://veloxfi.io/#/demo",
+  });
   const [, navigate] = useLocation();
 
   /* ── phases ── */

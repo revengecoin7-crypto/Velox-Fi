@@ -9,6 +9,7 @@ import {
   Plus,
   Filter,
 } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /* ───────────────────────────────────────────
    Types
@@ -402,6 +403,11 @@ function BattleCard({
    Main Page
 ─────────────────────────────────────────── */
 export default function Battles() {
+  usePageMeta({
+    title: "Battle Arena — Live Memecoin Battles | VeloxFi",
+    description: "Watch and join real-time memecoin price battles on Solana. The coin with the highest % price surge wins. Powered by $BATTLE token.",
+    canonical: "https://veloxfi.io/#/battles",
+  });
   const [, navigate] = useLocation();
   const [filter, setFilter] = useState<FilterTab>("ALL");
 

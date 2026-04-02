@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import CyberWolf from "@/components/CyberWolf";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const BATTLES = [
   {
@@ -188,6 +189,11 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
 }
 
 export default function Home() {
+  usePageMeta({
+    title: "VeloxFi — Memecoin Battle Platform on Solana",
+    description: "The first memecoin battle arena on Solana. Create your coin, challenge rivals, and win. Highest % price surge wins. $BATTLE token presale coming soon.",
+    canonical: "https://veloxfi.io",
+  });
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);

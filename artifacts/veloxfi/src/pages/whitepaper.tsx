@@ -13,6 +13,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /* ───────────────────────────────────────────
    Section card wrapper
@@ -163,6 +164,11 @@ const DIST = [
    Main Page
 ─────────────────────────────────────────── */
 export default function Whitepaper() {
+  usePageMeta({
+    title: "Whitepaper — VeloxFi Platform Documentation",
+    description: "Read the VeloxFi whitepaper. Learn about the memecoin battle mechanism, $BATTLE tokenomics, smart contract architecture, and roadmap.",
+    canonical: "https://veloxfi.io/#/whitepaper",
+  });
   const [, navigate] = useLocation();
 
   return (

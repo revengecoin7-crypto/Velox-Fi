@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Zap, Shield, TrendingUp, Clock, AlertTriangle, Copy, Check } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import { useWallet } from "@/context/WalletContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const PRESALE_LAUNCH = new Date("2026-06-01T00:00:00Z").getTime();
 const TOTAL_SUPPLY = 1_000_000_000;
@@ -27,6 +28,11 @@ function useCountdown(target: number) {
 }
 
 export default function Presale() {
+  usePageMeta({
+    title: "Presale — Buy $BATTLE Token | VeloxFi",
+    description: "Join the $BATTLE token presale at the lowest price. $BATTLE powers the VeloxFi memecoin battle arena on Solana. 1 billion total supply launching on pump.fun.",
+    canonical: "https://veloxfi.io/#/presale",
+  });
   const [, navigate] = useLocation();
   const { status, shortAddress } = useWallet();
   const countdown = useCountdown(PRESALE_LAUNCH);
