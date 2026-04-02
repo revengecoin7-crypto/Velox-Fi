@@ -651,7 +651,7 @@ export default function Home() {
           {/* Social */}
           <div className="flex items-center gap-4">
             <a
-              href="https://twitter.com/VeloxFi"
+              href="https://x.com/VeloxFi"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="social-twitter"
@@ -673,7 +673,7 @@ export default function Home() {
               <MessageCircle className="w-4 h-4 text-purple-400" />
             </a>
             <a
-              href="https://telegram.org"
+              href="https://t.me/VeloxFiOfficial"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="social-telegram"

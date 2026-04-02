@@ -477,11 +477,11 @@ export default function Presale() {
           {[
             {
               label: "𝕏  @VeloxFi",
-              href: "https://twitter.com/VeloxFi",
+              href: "https://x.com/VeloxFi",
               color: "#60a5fa",
             },
             { label: "Discord", href: "#", color: "#a78bfa" },
-            { label: "Telegram", href: "#", color: "#34d399" },
+            { label: "Telegram", href: "https://t.me/VeloxFiOfficial", color: "#34d399" },
           ].map(({ label, href, color }) => (
             <a
               key={label}
