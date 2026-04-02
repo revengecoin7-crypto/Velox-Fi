@@ -29,7 +29,6 @@ const PHASES = [
       "$BATTLE presale opens",
       "Early supporter rewards",
       "OG badge distribution",
-      "DexScreener listing",
     ],
   },
   {
@@ -45,6 +44,7 @@ const PHASES = [
       "First real battles live",
       "Leaderboard Season 1 starts",
       "Battle rewards activated",
+      "DexScreener listing",
     ],
   },
   {
