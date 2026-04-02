@@ -11,7 +11,10 @@ import {
   ImageIcon,
   Zap,
   ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
+import { useWallet } from "@/context/WalletContext";
 
 /* ───────────────────────────────────────────
    Live Preview Card
@@ -233,6 +236,7 @@ const INPUT_STYLE: React.CSSProperties = {
 ─────────────────────────────────────────── */
 export default function Create() {
   const [, navigate] = useLocation();
+  const { status } = useWallet();
 
   /* form state */
   const [name,        setName]        = useState("");
@@ -666,27 +670,33 @@ export default function Create() {
             </div>
 
             {/* CTA */}
-            <button
-              disabled={!canCreate}
-              onClick={() => navigate("/presale")}
-              className="w-full py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-200"
-              style={{
-                background: canCreate
-                  ? "linear-gradient(135deg, #2563eb, #7c3aed)"
-                  : "rgba(255,255,255,0.04)",
-                border: canCreate
-                  ? "1px solid transparent"
-                  : "1px solid rgba(255,255,255,0.06)",
-                cursor: canCreate ? "pointer" : "not-allowed",
-                opacity: canCreate ? 1 : 0.5,
-              }}
-            >
-              <Wallet className="w-5 h-5 text-white" />
-              <span className="font-orbitron font-black tracking-wider text-white">
-                CONNECT WALLET TO CREATE
-              </span>
-              {canCreate && <ChevronRight className="w-4 h-4 text-white" />}
-            </button>
+            {status === "connected" ? (
+                <>
+                  <button
+                    disabled={!canCreate}
+                    onClick={() => navigate("/presale")}
+                    className="w-full py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-200"
+                    style={{
+                      background: canCreate
+                        ? "linear-gradient(135deg, #2563eb, #7c3aed)"
+                        : "rgba(255,255,255,0.04)",
+                      border: canCreate
+                        ? "1px solid transparent"
+                        : "1px solid rgba(255,255,255,0.06)",
+                      cursor: canCreate ? "pointer" : "not-allowed",
+                      opacity: canCreate ? 1 : 0.5,
+                    }}
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                    <span className="font-orbitron font-black tracking-wider text-white">
+                      {canCreate ? "LAUNCH COIN" : "FILL IN REQUIRED FIELDS"}
+                    </span>
+                    {canCreate && <ChevronRight className="w-4 h-4 text-white" />}
+                  </button>
+                </>
+              ) : (
+                <ConnectWalletButton className="w-full justify-center py-3" />
+              )}
 
             {/* Disclaimer */}
             <div

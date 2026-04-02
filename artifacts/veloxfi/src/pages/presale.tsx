@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Zap, Shield, TrendingUp, Clock, AlertTriangle, Copy, Check } from "lucide-react";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
+import { useWallet } from "@/context/WalletContext";
 
 const PRESALE_LAUNCH = new Date("2026-06-01T00:00:00Z").getTime();
 const TOTAL_SUPPLY = 1_000_000_000;
@@ -26,6 +28,7 @@ function useCountdown(target: number) {
 
 export default function Presale() {
   const [, navigate] = useLocation();
+  const { status, shortAddress } = useWallet();
   const countdown = useCountdown(PRESALE_LAUNCH);
   const [copied, setCopied] = useState(false);
 
@@ -416,23 +419,40 @@ export default function Presale() {
 
         {/* CTA */}
         <div className="mb-5 space-y-3">
-          <button
-            className="w-full py-4 rounded-xl font-orbitron font-black tracking-wider text-sm relative overflow-hidden"
-            style={{
-              background: "linear-gradient(135deg, #2563eb, #7c3aed)",
-              border: "none",
-              cursor: "not-allowed",
-              opacity: 0.7,
-            }}
-          >
-            CONNECT WALLET TO BUY
-            <span
-              className="absolute top-1.5 right-3 text-xs font-orbitron tracking-widest px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(0,0,0,0.3)", fontSize: "9px" }}
+          {status === "connected" ? (
+            <button
+              className="w-full py-4 rounded-xl font-orbitron font-black tracking-wider text-sm relative overflow-hidden flex items-center justify-center gap-2"
+              style={{
+                background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+                border: "none",
+                cursor: "not-allowed",
+                opacity: 0.85,
+              }}
+              disabled
             >
-              COMING SOON
-            </span>
-          </button>
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ background: "#34d399" }}
+              />
+              {shortAddress} — PRESALE OPENS JUNE 1
+              <span
+                className="absolute top-1.5 right-3 text-xs font-orbitron tracking-widest px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(0,0,0,0.3)", fontSize: "9px" }}
+              >
+                COMING SOON
+              </span>
+            </button>
+          ) : (
+            <div className="relative">
+              <ConnectWalletButton className="w-full justify-center py-4" />
+              <span
+                className="absolute top-1.5 right-3 text-xs font-orbitron tracking-widest px-2 py-0.5 rounded-full pointer-events-none"
+                style={{ background: "rgba(0,0,0,0.5)", fontSize: "9px", color: "white" }}
+              >
+                COMING SOON
+              </span>
+            </div>
+          )}
 
           {/* Fee notice */}
           <p

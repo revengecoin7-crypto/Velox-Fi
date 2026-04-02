@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
 
 const BATTLES = [
   {
@@ -278,12 +279,7 @@ export default function Home() {
 
           {/* Right side: Connect Wallet + hamburger */}
           <div className="flex items-center gap-3">
-            <button
-              data-testid="btn-connect-wallet"
-              className="btn-primary px-4 py-2.5 rounded-lg text-sm"
-            >
-              <span className="font-orbitron tracking-wider text-xs">CONNECT WALLET</span>
-            </button>
+            <ConnectWalletButton />
 
             {/* Hamburger — mobile only */}
             <button

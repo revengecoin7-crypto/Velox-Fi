@@ -1,6 +1,7 @@
 import { useSyncExternalStore, useCallback, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WalletProvider } from "@/context/WalletContext";
 import Home from "@/pages/home";
 import Demo from "@/pages/demo";
 import Presale from "@/pages/presale";
@@ -65,9 +66,11 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter hook={useHashLocation}>
-        <Router />
-      </WouterRouter>
+      <WalletProvider>
+        <WouterRouter hook={useHashLocation}>
+          <Router />
+        </WouterRouter>
+      </WalletProvider>
     </QueryClientProvider>
   );
 }
