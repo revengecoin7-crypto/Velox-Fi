@@ -702,7 +702,7 @@ export default function Home() {
               <span className="text-blue-400 font-black text-sm leading-none" style={{ fontFamily: "sans-serif" }}>𝕏</span>
             </a>
             <a
-              href="https://discord.com"
+              href="https://discord.gg/u2UhxuTd"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="social-discord"

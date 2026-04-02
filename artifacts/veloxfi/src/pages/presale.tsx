@@ -500,7 +500,7 @@ export default function Presale() {
               href: "https://x.com/VeloxFi",
               color: "#60a5fa",
             },
-            { label: "Discord", href: "#", color: "#a78bfa" },
+            { label: "Discord", href: "https://discord.gg/u2UhxuTd", color: "#a78bfa" },
             { label: "Telegram", href: "https://t.me/VeloxFiOfficial", color: "#34d399" },
           ].map(({ label, href, color }) => (
             <a
