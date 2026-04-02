@@ -1,516 +1,579 @@
 /* ─────────────────────────────────────────────────
-   CyberWolf v2 — actual wolf face, pure SVG + CSS
-   VeloxFi: #2563eb blue / #7c3aed purple
+   CyberWolf v3 — fierce angular battle wolf
+   Sharp geometry, no round shapes, proper wolf anatomy
 ───────────────────────────────────────────────── */
 export default function CyberWolf({ className = "" }: { className?: string }) {
   return (
-    <div className={`cw2-root ${className}`} aria-hidden="true">
+    <div className={`cw3-wrap ${className}`} aria-hidden="true">
       <style>{`
-        .cw2-root {
-          position: relative;
-          width: 100%;
-          max-width: 460px;
-        }
-
         /* ── Breathing ── */
-        @keyframes cw2-breathe {
-          0%,100% { transform: scaleY(1) translateY(0px); }
-          50%      { transform: scaleY(1.015) translateY(-5px); }
+        @keyframes cw3-breath {
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-7px); }
         }
-        .cw2-body {
-          animation: cw2-breathe 4s ease-in-out infinite;
-          transform-origin: center 90%;
-        }
+        .cw3-body { animation: cw3-breath 4.2s ease-in-out infinite; }
 
-        /* ── Blue eye glow ── */
-        @keyframes cw2-eye-b {
-          0%,100% { filter: drop-shadow(0 0 8px #2563eb) drop-shadow(0 0 20px #3b82f6); opacity:1; }
-          45%      { filter: drop-shadow(0 0 3px #2563eb) drop-shadow(0 0 8px #3b82f6); opacity:0.75; }
+        /* ── Left eye (blue) pulse ── */
+        @keyframes cw3-eyeL {
+          0%,100% { fill-opacity:1; filter:drop-shadow(0 0 10px #2563eb) drop-shadow(0 0 25px #3b82f6); }
+          48%      { fill-opacity:0.6; filter:drop-shadow(0 0 4px #2563eb); }
         }
-        /* ── Purple eye glow ── */
-        @keyframes cw2-eye-p {
-          0%,100% { filter: drop-shadow(0 0 8px #7c3aed) drop-shadow(0 0 20px #a855f7); opacity:1; }
-          45%      { filter: drop-shadow(0 0 3px #7c3aed) drop-shadow(0 0 8px #a855f7); opacity:0.75; }
+        /* ── Right eye (purple) pulse ── */
+        @keyframes cw3-eyeR {
+          0%,100% { fill-opacity:1; filter:drop-shadow(0 0 10px #7c3aed) drop-shadow(0 0 25px #a855f7); }
+          48%      { fill-opacity:0.6; filter:drop-shadow(0 0 4px #7c3aed); }
         }
-        .cw2-eye-l { animation: cw2-eye-b 2.6s ease-in-out infinite; }
-        .cw2-eye-r { animation: cw2-eye-p 2.6s 0.7s ease-in-out infinite; }
+        .cw3-eyeL { animation: cw3-eyeL 2.8s ease-in-out infinite; }
+        .cw3-eyeR { animation: cw3-eyeR 2.8s 0.9s ease-in-out infinite; }
 
-        /* ── Outer neon halo pulse ── */
-        @keyframes cw2-halo {
-          0%,100% { opacity:0.18; }
-          50%      { opacity:0.08; }
+        /* ── Outline neon flicker ── */
+        @keyframes cw3-flicker {
+          0%,88%,100% { opacity:1; }
+          90%          { opacity:0.45; }
+          94%          { opacity:0.9; }
         }
-        .cw2-halo { animation: cw2-halo 3.5s ease-in-out infinite; }
+        .cw3-glow { animation: cw3-flicker 8s ease-in-out infinite; }
 
-        /* ── Neon outline flicker ── */
-        @keyframes cw2-flicker {
-          0%,91%,100% { opacity:1; }
-          93%          { opacity:0.55; }
-          96%          { opacity:0.85; }
+        /* ── Ambient halo ── */
+        @keyframes cw3-halo {
+          0%,100% { opacity:0.12; }
+          50%      { opacity:0.06; }
         }
-        .cw2-neon { animation: cw2-flicker 9s ease-in-out infinite; }
+        .cw3-halo { animation: cw3-halo 3.8s ease-in-out infinite; }
 
-        /* ── Fur strand shimmer ── */
-        @keyframes cw2-fur {
-          0%,100% { opacity:0.18; }
-          50%      { opacity:0.35; }
+        /* ── Particles ── */
+        @keyframes cw3-floatA {
+          0%,100% { transform:translate(0,0); opacity:0.7; }
+          50%      { transform:translate(5px,-11px); opacity:1; }
         }
-        .cw2-fur { animation: cw2-fur 4s ease-in-out infinite; }
-        .cw2-fur2 { animation: cw2-fur 4s 1.3s ease-in-out infinite; }
-        .cw2-fur3 { animation: cw2-fur 4s 2.6s ease-in-out infinite; }
+        @keyframes cw3-floatB {
+          0%,100% { transform:translate(0,0); opacity:0.5; }
+          50%      { transform:translate(-6px,-9px); opacity:0.95; }
+        }
+        .cw3-p1 { animation: cw3-floatA 3.1s ease-in-out infinite; }
+        .cw3-p2 { animation: cw3-floatB 3.5s 0.7s ease-in-out infinite; }
+        .cw3-p3 { animation: cw3-floatA 2.9s 1.4s ease-in-out infinite; }
+        .cw3-p4 { animation: cw3-floatB 3.3s 0.3s ease-in-out infinite; }
 
-        /* ── Floating particles ── */
-        @keyframes cw2-float {
-          0%,100% { transform:translate(0,0) scale(1); opacity:0.7; }
-          50%      { transform:translate(5px,-10px) scale(1.4); opacity:1; }
+        /* ── Scan line ── */
+        @keyframes cw3-scan {
+          0%   { transform:translateY(-300px); opacity:0; }
+          5%   { opacity:0.55; }
+          95%  { opacity:0.3; }
+          100% { transform:translateY(300px); opacity:0; }
         }
-        @keyframes cw2-float2 {
-          0%,100% { transform:translate(0,0) scale(1); opacity:0.5; }
-          50%      { transform:translate(-6px,-9px) scale(1.2); opacity:0.9; }
-        }
-        .cw2-p1 { animation: cw2-float  3s ease-in-out infinite; }
-        .cw2-p2 { animation: cw2-float2 3.4s 0.8s ease-in-out infinite; }
-        .cw2-p3 { animation: cw2-float  2.8s 1.5s ease-in-out infinite; }
-        .cw2-p4 { animation: cw2-float2 3.2s 0.3s ease-in-out infinite; }
+        .cw3-scan { animation: cw3-scan 6s ease-in-out infinite 2s; }
 
-        /* ── Scanline ── */
-        @keyframes cw2-scan {
-          0%   { transform:translateY(-240px); opacity:0; }
-          6%   { opacity:0.5; }
-          94%  { opacity:0.3; }
-          100% { transform:translateY(240px); opacity:0; }
+        /* ── Status dot ── */
+        @keyframes cw3-dot {
+          0%,100% { opacity:1; box-shadow:0 0 6px #34d399,0 0 14px #34d399; }
+          50%      { opacity:0.6; box-shadow:0 0 2px #34d399; }
         }
-        .cw2-scan { animation: cw2-scan 5.5s ease-in-out infinite 1.5s; }
-
-        /* ── Nose glint ── */
-        @keyframes cw2-glint {
-          0%,85%,100% { opacity:0; }
-          88%          { opacity:0.8; }
-          92%          { opacity:0.2; }
+        .cw3-status-dot {
+          display:inline-block; width:8px; height:8px;
+          border-radius:50%; background:#34d399;
+          animation: cw3-dot 2.2s ease-in-out infinite;
         }
-        .cw2-glint { animation: cw2-glint 5s ease-in-out infinite; }
+        .cw3-status-dot2 {
+          display:inline-block; width:8px; height:8px;
+          border-radius:50%; background:#34d399;
+          animation: cw3-dot 2.2s 1.1s ease-in-out infinite;
+        }
       `}</style>
 
       <svg
-        viewBox="0 0 400 520"
+        viewBox="0 0 500 590"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ width: "100%", height: "auto", overflow: "visible" }}
+        style={{ width:"100%", height:"auto", overflow:"visible" }}
       >
         <defs>
-          {/* ── Gradients ── */}
-          <linearGradient id="g-outline" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2563eb"/>
+          <linearGradient id="cw3-grad-outline" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stopColor="#2563eb"/>
             <stop offset="100%" stopColor="#7c3aed"/>
           </linearGradient>
-          <linearGradient id="g-head" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%"   stopColor="#111d36"/>
-            <stop offset="45%"  stopColor="#0c1628"/>
-            <stop offset="100%" stopColor="#070c18"/>
+          <linearGradient id="cw3-skull" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#0f1e38"/>
+            <stop offset="40%"  stopColor="#0b1628"/>
+            <stop offset="100%" stopColor="#060d1a"/>
           </linearGradient>
-          <linearGradient id="g-muzzle" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%"   stopColor="#182540"/>
-            <stop offset="100%" stopColor="#0d1828"/>
+          <linearGradient id="cw3-muzzle-fill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#14223a"/>
+            <stop offset="100%" stopColor="#091220"/>
           </linearGradient>
-          <linearGradient id="g-ear-l" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.6"/>
-            <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0.15"/>
+          <linearGradient id="cw3-ear-L" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%"   stopColor="#1d3461" stopOpacity="0.9"/>
+            <stop offset="100%" stopColor="#2563eb"  stopOpacity="0.2"/>
           </linearGradient>
-          <linearGradient id="g-ear-r" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.6"/>
-            <stop offset="100%" stopColor="#4c1d95" stopOpacity="0.15"/>
+          <linearGradient id="cw3-ear-R" x1="1" y1="1" x2="0" y2="0">
+            <stop offset="0%"   stopColor="#3b1f7a" stopOpacity="0.9"/>
+            <stop offset="100%" stopColor="#7c3aed"  stopOpacity="0.2"/>
           </linearGradient>
-          <radialGradient id="g-eye-l" cx="40%" cy="35%" r="60%">
-            <stop offset="0%"   stopColor="#93c5fd"/>
-            <stop offset="35%"  stopColor="#2563eb"/>
-            <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0.4"/>
+          <radialGradient id="cw3-eyeGradL" cx="38%" cy="32%" r="65%">
+            <stop offset="0%"   stopColor="#bfdbfe"/>
+            <stop offset="30%"  stopColor="#3b82f6"/>
+            <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0.3"/>
           </radialGradient>
-          <radialGradient id="g-eye-r" cx="40%" cy="35%" r="60%">
-            <stop offset="0%"   stopColor="#d8b4fe"/>
-            <stop offset="35%"  stopColor="#7c3aed"/>
-            <stop offset="100%" stopColor="#4c1d95" stopOpacity="0.4"/>
+          <radialGradient id="cw3-eyeGradR" cx="38%" cy="32%" r="65%">
+            <stop offset="0%"   stopColor="#ede9fe"/>
+            <stop offset="30%"  stopColor="#8b5cf6"/>
+            <stop offset="100%" stopColor="#4c1d95" stopOpacity="0.3"/>
           </radialGradient>
-          <radialGradient id="g-halo" cx="50%" cy="42%" r="50%">
-            <stop offset="0%"   stopColor="#2563eb" stopOpacity="0.3"/>
-            <stop offset="60%"  stopColor="#7c3aed" stopOpacity="0.1"/>
-            <stop offset="100%" stopColor="#000000" stopOpacity="0"/>
-          </radialGradient>
-          <radialGradient id="g-nose" cx="50%" cy="40%" r="60%">
+          <radialGradient id="cw3-nose-fill" cx="50%" cy="40%" r="60%">
             <stop offset="0%"   stopColor="#1e3a8a"/>
-            <stop offset="100%" stopColor="#040810"/>
+            <stop offset="100%" stopColor="#030610"/>
+          </radialGradient>
+          <radialGradient id="cw3-halo-fill" cx="50%" cy="45%" r="50%">
+            <stop offset="0%"   stopColor="#2563eb" stopOpacity="0.25"/>
+            <stop offset="55%"  stopColor="#7c3aed" stopOpacity="0.08"/>
+            <stop offset="100%" stopColor="#000"    stopOpacity="0"/>
           </radialGradient>
 
-          {/* ── Glow filters ── */}
-          <filter id="f-eye" x="-120%" y="-120%" width="340%" height="340%">
-            <feGaussianBlur stdDeviation="6" result="b"/>
+          <filter id="cw3-bloom" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="5" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="f-outline" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id="cw3-glow-soft" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="3" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="f-soft" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="2" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          <filter id="cw3-eye-bloom" x="-150%" y="-150%" width="400%" height="400%">
+            <feGaussianBlur stdDeviation="7" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
 
-          {/* ── Clip ── */}
-          <clipPath id="cw2-clip">
-            <rect x="30" y="0" width="340" height="520"/>
+          <clipPath id="cw3-clip">
+            <rect x="20" y="0" width="460" height="590"/>
           </clipPath>
         </defs>
 
-        {/* ═══ BACKGROUND HALO ═══ */}
-        <ellipse className="cw2-halo" cx="200" cy="280" rx="175" ry="220" fill="url(#g-halo)"/>
+        {/* ── Ambient halo ── */}
+        <ellipse className="cw3-halo" cx="250" cy="340" rx="190" ry="230"
+          fill="url(#cw3-halo-fill)"/>
 
-        {/* ═══ BREATHING GROUP ═══ */}
-        <g className="cw2-body">
+        {/* ════════════════════════════════════
+            ALL ANIMATED PARTS
+        ════════════════════════════════════ */}
+        <g className="cw3-body">
 
-          {/* ──────────────────────────────────
-              EARS  (tall, fierce, pointed)
-          ────────────────────────────────── */}
-          {/* Left ear — dark base */}
-          <path
-            d="M 72,190 L 28,12 L 155,125 Z"
-            fill="url(#g-head)"
-            stroke="url(#g-outline)" strokeWidth="2"
-            className="cw2-neon"
+          {/* ════════════════════
+              LEFT EAR
+              Tall sharp triangle — base wide, peak high
+          ════════════════════ */}
+          {/* Ear outer dark shell */}
+          <polygon
+            points="95,185  42,8  192,158"
+            fill="#0a1525"
+            stroke="url(#cw3-grad-outline)" strokeWidth="2"
+            className="cw3-glow"
           />
-          {/* Left ear — neon inner fill */}
-          <path
-            d="M 84,178 L 50,28 L 145,118 Z"
-            fill="url(#g-ear-l)"
+          {/* Ear inner neon triangle (smaller, inset) */}
+          <polygon
+            points="108,176  62,26  178,152"
+            fill="url(#cw3-ear-L)"
           />
-          {/* Left ear — interior fur lines */}
-          <line x1="52" y1="35" x2="120" y2="120" stroke="#2563eb" strokeWidth="1.2" opacity="0.5"/>
-          <line x1="64" y1="28" x2="132" y2="116" stroke="#60a5fa" strokeWidth="0.7" opacity="0.35"/>
-          <line x1="76" y1="26" x2="140" y2="115" stroke="#2563eb" strokeWidth="0.6" opacity="0.25"/>
+          {/* Ear edge highlight lines */}
+          <line x1="62"  y1="28"  x2="118" y2="170" stroke="#2563eb" strokeWidth="1.4" opacity="0.6"/>
+          <line x1="75"  y1="22"  x2="130" y2="165" stroke="#60a5fa" strokeWidth="0.8" opacity="0.4"/>
+          <line x1="90"  y1="18"  x2="148" y2="160" stroke="#2563eb" strokeWidth="0.6" opacity="0.25"/>
+          {/* Ear fur direction lines */}
+          <line x1="115" y1="175" x2="98"  y2="100" stroke="#1d4ed8" strokeWidth="1" opacity="0.35" strokeLinecap="round"/>
+          <line x1="130" y1="170" x2="115" y2="90"  stroke="#1d4ed8" strokeWidth="0.8" opacity="0.25" strokeLinecap="round"/>
 
-          {/* Right ear — dark base */}
-          <path
-            d="M 328,190 L 372,12 L 245,125 Z"
-            fill="url(#g-head)"
-            stroke="url(#g-outline)" strokeWidth="2"
-            className="cw2-neon"
+          {/* ════════════════════
+              RIGHT EAR
+          ════════════════════ */}
+          <polygon
+            points="405,185  458,8  308,158"
+            fill="#0a1525"
+            stroke="url(#cw3-grad-outline)" strokeWidth="2"
+            className="cw3-glow"
           />
-          {/* Right ear — neon inner fill */}
-          <path
-            d="M 316,178 L 350,28 L 255,118 Z"
-            fill="url(#g-ear-r)"
+          <polygon
+            points="392,176  438,26  322,152"
+            fill="url(#cw3-ear-R)"
           />
-          {/* Right ear — interior fur lines */}
-          <line x1="348" y1="35" x2="280" y2="120" stroke="#7c3aed" strokeWidth="1.2" opacity="0.5"/>
-          <line x1="336" y1="28" x2="268" y2="116" stroke="#a855f7" strokeWidth="0.7" opacity="0.35"/>
-          <line x1="324" y1="26" x2="260" y2="115" stroke="#7c3aed" strokeWidth="0.6" opacity="0.25"/>
+          <line x1="438" y1="28"  x2="382" y2="170" stroke="#7c3aed" strokeWidth="1.4" opacity="0.6"/>
+          <line x1="425" y1="22"  x2="370" y2="165" stroke="#a855f7" strokeWidth="0.8" opacity="0.4"/>
+          <line x1="410" y1="18"  x2="352" y2="160" stroke="#7c3aed" strokeWidth="0.6" opacity="0.25"/>
+          <line x1="385" y1="175" x2="402" y2="100" stroke="#5b21b6" strokeWidth="1" opacity="0.35" strokeLinecap="round"/>
+          <line x1="370" y1="170" x2="385" y2="90"  stroke="#5b21b6" strokeWidth="0.8" opacity="0.25" strokeLinecap="round"/>
 
-          {/* ──────────────────────────────────
-              HEAD  (wide cheeks, strong jaw)
-          ────────────────────────────────── */}
-          <path
-            d="M 72,190
-               C 38,210 28,260 32,308
-               C 36,356 60,392 95,418
-               C 125,440 162,452 200,452
-               C 238,452 275,440 305,418
-               C 340,392 364,356 368,308
-               C 372,260 362,210 328,190
-               C 305,175 255,158 200,156
-               C 145,158 95,175 72,190 Z"
-            fill="url(#g-head)"
-            stroke="url(#g-outline)" strokeWidth="2.2"
-            className="cw2-neon"
+          {/* ════════════════════
+              SKULL
+              Angular diamond / pentagonal shape
+              Widest at cheekbones, narrows top and bottom
+          ════════════════════ */}
+          {/*
+            Points (clockwise from top):
+            top-center forehead: 250,118
+            left-of-forehead: 160,148
+            left-ear-base: 95,185
+            left-cheek (widest): 38,305
+            lower-left-jaw: 105,435
+            chin-left: 178,490
+            chin-right: 322,490
+            lower-right-jaw: 395,435
+            right-cheek: 462,305
+            right-ear-base: 405,185
+            right-of-forehead: 340,148
+          */}
+          <polygon
+            points="
+              250,118
+              160,148  95,185  38,305  105,435  178,490
+              322,490  395,435  462,305  405,185  340,148
+            "
+            fill="url(#cw3-skull)"
+            stroke="url(#cw3-grad-outline)"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            className="cw3-glow"
           />
 
-          {/* ── Fur texture: layered dark panels ── */}
-          {/* Forehead centre stripe */}
-          <path
-            d="M 178,158 L 200,153 L 222,158 L 216,210 L 200,215 L 184,210 Z"
-            fill="#0d1932" stroke="#2563eb" strokeWidth="0.7" opacity="0.5"
-          />
-          {/* Left cheek fur panel */}
-          <path d="M 40,240 L 88,220 L 100,280 L 52,295 Z"
-            fill="#0c1828" stroke="#2563eb" strokeWidth="0.6" opacity="0.45"/>
-          {/* Right cheek fur panel */}
-          <path d="M 360,240 L 312,220 L 300,280 L 348,295 Z"
-            fill="#0c1828" stroke="#7c3aed" strokeWidth="0.6" opacity="0.45"/>
-          {/* Left lower cheek */}
-          <path d="M 40,310 L 80,295 L 92,345 L 52,358 Z"
-            fill="#0a1422" stroke="#2563eb" strokeWidth="0.5" opacity="0.4"/>
-          {/* Right lower cheek */}
-          <path d="M 360,310 L 320,295 L 308,345 L 348,358 Z"
-            fill="#0a1422" stroke="#7c3aed" strokeWidth="0.5" opacity="0.4"/>
+          {/* ── Skull facet / fur panels ── */}
+          {/* Left side facets */}
+          <polygon points="95,185  38,305  115,270  125,195"
+            fill="#0c1830" stroke="#2563eb" strokeWidth="0.7" opacity="0.5"/>
+          <polygon points="38,305  105,435  138,380  115,270"
+            fill="#091525" stroke="#2563eb" strokeWidth="0.6" opacity="0.4"/>
+          {/* Right side facets */}
+          <polygon points="405,185  462,305  385,270  375,195"
+            fill="#0c1830" stroke="#7c3aed" strokeWidth="0.7" opacity="0.5"/>
+          <polygon points="462,305  395,435  362,380  385,270"
+            fill="#091525" stroke="#7c3aed" strokeWidth="0.6" opacity="0.4"/>
+          {/* Forehead center panel */}
+          <polygon points="250,118  195,152  218,200  250,210  282,200  305,152"
+            fill="#0d1f3a" stroke="url(#cw3-grad-outline)" strokeWidth="0.8" opacity="0.5"/>
 
-          {/* ── Fur strand lines (shimmer) ── */}
-          <g className="cw2-fur" stroke="#2563eb" strokeWidth="1" strokeLinecap="round" opacity="0.18">
-            <line x1="42" y1="250" x2="72" y2="238"/>
-            <line x1="38" y1="270" x2="68" y2="260"/>
-            <line x1="42" y1="290" x2="74" y2="282"/>
-            <line x1="48" y1="310" x2="78" y2="304"/>
-            <line x1="55" y1="330" x2="84" y2="326"/>
+          {/* ── Fur direction strokes ── */}
+          {/* Left cheek fur */}
+          <g stroke="#1d4ed8" strokeWidth="1.2" strokeLinecap="round" opacity="0.22">
+            <line x1="44"  y1="280" x2="88"  y2="265"/>
+            <line x1="40"  y1="300" x2="85"  y2="288"/>
+            <line x1="43"  y1="320" x2="88"  y2="310"/>
+            <line x1="50"  y1="340" x2="94"  y2="334"/>
+            <line x1="62"  y1="360" x2="104" y2="356"/>
+            <line x1="78"  y1="380" x2="118" y2="378"/>
           </g>
-          <g className="cw2-fur2" stroke="#7c3aed" strokeWidth="1" strokeLinecap="round" opacity="0.18">
-            <line x1="358" y1="250" x2="328" y2="238"/>
-            <line x1="362" y1="270" x2="332" y2="260"/>
-            <line x1="358" y1="290" x2="326" y2="282"/>
-            <line x1="352" y1="310" x2="322" y2="304"/>
-            <line x1="345" y1="330" x2="316" y2="326"/>
+          {/* Right cheek fur */}
+          <g stroke="#6d28d9" strokeWidth="1.2" strokeLinecap="round" opacity="0.22">
+            <line x1="456" y1="280" x2="412" y2="265"/>
+            <line x1="460" y1="300" x2="415" y2="288"/>
+            <line x1="457" y1="320" x2="412" y2="310"/>
+            <line x1="450" y1="340" x2="406" y2="334"/>
+            <line x1="438" y1="360" x2="396" y2="356"/>
+            <line x1="422" y1="380" x2="382" y2="378"/>
           </g>
-          <g className="cw2-fur3" stroke="#60a5fa" strokeWidth="0.8" strokeLinecap="round" opacity="0.12">
-            <line x1="158" y1="158" x2="162" y2="178"/>
-            <line x1="175" y1="155" x2="178" y2="175"/>
-            <line x1="192" y1="153" x2="194" y2="172"/>
-            <line x1="208" y1="153" x2="206" y2="172"/>
-            <line x1="225" y1="155" x2="222" y2="175"/>
-            <line x1="242" y1="158" x2="238" y2="178"/>
+          {/* Forehead fur */}
+          <g stroke="#2563eb" strokeWidth="0.9" strokeLinecap="round" opacity="0.18">
+            <line x1="215" y1="120" x2="216" y2="148"/>
+            <line x1="230" y1="118" x2="231" y2="145"/>
+            <line x1="250" y1="118" x2="250" y2="144"/>
+            <line x1="270" y1="118" x2="269" y2="145"/>
+            <line x1="285" y1="120" x2="284" y2="148"/>
           </g>
 
-          {/* ──────────────────────────────────
-              BROW RIDGES  (fierce, angular)
-          ────────────────────────────────── */}
-          {/* Left brow — heavy angular ridge */}
-          <path
-            d="M 72,192 L 110,172 L 148,178 L 152,185 L 114,181 L 76,200 Z"
-            fill="#0a1525" stroke="#2563eb" strokeWidth="1"
+          {/* ════════════════════
+              BROW RIDGES
+              Heavy angular ridges — cast shadow down onto eyes
+              Inner corners LOWEST = fierce angry expression
+          ════════════════════ */}
+          {/* Left brow — shape */}
+          <polygon
+            points="88,222  140,196  196,210  200,228  144,218  92,240"
+            fill="#09152a"
+            stroke="#2563eb" strokeWidth="1.2"
           />
-          {/* Left brow neon edge */}
-          <path d="M 75,194 L 112,173 L 150,180"
-            fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round"
-            className="cw2-neon" filter="url(#f-soft)"
+          {/* Left brow neon top edge */}
+          <polyline
+            points="90,224  142,198  196,212"
+            fill="none"
+            stroke="#2563eb" strokeWidth="3"
+            strokeLinecap="round" strokeLinejoin="round"
+            className="cw3-glow"
+            filter="url(#cw3-glow-soft)"
           />
           {/* Right brow */}
+          <polygon
+            points="412,222  360,196  304,210  300,228  356,218  408,240"
+            fill="#09152a"
+            stroke="#7c3aed" strokeWidth="1.2"
+          />
+          <polyline
+            points="410,224  358,198  304,212"
+            fill="none"
+            stroke="#7c3aed" strokeWidth="3"
+            strokeLinecap="round" strokeLinejoin="round"
+            className="cw3-glow"
+            filter="url(#cw3-glow-soft)"
+          />
+
+          {/* ════════════════════
+              LEFT EYE
+              Fierce narrow almond — inner corner LOW, outer corner HIGH
+          ════════════════════ */}
+          {/* Eye socket dark pit */}
+          <polygon points="92,248  144,222  200,234  205,256  152,272  92,260"
+            fill="#030710"/>
+          {/* Iris (fills most of socket) */}
+          <polygon className="cw3-eyeL"
+            points="96,250  146,226  198,238  202,254  150,268  96,258"
+            fill="url(#cw3-eyeGradL)"
+            filter="url(#cw3-eye-bloom)"
+          />
+          {/* Vertical slit pupil */}
+          <ellipse cx="149" cy="249" rx="9" ry="21"
+            fill="#01030a"
+            transform="rotate(-8,149,249)"
+          />
+          {/* Eye shine */}
+          <ellipse cx="136" cy="238" rx="6" ry="4"
+            fill="#dbeafe" opacity="0.9"
+            transform="rotate(-8,136,238)"
+          />
+          <ellipse cx="162" cy="256" rx="3" ry="2.5"
+            fill="#93c5fd" opacity="0.5"
+          />
+          {/* Outer lower lid line */}
+          <polyline points="94,258  148,270  204,254"
+            fill="none" stroke="#1e3a8a" strokeWidth="1.2" opacity="0.6"/>
+
+          {/* ════════════════════
+              RIGHT EYE
+          ════════════════════ */}
+          <polygon points="408,248  356,222  300,234  295,256  348,272  408,260"
+            fill="#030710"/>
+          <polygon className="cw3-eyeR"
+            points="404,250  354,226  302,238  298,254  350,268  404,258"
+            fill="url(#cw3-eyeGradR)"
+            filter="url(#cw3-eye-bloom)"
+          />
+          <ellipse cx="351" cy="249" rx="9" ry="21"
+            fill="#01030a"
+            transform="rotate(8,351,249)"
+          />
+          <ellipse cx="364" cy="238" rx="6" ry="4"
+            fill="#ede9fe" opacity="0.9"
+            transform="rotate(8,364,238)"
+          />
+          <ellipse cx="338" cy="256" rx="3" ry="2.5"
+            fill="#c4b5fd" opacity="0.5"
+          />
+          <polyline points="406,258  352,270  296,254"
+            fill="none" stroke="#4c1d95" strokeWidth="1.2" opacity="0.6"/>
+
+          {/* Eye accent lines extending outward */}
+          <line x1="30"  y1="250" x2="84"  y2="250"
+            stroke="#2563eb" strokeWidth="1.8" opacity="0.5" strokeLinecap="round"/>
+          <line x1="470" y1="250" x2="416" y2="250"
+            stroke="#7c3aed" strokeWidth="1.8" opacity="0.5" strokeLinecap="round"/>
+
+          {/* ════════════════════
+              NOSE BRIDGE
+              Central ridge between eyes, down to muzzle
+          ════════════════════ */}
+          <polygon
+            points="210,258  250,248  290,258  278,318  250,328  222,318"
+            fill="#0d1e38"
+            stroke="url(#cw3-grad-outline)" strokeWidth="0.8" opacity="0.5"
+          />
+
+          {/* ════════════════════
+              MUZZLE
+              Distinct protruding shape, angular hexagon
+              Occupies lower 45% of face
+          ════════════════════ */}
+          <polygon
+            points="
+              155,332  250,312  345,332
+              362,400  338,452  250,472  162,452  138,400
+            "
+            fill="url(#cw3-muzzle-fill)"
+            stroke="url(#cw3-grad-outline)"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+
+          {/* Muzzle center ridge */}
+          <line x1="250" y1="315" x2="250" y2="468"
+            stroke="url(#cw3-grad-outline)" strokeWidth="1" opacity="0.25"/>
+
+          {/* Muzzle side shading */}
+          <polygon points="155,332  210,332  200,400  138,400"
+            fill="#091525" opacity="0.6"/>
+          <polygon points="345,332  290,332  300,400  362,400"
+            fill="#091525" opacity="0.6"/>
+
+          {/* Whisker dots */}
+          <circle cx="172" cy="362" r="2.5" fill="#1e40af" opacity="0.5"/>
+          <circle cx="162" cy="380" r="2.5" fill="#1e40af" opacity="0.4"/>
+          <circle cx="168" cy="396" r="2"   fill="#1e40af" opacity="0.35"/>
+          <circle cx="328" cy="362" r="2.5" fill="#4c1d95" opacity="0.5"/>
+          <circle cx="338" cy="380" r="2.5" fill="#4c1d95" opacity="0.4"/>
+          <circle cx="332" cy="396" r="2"   fill="#4c1d95" opacity="0.35"/>
+
+          {/* ════════════════════
+              NOSE  (wolf-wide, flat, two nostrils)
+          ════════════════════ */}
+          {/* Nose pad */}
           <path
-            d="M 328,192 L 290,172 L 252,178 L 248,185 L 286,181 L 324,200 Z"
-            fill="#0a1525" stroke="#7c3aed" strokeWidth="1"
+            d="M 205,320 C 218,308 240,304 250,304 C 260,304 282,308 295,320
+               C 304,330 302,344 290,350 L 250,354 L 210,350
+               C 198,344 196,330 205,320 Z"
+            fill="url(#cw3-nose-fill)"
+            stroke="#2563eb" strokeWidth="1.8"
+            className="cw3-glow"
           />
-          <path d="M 325,194 L 288,173 L 250,180"
-            fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round"
-            className="cw2-neon" filter="url(#f-soft)"
+          {/* Left nostril */}
+          <ellipse cx="232" cy="338" rx="13" ry="9"
+            fill="#01030a"
+            transform="rotate(-12,232,338)"
+          />
+          {/* Right nostril */}
+          <ellipse cx="268" cy="338" rx="13" ry="9"
+            fill="#01030a"
+            transform="rotate(12,268,338)"
+          />
+          {/* Nose top bridge */}
+          <path d="M 218,315 C 232,308 268,308 282,315"
+            fill="none" stroke="#3b82f6" strokeWidth="2" opacity="0.55"/>
+          {/* Nose tip glint */}
+          <ellipse cx="234" cy="320" rx="5" ry="3.5"
+            fill="white" opacity="0.12"
+            transform="rotate(-10,234,320)"
           />
 
-          {/* ──────────────────────────────────
-              EYES  (fierce almond, slanted)
-          ────────────────────────────────── */}
-          {/* LEFT EYE */}
-          {/* Outer shadow socket */}
-          <ellipse cx="132" cy="208" rx="34" ry="22" fill="#040a14" transform="rotate(-12,132,208)"/>
-          {/* Eye white/sclera (very dark) */}
-          <ellipse cx="132" cy="208" rx="30" ry="18" fill="#08101e" transform="rotate(-12,132,208)"/>
-          {/* Iris */}
-          <ellipse className="cw2-eye-l" cx="132" cy="208" rx="26" ry="15"
-            fill="url(#g-eye-l)" transform="rotate(-12,132,208)" filter="url(#f-eye)"/>
-          {/* Pupil (vertical slit — wolf!) */}
-          <ellipse cx="132" cy="208" rx="7" ry="14" fill="#02040a" transform="rotate(-12,132,208)"/>
-          {/* Highlight */}
-          <ellipse cx="124" cy="201" rx="5" ry="4" fill="#bfdbfe" opacity="0.95" transform="rotate(-12,124,201)"/>
-          <ellipse cx="140" cy="213" rx="2.5" ry="2" fill="#bfdbfe" opacity="0.4" transform="rotate(-12,140,213)"/>
-          {/* Eye lid lines */}
-          <path d="M 98,212 C 110,195 150,195 165,210" fill="none" stroke="#1e40af" strokeWidth="1.5" opacity="0.7"/>
-          <path d="M 100,216 C 112,228 148,226 164,214" fill="none" stroke="#1e40af" strokeWidth="1" opacity="0.5"/>
+          {/* ════════════════════
+              UPPER LIP  (wolf V)
+          ════════════════════ */}
+          <polyline
+            points="205,352  228,368  250,374  272,368  295,352"
+            fill="none"
+            stroke="url(#cw3-grad-outline)" strokeWidth="2"
+            strokeLinejoin="round" strokeLinecap="round"
+          />
+          {/* Philtrum */}
+          <line x1="250" y1="354" x2="250" y2="376"
+            stroke="#1d4ed8" strokeWidth="1.5" opacity="0.6" strokeLinecap="round"/>
 
-          {/* RIGHT EYE */}
-          <ellipse cx="268" cy="208" rx="34" ry="22" fill="#040a14" transform="rotate(12,268,208)"/>
-          <ellipse cx="268" cy="208" rx="30" ry="18" fill="#08101e" transform="rotate(12,268,208)"/>
-          <ellipse className="cw2-eye-r" cx="268" cy="208" rx="26" ry="15"
-            fill="url(#g-eye-r)" transform="rotate(12,268,208)" filter="url(#f-eye)"/>
-          {/* Pupil */}
-          <ellipse cx="268" cy="208" rx="7" ry="14" fill="#02040a" transform="rotate(12,268,208)"/>
-          {/* Highlights */}
-          <ellipse cx="260" cy="201" rx="5" ry="4" fill="#f3e8ff" opacity="0.95" transform="rotate(12,260,201)"/>
-          <ellipse cx="276" cy="213" rx="2.5" ry="2" fill="#f3e8ff" opacity="0.4" transform="rotate(12,276,213)"/>
-          {/* Eye lid lines */}
-          <path d="M 235,210 C 250,193 290,193 302,210" fill="none" stroke="#5b21b6" strokeWidth="1.5" opacity="0.7"/>
-          <path d="M 236,215 C 252,228 288,226 300,214" fill="none" stroke="#5b21b6" strokeWidth="1" opacity="0.5"/>
+          {/* ════════════════════
+              JAW / LOWER MUZZLE
+          ════════════════════ */}
+          {/* Lower lip / chin fur */}
+          <polygon
+            points="162,452  250,472  338,452  322,490  250,508  178,490"
+            fill="#09142a"
+            stroke="url(#cw3-grad-outline)" strokeWidth="1.2" strokeLinejoin="round"
+          />
 
-          {/* Eye glow accent lines */}
-          <line x1="62"  y1="208" x2="80"  y2="208" stroke="#2563eb" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
-          <line x1="338" y1="208" x2="320" y2="208" stroke="#7c3aed" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
+          {/* Chin detail line */}
+          <polyline
+            points="198,488  250,502  302,488"
+            fill="none" stroke="url(#cw3-grad-outline)" strokeWidth="0.9" opacity="0.5"/>
 
-          {/* ──────────────────────────────────
-              NOSE BRIDGE  (between eyes)
-          ────────────────────────────────── */}
-          <path d="M 160,222 L 176,230 L 200,235 L 224,230 L 240,222"
-            fill="none" stroke="#1e3a8a" strokeWidth="1" opacity="0.4"/>
-
-          {/* ──────────────────────────────────
-              MUZZLE  (prominent wolf snout)
-          ────────────────────────────────── */}
-          {/* Muzzle outer shape — wide at top, rounded at bottom */}
+          {/* Teeth hints */}
           <path
-            d="M 148,270
-               C 135,270 124,278 120,292
-               C 116,308 118,330 124,348
-               C 130,364 148,382 170,392
-               C 182,398 191,400 200,400
-               C 209,400 218,398 230,392
-               C 252,382 270,364 276,348
-               C 282,330 284,308 280,292
-               C 276,278 265,270 252,270
-               C 234,264 218,260 200,260
-               C 182,260 166,264 148,270 Z"
-            fill="url(#g-muzzle)"
-            stroke="url(#g-outline)" strokeWidth="1.5"
-            opacity="0.95"
+            d="M 198,454 L 208,468 L 220,454 M 240,456 L 250,470 L 260,456 M 280,454 L 292,468 L 302,454"
+            fill="none" stroke="#1e3a8a" strokeWidth="1.5"
+            strokeLinejoin="round" strokeLinecap="round" opacity="0.55"
           />
 
-          {/* Muzzle fur texture dots */}
-          <circle cx="160" cy="288" r="1.5" fill="#1e3a8a" opacity="0.4"/>
-          <circle cx="170" cy="282" r="1.5" fill="#1e3a8a" opacity="0.35"/>
-          <circle cx="152" cy="298" r="1.5" fill="#1e3a8a" opacity="0.35"/>
-          <circle cx="240" cy="288" r="1.5" fill="#4c1d95" opacity="0.4"/>
-          <circle cx="230" cy="282" r="1.5" fill="#4c1d95" opacity="0.35"/>
-          <circle cx="248" cy="298" r="1.5" fill="#4c1d95" opacity="0.35"/>
-
-          {/* Muzzle dividing line */}
-          <line x1="200" y1="265" x2="200" y2="395"
-            stroke="url(#g-outline)" strokeWidth="0.8" opacity="0.25"/>
-
-          {/* ──────────────────────────────────
-              NOSE  (wolf-shaped — wide, flat)
-          ────────────────────────────────── */}
-          {/* Nose base */}
-          <path
-            d="M 168,285
-               C 175,275 190,270 200,270
-               C 210,270 225,275 232,285
-               C 238,293 236,305 228,310
-               C 220,315 210,316 200,316
-               C 190,316 180,315 172,310
-               C 164,305 162,293 168,285 Z"
-            fill="url(#g-nose)"
-            stroke="#2563eb" strokeWidth="1.5"
-            className="cw2-neon"
+          {/* ════════════════════
+              NECK / COLLAR TECH
+          ════════════════════ */}
+          <polygon
+            points="178,490  155,518  345,518  322,490  250,508"
+            fill="#08111e"
+            stroke="url(#cw3-grad-outline)" strokeWidth="1.5"
           />
-          {/* Nostril left */}
-          <ellipse cx="183" cy="302" rx="10" ry="7" fill="#020408"
-            transform="rotate(-15,183,302)"/>
-          {/* Nostril right */}
-          <ellipse cx="217" cy="302" rx="10" ry="7" fill="#020408"
-            transform="rotate(15,217,302)"/>
-          {/* Nose bridge ridge */}
-          <path d="M 192,276 C 196,271 204,271 208,276"
-            fill="none" stroke="#3b82f6" strokeWidth="1.5" opacity="0.6"/>
-          {/* Nose glint */}
-          <ellipse className="cw2-glint" cx="185" cy="282" rx="5" ry="3"
-            fill="white" opacity="0" transform="rotate(-10,185,282)"/>
-
-          {/* ──────────────────────────────────
-              UPPER LIP  (wolf V-shape)
-          ────────────────────────────────── */}
-          <path
-            d="M 172,316 C 182,326 192,330 200,330 C 208,330 218,326 228,316"
-            fill="none" stroke="url(#g-outline)" strokeWidth="1.8" strokeLinecap="round"
+          {/* Collar hex badge */}
+          <polygon
+            points="250,504  262,510  262,522  250,528  238,522  238,510"
+            fill="none"
+            stroke="url(#cw3-grad-outline)" strokeWidth="1.5"
+            className="cw3-glow"
           />
-          {/* Philtrum line */}
-          <line x1="200" y1="316" x2="200" y2="332"
-            stroke="#1e40af" strokeWidth="1.2" opacity="0.5" strokeLinecap="round"/>
+          {/* Collar circuit lines */}
+          <line x1="160" y1="512" x2="236" y2="512"
+            stroke="#2563eb" strokeWidth="0.9" opacity="0.4" strokeLinecap="round"/>
+          <line x1="340" y1="512" x2="264" y2="512"
+            stroke="#7c3aed" strokeWidth="0.9" opacity="0.4" strokeLinecap="round"/>
+          <line x1="155" y1="518" x2="155" y2="525"
+            stroke="#2563eb" strokeWidth="0.8" opacity="0.3"/>
+          <line x1="345" y1="518" x2="345" y2="525"
+            stroke="#7c3aed" strokeWidth="0.8" opacity="0.3"/>
 
-          {/* ──────────────────────────────────
-              LOWER JAW / TEETH HINT
-          ────────────────────────────────── */}
-          <path
-            d="M 150,385 C 160,400 178,410 200,412 C 222,410 240,400 250,385"
-            fill="none" stroke="url(#g-outline)" strokeWidth="1.2" opacity="0.6"
-          />
-          {/* Tooth tips (subtle) */}
-          <path d="M 182,385 L 186,396 L 191,385 M 200,386 L 200,398 M 209,385 L 214,396 L 218,385"
-            fill="none" stroke="#1e3a8a" strokeWidth="1.2" strokeLinejoin="round" opacity="0.5"/>
+        </g>{/* end .cw3-body */}
 
-          {/* ──────────────────────────────────
-              NECK / COLLAR
-          ────────────────────────────────── */}
-          <path
-            d="M 148,448 L 145,475 L 200,485 L 255,475 L 252,448"
-            fill="url(#g-head)" stroke="url(#g-outline)" strokeWidth="1.2" opacity="0.8"
-          />
-          {/* Collar hexagon detail */}
-          <polygon points="200,458 210,463 210,473 200,478 190,473 190,463"
-            fill="none" stroke="url(#g-outline)" strokeWidth="1.5" opacity="0.6"/>
-          {/* Tech lines on collar */}
-          <line x1="150" y1="462" x2="188" y2="462" stroke="#2563eb" strokeWidth="0.8" opacity="0.35" strokeLinecap="round"/>
-          <line x1="250" y1="462" x2="212" y2="462" stroke="#7c3aed" strokeWidth="0.8" opacity="0.35" strokeLinecap="round"/>
+        {/* ════════════════════
+            OUTER NEON GLOW TRACES  (on top, bloomed)
+        ════════════════════ */}
+        {/* Head outline glow */}
+        <polygon className="cw3-glow"
+          points="250,118  160,148  95,185  38,305  105,435  178,490  322,490  395,435  462,305  405,185  340,148"
+          fill="none"
+          stroke="url(#cw3-grad-outline)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          filter="url(#cw3-glow-soft)"
+          opacity="0.55"
+        />
+        {/* Left ear glow */}
+        <polygon className="cw3-glow"
+          points="95,185  42,8  192,158"
+          fill="none"
+          stroke="url(#cw3-grad-outline)" strokeWidth="1.8"
+          filter="url(#cw3-glow-soft)" opacity="0.55"
+        />
+        {/* Right ear glow */}
+        <polygon className="cw3-glow"
+          points="405,185  458,8  308,158"
+          fill="none"
+          stroke="url(#cw3-grad-outline)" strokeWidth="1.8"
+          filter="url(#cw3-glow-soft)" opacity="0.55"
+        />
 
-        </g>{/* end cw2-body */}
-
-        {/* ═══ SCAN LINE ═══ */}
-        <g clipPath="url(#cw2-clip)">
-          <rect className="cw2-scan" x="30" y="260" width="340" height="1.5"
-            fill="url(#g-outline)" opacity="0"/>
+        {/* ════════════════════
+            SCAN LINE
+        ════════════════════ */}
+        <g clipPath="url(#cw3-clip)">
+          <rect className="cw3-scan"
+            x="30" y="295" width="440" height="1.8"
+            fill="url(#cw3-grad-outline)" opacity="0"/>
         </g>
 
-        {/* ═══ OUTER NEON GLOW TRACES ═══ */}
-        {/* Head outline glow (layered on top for bloom) */}
-        <path className="cw2-neon"
-          d="M 72,190
-             C 38,210 28,260 32,308
-             C 36,356 60,392 95,418
-             C 125,440 162,452 200,452
-             C 238,452 275,440 305,418
-             C 340,392 364,356 368,308
-             C 372,260 362,210 328,190
-             C 305,175 255,158 200,156
-             C 145,158 95,175 72,190 Z"
-          fill="none"
-          stroke="url(#g-outline)"
-          strokeWidth="2.5"
-          filter="url(#f-outline)"
-          opacity="0.45"
-        />
-        {/* Ear glow traces */}
-        <path className="cw2-neon"
-          d="M 72,190 L 28,12 L 155,125"
-          fill="none" stroke="url(#g-outline)" strokeWidth="2"
-          filter="url(#f-outline)" opacity="0.4"
-        />
-        <path className="cw2-neon"
-          d="M 328,190 L 372,12 L 245,125"
-          fill="none" stroke="url(#g-outline)" strokeWidth="2"
-          filter="url(#f-outline)" opacity="0.4"
-        />
-
-        {/* ═══ FLOATING PARTICLES ═══ */}
-        <circle className="cw2-p1" cx="22"  cy="220" r="2.5" fill="#2563eb"/>
-        <circle className="cw2-p2" cx="18"  cy="310" r="2"   fill="#7c3aed"/>
-        <circle className="cw2-p3" cx="378" cy="240" r="2.5" fill="#7c3aed"/>
-        <circle className="cw2-p4" cx="382" cy="335" r="2"   fill="#2563eb"/>
-        <circle className="cw2-p1" cx="45"  cy="410" r="1.8" fill="#60a5fa" style={{animationDelay:"1.2s"}}/>
-        <circle className="cw2-p2" cx="355" cy="420" r="1.8" fill="#a78bfa" style={{animationDelay:"0.5s"}}/>
-
+        {/* ════════════════════
+            PARTICLES
+        ════════════════════ */}
+        <circle className="cw3-p1" cx="18"  cy="250" r="2.8" fill="#2563eb" opacity="0.7"/>
+        <circle className="cw3-p2" cx="14"  cy="340" r="2.2" fill="#7c3aed" opacity="0.6"/>
+        <circle className="cw3-p3" cx="482" cy="265" r="2.8" fill="#7c3aed" opacity="0.7"/>
+        <circle className="cw3-p4" cx="486" cy="355" r="2.2" fill="#2563eb" opacity="0.55"/>
+        <circle className="cw3-p1" cx="52"  cy="440" r="2"   fill="#60a5fa" opacity="0.4" style={{animationDelay:"1.3s"}}/>
+        <circle className="cw3-p2" cx="448" cy="445" r="2"   fill="#a78bfa" opacity="0.4" style={{animationDelay:"0.6s"}}/>
       </svg>
 
-      {/* ── UNIT-1 label ── */}
+      {/* ════════════════════
+          UNIT-1 ONLINE LABEL
+      ════════════════════ */}
       <div style={{
-        marginTop: "12px",
+        marginTop: "14px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: "8px",
+        gap: "10px",
       }}>
-        <span style={{
-          display: "inline-block",
-          width: "8px", height: "8px",
-          borderRadius: "50%",
-          background: "#34d399",
-          boxShadow: "0 0 8px #34d399",
-          animation: "cw2-halo 2s ease-in-out infinite",
-          flexShrink: 0,
-        }}/>
+        <span className="cw3-status-dot"/>
         <span style={{
           fontFamily: "Orbitron, sans-serif",
           fontSize: "11px",
-          letterSpacing: "0.2em",
+          letterSpacing: "0.22em",
           color: "#60a5fa",
-          opacity: 0.85,
+          opacity: 0.9,
         }}>
           UNIT-1 ONLINE
         </span>
-        <span style={{
-          display: "inline-block",
-          width: "8px", height: "8px",
-          borderRadius: "50%",
-          background: "#34d399",
-          boxShadow: "0 0 8px #34d399",
-          animation: "cw2-halo 2s 1s ease-in-out infinite",
-          flexShrink: 0,
-        }}/>
+        <span className="cw3-status-dot2"/>
       </div>
     </div>
   );
