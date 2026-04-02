@@ -399,15 +399,7 @@ export default function Home() {
           </div>
 
           {/* ── RIGHT: Cyber Wolf ── */}
-          <div className="flex-shrink-0 w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] relative">
-            {/* Wolf label badge — desktop only */}
-            <div
-              className="absolute top-2 right-0 z-10 hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron tracking-widest"
-              style={{ background: "rgba(5,8,15,0.8)", border: "1px solid rgba(37,99,235,0.3)", color: "#60a5fa" }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#34d399" }} />
-              UNIT-7 ONLINE
-            </div>
+          <div className="flex-shrink-0 w-full max-w-[360px] md:max-w-[430px] lg:max-w-[480px]">
             <CyberWolf />
           </div>
 
