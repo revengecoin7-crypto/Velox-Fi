@@ -290,6 +290,14 @@ export default function Home() {
             >
               FAQ
             </button>
+            <button
+              data-testid="nav-link-roadmap"
+              onClick={() => navGo("/roadmap")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#34d399", background: "none", border: "none", cursor: "pointer" }}
+            >
+              Roadmap
+            </button>
           </div>
 
           {/* Right side: Connect Wallet + hamburger */}
@@ -332,6 +340,7 @@ export default function Home() {
                 { label: "Presale",     path: "/presale",     color: "#60a5fa" },
                 { label: "Whitepaper",  path: "/whitepaper",  color: "#6b7280" },
                 { label: "FAQ",         path: "/faq",         color: "#60a5fa" },
+                { label: "Roadmap",     path: "/roadmap",     color: "#34d399" },
               ].map(({ label, path, color }) => (
                 <button
                   key={path}
@@ -670,6 +679,14 @@ export default function Home() {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
+            <button
+              data-testid="footer-link-roadmap"
+              onClick={() => navigate("/roadmap")}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+              style={{ background: "none", border: "none", padding: 0 }}
+            >
+              Roadmap
+            </button>
             <button
               data-testid="footer-link-faq"
               onClick={() => navigate("/faq")}

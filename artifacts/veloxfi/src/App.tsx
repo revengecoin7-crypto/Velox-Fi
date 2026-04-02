@@ -13,6 +13,7 @@ import Whitepaper from "@/pages/whitepaper";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import FAQ from "@/pages/faq";
+import Roadmap from "@/pages/roadmap";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/roadmap" component={Roadmap} />
       <Route component={NotFound} />
     </Switch>
   );
