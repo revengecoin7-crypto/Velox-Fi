@@ -276,6 +276,14 @@ export default function Home() {
             >
               Whitepaper
             </button>
+            <button
+              data-testid="nav-link-faq"
+              onClick={() => navGo("/faq")}
+              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
+              style={{ color: "#60a5fa", background: "none", border: "none", cursor: "pointer" }}
+            >
+              FAQ
+            </button>
           </div>
 
           {/* Right side: Connect Wallet + hamburger */}
@@ -317,6 +325,7 @@ export default function Home() {
                 { label: "Demo",        path: "/demo",        color: "#a78bfa" },
                 { label: "Presale",     path: "/presale",     color: "#60a5fa" },
                 { label: "Whitepaper",  path: "/whitepaper",  color: "#6b7280" },
+                { label: "FAQ",         path: "/faq",         color: "#60a5fa" },
               ].map(({ label, path, color }) => (
                 <button
                   key={path}
@@ -655,6 +664,14 @@ export default function Home() {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
+            <button
+              data-testid="footer-link-faq"
+              onClick={() => navigate("/faq")}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+              style={{ background: "none", border: "none", padding: 0 }}
+            >
+              FAQ
+            </button>
             <button
               data-testid="footer-link-terms"
               onClick={() => navigate("/terms")}
