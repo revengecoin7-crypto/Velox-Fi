@@ -655,11 +655,37 @@ export default function Home() {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
-            {["Terms", "Privacy", "Whitepaper", "Audit"].map((link) => (
-              <a key={link} href="#" data-testid={`footer-link-${link.toLowerCase()}`} className="hover:text-gray-300 transition-colors">
-                {link}
-              </a>
-            ))}
+            <button
+              data-testid="footer-link-terms"
+              onClick={() => navigate("/terms")}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+              style={{ background: "none", border: "none", padding: 0 }}
+            >
+              Terms
+            </button>
+            <button
+              data-testid="footer-link-privacy"
+              onClick={() => navigate("/privacy")}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+              style={{ background: "none", border: "none", padding: 0 }}
+            >
+              Privacy
+            </button>
+            <button
+              data-testid="footer-link-whitepaper"
+              onClick={() => navigate("/whitepaper")}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+              style={{ background: "none", border: "none", padding: 0 }}
+            >
+              Whitepaper
+            </button>
+            <span
+              data-testid="footer-link-audit"
+              className="text-gray-700 cursor-not-allowed"
+              title="Audit coming soon"
+            >
+              Audit
+            </span>
           </div>
 
           {/* Social */}
