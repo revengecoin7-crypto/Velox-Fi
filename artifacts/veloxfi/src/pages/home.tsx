@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
+import CyberWolf from "@/components/CyberWolf";
 
 const BATTLES = [
   {
@@ -349,45 +350,70 @@ export default function Home() {
       <section
         ref={heroRef}
         data-testid="hero-section"
-        className="relative flex flex-col items-center justify-center text-center pt-40 pb-28 px-6 overflow-hidden"
+        className="relative overflow-hidden"
+        style={{ minHeight: "calc(100vh - 72px)" }}
       >
         {/* Glow orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ background: "#2563eb" }} />
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-10 pointer-events-none" style={{ background: "#7c3aed" }} />
+        <div className="absolute top-1/4 left-1/6 w-[500px] h-[500px] rounded-full blur-3xl opacity-10 pointer-events-none" style={{ background: "#2563eb" }} />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full blur-3xl opacity-10 pointer-events-none" style={{ background: "#7c3aed", transform: "translate(30%, -50%)" }} />
+        <div className="absolute bottom-0 left-1/2 w-[600px] h-[200px] rounded-full blur-3xl opacity-5 pointer-events-none" style={{ background: "url(#grad-outline)", backgroundColor: "#2563eb", transform: "translateX(-50%)" }} />
 
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-orbitron tracking-widest"
-          style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-          COMING SOON
+        {/* Two-column layout */}
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 pt-32 pb-20 md:pt-36 md:pb-24">
+
+          {/* ── LEFT: Text content ── */}
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-xl">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-orbitron tracking-widest"
+              style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              COMING SOON
+            </div>
+
+            {/* Headline */}
+            <h1 className="font-orbitron font-black text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" data-testid="hero-title">
+              LET YOUR{" "}
+              <span className="gradient-text">MEMECOIN</span>
+              <br />
+              GO TO WAR
+            </h1>
+
+            <p className="text-gray-400 text-lg md:text-xl max-w-lg mb-10 leading-relaxed">
+              The first on-chain memecoin battle arena on Solana. Pit your coin against rivals, back the winner, and claim the spoils.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              <button data-testid="btn-hero-start-battle" className="btn-primary px-8 py-4 rounded-xl text-base">
+                <span className="font-orbitron tracking-wider">START A BATTLE</span>
+              </button>
+              <button data-testid="btn-hero-view-battles" className="btn-outline px-8 py-4 rounded-xl text-base text-sm">
+                VIEW LIVE BATTLES
+              </button>
+            </div>
+
+            {/* Trust line */}
+            <p className="text-xs text-gray-600 font-orbitron tracking-widest">
+              BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE COMING SOON
+            </p>
+          </div>
+
+          {/* ── RIGHT: Cyber Wolf ── */}
+          <div className="flex-shrink-0 w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] relative">
+            {/* Wolf label badge — desktop only */}
+            <div
+              className="absolute top-2 right-0 z-10 hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron tracking-widest"
+              style={{ background: "rgba(5,8,15,0.8)", border: "1px solid rgba(37,99,235,0.3)", color: "#60a5fa" }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#34d399" }} />
+              UNIT-7 ONLINE
+            </div>
+            <CyberWolf />
+          </div>
+
         </div>
 
-        {/* Headline */}
-        <h1 className="font-orbitron font-black text-5xl md:text-7xl leading-tight mb-6 max-w-4xl" data-testid="hero-title">
-          LET YOUR{" "}
-          <span className="gradient-text">MEMECOIN</span>
-          <br />
-          GO TO WAR
-        </h1>
-
-        <p className="text-gray-400 text-lg md:text-xl max-w-xl mb-10 leading-relaxed">
-          The first on-chain memecoin battle arena on Solana. Pit your coin against rivals, back the winner, and claim the spoils.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-10">
-          <button data-testid="btn-hero-start-battle" className="btn-primary px-8 py-4 rounded-xl text-base">
-            <span className="font-orbitron tracking-wider">START A BATTLE</span>
-          </button>
-          <button data-testid="btn-hero-view-battles" className="btn-outline px-8 py-4 rounded-xl text-base text-sm">
-            VIEW LIVE BATTLES
-          </button>
-        </div>
-
-        {/* Trust line */}
-        <p className="text-xs text-gray-600 font-orbitron tracking-widest">
-          BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE COMING SOON
-        </p>
+        {/* Mobile-only wolf (below text, smaller) — hidden on md+ via the layout above */}
       </section>
 
       {/* ── STATS ── */}
