@@ -292,7 +292,7 @@ export default function FAQ() {
         style={{ borderColor: "rgba(255,255,255,0.04)" }}
       >
         <p className="text-xs text-gray-600 font-orbitron tracking-widest">
-          © 2025 VELOXFI · ALL RIGHTS RESERVED
+          © 2026 VELOXFI · ALL RIGHTS RESERVED
         </p>
       </div>
     </div>
