@@ -609,6 +609,23 @@ export default function Presale() {
               <p className="text-center text-xs font-orbitron tracking-widest mt-3" style={{ color: "#374151" }}>
                 Tokens delivered after pump.fun launch · {shortAddress}
               </p>
+
+              {/* Phantom warning notice */}
+              <div
+                className="flex items-start gap-2.5 mt-4 px-4 py-3 rounded-xl"
+                style={{
+                  background: "rgba(251,191,36,0.06)",
+                  border: "1px solid rgba(251,191,36,0.2)",
+                }}
+              >
+                <span className="text-base flex-shrink-0 mt-px">⚠️</span>
+                <p className="text-xs leading-relaxed" style={{ color: "#d1a84b", fontFamily: "Inter, sans-serif" }}>
+                  If Phantom shows a security warning, click{" "}
+                  <span style={{ color: "#fbbf24", fontWeight: 700 }}>Proceed anyway (unsafe)</span>
+                  {" "}— this warning appears for all new dApps and will be resolved soon.{" "}
+                  <span style={{ color: "#fbbf24", fontWeight: 600 }}>VeloxFi is safe to use.</span>
+                </p>
+              </div>
             </div>
           )}
         </div>
