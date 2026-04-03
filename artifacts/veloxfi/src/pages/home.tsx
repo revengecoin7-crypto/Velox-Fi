@@ -389,9 +389,9 @@ export default function Home() {
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-xl">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-orbitron tracking-widest"
-              style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-              COMING SOON
+              style={{ background: "rgba(22,163,74,0.12)", border: "1px solid rgba(22,163,74,0.4)", color: "#4ade80" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              PRESALE LIVE
             </div>
 
             {/* Headline */}
@@ -418,7 +418,7 @@ export default function Home() {
 
             {/* Trust line */}
             <p className="text-xs text-gray-600 font-orbitron tracking-widest">
-              BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE COMING SOON
+              BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE NOW LIVE
             </p>
           </div>
 
@@ -625,9 +625,9 @@ export default function Home() {
             </div>
             <div className="font-orbitron text-lg font-black mb-1 text-purple-400 tracking-wider">PRESALE</div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron mt-1"
-              style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-              COMING SOON
+              style={{ background: "rgba(22,163,74,0.15)", border: "1px solid rgba(22,163,74,0.4)", color: "#4ade80" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              LIVE NOW
             </div>
           </div>
 
@@ -651,17 +651,17 @@ export default function Home() {
           style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12))", border: "1px solid rgba(124,58,237,0.2)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.08) 0%, transparent 70%)" }} />
           <h2 className="font-orbitron font-black text-3xl md:text-4xl text-white mb-4 relative z-10">
-            THE BATTLEFIELD IS <span className="gradient-text">ALMOST OPEN</span>
+            THE PRESALE IS <span style={{ color: "#4ade80" }}>LIVE</span>
           </h2>
           <p className="text-gray-400 mb-8 max-w-md mx-auto relative z-10">
-            Be one of the first 100 warriors. Join the presale and claim your OG badge.
+            Be one of the first 100 warriors. Join the presale now and claim your OG badge.
           </p>
           <button
             data-testid="btn-cta-launch"
             onClick={() => navigate("/presale")}
             className="btn-primary px-10 py-4 rounded-xl text-base relative z-10"
           >
-            <span className="font-orbitron tracking-wider">JOIN THE PRESALE →</span>
+            <span className="font-orbitron tracking-wider">BUY $BATTLE NOW →</span>
           </button>
         </div>
       </section>
