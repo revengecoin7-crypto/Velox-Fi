@@ -9,6 +9,7 @@ interface PhantomProvider {
   isConnected: boolean;
   connect(opts?: { onlyIfTrusted?: boolean }): Promise<{ publicKey: { toBase58(): string } }>;
   disconnect(): Promise<void>;
+  signAndSendTransaction(tx: unknown): Promise<{ signature: string }>;
   on(event: string, handler: (...args: unknown[]) => void): void;
   off(event: string, handler: (...args: unknown[]) => void): void;
 }

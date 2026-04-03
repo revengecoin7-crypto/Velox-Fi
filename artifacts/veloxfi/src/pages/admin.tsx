@@ -11,7 +11,11 @@ import {
   Eye,
   EyeOff,
   Wallet,
+  Download,
+  ExternalLink,
 } from "lucide-react";
+
+const API_BASE = "/api";
 
 const ADMIN_PASSWORD = "veloxfi2025";
 const SESSION_KEY = "vfx_admin_auth";
@@ -25,6 +29,15 @@ export interface WalletEntry {
   address: string;
   amount: number;
   timestamp: string;
+}
+
+interface PurchaseEntry {
+  id: number;
+  walletAddress: string;
+  solAmount: number;
+  battleTokens: number;
+  txSignature: string;
+  createdAt: string;
 }
 
 function getWallets(): WalletEntry[] {
@@ -112,16 +125,34 @@ export default function Admin() {
   const [visitors, setVisitors] = useState(0);
   const [solRaised, setSolRaised] = useState(0);
   const [wallets, setWallets] = useState<WalletEntry[]>([]);
+  const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [demoCoins, setDemoCoins] = useState(0);
   const [demoBattles, setDemoBattles] = useState(0);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const loadStats = useCallback(() => {
+  const loadStats = useCallback(async () => {
+    /* Local stats (visitors, demo coins, demo battles) */
     setVisitors(getNum("vfx_visitors"));
-    setSolRaised(getNum("vfx_sol_raised"));
     setWallets(getWallets());
     setDemoCoins(getNum("vfx_demo_coins"));
     setDemoBattles(getNum("vfx_demo_battles"));
+
+    /* Presale stats from API */
+    try {
+      const [statsRes, purchasesRes] = await Promise.all([
+        fetch(`${API_BASE}/presale/stats`),
+        fetch(`${API_BASE}/presale/purchases`),
+      ]);
+      if (statsRes.ok) {
+        const s = await statsRes.json();
+        setSolRaised(s.totalSol ?? 0);
+      }
+      if (purchasesRes.ok) {
+        const p = await purchasesRes.json();
+        setPurchases(p);
+      }
+    } catch { /* silent */ }
+
     setLastRefresh(new Date());
   }, []);
 
@@ -153,6 +184,27 @@ export default function Admin() {
     sessionStorage.removeItem(SESSION_KEY);
     setAuthed(false);
     setPassword("");
+  }
+
+  function handleCsvExport() {
+    if (purchases.length === 0) return;
+    const header = ["ID", "Wallet Address", "SOL Amount", "$BATTLE Tokens", "TX Signature", "Date"];
+    const rows = purchases.map((p) => [
+      p.id,
+      p.walletAddress,
+      p.solAmount,
+      p.battleTokens,
+      p.txSignature,
+      new Date(p.createdAt).toISOString(),
+    ]);
+    const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `veloxfi-presale-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   /* ══════════════════════════════════════
@@ -480,7 +532,7 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Wallet table */}
+        {/* Presale purchases table — live from DB */}
         <div
           className="rounded-2xl overflow-hidden"
           style={{
@@ -488,37 +540,50 @@ export default function Admin() {
             border: "1px solid rgba(255,255,255,0.07)",
           }}
         >
-          <div className="px-6 py-5 flex items-center justify-between"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-            <h2 className="font-orbitron font-bold text-sm tracking-widest text-white">
-              PRESALE PURCHASES
-            </h2>
-            <span
-              className="text-xs font-orbitron tracking-widest px-3 py-1 rounded-full"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                color: "#6b7280",
-              }}
-            >
-              {wallets.length} {wallets.length === 1 ? "entry" : "entries"}
-            </span>
+          <div
+            className="px-6 py-5 flex items-center justify-between"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+          >
+            <div className="flex items-center gap-3">
+              <h2 className="font-orbitron font-bold text-sm tracking-widest text-white">
+                PRESALE PURCHASES
+              </h2>
+              <span
+                className="text-xs font-orbitron tracking-widest px-3 py-1 rounded-full"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: "#6b7280",
+                }}
+              >
+                {purchases.length} {purchases.length === 1 ? "entry" : "entries"}
+              </span>
+            </div>
+            {purchases.length > 0 && (
+              <button
+                onClick={handleCsvExport}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-orbitron tracking-wider transition-all hover:opacity-80"
+                style={{
+                  background: "rgba(52,211,153,0.08)",
+                  border: "1px solid rgba(52,211,153,0.2)",
+                  color: "#34d399",
+                  cursor: "pointer",
+                }}
+              >
+                <Download className="w-3.5 h-3.5" />
+                CSV
+              </button>
+            )}
           </div>
 
-          {wallets.length === 0 ? (
+          {purchases.length === 0 ? (
             <div className="py-14 text-center">
-              <Wallet
-                className="w-8 h-8 mx-auto mb-3"
-                style={{ color: "#374151" }}
-              />
+              <Wallet className="w-8 h-8 mx-auto mb-3" style={{ color: "#374151" }} />
               <p className="font-orbitron text-gray-700 text-xs tracking-widest">
                 NO PRESALE PURCHASES YET
               </p>
-              <p
-                className="text-gray-700 text-xs mt-1"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                Wallet entries will appear here after the presale opens
+              <p className="text-gray-700 text-xs mt-1" style={{ fontFamily: "Inter, sans-serif" }}>
+                Purchases will appear here after the presale opens on June 1, 2026
               </p>
             </div>
           ) : (
@@ -526,7 +591,7 @@ export default function Admin() {
               <table className="w-full">
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                    {["WALLET ADDRESS", "AMOUNT (SOL)", "TIMESTAMP"].map((h) => (
+                    {["WALLET", "SOL", "$BATTLE", "TX SIGNATURE", "DATE"].map((h) => (
                       <th
                         key={h}
                         className="px-6 py-3 text-left text-xs font-orbitron tracking-widest"
@@ -538,40 +603,52 @@ export default function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {wallets.map((w, i) => (
-                    <tr
-                      key={i}
-                      style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
-                    >
+                  {purchases.map((p) => (
+                    <tr key={p.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
                       <td className="px-6 py-4">
                         <span
                           className="font-mono text-sm"
                           style={{ color: "#a78bfa" }}
-                          title={w.address}
+                          title={p.walletAddress}
                         >
-                          {shortAddr(w.address)}
+                          {shortAddr(p.walletAddress)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className="font-bold text-sm"
-                          style={{
-                            color: "#34d399",
-                            fontFamily: "Inter, sans-serif",
-                          }}
+                          style={{ color: "#34d399", fontFamily: "Inter, sans-serif" }}
                         >
-                          {w.amount.toFixed(2)} SOL
+                          {p.solAmount.toFixed(4)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className="text-xs"
-                          style={{
-                            color: "#4b5563",
-                            fontFamily: "Inter, sans-serif",
-                          }}
+                          className="font-bold text-sm"
+                          style={{ color: "#a78bfa", fontFamily: "Inter, sans-serif" }}
                         >
-                          {new Date(w.timestamp).toLocaleString()}
+                          {p.battleTokens.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <a
+                          href={`https://solscan.io/tx/${p.txSignature}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs transition-opacity hover:opacity-80"
+                          style={{ color: "#60a5fa", fontFamily: "monospace" }}
+                          title={p.txSignature}
+                        >
+                          {p.txSignature.slice(0, 8)}…{p.txSignature.slice(-4)}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className="text-xs"
+                          style={{ color: "#4b5563", fontFamily: "Inter, sans-serif" }}
+                        >
+                          {new Date(p.createdAt).toLocaleString()}
                         </span>
                       </td>
                     </tr>

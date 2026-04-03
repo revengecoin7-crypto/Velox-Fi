@@ -1,8 +1,8 @@
-# Workspace
+# VeloxFi — Memecoin Battle Platform
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+Dark-themed memecoin battle platform on Solana. Users pit memecoins against each other in on-chain price battles. The $BATTLE token (1 SOL = 100,000 $BATTLE, presale goal 500 SOL) powers the arena, with presale opening June 1, 2026. pnpm workspace monorepo using TypeScript.
 
 ## Stack
 
