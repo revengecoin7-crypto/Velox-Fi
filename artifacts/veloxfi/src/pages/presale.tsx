@@ -23,10 +23,8 @@ const MIN_SOL           = 0.1;
 const MAX_SOL           = 10;
 const TOKENS_PER_SOL    = 100_000;
 const RECEIVING_WALLET  = "9LQw7JXNZb97qtYcbXkcV3xUjc3ewmZdmBejQd2HiwNU";
-const HELIUS_API_KEY    = import.meta.env.VITE_HELIUS_API_KEY as string;
-const RPC_ENDPOINT      = HELIUS_API_KEY
-  ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
-  : (import.meta.env.VITE_HELIUS_RPC_URL as string) || "https://api.mainnet-beta.solana.com";
+/* Helius mainnet RPC — provides getLatestBlockhash without 403 rate-limit errors */
+const RPC_ENDPOINT = `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY ?? "f85d3d41-9efd-40e5-846b-56f43fc8e98a"}`;
 const API_BASE          = "/api";
 
 /* ── Types ── */
