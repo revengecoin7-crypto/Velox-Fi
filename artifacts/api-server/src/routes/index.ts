@@ -6,6 +6,7 @@ import budgetsRouter from "./budgets";
 import goalsRouter from "./goals";
 import dashboardRouter from "./dashboard";
 import presaleRouter from "./presale";
+import statsRouter from "./stats";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(budgetsRouter);
 router.use(goalsRouter);
 router.use(dashboardRouter);
 router.use(presaleRouter);
+router.use(statsRouter);
 
 export default router;

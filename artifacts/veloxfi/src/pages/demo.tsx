@@ -62,9 +62,8 @@ export default function Demo() {
     tickRef.current = 0;
     setWinner(null);
     setPhase("battle");
-    /* track demo coins created */
-    const prev = parseInt(localStorage.getItem("vfx_demo_coins") ?? "0", 10) || 0;
-    localStorage.setItem("vfx_demo_coins", String(prev + 1));
+    /* track demo coins created — fire & forget */
+    fetch("/api/stats/demo-coin", { method: "POST" }).catch(() => {});
   }
 
   /* ── price simulation ── */
@@ -84,9 +83,8 @@ export default function Demo() {
       const w = userPctRef.current >= oppPctRef.current ? "user" : "opp";
       setWinner(w);
       setPhase("result");
-      /* track demo battles completed */
-      const prevB = parseInt(localStorage.getItem("vfx_demo_battles") ?? "0", 10) || 0;
-      localStorage.setItem("vfx_demo_battles", String(prevB + 1));
+      /* track demo battles completed — fire & forget */
+      fetch("/api/stats/demo-battle", { method: "POST" }).catch(() => {});
       if (w === "user") {
         setTimeout(() => {
           confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 } });

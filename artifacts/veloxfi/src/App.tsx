@@ -63,13 +63,18 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    /* Only count this browser as a visitor once, ever.
-       localStorage persists across refreshes and sessions — unlike
-       sessionStorage which can reset in embedded/iframe contexts. */
-    if (localStorage.getItem("vfx_visitor_id")) return;
-    localStorage.setItem("vfx_visitor_id", crypto.randomUUID());
-    const prev = parseInt(localStorage.getItem("vfx_visitors") ?? "0", 10) || 0;
-    localStorage.setItem("vfx_visitors", String(prev + 1));
+    /* Assign a persistent UUID to this browser if it doesn't have one yet,
+       then tell the server — server deduplicates via the UUID primary key. */
+    let vid = localStorage.getItem("vfx_visitor_id");
+    if (!vid) {
+      vid = crypto.randomUUID();
+      localStorage.setItem("vfx_visitor_id", vid);
+    }
+    fetch("/api/stats/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitorId: vid }),
+    }).catch(() => { /* non-critical, ignore */ });
   }, []);
 
   return (

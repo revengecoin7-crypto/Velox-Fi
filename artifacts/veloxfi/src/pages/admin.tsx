@@ -20,17 +20,6 @@ const API_BASE = "/api";
 const ADMIN_PASSWORD = "veloxfi2025";
 const SESSION_KEY = "vfx_admin_auth";
 
-/* ── stats helpers ── */
-function getNum(key: string): number {
-  return parseInt(localStorage.getItem(key) ?? "0", 10) || 0;
-}
-
-export interface WalletEntry {
-  address: string;
-  amount: number;
-  timestamp: string;
-}
-
 interface PurchaseEntry {
   id: number;
   walletAddress: string;
@@ -38,14 +27,6 @@ interface PurchaseEntry {
   battleTokens: number;
   txSignature: string;
   createdAt: string;
-}
-
-function getWallets(): WalletEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem("vfx_wallets") ?? "[]");
-  } catch {
-    return [];
-  }
 }
 
 function fmt(n: number) {
@@ -124,34 +105,28 @@ export default function Admin() {
   /* dashboard stats */
   const [visitors, setVisitors] = useState(0);
   const [solRaised, setSolRaised] = useState(0);
-  const [wallets, setWallets] = useState<WalletEntry[]>([]);
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [demoCoins, setDemoCoins] = useState(0);
   const [demoBattles, setDemoBattles] = useState(0);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   const loadStats = useCallback(async () => {
-    /* Local stats (visitors, demo coins, demo battles) */
-    setVisitors(getNum("vfx_visitors"));
-    setWallets(getWallets());
-    setDemoCoins(getNum("vfx_demo_coins"));
-    setDemoBattles(getNum("vfx_demo_battles"));
-
-    /* Presale stats from API */
     try {
-      const [statsRes, purchasesRes] = await Promise.all([
-        fetch(`${API_BASE}/presale/stats`),
+      const [overviewRes, purchasesRes] = await Promise.all([
+        fetch(`${API_BASE}/stats/overview`),
         fetch(`${API_BASE}/presale/purchases`),
       ]);
-      if (statsRes.ok) {
-        const s = await statsRes.json();
-        setSolRaised(s.totalSol ?? 0);
+      if (overviewRes.ok) {
+        const o = await overviewRes.json();
+        setVisitors(o.visitors ?? 0);
+        setSolRaised(o.totalSolRaised ?? 0);
+        setDemoCoins(o.demoCoins ?? 0);
+        setDemoBattles(o.demoBattles ?? 0);
       }
       if (purchasesRes.ok) {
-        const p = await purchasesRes.json();
-        setPurchases(p);
+        setPurchases(await purchasesRes.json());
       }
-    } catch { /* silent */ }
+    } catch { /* silent — keep previous values */ }
 
     setLastRefresh(new Date());
   }, []);
