@@ -23,7 +23,7 @@ const MIN_SOL           = 0.1;
 const MAX_SOL           = 10;
 const TOKENS_PER_SOL    = 100_000;
 const RECEIVING_WALLET  = "9LQw7JXNZb97qtYcbXkcV3xUjc3ewmZdmBejQd2HiwNU";
-const RPC_ENDPOINT      = "https://api.mainnet-beta.solana.com";
+const RPC_ENDPOINT      = import.meta.env.VITE_HELIUS_RPC_URL as string || "https://api.mainnet-beta.solana.com";
 const API_BASE          = "/api";
 
 /* ── Types ── */
