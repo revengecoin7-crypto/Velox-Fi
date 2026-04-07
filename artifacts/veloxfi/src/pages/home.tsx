@@ -47,16 +47,26 @@ const TICKER_ITEMS = [
 ];
 
 const FLOATING_COINS = [
-  { emoji: "🪙", x: "8%",  y: "20%", delay: "0s",   dur: "4s",   size: "2rem" },
-  { emoji: "💎", x: "15%", y: "70%", delay: "0.7s",  dur: "5s",   size: "1.5rem" },
-  { emoji: "🔥", x: "85%", y: "15%", delay: "1.2s",  dur: "3.5s", size: "1.8rem" },
-  { emoji: "⚡", x: "90%", y: "60%", delay: "2s",    dur: "4.5s", size: "1.6rem" },
-  { emoji: "🚀", x: "5%",  y: "50%", delay: "1.5s",  dur: "6s",   size: "1.4rem" },
-  { emoji: "💰", x: "78%", y: "80%", delay: "0.3s",  dur: "5.5s", size: "2rem" },
-  { emoji: "🎯", x: "50%", y: "90%", delay: "2.5s",  dur: "4s",   size: "1.3rem" },
-  { emoji: "🪙", x: "65%", y: "10%", delay: "1s",    dur: "5s",   size: "1.7rem" },
-  { emoji: "💥", x: "35%", y: "85%", delay: "3s",    dur: "3.5s", size: "1.5rem" },
-  { emoji: "⚔️", x: "25%", y: "12%", delay: "0.5s",  dur: "4.5s", size: "1.6rem" },
+  { emoji: "🪙", x: "8%",  y: "18%", delay: "0s",   dur: "4s",   size: "2.4rem" },
+  { emoji: "💎", x: "14%", y: "68%", delay: "0.7s",  dur: "5s",   size: "2rem"   },
+  { emoji: "🔥", x: "84%", y: "14%", delay: "1.2s",  dur: "3.5s", size: "2.2rem" },
+  { emoji: "⚡", x: "91%", y: "58%", delay: "2s",    dur: "4.5s", size: "2rem"   },
+  { emoji: "🚀", x: "4%",  y: "48%", delay: "1.5s",  dur: "6s",   size: "1.8rem" },
+  { emoji: "💰", x: "77%", y: "78%", delay: "0.3s",  dur: "5.5s", size: "2.5rem" },
+  { emoji: "🎯", x: "48%", y: "88%", delay: "2.5s",  dur: "4s",   size: "1.8rem" },
+  { emoji: "🪙", x: "64%", y: "8%",  delay: "1s",    dur: "5s",   size: "2.2rem" },
+  { emoji: "💥", x: "34%", y: "82%", delay: "3s",    dur: "3.5s", size: "2rem"   },
+  { emoji: "⚔️", x: "24%", y: "10%", delay: "0.5s",  dur: "4.5s", size: "2rem"   },
+  { emoji: "🌙", x: "55%", y: "22%", delay: "1.8s",  dur: "5.5s", size: "1.7rem" },
+  { emoji: "💫", x: "72%", y: "42%", delay: "0.9s",  dur: "4.2s", size: "1.9rem" },
+  { emoji: "🎆", x: "18%", y: "35%", delay: "2.2s",  dur: "5s",   size: "2.1rem" },
+  { emoji: "🏆", x: "88%", y: "35%", delay: "3.5s",  dur: "4.8s", size: "1.8rem" },
+  { emoji: "💸", x: "42%", y: "5%",  delay: "1.3s",  dur: "3.8s", size: "2rem"   },
+  { emoji: "🎰", x: "3%",  y: "80%", delay: "2.8s",  dur: "5.2s", size: "1.7rem" },
+  { emoji: "⭐", x: "60%", y: "72%", delay: "0.4s",  dur: "4.3s", size: "1.9rem" },
+  { emoji: "🔫", x: "30%", y: "55%", delay: "1.6s",  dur: "5.8s", size: "1.6rem" },
+  { emoji: "💣", x: "96%", y: "82%", delay: "2.1s",  dur: "4.7s", size: "2rem"   },
+  { emoji: "🩸", x: "44%", y: "40%", delay: "3.2s",  dur: "3.9s", size: "1.5rem" },
 ];
 
 /* ── Countdown ── */
@@ -212,6 +222,48 @@ function CoinFightScene() {
   );
 }
 
+/* ── Confetti burst on page load ── */
+const CONFETTI_COLORS = ["#4ade80","#60a5fa","#a855f7","#f59e0b","#ec4899","#34d399","#fff"];
+const CONFETTI_PIECES = Array.from({ length: 60 }, (_, i) => ({
+  id: i,
+  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+  x: `${Math.random() * 100}%`,
+  size: `${6 + Math.random() * 8}px`,
+  delay: `${Math.random() * 1.8}s`,
+  dur:   `${2.5 + Math.random() * 2}s`,
+  shape: i % 3 === 0 ? "50%" : i % 3 === 1 ? "2px" : "0%",
+}));
+
+function Confetti() {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 5000);
+    return () => clearTimeout(t);
+  }, []);
+  if (!visible) return null;
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[999]" aria-hidden="true">
+      {CONFETTI_PIECES.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: p.x,
+            top: "-20px",
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            borderRadius: p.shape,
+            animation: `confettiFall ${p.dur} ease-in forwards`,
+            animationDelay: p.delay,
+            opacity: 0.9,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ── Main Component ── */
 export default function Home() {
   usePageMeta({
@@ -238,6 +290,8 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: "#05080f", minHeight: "100vh", color: "white", overflow: "hidden" }}>
+
+      <Confetti />
 
       {/* ── KEYFRAME ANIMATIONS ── */}
       <style>{`
@@ -273,9 +327,19 @@ export default function Home() {
         @keyframes spark1 { 0%,100%{transform:translate(0,0) scale(1);opacity:.5} 50%{transform:translate(15px,-15px) scale(1.3);opacity:0.9} }
         @keyframes spark2 { 0%,100%{transform:translate(0,0) scale(0.8);opacity:.6} 50%{transform:translate(-10px,15px) scale(1.4);opacity:1} }
         @keyframes btnPulse {
-          0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.6), 0 0 40px rgba(124,58,237,0.3); }
-          50%       { box-shadow: 0 0 35px rgba(168,85,247,0.8), 0 0 70px rgba(59,130,246,0.4); }
+          0%   { box-shadow: 0 0 25px rgba(59,130,246,0.8), 0 0 50px rgba(124,58,237,0.4); transform: scale(1); }
+          50%  { box-shadow: 0 0 50px rgba(168,85,247,1),   0 0 90px rgba(59,130,246,0.6); transform: scale(1.04); }
+          100% { box-shadow: 0 0 25px rgba(59,130,246,0.8), 0 0 50px rgba(124,58,237,0.4); transform: scale(1); }
         }
+        @keyframes confettiFall {
+          0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        @keyframes badgePing {
+          0%, 100% { box-shadow: 0 0 8px rgba(74,222,128,0.5),  0 0 20px rgba(74,222,128,0.2); }
+          50%       { box-shadow: 0 0 20px rgba(74,222,128,1),   0 0 40px rgba(74,222,128,0.6), 0 0 60px rgba(74,222,128,0.3); }
+        }
+        .presale-badge { animation: badgePing 1.5s ease-in-out infinite; }
         @keyframes orbFloat1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50%       { transform: translate(30px, -40px) scale(1.1); }
@@ -448,9 +512,12 @@ export default function Home() {
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-2xl">
 
             {/* Live badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-orbitron text-xs font-black tracking-widest"
-              style={{ background: "rgba(74,222,128,0.15)", border: "2px solid rgba(74,222,128,0.5)", color: "#4ade80", boxShadow: "0 0 15px rgba(74,222,128,0.3)" }}>
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <div className="presale-badge inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 font-orbitron text-sm font-black tracking-widest"
+              style={{ background: "rgba(74,222,128,0.2)", border: "2px solid #4ade80", color: "#4ade80" }}>
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-400" />
+              </span>
               🔥 PRESALE LIVE — LIMITED SPOTS 🔥
             </div>
 
@@ -538,16 +605,16 @@ export default function Home() {
           {/* RIGHT: Wolf mascot — HUGE */}
           <div
             className="flex-shrink-0 w-full md:w-auto flex items-center justify-center"
-            style={{ maxWidth: "520px" }}
+            style={{ maxWidth: "660px" }}
           >
             <img
               src="/favicon.jpg"
               alt="VeloxFi Wolf Warrior"
               className="wolf-image w-full rounded-3xl object-cover"
               style={{
-                maxHeight: "560px",
-                border: "2px solid rgba(124,58,237,0.4)",
-                boxShadow: "0 0 60px rgba(59,130,246,0.4), 0 0 120px rgba(124,58,237,0.2)",
+                maxHeight: "700px",
+                border: "2px solid rgba(124,58,237,0.5)",
+                boxShadow: "0 0 80px rgba(59,130,246,0.5), 0 0 160px rgba(124,58,237,0.3), 0 0 240px rgba(168,85,247,0.15)",
               }}
             />
           </div>
