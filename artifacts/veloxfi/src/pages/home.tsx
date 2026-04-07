@@ -1,203 +1,229 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { MessageCircle, Send, Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
+import { Zap, Shield, Trophy, Clock, TrendingUp, TrendingDown, Swords, Menu, X } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import CyberWolf from "@/components/CyberWolf";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
+/* ── Battle data ── */
 const BATTLES = [
   {
     id: 1,
-    coinA: { name: "PEPE", ticker: "PEPE", change: +18.4, color: "#2563eb", icon: "🐸" },
-    coinB: { name: "DOGE", ticker: "DOGE", change: -6.2, color: "#7c3aed", icon: "🐕" },
+    coinA: { name: "PEPE", ticker: "PEPE", change: +18.4, icon: "🐸" },
+    coinB: { name: "DOGE", ticker: "DOGE", change: -6.2, icon: "🐕" },
     volume: "$1.24M",
     endsIn: 3 * 60 + 42,
   },
   {
     id: 2,
-    coinA: { name: "BONK", ticker: "BONK", change: +31.7, color: "#2563eb", icon: "🔨" },
-    coinB: { name: "WIF", ticker: "WIF", change: -14.5, color: "#7c3aed", icon: "🎩" },
+    coinA: { name: "BONK", ticker: "BONK", change: +31.7, icon: "🔨" },
+    coinB: { name: "WIF",  ticker: "WIF",  change: -14.5, icon: "🎩" },
     volume: "$876K",
     endsIn: 8 * 60 + 15,
   },
   {
     id: 3,
-    coinA: { name: "BOME", ticker: "BOME", change: -3.1, color: "#2563eb", icon: "💣" },
-    coinB: { name: "POPCAT", ticker: "POPCAT", change: +22.9, color: "#7c3aed", icon: "😺" },
+    coinA: { name: "BOME",   ticker: "BOME",   change: -3.1,  icon: "💣" },
+    coinB: { name: "POPCAT", ticker: "POPCAT", change: +22.9, icon: "😺" },
     volume: "$2.1M",
     endsIn: 14 * 60 + 58,
   },
 ];
 
 const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: <Zap className="w-6 h-6" />,
-    title: "GET YOUR WALLET READY",
-    desc: "Buy $BATTLE tokens and connect your Phantom wallet to the VeloxFi arena.",
-  },
-  {
-    step: "02",
-    icon: <Swords className="w-6 h-6" />,
-    title: "CREATE YOUR MEMECOIN",
-    desc: "Launch your memecoin directly on VeloxFi — no external tools needed.",
-  },
-  {
-    step: "03",
-    icon: <TrendingUp className="w-6 h-6" />,
-    title: "CHALLENGE A RIVAL",
-    desc: "Challenge another coin to a battle — choose your duration: 1h, 3h, 12h, 24h, or 7 days.",
-  },
-  {
-    step: "04",
-    icon: <Trophy className="w-6 h-6" />,
-    title: "WIN THE SPOILS",
-    desc: "Highest % price surge wins. The victor earns 30% of the loser's tokens automatically.",
-  },
+  { step: "01", emoji: "👛", title: "GET YOUR WALLET", desc: "Buy $BATTLE tokens and connect Phantom to the VeloxFi arena." },
+  { step: "02", emoji: "🚀", title: "CREATE YOUR COIN", desc: "Launch your memecoin directly on VeloxFi — no external tools needed." },
+  { step: "03", emoji: "⚔️",  title: "CHALLENGE A RIVAL", desc: "Challenge another coin to a battle — pick your duration: 1h to 7 days." },
+  { step: "04", emoji: "🏆", title: "WIN THE SPOILS", desc: "Highest % price surge wins. Victor earns 30% of the loser's tokens." },
 ];
 
+const TICKER_ITEMS = [
+  "🔥 $BATTLE PRESALE LIVE 🔥",
+  "⚔️ JOIN THE BATTLEFIELD ⚔️",
+  "🐺 1 SOL = 100,000 $BATTLE 🐺",
+  "💰 PRESALE GOAL: 500 SOL 💰",
+  "🚀 BUILT ON SOLANA 🚀",
+  "🎯 MIN BUY: 0.1 SOL 🎯",
+  "🏆 OG BADGE FOR EARLY WARRIORS 🏆",
+];
+
+const FLOATING_COINS = [
+  { emoji: "🪙", x: "8%",  y: "20%", delay: "0s",   dur: "4s",   size: "2rem" },
+  { emoji: "💎", x: "15%", y: "70%", delay: "0.7s",  dur: "5s",   size: "1.5rem" },
+  { emoji: "🔥", x: "85%", y: "15%", delay: "1.2s",  dur: "3.5s", size: "1.8rem" },
+  { emoji: "⚡", x: "90%", y: "60%", delay: "2s",    dur: "4.5s", size: "1.6rem" },
+  { emoji: "🚀", x: "5%",  y: "50%", delay: "1.5s",  dur: "6s",   size: "1.4rem" },
+  { emoji: "💰", x: "78%", y: "80%", delay: "0.3s",  dur: "5.5s", size: "2rem" },
+  { emoji: "🎯", x: "50%", y: "90%", delay: "2.5s",  dur: "4s",   size: "1.3rem" },
+  { emoji: "🪙", x: "65%", y: "10%", delay: "1s",    dur: "5s",   size: "1.7rem" },
+  { emoji: "💥", x: "35%", y: "85%", delay: "3s",    dur: "3.5s", size: "1.5rem" },
+  { emoji: "⚔️", x: "25%", y: "12%", delay: "0.5s",  dur: "4.5s", size: "1.6rem" },
+];
+
+/* ── Countdown ── */
 function CountdownTimer({ seconds }: { seconds: number }) {
   const [remaining, setRemaining] = useState(seconds);
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRemaining((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
+    const id = setInterval(() => setRemaining((p) => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(id);
   }, []);
-
   const m = Math.floor(remaining / 60).toString().padStart(2, "0");
   const s = (remaining % 60).toString().padStart(2, "0");
-
   return (
     <div className="flex items-center gap-1.5 font-orbitron text-sm">
-      <Clock className="w-3.5 h-3.5 text-gray-400" />
-      <span className="text-gray-300">{m}:{s}</span>
+      <Clock className="w-3.5 h-3.5 text-yellow-400" />
+      <span className="text-yellow-300 font-bold">{m}:{s}</span>
     </div>
   );
 }
 
+/* ── Battle Card ── */
 function BattleCard({ battle }: { battle: typeof BATTLES[0] }) {
   const [pctA, setPctA] = useState(55);
-
   useEffect(() => {
-    const changeA = battle.coinA.change;
-    const changeB = battle.coinB.change;
-    const spread = changeA - changeB;
-    const base = 50 + Math.min(Math.max(spread * 1.2, -40), 40);
-    setPctA(base);
+    const spread = battle.coinA.change - battle.coinB.change;
+    setPctA(50 + Math.min(Math.max(spread * 1.2, -40), 40));
   }, [battle]);
-
   const pctB = 100 - pctA;
-  const aWinning = battle.coinA.change > battle.coinB.change;
 
   return (
     <div
       data-testid={`battle-card-${battle.id}`}
-      className="card-dark rounded-xl p-5 relative overflow-hidden hover:border-blue-800/40 transition-all duration-300 hover:-translate-y-0.5"
+      className="rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+      style={{
+        background: "linear-gradient(135deg, rgba(15,20,40,0.95), rgba(20,10,40,0.95))",
+        border: "1px solid rgba(139,92,246,0.4)",
+        boxShadow: "0 0 20px rgba(124,58,237,0.15)",
+      }}
     >
-      {/* volume badge */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-orbitron text-gray-500 tracking-widest">LIVE BATTLE</span>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">VOL {battle.volume}</span>
-          <CountdownTimer seconds={battle.endsIn} />
-        </div>
+        <span className="text-xs font-orbitron tracking-widest px-2 py-1 rounded-full"
+          style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}>
+          ⚡ LIVE
+        </span>
+        <CountdownTimer seconds={battle.endsIn} />
       </div>
 
-      {/* VS row */}
       <div className="flex items-center gap-3 mb-5">
-        {/* Coin A */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">{battle.coinA.icon}</span>
-            <div>
-              <div className="font-orbitron font-bold text-white text-sm">{battle.coinA.ticker}</div>
-              <div className={`flex items-center gap-1 text-xs font-semibold ${battle.coinA.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {battle.coinA.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {battle.coinA.change >= 0 ? "+" : ""}{battle.coinA.change}%
-              </div>
-            </div>
+        <div className="flex-1 text-center">
+          <div className="text-3xl mb-1">{battle.coinA.icon}</div>
+          <div className="font-orbitron font-black text-white text-sm">{battle.coinA.ticker}</div>
+          <div className={`text-xs font-bold mt-0.5 ${battle.coinA.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            {battle.coinA.change >= 0 ? "+" : ""}{battle.coinA.change}%
           </div>
         </div>
 
-        {/* VS badge */}
-        <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 shadow-lg">
-          <span className="font-orbitron text-white text-xs font-black">VS</span>
+        <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-orbitron text-white text-xs font-black"
+          style={{ background: "linear-gradient(135deg, #ef4444, #7c3aed)", boxShadow: "0 0 12px rgba(239,68,68,0.5)" }}>
+          VS
         </div>
 
-        {/* Coin B */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1 justify-end">
-            <div className="text-right">
-              <div className="font-orbitron font-bold text-white text-sm">{battle.coinB.ticker}</div>
-              <div className={`flex items-center gap-1 text-xs font-semibold justify-end ${battle.coinB.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {battle.coinB.change >= 0 ? "+" : ""}{battle.coinB.change}%
-                {battle.coinB.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              </div>
-            </div>
-            <span className="text-2xl">{battle.coinB.icon}</span>
+        <div className="flex-1 text-center">
+          <div className="text-3xl mb-1">{battle.coinB.icon}</div>
+          <div className="font-orbitron font-black text-white text-sm">{battle.coinB.ticker}</div>
+          <div className={`text-xs font-bold mt-0.5 ${battle.coinB.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            {battle.coinB.change >= 0 ? "+" : ""}{battle.coinB.change}%
           </div>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="h-2 rounded-full overflow-hidden bg-gray-800 mb-3">
+      <div className="h-3 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
         <div className="h-full flex">
-          <div
-            className="transition-all duration-1000 rounded-l-full"
-            style={{ width: `${pctA}%`, background: "linear-gradient(90deg, #2563eb, #3b82f6)" }}
-          />
-          <div
-            className="transition-all duration-1000 rounded-r-full"
-            style={{ width: `${pctB}%`, background: "linear-gradient(90deg, #6d28d9, #7c3aed)" }}
-          />
+          <div className="transition-all duration-1000 rounded-l-full"
+            style={{ width: `${pctA}%`, background: "linear-gradient(90deg, #2563eb, #60a5fa)" }} />
+          <div className="transition-all duration-1000 rounded-r-full"
+            style={{ width: `${pctB}%`, background: "linear-gradient(90deg, #7c3aed, #a78bfa)" }} />
         </div>
       </div>
 
-      {/* pct labels */}
-      <div className="flex justify-between text-xs text-gray-500 font-orbitron mb-4">
-        <span style={{ color: "#60a5fa" }}>{pctA.toFixed(0)}%</span>
-        <span style={{ color: "#a78bfa" }}>{pctB.toFixed(0)}%</span>
+      <div className="flex justify-between text-xs font-orbitron mb-4">
+        <span className="text-blue-400 font-bold">{pctA.toFixed(0)}%</span>
+        <span className="text-gray-500 text-xs">VOL {battle.volume}</span>
+        <span className="text-purple-400 font-bold">{pctB.toFixed(0)}%</span>
       </div>
 
-      {/* action */}
       <button
         data-testid={`btn-battle-vote-${battle.id}`}
-        className="w-full btn-primary py-2.5 rounded-lg text-xs"
+        className="w-full py-3 rounded-xl text-xs font-orbitron font-black tracking-widest transition-all duration-200 hover:scale-105"
+        style={{
+          background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+          boxShadow: "0 0 15px rgba(124,58,237,0.4)",
+        }}
       >
-        <span className="font-orbitron tracking-widest">JOIN BATTLE</span>
+        ⚔️ JOIN BATTLE ⚔️
       </button>
     </div>
   );
 }
 
-function StatCard({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
+/* ── Coin Fight Scene ── */
+function CoinFightScene() {
+  const [frame, setFrame] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setFrame((f) => (f + 1) % 4), 600);
+    return () => clearInterval(id);
+  }, []);
+  const flashes = ["💥", "⚡", "💢", "✨"];
+
   return (
-    <div data-testid={`stat-card-${label.replace(/\s+/g, "-").toLowerCase()}`} className="card-dark rounded-xl p-6 text-center flex flex-col items-center gap-3 gradient-border">
-      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))", border: "1px solid rgba(37,99,235,0.3)" }}>
-        <div className="text-blue-400">{icon}</div>
+    <div className="relative flex items-center justify-center gap-4 md:gap-8 py-8">
+      {/* Coin A */}
+      <div className="flex flex-col items-center gap-2" style={{ animation: "coinBobA 1.2s ease-in-out infinite" }}>
+        <div className="text-6xl md:text-8xl" style={{ filter: "drop-shadow(0 0 20px #3b82f6)" }}>🐸</div>
+        <div className="font-orbitron font-black text-blue-400 text-sm md:text-base">PEPE</div>
+        <div className="text-green-400 font-bold text-xs">+24.7%</div>
       </div>
-      <div>
-        <div className="text-3xl font-bold text-white" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: "0.02em" }}>
-          {value}
+
+      {/* Battle flash */}
+      <div className="flex flex-col items-center gap-1">
+        <div className="text-4xl md:text-6xl" style={{ animation: "battleFlash 0.6s steps(1) infinite" }}>
+          {flashes[frame]}
         </div>
-        <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">{label}</div>
+        <div className="font-orbitron font-black text-white text-lg md:text-2xl px-4 py-2 rounded-xl"
+          style={{ background: "linear-gradient(135deg, #ef4444, #7c3aed)", boxShadow: "0 0 20px rgba(239,68,68,0.6)" }}>
+          VS
+        </div>
+        <div className="text-yellow-400 text-xs font-orbitron animate-pulse">BATTLE LIVE</div>
       </div>
+
+      {/* Coin B */}
+      <div className="flex flex-col items-center gap-2" style={{ animation: "coinBobB 1.2s ease-in-out infinite" }}>
+        <div className="text-6xl md:text-8xl" style={{ filter: "drop-shadow(0 0 20px #a855f7)" }}>🐕</div>
+        <div className="font-orbitron font-black text-purple-400 text-sm md:text-base">DOGE</div>
+        <div className="text-red-400 font-bold text-xs">-8.3%</div>
+      </div>
+
+      {/* Explosion sparks */}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="absolute text-sm pointer-events-none"
+          style={{
+            animation: `spark${i % 3} ${1 + (i * 0.3)}s ease-in-out infinite`,
+            animationDelay: `${i * 0.2}s`,
+            top: `${20 + (i * 10)}%`,
+            left: `${30 + (i * 7)}%`,
+            opacity: 0.7,
+          }}
+        >
+          ✦
+        </div>
+      ))}
     </div>
   );
 }
 
+/* ── Main Component ── */
 export default function Home() {
   usePageMeta({
     title: "VeloxFi — Memecoin Battle Platform on Solana",
-    description: "The first memecoin battle arena on Solana. Create your coin, challenge rivals, and win. Highest % price surge wins. $BATTLE token presale coming soon.",
+    description: "The first memecoin battle arena on Solana. Create your coin, challenge rivals, and win. Highest % price surge wins. $BATTLE token presale live now.",
     canonical: "https://veloxfi.io",
   });
+
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
+  const heroRef = useRef<HTMLDivElement>(null);
 
   function navGo(path: string) {
     setMobileOpen(false);
@@ -211,110 +237,140 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: "#05080f", minHeight: "100vh", color: "white" }}>
+    <div style={{ backgroundColor: "#05080f", minHeight: "100vh", color: "white", overflow: "hidden" }}>
 
-      {/* Scanline overlay */}
-      <div className="fixed inset-0 scanline pointer-events-none z-0" />
+      {/* ── KEYFRAME ANIMATIONS ── */}
+      <style>{`
+        @keyframes tickerScroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes floatUpDown {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50%       { transform: translateY(-18px) rotate(8deg); }
+        }
+        @keyframes glowPulse {
+          0%, 100% { text-shadow: 0 0 10px #3b82f6, 0 0 30px #3b82f6, 0 0 60px #3b82f6; }
+          50%       { text-shadow: 0 0 20px #a855f7, 0 0 50px #a855f7, 0 0 90px #a855f7; }
+        }
+        @keyframes wolfGlow {
+          0%, 100% { filter: drop-shadow(0 0 30px rgba(59,130,246,0.6)) drop-shadow(0 0 60px rgba(124,58,237,0.3)); }
+          50%       { filter: drop-shadow(0 0 50px rgba(168,85,247,0.8)) drop-shadow(0 0 100px rgba(59,130,246,0.4)); }
+        }
+        @keyframes coinBobA {
+          0%, 100% { transform: translateY(0px) rotate(-3deg); }
+          50%       { transform: translateY(-12px) rotate(3deg); }
+        }
+        @keyframes coinBobB {
+          0%, 100% { transform: translateY(-8px) rotate(3deg); }
+          50%       { transform: translateY(8px) rotate(-3deg); }
+        }
+        @keyframes battleFlash {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.6; transform: scale(1.3); }
+        }
+        @keyframes spark0 { 0%,100%{transform:translate(0,0) scale(1);opacity:.7} 50%{transform:translate(-15px,-20px) scale(1.5);opacity:1} }
+        @keyframes spark1 { 0%,100%{transform:translate(0,0) scale(1);opacity:.5} 50%{transform:translate(15px,-15px) scale(1.3);opacity:0.9} }
+        @keyframes spark2 { 0%,100%{transform:translate(0,0) scale(0.8);opacity:.6} 50%{transform:translate(-10px,15px) scale(1.4);opacity:1} }
+        @keyframes btnPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.6), 0 0 40px rgba(124,58,237,0.3); }
+          50%       { box-shadow: 0 0 35px rgba(168,85,247,0.8), 0 0 70px rgba(59,130,246,0.4); }
+        }
+        @keyframes orbFloat1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50%       { transform: translate(30px, -40px) scale(1.1); }
+        }
+        @keyframes orbFloat2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50%       { transform: translate(-25px, 35px) scale(0.9); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes borderGlow {
+          0%, 100% { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 10px rgba(59,130,246,0.2); }
+          50%       { border-color: rgba(168,85,247,0.6); box-shadow: 0 0 25px rgba(168,85,247,0.3); }
+        }
+        .btn-mega {
+          animation: btnPulse 2s ease-in-out infinite;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-mega:hover {
+          transform: scale(1.06) translateY(-2px);
+        }
+        .hero-title-glow {
+          animation: glowPulse 3s ease-in-out infinite;
+        }
+        .wolf-image {
+          animation: wolfGlow 3s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* ── TICKER STRIP ── */}
+      <div
+        className="w-full overflow-hidden py-2 relative z-50"
+        style={{ background: "linear-gradient(90deg, #1d4ed8, #7c3aed, #1d4ed8)", borderBottom: "1px solid rgba(168,85,247,0.4)" }}
+      >
+        <div
+          className="flex gap-12 whitespace-nowrap font-orbitron text-xs font-bold text-white tracking-widest"
+          style={{ animation: "tickerScroll 20s linear infinite", width: "max-content" }}
+        >
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="flex-shrink-0">{item}</span>
+          ))}
+        </div>
+      </div>
 
       {/* ── NAV ── */}
       <nav
         data-testid="nav"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navScrolled ? "backdrop-blur-lg border-b border-white/5" : ""}`}
-        style={{ backgroundColor: navScrolled ? "rgba(5,8,15,0.9)" : "transparent" }}
+        className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${navScrolled ? "backdrop-blur-xl" : ""}`}
+        style={{
+          backgroundColor: navScrolled ? "rgba(5,8,15,0.95)" : "rgba(5,8,15,0.6)",
+          borderBottom: navScrolled ? "1px solid rgba(124,58,237,0.2)" : "1px solid transparent",
+          backdropFilter: "blur(12px)",
+        }}
       >
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" data-testid="nav-logo" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #2563eb, #7c3aed)" }}>
-              <Swords className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-orbitron font-black text-lg tracking-wider gradient-text">VELOXFI</span>
-            <span className="text-lg" aria-hidden="true">🐺</span>
+            <img src="/favicon.jpg" alt="VeloxFi Wolf" className="w-9 h-9 rounded-lg object-cover" style={{ border: "1px solid rgba(124,58,237,0.5)" }} />
+            <span className="font-orbitron font-black text-lg tracking-wider"
+              style={{ background: "linear-gradient(135deg, #60a5fa, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              VELOXFI
+            </span>
           </a>
 
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-8">
-            <button
-              data-testid="nav-link-battles"
-              onClick={() => navGo("/battles")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#34d399", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Battles
-            </button>
-            <button
-              data-testid="nav-link-leaderboard"
-              onClick={() => navGo("/leaderboard")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Leaderboard
-            </button>
-            <button
-              data-testid="nav-link-create-coin"
-              onClick={() => navGo("/create")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Create Coin
-            </button>
-            <button
-              data-testid="nav-link-demo"
-              onClick={() => navGo("/demo")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#a78bfa", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Demo
-            </button>
-            <button
-              data-testid="nav-link-presale"
-              onClick={() => navGo("/presale")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#60a5fa", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Presale
-            </button>
-            <button
-              data-testid="nav-link-whitepaper"
-              onClick={() => navGo("/whitepaper")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Whitepaper
-            </button>
-            <button
-              data-testid="nav-link-faq"
-              onClick={() => navGo("/faq")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#60a5fa", background: "none", border: "none", cursor: "pointer" }}
-            >
-              FAQ
-            </button>
-            <button
-              data-testid="nav-link-roadmap"
-              onClick={() => navGo("/roadmap")}
-              className="text-sm font-medium tracking-wide transition-colors hover:opacity-80"
-              style={{ color: "#34d399", background: "none", border: "none", cursor: "pointer" }}
-            >
-              Roadmap
-            </button>
+          <div className="hidden md:flex items-center gap-6">
+            {[
+              { label: "⚔️ Battles",    path: "/battles",     color: "#34d399" },
+              { label: "🏆 Leaderboard", path: "/leaderboard", color: "#f59e0b" },
+              { label: "🚀 Create Coin", path: "/create",      color: "#a78bfa" },
+              { label: "🎮 Demo",        path: "/demo",        color: "#a78bfa" },
+              { label: "🔥 Presale",     path: "/presale",     color: "#4ade80" },
+              { label: "Whitepaper",     path: "/whitepaper",  color: "#6b7280" },
+              { label: "FAQ",            path: "/faq",         color: "#60a5fa" },
+              { label: "Roadmap",        path: "/roadmap",     color: "#34d399" },
+            ].map(({ label, path, color }) => (
+              <button
+                key={path}
+                data-testid={`nav-link-${path.replace("/", "")}`}
+                onClick={() => navGo(path)}
+                className="text-sm font-medium tracking-wide transition-all duration-150 hover:scale-105"
+                style={{ color, background: "none", border: "none", cursor: "pointer" }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          {/* Right side: Connect Wallet + hamburger */}
           <div className="flex items-center gap-3">
             <ConnectWalletButton />
-
-            {/* Hamburger — mobile only */}
             <button
               data-testid="btn-mobile-menu"
               onClick={() => setMobileOpen((o) => !o)}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
-              style={{
-                background: mobileOpen ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                cursor: "pointer",
-                color: "white",
-              }}
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg"
+              style={{ background: mobileOpen ? "rgba(124,58,237,0.2)" : "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "white" }}
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -322,46 +378,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile dropdown */}
         {mobileOpen && (
-          <div
-            className="md:hidden border-t"
-            style={{
-              borderColor: "rgba(255,255,255,0.06)",
-              background: "rgba(5,8,15,0.98)",
-            }}
-          >
+          <div className="md:hidden border-t" style={{ borderColor: "rgba(124,58,237,0.15)", background: "rgba(5,8,15,0.98)" }}>
             <div className="flex flex-col py-2">
               {[
-                { label: "Battles",     path: "/battles",     color: "#34d399" },
-                { label: "Leaderboard", path: "/leaderboard", color: "#f59e0b" },
-                { label: "Create Coin", path: "/create",      color: "#a78bfa" },
-                { label: "Demo",        path: "/demo",        color: "#a78bfa" },
-                { label: "Presale",     path: "/presale",     color: "#60a5fa" },
-                { label: "Whitepaper",  path: "/whitepaper",  color: "#6b7280" },
-                { label: "FAQ",         path: "/faq",         color: "#60a5fa" },
-                { label: "Roadmap",     path: "/roadmap",     color: "#34d399" },
+                { label: "⚔️ Battles",    path: "/battles",     color: "#34d399" },
+                { label: "🏆 Leaderboard", path: "/leaderboard", color: "#f59e0b" },
+                { label: "🚀 Create Coin", path: "/create",      color: "#a78bfa" },
+                { label: "🎮 Demo",        path: "/demo",        color: "#a78bfa" },
+                { label: "🔥 Presale",     path: "/presale",     color: "#4ade80" },
+                { label: "Whitepaper",     path: "/whitepaper",  color: "#6b7280" },
+                { label: "FAQ",            path: "/faq",         color: "#60a5fa" },
+                { label: "Roadmap",        path: "/roadmap",     color: "#34d399" },
               ].map(({ label, path, color }) => (
-                <button
-                  key={path}
-                  onClick={() => navGo(path)}
-                  className="w-full text-left px-6 py-3.5 text-sm font-medium tracking-wide transition-colors flex items-center gap-3"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "#9ca3af",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color = color;
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color = "#9ca3af";
-                    (e.currentTarget as HTMLButtonElement).style.background = "none";
-                  }}
+                <button key={path} onClick={() => navGo(path)}
+                  className="w-full text-left px-6 py-3.5 text-sm font-medium"
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = color; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#9ca3af"; }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
                   {label}
                 </button>
               ))}
@@ -375,82 +410,200 @@ export default function Home() {
         ref={heroRef}
         data-testid="hero-section"
         className="relative overflow-hidden"
-        style={{ minHeight: "calc(100vh - 72px)" }}
+        style={{ minHeight: "calc(100vh - 110px)" }}
       >
-        {/* Glow orbs */}
-        <div className="absolute top-1/4 left-1/6 w-[500px] h-[500px] rounded-full blur-3xl opacity-10 pointer-events-none" style={{ background: "#2563eb" }} />
-        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full blur-3xl opacity-10 pointer-events-none" style={{ background: "#7c3aed", transform: "translate(30%, -50%)" }} />
-        <div className="absolute bottom-0 left-1/2 w-[600px] h-[200px] rounded-full blur-3xl opacity-5 pointer-events-none" style={{ background: "url(#grad-outline)", backgroundColor: "#2563eb", transform: "translateX(-50%)" }} />
+        {/* Animated background orbs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute w-[600px] h-[600px] rounded-full blur-3xl opacity-20"
+            style={{ background: "#2563eb", top: "10%", left: "-10%", animation: "orbFloat1 8s ease-in-out infinite" }} />
+          <div className="absolute w-[500px] h-[500px] rounded-full blur-3xl opacity-15"
+            style={{ background: "#7c3aed", top: "30%", right: "-5%", animation: "orbFloat2 10s ease-in-out infinite" }} />
+          <div className="absolute w-[400px] h-[400px] rounded-full blur-3xl opacity-10"
+            style={{ background: "#a855f7", bottom: "10%", left: "40%", animation: "orbFloat1 12s ease-in-out infinite reverse" }} />
+        </div>
 
-        {/* Two-column layout */}
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 pt-32 pb-20 md:pt-36 md:pb-24">
+        {/* Floating coin emojis */}
+        {FLOATING_COINS.map((coin, i) => (
+          <div
+            key={i}
+            className="absolute pointer-events-none select-none"
+            style={{
+              left: coin.x,
+              top: coin.y,
+              fontSize: coin.size,
+              animation: `floatUpDown ${coin.dur} ease-in-out infinite`,
+              animationDelay: coin.delay,
+              zIndex: 1,
+              opacity: 0.5,
+            }}
+          >
+            {coin.emoji}
+          </div>
+        ))}
 
-          {/* ── LEFT: Text content ── */}
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-orbitron tracking-widest"
-              style={{ background: "rgba(22,163,74,0.12)", border: "1px solid rgba(22,163,74,0.4)", color: "#4ade80" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              PRESALE LIVE
+        {/* Two-column hero */}
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 pt-12 pb-16 md:pt-16 md:pb-20 relative z-10">
+
+          {/* LEFT: Text */}
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-2xl">
+
+            {/* Live badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-orbitron text-xs font-black tracking-widest"
+              style={{ background: "rgba(74,222,128,0.15)", border: "2px solid rgba(74,222,128,0.5)", color: "#4ade80", boxShadow: "0 0 15px rgba(74,222,128,0.3)" }}>
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              🔥 PRESALE LIVE — LIMITED SPOTS 🔥
             </div>
 
-            {/* Headline */}
-            <h1 className="font-orbitron font-black text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" data-testid="hero-title">
-              LET YOUR{" "}
-              <span className="gradient-text">MEMECOIN</span>
-              <br />
-              GO TO WAR
+            {/* Main title */}
+            <h1
+              className="font-orbitron font-black leading-none mb-2"
+              data-testid="hero-title"
+              style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}
+            >
+              <span className="block text-white">⚔️ LET YOUR</span>
+              <span
+                className="block hero-title-glow"
+                style={{
+                  background: "linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  backgroundSize: "200% auto",
+                }}
+              >
+                MEMECOIN
+              </span>
+              <span className="block text-white">GO TO WAR ⚔️</span>
             </h1>
 
-            <p className="text-gray-400 text-lg md:text-xl max-w-lg mb-10 leading-relaxed">
-              The first on-chain memecoin battle arena on Solana. Pit your coin against rivals, back the winner, and claim the spoils.
+            <p className="text-gray-300 text-lg md:text-xl max-w-lg mb-8 mt-6 leading-relaxed">
+              The first on-chain memecoin battle arena on Solana. 🐺 Pit your coin against rivals, back the winner, and claim the spoils. <span className="text-yellow-400 font-bold">Highest % price surge wins.</span>
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <button data-testid="btn-hero-start-battle" className="btn-primary px-8 py-4 rounded-xl text-base">
-                <span className="font-orbitron tracking-wider">START A BATTLE</span>
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <button
+                data-testid="btn-hero-start-battle"
+                className="btn-mega px-10 py-5 rounded-2xl text-base font-orbitron font-black tracking-wider"
+                onClick={() => navigate("/presale")}
+                style={{
+                  background: "linear-gradient(135deg, #2563eb, #7c3aed, #a855f7)",
+                  backgroundSize: "200% auto",
+                  animation: "btnPulse 2s ease-in-out infinite, shimmer 3s linear infinite",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "white",
+                  fontSize: "1rem",
+                }}
+              >
+                🔥 BUY $BATTLE NOW 🔥
               </button>
-              <button data-testid="btn-hero-view-battles" className="btn-outline px-8 py-4 rounded-xl text-base text-sm">
-                VIEW LIVE BATTLES
+              <button
+                data-testid="btn-hero-view-battles"
+                onClick={() => navigate("/demo")}
+                className="px-10 py-5 rounded-2xl text-base font-orbitron font-black tracking-wider transition-all duration-200 hover:scale-105"
+                style={{
+                  background: "transparent",
+                  border: "2px solid rgba(139,92,246,0.6)",
+                  cursor: "pointer",
+                  color: "#a78bfa",
+                  boxShadow: "0 0 15px rgba(124,58,237,0.2)",
+                  fontSize: "1rem",
+                }}
+              >
+                ⚔️ VIEW BATTLES
               </button>
             </div>
 
             {/* Trust line */}
-            <p className="text-xs text-gray-600 font-orbitron tracking-widest">
-              BUILT ON SOLANA &middot; $BATTLE TOKEN &middot; PRESALE NOW LIVE
+            <p className="text-xs font-orbitron tracking-widest" style={{ color: "#4ade80" }}>
+              ✅ BUILT ON SOLANA &middot; ✅ $BATTLE TOKEN &middot; ✅ PRESALE NOW LIVE
             </p>
+
+            {/* Presale stats mini */}
+            <div className="flex gap-6 mt-6">
+              {[
+                { label: "PRICE", value: "1 SOL = 100K" },
+                { label: "MIN BUY", value: "0.1 SOL" },
+                { label: "GOAL", value: "500 SOL" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <div className="font-orbitron font-black text-white text-sm md:text-base">{s.value}</div>
+                  <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* ── RIGHT: Cyber Wolf ── */}
-          <div className="flex-shrink-0 w-full max-w-[360px] md:max-w-[430px] lg:max-w-[480px]">
-            <CyberWolf />
+          {/* RIGHT: Wolf mascot — HUGE */}
+          <div
+            className="flex-shrink-0 w-full md:w-auto flex items-center justify-center"
+            style={{ maxWidth: "520px" }}
+          >
+            <img
+              src="/favicon.jpg"
+              alt="VeloxFi Wolf Warrior"
+              className="wolf-image w-full rounded-3xl object-cover"
+              style={{
+                maxHeight: "560px",
+                border: "2px solid rgba(124,58,237,0.4)",
+                boxShadow: "0 0 60px rgba(59,130,246,0.4), 0 0 120px rgba(124,58,237,0.2)",
+              }}
+            />
           </div>
 
         </div>
-
-        {/* Mobile-only wolf (below text, smaller) — hidden on md+ via the layout above */}
       </section>
 
-      {/* ── STATS ── */}
-      <section data-testid="stats-section" className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <StatCard value="0" label="BATTLES FOUGHT" icon={<Swords className="w-6 h-6" />} />
-          <StatCard value="$0" label="TOTAL VOLUME" icon={<TrendingUp className="w-6 h-6" />} />
-          <StatCard value="0" label="COINS CREATED" icon={<Zap className="w-6 h-6" />} />
+      {/* ── STATS BAR ── */}
+      <section data-testid="stats-section" className="py-6 px-6 relative"
+        style={{ background: "linear-gradient(90deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08), rgba(37,99,235,0.08))", borderTop: "1px solid rgba(124,58,237,0.15)", borderBottom: "1px solid rgba(124,58,237,0.15)" }}>
+        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-4 md:gap-8">
+          {[
+            { icon: "⚔️", value: "0",  label: "BATTLES FOUGHT" },
+            { icon: "💰", value: "$0", label: "TOTAL VOLUME" },
+            { icon: "🚀", value: "0",  label: "COINS CREATED" },
+          ].map((s) => (
+            <div key={s.label} data-testid={`stat-card-${s.label.replace(/\s+/g, "-").toLowerCase()}`} className="text-center">
+              <div className="text-2xl mb-1">{s.icon}</div>
+              <div className="font-orbitron font-black text-2xl md:text-3xl text-white">{s.value}</div>
+              <div className="font-orbitron text-xs text-gray-500 tracking-widest mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── COIN BATTLE ARENA ── */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <div className="text-center mb-4">
+          <h2 className="font-orbitron font-black text-3xl md:text-4xl text-white mb-2">
+            🏟️ THE <span style={{ color: "#f59e0b" }}>BATTLE ARENA</span>
+          </h2>
+          <p className="text-gray-400 text-sm">Watch coins fight it out in real-time price wars</p>
+        </div>
+
+        <div className="rounded-3xl p-6 md:p-10 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, rgba(15,20,40,0.9), rgba(20,10,40,0.9))",
+            border: "2px solid rgba(124,58,237,0.3)",
+            boxShadow: "0 0 40px rgba(124,58,237,0.15), inset 0 0 60px rgba(37,99,235,0.05)",
+            animation: "borderGlow 3s ease-in-out infinite",
+          }}>
+          <CoinFightScene />
         </div>
       </section>
 
       {/* ── LIVE BATTLES ── */}
-      <section data-testid="live-battles-section" className="max-w-5xl mx-auto px-6 pb-24">
+      <section data-testid="live-battles-section" className="max-w-5xl mx-auto px-6 pb-16">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white">
-              LIVE <span className="gradient-text">BATTLES</span>
+            <h2 className="font-orbitron font-black text-2xl md:text-3xl text-white">
+              ⚡ LIVE <span style={{ color: "#4ade80" }}>BATTLES</span>
             </h2>
             <p className="text-gray-500 text-sm mt-1">Real-time memecoin combat</p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-orbitron text-emerald-400">
+          <div className="flex items-center gap-2 text-xs font-orbitron text-emerald-400 px-3 py-1.5 rounded-full"
+            style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)" }}>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             3 LIVE
           </div>
@@ -463,23 +616,25 @@ export default function Home() {
         </div>
 
         <div className="text-center mt-8">
-          <button data-testid="btn-view-all-battles" className="btn-outline px-8 py-3 rounded-xl text-sm">
-            VIEW ALL BATTLES
+          <button
+            data-testid="btn-view-all-battles"
+            onClick={() => navigate("/demo")}
+            className="px-10 py-4 rounded-2xl text-sm font-orbitron font-black tracking-widest transition-all duration-200 hover:scale-105"
+            style={{ border: "2px solid rgba(139,92,246,0.5)", color: "#a78bfa", background: "rgba(124,58,237,0.08)", cursor: "pointer" }}
+          >
+            🎮 VIEW ALL BATTLES
           </button>
-          <p className="text-gray-600 text-xs font-orbitron tracking-widest mt-4">
-            DEMO BATTLES &mdash; REAL BATTLES COMING SOON
-          </p>
+          <p className="text-gray-600 text-xs font-orbitron tracking-widest mt-4">DEMO BATTLES — REAL BATTLES LAUNCHING SOON</p>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section data-testid="how-it-works-section" className="max-w-5xl mx-auto px-6 pb-24">
-        {/* Section header */}
-        <div className="text-center mb-12">
-          <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white mb-3">
-            HOW IT <span className="gradient-text">WORKS</span>
+      <section data-testid="how-it-works-section" className="max-w-5xl mx-auto px-6 pb-16">
+        <div className="text-center mb-10">
+          <h2 className="font-orbitron font-black text-2xl md:text-3xl text-white mb-2">
+            🎯 HOW IT <span style={{ background: "linear-gradient(135deg, #60a5fa, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>WORKS</span>
           </h2>
-          <p className="text-gray-500 text-sm max-w-md mx-auto">Four steps from zero to glory</p>
+          <p className="text-gray-500 text-sm">Four steps from zero to glory 🏆</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -487,21 +642,16 @@ export default function Home() {
             <div
               key={step.step}
               data-testid={`step-card-${step.step}`}
-              className="card-dark rounded-xl p-6 relative group hover:border-blue-800/30 transition-all duration-300"
+              className="rounded-2xl p-6 text-center relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(15,20,40,0.9), rgba(20,10,40,0.9))",
+                border: `1px solid ${i % 2 === 0 ? "rgba(59,130,246,0.3)" : "rgba(168,85,247,0.3)"}`,
+                boxShadow: `0 0 15px ${i % 2 === 0 ? "rgba(59,130,246,0.1)" : "rgba(168,85,247,0.1)"}`,
+              }}
             >
-              {/* Step connector line (not on last) */}
-              {i < HOW_IT_WORKS.length - 1 && (
-                <div className="hidden lg:block absolute top-10 left-full w-5 h-px z-10" style={{ background: "linear-gradient(90deg, rgba(37,99,235,0.4), transparent)" }} />
-              )}
-
-              <div className="font-orbitron text-xs font-black mb-4" style={{ color: i % 2 === 0 ? "#2563eb" : "#7c3aed" }}>
-                {step.step}
-              </div>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-                style={{ background: i % 2 === 0 ? "rgba(37,99,235,0.15)" : "rgba(124,58,237,0.15)", border: `1px solid ${i % 2 === 0 ? "rgba(37,99,235,0.3)" : "rgba(124,58,237,0.3)"}` }}>
-                <div style={{ color: i % 2 === 0 ? "#60a5fa" : "#a78bfa" }}>{step.icon}</div>
-              </div>
-              <h3 className="font-orbitron font-bold text-xs text-white mb-2 leading-snug">{step.title}</h3>
+              <div className="font-orbitron text-xs font-black mb-3 opacity-50" style={{ color: i % 2 === 0 ? "#60a5fa" : "#a855f7" }}>STEP {step.step}</div>
+              <div className="text-4xl mb-3">{step.emoji}</div>
+              <h3 className="font-orbitron font-black text-xs text-white mb-2 leading-snug">{step.title}</h3>
               <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
             </div>
           ))}
@@ -509,21 +659,25 @@ export default function Home() {
       </section>
 
       {/* ── LEADERBOARD PREVIEW ── */}
-      <section data-testid="leaderboard-section" className="max-w-5xl mx-auto px-6 pb-24">
+      <section data-testid="leaderboard-section" className="max-w-5xl mx-auto px-6 pb-16">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white">
-              TOP <span className="gradient-text">WARRIORS</span>
+            <h2 className="font-orbitron font-black text-2xl md:text-3xl text-white">
+              🏆 TOP <span style={{ color: "#f59e0b" }}>WARRIORS</span>
             </h2>
-            <p className="text-gray-500 text-sm mt-1">Season 1 leaderboard — be the first to claim a spot</p>
+            <p className="text-gray-500 text-sm mt-1">Season 1 — be the first to claim a spot</p>
           </div>
-          <button data-testid="btn-view-leaderboard" className="btn-outline px-5 py-2.5 rounded-lg text-xs">
+          <button
+            data-testid="btn-view-leaderboard"
+            onClick={() => navigate("/leaderboard")}
+            className="px-5 py-2.5 rounded-xl text-xs font-orbitron font-black transition-all hover:scale-105"
+            style={{ border: "1px solid rgba(245,158,11,0.4)", color: "#f59e0b", background: "rgba(245,158,11,0.08)", cursor: "pointer" }}
+          >
             FULL LEADERBOARD
           </button>
         </div>
 
-        <div className="card-dark rounded-xl overflow-hidden">
-          {/* Header row */}
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(124,58,237,0.2)", background: "rgba(10,12,25,0.8)" }}>
           <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-orbitron text-gray-600 tracking-widest"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             <div className="col-span-1">RANK</div>
@@ -533,242 +687,189 @@ export default function Home() {
             <div className="col-span-2 text-right">PNL</div>
           </div>
 
-          {/* Empty top 3 rows */}
           {[
-            { rank: 1, medal: "🥇", color: "#FFD700", glowColor: "rgba(255,215,0,0.15)" },
-            { rank: 2, medal: "🥈", color: "#C0C0C0", glowColor: "rgba(192,192,192,0.1)" },
-            { rank: 3, medal: "🥉", color: "#CD7F32", glowColor: "rgba(205,127,50,0.1)" },
+            { rank: 1, medal: "🥇", color: "#FFD700" },
+            { rank: 2, medal: "🥈", color: "#C0C0C0" },
+            { rank: 3, medal: "🥉", color: "#CD7F32" },
           ].map((row) => (
-            <div
-              key={row.rank}
-              data-testid={`leaderboard-row-${row.rank}`}
-              className="grid grid-cols-12 gap-4 px-6 py-4 items-center transition-colors hover:bg-white/[0.02]"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
-            >
-              {/* Rank */}
-              <div className="col-span-1 font-orbitron font-black text-lg" style={{ color: row.color }}>
-                {row.medal}
-              </div>
-
-              {/* Player */}
+            <div key={row.rank} data-testid={`leaderboard-row-${row.rank}`}
+              className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+              <div className="col-span-1 text-xl">{row.medal}</div>
               <div className="col-span-5 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ background: `linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))`, border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <span className="text-gray-600 text-xs font-orbitron">?</span>
-                </div>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 text-xs font-orbitron"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>?</div>
                 <div>
-                  <div className="font-orbitron text-sm font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    — UNCLAIMED —
-                  </div>
+                  <div className="font-orbitron text-sm font-bold text-gray-700">— UNCLAIMED —</div>
                   <div className="text-xs text-gray-700 font-orbitron tracking-widest">RANK #{row.rank} OPEN</div>
                 </div>
               </div>
-
-              {/* Battles */}
               <div className="col-span-2 text-right font-orbitron text-sm text-gray-700">—</div>
-
-              {/* Win rate */}
               <div className="col-span-2 text-right font-orbitron text-sm text-gray-700">—</div>
-
-              {/* PNL */}
-              <div className="col-span-2 text-right">
-                <span className="font-orbitron text-sm text-gray-700">—</span>
-              </div>
+              <div className="col-span-2 text-right font-orbitron text-sm text-gray-700">—</div>
             </div>
           ))}
 
-          {/* Launch CTA row */}
-          <div className="px-6 py-5 text-center" style={{ background: "rgba(37,99,235,0.03)" }}>
-            <p className="text-gray-600 text-xs font-orbitron tracking-widest mb-3">
-              SEASON 1 JUST LAUNCHED — YOUR NAME COULD BE HERE
-            </p>
-            <button data-testid="btn-leaderboard-join" className="btn-primary px-6 py-2.5 rounded-lg text-xs">
-              <span className="font-orbitron tracking-wider">ENTER THE ARENA</span>
+          <div className="px-6 py-5 text-center" style={{ background: "rgba(124,58,237,0.05)" }}>
+            <p className="text-gray-500 text-xs font-orbitron tracking-widest mb-3">🚀 SEASON 1 JUST LAUNCHED — YOUR NAME COULD BE HERE</p>
+            <button
+              data-testid="btn-leaderboard-join"
+              onClick={() => navigate("/presale")}
+              className="btn-mega px-8 py-3 rounded-xl text-xs font-orbitron font-black tracking-wider text-white"
+              style={{ background: "linear-gradient(135deg, #2563eb, #7c3aed)", border: "none", cursor: "pointer" }}
+            >
+              ⚔️ ENTER THE ARENA
             </button>
           </div>
         </div>
       </section>
 
       {/* ── $BATTLE TOKEN ── */}
-      <section data-testid="token-section" className="max-w-5xl mx-auto px-6 pb-24">
+      <section data-testid="token-section" className="max-w-5xl mx-auto px-6 pb-16">
         <div className="text-center mb-10">
-          <h2 className="font-orbitron font-bold text-2xl md:text-3xl text-white mb-3">
-            THE <span style={{ background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>$BATTLE</span> TOKEN
+          <h2 className="font-orbitron font-black text-2xl md:text-3xl text-white mb-2">
+            💰 THE{" "}
+            <span style={{ background: "linear-gradient(135deg, #60a5fa 0%, #a855f7 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              $BATTLE
+            </span>{" "}
+            TOKEN
           </h2>
-          <p className="text-gray-500 text-sm max-w-md mx-auto">The fuel of the VeloxFi arena — stake, earn, and govern</p>
+          <p className="text-gray-500 text-sm">The fuel of the VeloxFi arena — stake, earn, and govern 🐺</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Total Supply */}
-          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-blue-800/30 transition-all duration-300">
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.06), transparent)" }} />
-            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
-              style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-              <Zap className="w-5 h-5" style={{ color: "#60a5fa" }} />
+          {[
+            {
+              icon: <Zap className="w-6 h-6" />, color: "#60a5fa", bg: "rgba(37,99,235,0.15)", border: "rgba(37,99,235,0.3)",
+              title: "1,000,000,000", sub: "TOTAL SUPPLY", badge: null,
+            },
+            {
+              icon: <Trophy className="w-6 h-6" />, color: "#a78bfa", bg: "rgba(124,58,237,0.15)", border: "rgba(124,58,237,0.3)",
+              title: "PRESALE", sub: null,
+              badge: { text: "🔥 LIVE NOW", bg: "rgba(74,222,128,0.15)", border: "rgba(74,222,128,0.4)", color: "#4ade80" },
+            },
+            {
+              icon: <Shield className="w-6 h-6" />, color: "#60a5fa", bg: "rgba(37,99,235,0.15)", border: "rgba(37,99,235,0.3)",
+              title: "SOLANA", sub: "BUILT ON SOL", badge: null,
+            },
+          ].map((card, i) => (
+            <div key={i}
+              className="rounded-2xl p-7 text-center relative overflow-hidden group transition-all duration-300 hover:-translate-y-1"
+              style={{ background: "rgba(10,12,25,0.9)", border: `1px solid ${card.border}`, boxShadow: `0 0 20px ${card.bg}` }}>
+              <div className="w-12 h-12 rounded-xl mx-auto mb-4 flex items-center justify-center"
+                style={{ background: card.bg, border: `1px solid ${card.border}` }}>
+                <div style={{ color: card.color }}>{card.icon}</div>
+              </div>
+              <div className="font-orbitron font-black text-xl mb-1" style={{ color: card.color }}>{card.title}</div>
+              {card.sub && <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">{card.sub}</div>}
+              {card.badge && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron font-black mt-2"
+                  style={{ background: card.badge.bg, border: `1px solid ${card.badge.border}`, color: card.badge.color }}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  {card.badge.text}
+                </div>
+              )}
             </div>
-            <div className="font-orbitron text-2xl font-black mb-1"
-              style={{ background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              1,000,000,000
-            </div>
-            <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">TOTAL SUPPLY</div>
-          </div>
-
-          {/* Presale */}
-          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-purple-800/30 transition-all duration-300"
-            style={{ border: "1px solid rgba(124,58,237,0.25)" }}>
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at center, rgba(124,58,237,0.06), transparent)" }} />
-            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
-              style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)" }}>
-              <Trophy className="w-5 h-5" style={{ color: "#a78bfa" }} />
-            </div>
-            <div className="font-orbitron text-lg font-black mb-1 text-purple-400 tracking-wider">PRESALE</div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-orbitron mt-1"
-              style={{ background: "rgba(22,163,74,0.15)", border: "1px solid rgba(22,163,74,0.4)", color: "#4ade80" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              LIVE NOW
-            </div>
-          </div>
-
-          {/* Built on Solana */}
-          <div className="card-dark rounded-xl p-7 text-center relative overflow-hidden group hover:border-blue-800/30 transition-all duration-300">
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.06), transparent)" }} />
-            <div className="w-11 h-11 rounded-lg mx-auto mb-4 flex items-center justify-center"
-              style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-              <Shield className="w-5 h-5" style={{ color: "#60a5fa" }} />
-            </div>
-            <div className="font-orbitron text-lg font-black mb-1 text-blue-400 tracking-wider">SOLANA</div>
-            <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-1">BUILT ON SOL</div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* ── CTA BANNER ── */}
-      <section data-testid="cta-section" className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="rounded-2xl p-10 text-center relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12))", border: "1px solid rgba(124,58,237,0.2)" }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.08) 0%, transparent 70%)" }} />
-          <h2 className="font-orbitron font-black text-3xl md:text-4xl text-white mb-4 relative z-10">
-            THE PRESALE IS <span style={{ color: "#4ade80" }}>LIVE</span>
+      <section data-testid="cta-section" className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="rounded-3xl p-12 text-center relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2), rgba(168,85,247,0.15))",
+            border: "2px solid rgba(124,58,237,0.4)",
+            boxShadow: "0 0 60px rgba(124,58,237,0.2), 0 0 120px rgba(37,99,235,0.1)",
+          }}>
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.12) 0%, transparent 70%)" }} />
+
+          <div className="text-5xl md:text-6xl mb-4">🐺</div>
+          <h2 className="font-orbitron font-black text-3xl md:text-5xl text-white mb-4 relative z-10 leading-tight">
+            THE PRESALE IS{" "}
+            <span style={{
+              background: "linear-gradient(135deg, #4ade80, #22c55e)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>
+              LIVE
+            </span>
           </h2>
-          <p className="text-gray-400 mb-8 max-w-md mx-auto relative z-10">
-            Be one of the first 100 warriors. Join the presale now and claim your OG badge.
+          <p className="text-gray-300 mb-8 max-w-lg mx-auto relative z-10 text-lg">
+            🔥 Be one of the first 100 warriors. Join the presale now and claim your OG badge. <span className="text-yellow-400 font-bold">Only early holders get OG status.</span>
           </p>
-          <button
-            data-testid="btn-cta-launch"
-            onClick={() => navigate("/presale")}
-            className="btn-primary px-10 py-4 rounded-xl text-base relative z-10"
-          >
-            <span className="font-orbitron tracking-wider">BUY $BATTLE NOW →</span>
-          </button>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+            <button
+              data-testid="btn-cta-launch"
+              onClick={() => navigate("/presale")}
+              className="btn-mega px-12 py-5 rounded-2xl text-lg font-orbitron font-black tracking-wider text-white"
+              style={{
+                background: "linear-gradient(135deg, #2563eb, #7c3aed, #a855f7)",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              🔥 BUY $BATTLE NOW 🔥
+            </button>
+            <button
+              onClick={() => navigate("/whitepaper")}
+              className="px-10 py-5 rounded-2xl text-base font-orbitron font-black tracking-wider transition-all hover:scale-105"
+              style={{ border: "2px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.7)", background: "transparent", cursor: "pointer" }}
+            >
+              📄 READ WHITEPAPER
+            </button>
+          </div>
+
+          {/* Mini presale info */}
+          <div className="flex flex-wrap justify-center gap-8 mt-8 relative z-10">
+            {[
+              { label: "PRICE",     value: "1 SOL = 100K $BATTLE" },
+              { label: "MIN",       value: "0.1 SOL" },
+              { label: "MAX",       value: "10 SOL/wallet" },
+              { label: "GOAL",      value: "500 SOL" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="font-orbitron font-black text-white text-sm">{s.value}</div>
+                <div className="text-gray-500 text-xs font-orbitron tracking-widest mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer data-testid="footer" className="border-t px-6 py-10" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+      <footer data-testid="footer" className="border-t px-6 py-10" style={{ borderColor: "rgba(124,58,237,0.15)" }}>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #2563eb, #7c3aed)" }}>
-              <Swords className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-orbitron font-black text-sm tracking-wider gradient-text">VELOXFI</span>
-          </div>
-
-          {/* Links */}
-          <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
-            <button
-              data-testid="footer-link-roadmap"
-              onClick={() => navigate("/roadmap")}
-              className="hover:text-gray-300 transition-colors cursor-pointer"
-              style={{ background: "none", border: "none", padding: 0 }}
-            >
-              Roadmap
-            </button>
-            <button
-              data-testid="footer-link-faq"
-              onClick={() => navigate("/faq")}
-              className="hover:text-gray-300 transition-colors cursor-pointer"
-              style={{ background: "none", border: "none", padding: 0 }}
-            >
-              FAQ
-            </button>
-            <button
-              data-testid="footer-link-terms"
-              onClick={() => navigate("/terms")}
-              className="hover:text-gray-300 transition-colors cursor-pointer"
-              style={{ background: "none", border: "none", padding: 0 }}
-            >
-              Terms
-            </button>
-            <button
-              data-testid="footer-link-privacy"
-              onClick={() => navigate("/privacy")}
-              className="hover:text-gray-300 transition-colors cursor-pointer"
-              style={{ background: "none", border: "none", padding: 0 }}
-            >
-              Privacy
-            </button>
-            <button
-              data-testid="footer-link-whitepaper"
-              onClick={() => navigate("/whitepaper")}
-              className="hover:text-gray-300 transition-colors cursor-pointer"
-              style={{ background: "none", border: "none", padding: 0 }}
-            >
-              Whitepaper
-            </button>
-            <span
-              data-testid="footer-link-audit"
-              className="text-gray-700 cursor-not-allowed"
-              title="Audit coming soon"
-            >
-              Audit
+            <img src="/favicon.jpg" alt="VeloxFi" className="w-8 h-8 rounded-lg object-cover" />
+            <span className="font-orbitron font-black text-sm tracking-wider"
+              style={{ background: "linear-gradient(135deg, #60a5fa, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              VELOXFI
             </span>
           </div>
 
-          {/* Social */}
-          <div className="flex items-center gap-4">
-            <a
-              href="https://x.com/VeloxFi"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="social-twitter"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-              style={{ background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.2)" }}
-              aria-label="X (Twitter)"
-            >
-              <span className="text-blue-400 font-black text-sm leading-none" style={{ fontFamily: "sans-serif" }}>𝕏</span>
-            </a>
-            <a
-              href="https://discord.gg/u2UhxuTd"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="social-discord"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-              style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.2)" }}
-              aria-label="Discord"
-            >
-              <MessageCircle className="w-4 h-4 text-purple-400" />
-            </a>
-            <a
-              href="https://t.me/VeloxFiOfficial"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="social-telegram"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-              style={{ background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.2)" }}
-              aria-label="Telegram"
-            >
-              <Send className="w-4 h-4 text-blue-400" />
-            </a>
+          <div className="flex items-center gap-6 text-xs text-gray-500 font-orbitron tracking-widest">
+            {[
+              { label: "Roadmap",    path: "/roadmap",    testId: "footer-link-roadmap" },
+              { label: "FAQ",        path: "/faq",        testId: "footer-link-faq" },
+              { label: "Terms",      path: "/terms",      testId: "footer-link-terms" },
+              { label: "Privacy",    path: "/privacy",    testId: "footer-link-privacy" },
+              { label: "Whitepaper", path: "/whitepaper", testId: "footer-link-whitepaper" },
+            ].map(({ label, path, testId }) => (
+              <button key={path} data-testid={testId} onClick={() => navigate(path)}
+                className="hover:text-gray-300 transition-colors cursor-pointer"
+                style={{ background: "none", border: "none", padding: 0 }}>
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="max-w-5xl mx-auto mt-8 pt-6 text-center text-xs text-gray-700 font-orbitron tracking-widest"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-          © 2026 VELOXFI. ALL RIGHTS RESERVED. NOT FINANCIAL ADVICE.
+          <div className="text-xs text-gray-700 font-orbitron">
+            © 2026 VELOXFI 🐺
+          </div>
         </div>
       </footer>
     </div>
