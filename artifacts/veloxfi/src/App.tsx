@@ -1,5 +1,5 @@
-import { useSyncExternalStore, useCallback, useEffect } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useEffect } from "react";
+import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WalletProvider } from "@/context/WalletContext";
 import Home from "@/pages/home";
@@ -17,29 +17,6 @@ import Roadmap from "@/pages/roadmap";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
-
-/* ── Hash-based location hook (no external sub-package) ── */
-function subscribeHashChange(cb: () => void) {
-  window.addEventListener("hashchange", cb);
-  return () => window.removeEventListener("hashchange", cb);
-}
-function getHashSnapshot() {
-  const h = window.location.hash;
-  return h ? h.slice(1) : "/";
-}
-
-function useHashLocation(): [string, (to: string) => void] {
-  const path = useSyncExternalStore(
-    subscribeHashChange,
-    getHashSnapshot,
-    () => "/",
-  );
-  const navigate = useCallback((to: string) => {
-    window.location.hash = to;
-    window.scrollTo(0, 0);
-  }, []);
-  return [path, navigate];
-}
 
 function Router() {
   return (
@@ -80,9 +57,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WalletProvider>
-        <WouterRouter hook={useHashLocation}>
-          <Router />
-        </WouterRouter>
+        <Router />
       </WalletProvider>
     </QueryClientProvider>
   );
