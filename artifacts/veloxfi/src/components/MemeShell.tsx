@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { label: "🏆 Leaderboard",  path: "/leaderboard", color: "#f59e0b" },
   { label: "🚀 Create Coin",  path: "/create",      color: "#a78bfa" },
   { label: "🎮 Demo",         path: "/demo",        color: "#a78bfa" },
+  { label: "⚔️ Game",         path: "/game",        color: "#f97316" },
   { label: "🔥 Presale",      path: "/presale",     color: "#4ade80" },
   { label: "Whitepaper",      path: "/whitepaper",  color: "#6b7280" },
   { label: "FAQ",             path: "/faq",         color: "#60a5fa" },

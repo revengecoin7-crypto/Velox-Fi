@@ -14,6 +14,7 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import FAQ from "@/pages/faq";
 import Roadmap from "@/pages/roadmap";
+import Game from "@/pages/game";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/faq" component={FAQ} />
       <Route path="/roadmap" component={Roadmap} />
+      <Route path="/game" component={Game} />
       <Route component={NotFound} />
     </Switch>
   );
