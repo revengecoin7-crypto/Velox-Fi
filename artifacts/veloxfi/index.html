@@ -447,8 +447,7 @@ function selectTime(btn,sec) {
 // prices
 async function fetchPrices() {
   try {
-    const ids=COINS.map(c=>c.cgId).join(',');
-    const res=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    const res=await fetch('/api/prices');
     const data=await res.json();
     COINS.forEach(c=>{ if(data[c.cgId]) prices[c.id]={price:data[c.cgId].usd,change:data[c.cgId].usd_24h_change||0}; });
     renderPickGrids();
