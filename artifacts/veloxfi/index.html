@@ -164,6 +164,27 @@
   .lb-user { font-family:'Orbitron',monospace; font-size:13px; font-weight:600; }
   .lb-tokens { font-family:'Orbitron',monospace; font-size:13px; color:var(--gold); font-weight:700; text-align:right; }
 
+  /* BATTLE PAGE TIMEFRAME SELECTOR */
+  #bpTfSelector { margin:16px 0 0; display:none; }
+  .bp-tf-header { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:3px; color:var(--text-dim); text-align:center; margin-bottom:12px; }
+  .bp-tf-row { display:flex; gap:10px; justify-content:center; }
+  .bp-tf-btn {
+    flex:1; max-width:220px; padding:14px 10px; background:rgba(255,255,255,0.03);
+    border:1px solid var(--border); border-radius:13px; color:var(--text-dim);
+    font-family:'Orbitron',monospace; cursor:pointer; transition:all 0.25s;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+  }
+  .bp-tf-btn:hover { border-color:var(--blue); background:rgba(37,99,235,0.08); color:var(--text); }
+  .bp-tf-btn.active {
+    border-color:var(--blue);
+    background:linear-gradient(135deg,rgba(37,99,235,0.18),rgba(124,58,237,0.12));
+    color:var(--text); box-shadow:0 0 20px rgba(37,99,235,0.22);
+  }
+  .tf-mins { font-size:17px; font-weight:900; letter-spacing:1px; }
+  .tf-reward { font-size:10px; letter-spacing:1px; }
+  .bp-tf-btn.active .tf-reward { color:var(--gold); }
+  .bp-tf-btn:not(.active) .tf-reward { color:rgba(245,158,11,0.5); }
+
   /* BATTLE CONFIRM POPUP */
   .bc-modal { max-width:480px !important; padding:32px !important; }
   .bc-header { text-align:center; margin-bottom:22px; }
@@ -478,6 +499,25 @@
             <img id="mkLogoB" class="mk-logo" src="" alt="">
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- TIMEFRAME SELECTOR (hidden once battle starts) -->
+    <div id="bpTfSelector">
+      <div class="bp-tf-header">SELECT TIMEFRAME</div>
+      <div class="bp-tf-row">
+        <button class="bp-tf-btn" id="bpTfBtn300" onclick="selectBpTimeframe(300)">
+          <span class="tf-mins">5 MIN</span>
+          <span class="tf-reward">+1 $BATTLE</span>
+        </button>
+        <button class="bp-tf-btn" id="bpTfBtn900" onclick="selectBpTimeframe(900)">
+          <span class="tf-mins">15 MIN</span>
+          <span class="tf-reward">+2 $BATTLE</span>
+        </button>
+        <button class="bp-tf-btn" id="bpTfBtn1800" onclick="selectBpTimeframe(1800)">
+          <span class="tf-mins">30 MIN</span>
+          <span class="tf-reward">+3 $BATTLE</span>
+        </button>
       </div>
     </div>
 
@@ -918,9 +958,7 @@ async function initBattlePage(coinAId, coinBId, time) {
   bp.timeframe = time;
   bp.state     = currentUser ? 'pick-winner' : 'awaiting-auth';
 
-  const label = time<60 ? `${time}s` : `${time/60}m`;
-  document.getElementById('bpTimeframeTag').textContent = `${label} BATTLE`;
-  document.getElementById('bpTimerVal').textContent     = time<60 ? `0:${String(time).padStart(2,'0')}` : `${time/60}:00`;
+  selectBpTimeframe(time); // sets button active state + timer tag + timer display
 
   // If COINS list not loaded (direct URL navigation), fetch it first
   if (COINS.length === 0) {
@@ -1176,11 +1214,32 @@ async function fetchBattlePagePrices() {
   } catch(e) {}
 }
 
+// ── Battle page timeframe selector ─────────────────
+function selectBpTimeframe(seconds) {
+  if (bp.state === 'in-progress' || bp.state === 'resolved') return;
+  bp.timeframe = seconds;
+  [300, 900, 1800].forEach(s => {
+    const btn = document.getElementById(`bpTfBtn${s}`);
+    if (btn) btn.classList.toggle('active', s === seconds);
+  });
+  const label = seconds < 60 ? `${seconds}s` : `${seconds/60}m`;
+  document.getElementById('bpTimeframeTag').textContent = `${label} BATTLE`;
+  const secs = seconds, mins = Math.floor(secs/60);
+  document.getElementById('bpTimerVal').textContent = mins > 0 ? `${mins}:00` : `0:${String(secs).padStart(2,'0')}`;
+}
+
+function syncBpTfSelector() {
+  const locked = bp.state === 'in-progress' || bp.state === 'resolved';
+  const sel = document.getElementById('bpTfSelector');
+  if (sel) sel.style.display = locked ? 'none' : 'block';
+}
+
 // ── Master render for battle page ──────────────────
 function renderBattlePage() {
   updateMKHealthBar();
   renderBattleStats();
   updateBattleCharts();
+  syncBpTfSelector();
 }
 
 // ── Battle confirm popup ────────────────────────────
