@@ -70,7 +70,7 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     proxy: {
-      "/api/prices": {
+      "/api": {
         target: "http://localhost:8080",
         changeOrigin: true,
       },

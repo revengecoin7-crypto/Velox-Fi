@@ -80,10 +80,10 @@
   .coin-selector { display:flex; flex-direction:column; gap:8px; }
   .selector-label { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-align:center; }
 
-  .coin-grid-pick { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .coin-grid-pick { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
   .coin-pick-btn {
-    display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding:10px 6px; background:rgba(255,255,255,0.03); border:1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:8px 4px; background:rgba(255,255,255,0.03); border:1px solid var(--border);
     border-radius:10px; cursor:pointer; transition:all 0.2s; font-family:'Rajdhani',sans-serif;
   }
   .coin-pick-btn:hover { border-color:var(--blue); background:rgba(37,99,235,0.08); }
@@ -92,9 +92,9 @@
     box-shadow:0 0 16px rgba(37,99,235,0.25);
   }
   .coin-pick-btn.disabled-pick { opacity:0.3; cursor:not-allowed; pointer-events:none; }
-  .pick-emoji { font-size:22px; }
-  .pick-name { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; color:var(--text); }
-  .pick-price { font-size:11px; color:var(--text-dim); }
+  .pick-emoji { font-size:18px; }
+  .pick-name { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; color:var(--text); }
+  .pick-price { font-size:10px; color:var(--text-dim); }
 
   /* SELECTED DISPLAY */
   .selected-display {
@@ -201,6 +201,16 @@
   .empty-state { text-align:center; padding:28px; color:var(--text-dim); font-size:14px; border:1px dashed var(--border); border-radius:12px; margin-bottom:28px; }
   .empty-icon { font-size:32px; margin-bottom:8px; }
   .disclaimer { text-align:center; color:var(--text-dim); font-size:11px; padding:20px; border-top:1px solid var(--border); line-height:1.8; }
+
+  /* GRID LOADING STATE */
+  .grid-loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:22px 8px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; grid-column:1/-1; }
+  .grid-spinner { width:14px; height:14px; border:2px solid rgba(37,99,235,0.2); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .grid-refresh-label { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-align:right; margin-bottom:6px; }
+  .grid-refresh-label span { color:var(--blue-glow); }
+  .coin-pick-btn .pick-change { font-size:10px; font-weight:700; }
+  .coin-pick-btn .pick-change.up { color:var(--green); }
+  .coin-pick-btn .pick-change.down { color:var(--red); }
 
   @media(max-width:600px) {
     nav{padding:0 16px}
@@ -311,6 +321,7 @@
     <div class="section-title">BUILD YOUR BATTLE</div>
     <div class="battle-builder">
       <div class="builder-title">⚔️ SELECT TWO COINS TO BATTLE</div>
+      <div class="grid-refresh-label" id="coinsRefreshLabel">TOP 10 MOST VOLATILE — refreshes every 5min <span>loading...</span></div>
 
       <div class="vs-row">
         <!-- COIN A -->
@@ -423,14 +434,36 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-const COINS = [
-  { id:'pepe',       name:'PEPE',  ticker:'$PEPE',  emoji:'🐸', cgId:'pepe' },
-  { id:'bonk',       name:'BONK',  ticker:'$BONK',  emoji:'🐕', cgId:'bonk' },
-  { id:'dogecoin',   name:'DOGE',  ticker:'$DOGE',  emoji:'🐶', cgId:'dogecoin' },
-  { id:'shiba-inu',  name:'SHIB',  ticker:'$SHIB',  emoji:'🦊', cgId:'shiba-inu' },
-  { id:'floki',      name:'FLOKI', ticker:'$FLOKI', emoji:'⚡', cgId:'floki' },
-  { id:'brett-based',name:'BRETT', ticker:'$BRETT', emoji:'🎩', cgId:'brett-based' },
-];
+// ── Dynamic coin list (populated from API) ───────
+let COINS = [];
+let coinsLoading = false;
+let lastCoinsRefresh = 0;
+
+const COIN_EMOJIS = {
+  'pepe':'🐸','bonk':'🐕','dogecoin':'🐶','shiba-inu':'🦊','floki':'⚡',
+  'brett-based':'🎩','dogwifhat':'🎩','mog-coin':'😸','baby-doge-coin':'🐾',
+  'turbo':'🚀','popcat':'🐱','wojak':'😭','book-of-meme':'📕','neiro':'🌸',
+  'cat-in-a-dogs-world':'🐱','coq-inu':'🐓','dogelon-mars':'👽',
+  'peanut-the-squirrel':'🥜','goatseus-maximus':'🐐','mother-iggy':'🎤',
+  'myro':'🐕','landwolf':'🐺','harambe-on-solana':'🦍','ponke':'🐵',
+  'toshi':'🐱','andy-on-base':'🧑','smog':'😤','aidoge':'🤖',
+  'based-brett':'🎩','mew':'🐱','bome':'📕','sigma':'⚡','wen-token':'⏰',
+  'kishu-inu':'🐾','akita-inu':'🐕','safemoon':'🌙','cheems':'🐶',
+  'memecoin-2':'🃏','snek':'🐍','fwog':'🐸','michi':'🐱','apu-apustaja':'🐟',
+};
+
+function getCoinEmoji(id, symbol) {
+  if (COIN_EMOJIS[id]) return COIN_EMOJIS[id];
+  const s = (symbol||'').toLowerCase();
+  if (s.includes('doge')||s.includes('dog')) return '🐕';
+  if (s.includes('cat')||s.includes('inu')||s.includes('kitty')) return '🐱';
+  if (s.includes('pepe')||s.includes('frog')) return '🐸';
+  if (s.includes('shib')) return '🦊';
+  if (s.includes('moon')||s.includes('luna')) return '🌙';
+  if (s.includes('ape')||s.includes('monk')) return '🦍';
+  if (s.includes('snake')||s.includes('snek')) return '🐍';
+  return '🪙';
+}
 
 let currentUser = null;
 let selectedTime = 30;
@@ -584,12 +617,75 @@ function selectTime(btn,sec) {
   btn.classList.add('active'); selectedTime=sec;
 }
 
-// ── Prices ────────────────────────────────────────
-async function fetchPrices() {
+// ── Fetch top-10 volatile memecoins (runs every 5min) ──
+async function fetchMemecoins() {
+  if (coinsLoading) return;
+  coinsLoading = true;
+  showGridLoading();
   try {
-    const res  = await fetch('/api/prices');
+    const res = await fetch('/api/memecoins');
+    if (!res.ok) throw new Error('bad response');
     const data = await res.json();
-    COINS.forEach(c=>{ if(data[c.cgId]) prices[c.id]={price:data[c.cgId].usd,change:data[c.cgId].usd_24h_change||0}; });
+
+    COINS = data.map(coin => ({
+      id: coin.id,
+      name: coin.symbol.toUpperCase(),
+      fullName: coin.name,
+      ticker: '$' + coin.symbol.toUpperCase(),
+      emoji: getCoinEmoji(coin.id, coin.symbol),
+      cgId: coin.id,
+    }));
+
+    data.forEach(coin => {
+      prices[coin.id] = { price: coin.current_price, change: coin.price_change_percentage_24h || 0 };
+    });
+
+    lastCoinsRefresh = Date.now();
+
+    const ids = COINS.map(c => c.id);
+    if (coinA && !ids.includes(coinA)) { coinA = null; }
+    if (coinB && !ids.includes(coinB)) { coinB = null; }
+
+    renderPickGrids();
+    renderSelectedDisplays();
+    updateStartBtn();
+    updateRefreshLabel();
+  } catch(e) {
+    const grids = ['pickGridA','pickGridB'];
+    grids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<div class="grid-loading" style="color:var(--red)">⚠️ Failed to load. Retrying...</div>';
+    });
+    setTimeout(fetchMemecoins, 15000);
+  } finally {
+    coinsLoading = false;
+  }
+}
+
+function showGridLoading() {
+  ['pickGridA','pickGridB'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="grid-loading"><span class="grid-spinner"></span>LOADING VOLATILE COINS</div>';
+  });
+}
+
+function updateRefreshLabel() {
+  const el = document.getElementById('coinsRefreshLabel');
+  if (!el) return;
+  const mins = Math.floor((Date.now() - lastCoinsRefresh) / 60000);
+  el.innerHTML = `TOP 10 MOST VOLATILE — refreshes every 5min <span>${mins === 0 ? 'just now' : mins + 'm ago'}</span>`;
+}
+
+// ── Price refresh during active battles ───────────
+async function fetchPrices() {
+  if (!COINS.length) return;
+  try {
+    const ids = COINS.map(c => c.cgId).join(',');
+    const res  = await fetch(`/api/prices?ids=${encodeURIComponent(ids)}`);
+    const data = await res.json();
+    COINS.forEach(c => {
+      if (data[c.cgId]) prices[c.id] = { price: data[c.cgId].usd, change: data[c.cgId].usd_24h_change || 0 };
+    });
     if (isBattlePage()) {
       renderBattleCoinCards();
     } else {
@@ -597,7 +693,7 @@ async function fetchPrices() {
       renderSelectedDisplays();
       renderActiveBattles();
     }
-  } catch(e){}
+  } catch(e) {}
 }
 
 function formatPrice(p) {
@@ -614,17 +710,23 @@ function renderPickGrids() { renderPickGrid('pickGridA','A'); renderPickGrid('pi
 function renderPickGrid(gridId, side) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
+  if (!COINS.length) { showGridLoading(); return; }
   const otherSelected = side==='A' ? coinB : coinA;
   const mySelected    = side==='A' ? coinA : coinB;
   grid.innerHTML = COINS.map(coin => {
     const p = prices[coin.id];
     const isSelected = mySelected===coin.id;
     const isDisabled = otherSelected===coin.id;
+    const chg = p?.change;
+    const chgHtml = chg !== undefined
+      ? `<span class="pick-change ${chg >= 0 ? 'up' : 'down'}">${chg >= 0 ? '+' : ''}${chg.toFixed(1)}%</span>`
+      : '';
     return `<button class="coin-pick-btn ${isSelected?'selected':''} ${isDisabled?'disabled-pick':''}"
       onclick="selectCoin('${side}','${coin.id}')">
       <span class="pick-emoji">${coin.emoji}</span>
       <span class="pick-name">${coin.name}</span>
       <span class="pick-price">${p?formatPrice(p.price):'...'}</span>
+      ${chgHtml}
     </button>`;
   }).join('');
 }
@@ -667,11 +769,41 @@ async function initBattlePage(coinAId, coinBId, time) {
   document.getElementById('bpTimeframeTag').textContent = `${label} BATTLE`;
   document.getElementById('bpTimerVal').textContent     = time<60 ? `0:${String(time).padStart(2,'0')}` : `${time/60}:00`;
 
+  // If COINS list not loaded (direct URL navigation), fetch it first
+  if (COINS.length === 0) {
+    try {
+      const res = await fetch('/api/memecoins');
+      if (res.ok) {
+        const data = await res.json();
+        COINS = data.map(coin => ({
+          id: coin.id, name: coin.symbol.toUpperCase(), fullName: coin.name,
+          ticker: '$' + coin.symbol.toUpperCase(), emoji: getCoinEmoji(coin.id, coin.symbol), cgId: coin.id,
+        }));
+        data.forEach(coin => { prices[coin.id] = { price: coin.current_price, change: coin.price_change_percentage_24h||0 }; });
+      }
+    } catch(e) {}
+  }
+
+  // Ensure the two battle coins are represented even if not in top-10 anymore
+  const ensureCoin = (id) => {
+    if (!COINS.find(c => c.id === id)) {
+      COINS.push({ id, name: id.split('-')[0].toUpperCase(), fullName: id, ticker: '$'+id.split('-')[0].toUpperCase(), emoji: getCoinEmoji(id, id), cgId: id });
+    }
+  };
+  ensureCoin(coinAId);
+  ensureCoin(coinBId);
+
   // Render immediately with emoji/name — prices show "..." until loaded
   renderBattleCoinCards();
 
-  // Fetch live prices and re-render with real data
-  await fetchPrices();
+  // Fetch fresh prices for just these two coins
+  try {
+    const res = await fetch(`/api/prices?ids=${encodeURIComponent(`${coinAId},${coinBId}`)}`);
+    const data = await res.json();
+    if (data[coinAId]) prices[coinAId] = { price: data[coinAId].usd, change: data[coinAId].usd_24h_change||0 };
+    if (data[coinBId]) prices[coinBId] = { price: data[coinBId].usd, change: data[coinBId].usd_24h_change||0 };
+    renderBattleCoinCards();
+  } catch(e) {}
 
   if (currentUser) {
     bp.entryPriceA = prices[coinAId]?.price || null;
@@ -947,14 +1079,22 @@ function init() {
   renderNav();
   const session=getSession();
   if(session){ const users=getUsers(); if(users[session]) { currentUser=users[session]; renderNav(); } }
+
   initRouter();
+
   if (!isBattlePage()) {
-    renderPickGrids(); renderLeaderboard();
-    fetchPrices(); setInterval(fetchPrices,30000);
+    renderLeaderboard();
     if (currentUser) {
       document.getElementById('heroSection').style.display='none';
       document.getElementById('activeBattlesSection').style.display='none';
     }
+    // Load volatile coins immediately, refresh every 5 minutes
+    fetchMemecoins();
+    setInterval(fetchMemecoins, 5 * 60_000);
+    // Refresh prices every 30s during active battles
+    setInterval(() => { if (activeBattles.length) fetchPrices(); }, 30_000);
+    // Update refresh label every minute
+    setInterval(updateRefreshLabel, 60_000);
   }
 }
 init();

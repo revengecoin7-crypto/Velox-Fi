@@ -8,6 +8,7 @@ import dashboardRouter from "./dashboard";
 import presaleRouter from "./presale";
 import statsRouter from "./stats";
 import pricesRouter from "./prices";
+import memecoinsRouter from "./memecoins";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(dashboardRouter);
 router.use(presaleRouter);
 router.use(statsRouter);
 router.use(pricesRouter);
+router.use(memecoinsRouter);
 
 export default router;
