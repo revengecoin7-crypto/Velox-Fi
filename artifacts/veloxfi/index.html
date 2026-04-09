@@ -349,10 +349,9 @@
       <!-- TIME -->
       <div class="section-title" style="margin-top:4px;">SELECT TIMEFRAME</div>
       <div class="time-row">
-        <button class="time-btn active" onclick="selectTime(this,30)">30 SEC</button>
-        <button class="time-btn" onclick="selectTime(this,60)">1 MIN</button>
-        <button class="time-btn" onclick="selectTime(this,300)">5 MIN</button>
-        <button class="time-btn" onclick="selectTime(this,900)">15 MIN</button>
+        <button class="time-btn active" onclick="selectTime(this,300)">5 MIN — +1 🗡️</button>
+        <button class="time-btn" onclick="selectTime(this,900)">15 MIN — +2 ⚔️</button>
+        <button class="time-btn" onclick="selectTime(this,1800)">30 MIN — +3 ⚔️</button>
       </div>
 
       <!-- START -->
@@ -467,7 +466,8 @@ function getCoinEmoji(id, symbol) {
 }
 
 let currentUser = null;
-let selectedTime = 30;
+let selectedTime = 300;
+const TIMEFRAME_REWARDS = { 300: 1, 900: 2, 1800: 3 };
 let prices = {};
 let coinA = null;
 let coinB = null;
@@ -954,21 +954,23 @@ function resolveBattlePage() {
 
   if (isCorrect && currentUser) {
     const users = getUsers();
-    users[currentUser.username].tokens += 1;
+    const reward = TIMEFRAME_REWARDS[bp.timeframe] || 1;
+    users[currentUser.username].tokens += reward;
     saveUsers(users);
     currentUser = users[currentUser.username];
     updateNavBalance();
   }
 
+  const reward = isCorrect ? (TIMEFRAME_REWARDS[bp.timeframe] || 1) : 0;
   const resultEl = document.getElementById('bpResult');
   resultEl.style.display = 'block';
   if (isCorrect) {
     resultEl.className = 'bp-result correct';
     resultEl.innerHTML = `
       <div class="bp-result-title">🎉 CORRECT!</div>
-      <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won with ${changeA>=changeB?changeA.toFixed(3):changeB.toFixed(3)}% gain.<br>+1 $BATTLE TOKEN earned! Total: ${currentUser?.tokens||0}</div>
+      <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won with ${changeA>=changeB?changeA.toFixed(3):changeB.toFixed(3)}% gain.<br>+${reward} $BATTLE TOKEN${reward>1?'S':''} earned! Total: ${currentUser?.tokens||0}</div>
       <button class="bp-play-again" onclick="goHome()">⚔️ PLAY AGAIN</button>`;
-    showToast(`🎉 CORRECT! +1 $BATTLE TOKEN!`,'success');
+    showToast(`🎉 CORRECT! +${reward} $BATTLE TOKEN${reward>1?'S':''}!`,'success');
   } else {
     resultEl.className = 'bp-result wrong';
     resultEl.innerHTML = `
@@ -1017,9 +1019,10 @@ function resolveBattle(battleId) {
   const cA=COINS.find(c=>c.id===battle.coinA); const cB=COINS.find(c=>c.id===battle.coinB);
   const winner = actualWinner===battle.coinA?cA:cB;
   if (isCorrect) {
-    const users=getUsers(); users[currentUser.username].tokens+=1; saveUsers(users);
+    const battleReward = TIMEFRAME_REWARDS[battle.timeframe] || 1;
+    const users=getUsers(); users[currentUser.username].tokens+=battleReward; saveUsers(users);
     currentUser=users[currentUser.username]; updateNavBalance(); renderLeaderboard();
-    showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +1 $BATTLE TOKEN! Total: ${currentUser.tokens}`,'success');
+    showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +${battleReward} $BATTLE TOKEN${battleReward>1?'S':''}! Total: ${currentUser.tokens}`,'success');
   } else {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
   }
