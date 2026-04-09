@@ -241,10 +241,10 @@
   .mk-bars { display:flex; align-items:center; gap:6px; width:100%; min-width:120px; }
   .mk-bar-track { flex:1; height:26px; background:rgba(0,0,0,0.6); border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); }
   .mk-track-a { display:flex; justify-content:flex-start; }
-  .mk-fill-a { height:100%; background:linear-gradient(90deg,#1e3a8a,#3b82f6,#93c5fd); box-shadow:inset 0 0 8px rgba(59,130,246,0.5),0 0 12px rgba(59,130,246,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1); border-radius:3px 0 0 3px; }
+  .mk-fill-a { height:100%; background:linear-gradient(90deg,#1e3a8a,#3b82f6,#93c5fd); box-shadow:inset 0 0 8px rgba(59,130,246,0.5),0 0 12px rgba(59,130,246,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1), box-shadow 0.6s ease, opacity 0.6s ease; border-radius:3px 0 0 3px; }
   .mk-track-b { display:flex; justify-content:flex-end; }
-  .mk-fill-b { height:100%; background:linear-gradient(270deg,#7f1d1d,#ef4444,#fca5a5); box-shadow:inset 0 0 8px rgba(239,68,68,0.5),0 0 12px rgba(239,68,68,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1); border-radius:0 3px 3px 0; }
-  .mk-bolt { font-size:32px; flex-shrink:0; transition:transform 0.7s cubic-bezier(0.4,0,0.2,1); filter:drop-shadow(0 0 12px rgba(250,204,21,1)) drop-shadow(0 0 4px #fff); line-height:1; }
+  .mk-fill-b { height:100%; background:linear-gradient(270deg,#7f1d1d,#ef4444,#fca5a5); box-shadow:inset 0 0 8px rgba(239,68,68,0.5),0 0 12px rgba(239,68,68,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1), box-shadow 0.6s ease, opacity 0.6s ease; border-radius:0 3px 3px 0; }
+  .mk-bolt { font-size:32px; flex-shrink:0; transition:transform 0.7s cubic-bezier(0.4,0,0.2,1), filter 0.6s ease; filter:drop-shadow(0 0 12px rgba(250,204,21,1)) drop-shadow(0 0 4px #fff); line-height:1; }
 
   /* STAT CARDS */
   .bp-stats-row { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:stretch; margin-bottom:14px; }
@@ -469,7 +469,7 @@
           <span class="bp-chart-name" id="chartLabelA">—</span>
           <span class="bp-chart-tag">PRICE HISTORY</span>
         </div>
-        <div style="position:relative;height:88px">
+        <div style="position:relative;height:160px">
           <canvas id="chartA"></canvas>
         </div>
       </div>
@@ -478,7 +478,7 @@
           <span class="bp-chart-name" id="chartLabelB">—</span>
           <span class="bp-chart-tag">PRICE HISTORY</span>
         </div>
-        <div style="position:relative;height:88px">
+        <div style="position:relative;height:160px">
           <canvas id="chartB"></canvas>
         </div>
       </div>
@@ -980,14 +980,46 @@ function updateMKHealthBar() {
   }
   const normB = 100 - normA;
 
+  const advantage = Math.abs(normA - 50); // 0–45, drives intensity
+  const glowPct   = Math.min(1, advantage / 30);
+
   const fillA = document.getElementById('mkFillA');
   const fillB = document.getElementById('mkFillB');
   const bolt  = document.getElementById('mkBolt');
-  if (fillA) fillA.style.width = normA + '%';
-  if (fillB) fillB.style.width = normB + '%';
+
+  if (fillA) {
+    fillA.style.width = normA + '%';
+    if (isActive) {
+      const aWin = normA > normB;
+      fillA.style.opacity  = aWin ? '1' : `${Math.max(0.35, 0.65 - glowPct * 0.3)}`;
+      fillA.style.boxShadow = aWin
+        ? `inset 0 0 10px rgba(59,130,246,0.6), 0 0 ${12 + glowPct*24}px rgba(59,130,246,${0.55 + glowPct*0.45})`
+        : `inset 0 0 4px rgba(59,130,246,0.2)`;
+    }
+  }
+  if (fillB) {
+    fillB.style.width = normB + '%';
+    if (isActive) {
+      const bWin = normB > normA;
+      fillB.style.opacity  = bWin ? '1' : `${Math.max(0.35, 0.65 - glowPct * 0.3)}`;
+      fillB.style.boxShadow = bWin
+        ? `inset 0 0 10px rgba(239,68,68,0.6), 0 0 ${12 + glowPct*24}px rgba(239,68,68,${0.55 + glowPct*0.45})`
+        : `inset 0 0 4px rgba(239,68,68,0.2)`;
+    }
+  }
+
   if (bolt) {
-    const shift = ((normA - 50) / 50) * 26;
-    bolt.style.transform = `translateX(${-shift}px) scale(${1 + Math.abs(normA-50)/120})`;
+    // Slide up to ±64px — normA=95 → shift=−64, normA=5 → shift=+64
+    const shift = ((normA - 50) / 50) * 64;
+    const scale = 1 + advantage / 55;
+    // Bolt tints toward the leading coin's color
+    const boltGlow = normA > 50
+      ? `rgba(59,130,246,${0.7 + glowPct * 0.3})`
+      : normB > 50
+        ? `rgba(239,68,68,${0.7 + glowPct * 0.3})`
+        : 'rgba(250,204,21,1)';
+    bolt.style.transform = `translateX(${-shift}px) scale(${scale})`;
+    bolt.style.filter    = `drop-shadow(0 0 ${8 + glowPct * 16}px ${boltGlow}) drop-shadow(0 0 3px #fff)`;
   }
 
   const pctA = document.getElementById('mkPctA'), pctB = document.getElementById('mkPctB');

@@ -18,7 +18,7 @@ router.get("/prices", async (req, res) => {
     return;
   }
 
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(ids)}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`;
+  const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${encodeURIComponent(ids)}&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`;
 
   try {
     const upstream = await fetch(url);
@@ -27,7 +27,27 @@ router.get("/prices", async (req, res) => {
       res.status(502).json({ error: "upstream error", status: upstream.status });
       return;
     }
-    const data = await upstream.json();
+    const arr = await upstream.json() as Array<{
+      id: string;
+      current_price: number;
+      price_change_percentage_24h: number;
+      total_volume: number;
+      market_cap: number;
+    }>;
+    const data: Record<string, {
+      usd: number;
+      usd_24h_change: number;
+      usd_24h_vol: number;
+      usd_market_cap: number;
+    }> = {};
+    for (const coin of arr) {
+      data[coin.id] = {
+        usd: coin.current_price,
+        usd_24h_change: coin.price_change_percentage_24h ?? 0,
+        usd_24h_vol: coin.total_volume ?? 0,
+        usd_market_cap: coin.market_cap ?? 0,
+      };
+    }
     cache[ids] = { data, at: Date.now() };
     res.json(data);
   } catch (err) {
