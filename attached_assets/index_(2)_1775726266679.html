@@ -347,8 +347,8 @@ const COINS = [
 let currentUser = null;
 let selectedTime = 30;
 let prices = {};
-let coinA = null;
-let coinB = null;
+let coinA = null; // selected coin A id
+let coinB = null; // selected coin B id
 let activeBattles = [];
 let battleTimers = {};
 
@@ -478,7 +478,7 @@ function renderPickGrid(gridId, side) {
   grid.innerHTML = COINS.map(coin => {
     const p = prices[coin.id];
     const isSelected  = mySelected === coin.id;
-    const isDisabled  = otherSelected === coin.id;
+    const isDisabled  = otherSelected === coin.id; // can't pick same coin for both sides
     return `<button class="coin-pick-btn ${isSelected?'selected':''} ${isDisabled?'disabled-pick':''}"
       onclick="selectCoin('${side}','${coin.id}')">
       <span class="pick-emoji">${coin.emoji}</span>
@@ -519,6 +519,7 @@ function updateStartBtn() {
   btn.disabled = !(coinA && coinB && coinA!==coinB);
 }
 
+// START BATTLE — speler kiest welke coin wint
 function startBattle() {
   if (!currentUser) { openModal('register'); return; }
   if (!coinA || !coinB) { showToast('Select two coins first!','error'); return; }
@@ -527,10 +528,12 @@ function startBattle() {
   const cA = COINS.find(c=>c.id===coinA);
   const cB = COINS.find(c=>c.id===coinB);
 
+  // Show pick modal — who do you think wins?
   showPickWinnerModal(cA, cB);
 }
 
 function showPickWinnerModal(cA, cB) {
+  // Inline modal for picking winner
   const overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(5,8,15,0.9);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
 
@@ -590,6 +593,7 @@ function confirmBattle(coinAId, coinBId, pickedWinnerId, overlayEl) {
   const label  = selectedTime<60?`${selectedTime}s`:`${selectedTime/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} to win in ${label}!`,'info');
 
+  // Reset selectors
   coinA=null; coinB=null;
   renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
 
@@ -607,6 +611,7 @@ function resolveBattle(battleId) {
   const pB = prices[battle.coinB]?.price;
   if (!pA || !pB) { setTimeout(()=>resolveBattle(battleId),5000); return; }
 
+  // Calculate % change since entry
   const changeA = (pA - battle.entryPriceA) / battle.entryPriceA * 100;
   const changeB = (pB - battle.entryPriceB) / battle.entryPriceB * 100;
 
@@ -651,6 +656,7 @@ function renderActiveBattles() {
     const secs = Math.max(0, Math.floor((battle.endTime-Date.now())/1000));
     const timer = secs>=60 ? `${Math.floor(secs/60)}m ${secs%60}s` : `${secs}s`;
 
+    // Live % change
     const pA = prices[battle.coinA]?.price;
     const pB = prices[battle.coinB]?.price;
     const liveChangeA = pA ? (pA - battle.entryPriceA)/battle.entryPriceA*100 : null;
