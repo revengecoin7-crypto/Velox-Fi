@@ -971,7 +971,7 @@ async function initBattlePage(coinAId, coinBId, time) {
           ticker: '$' + coin.symbol.toUpperCase(), emoji: getCoinEmoji(coin.id, coin.symbol),
           image: coin.image || '', cgId: coin.id,
         }));
-        data.forEach(coin => { prices[coin.id] = { price: coin.current_price, change: coin.price_change_percentage_24h||0 }; });
+        data.forEach(coin => { prices[coin.id] = { price: coin.current_price, change: coin.price_change_percentage_24h||0, vol: coin.total_volume||0, marketCap: coin.market_cap||0 }; });
       }
     } catch(e) {}
   }
@@ -1010,7 +1010,7 @@ async function initBattlePage(coinAId, coinBId, time) {
 
   // 10s price refresh (only on battle page)
   if (bpPriceInterval) clearInterval(bpPriceInterval);
-  bpPriceInterval = setInterval(fetchBattlePagePrices, 10000);
+  bpPriceInterval = setInterval(fetchBattlePagePrices, 15000);
   setInterval(fetchPrices, 30000);
 }
 
@@ -1186,16 +1186,18 @@ function initBattleCharts(cA, cB) {
   const lblA = document.getElementById('chartLabelA'), lblB = document.getElementById('chartLabelB');
   if (lblA) lblA.textContent = cA.name;
   if (lblB) lblB.textContent = cB.name;
+  // Render any data already collected before charts were initialized
+  updateBattleCharts();
 }
 
 function updateBattleCharts() {
-  if (!bpChartA || !bpChartB || bpPriceHistory.length < 2) return;
+  if (!bpChartA || !bpChartB || bpPriceHistory.length < 1) return;
   const labels = bpPriceHistory.map((_,i) => `${i+1}`);
   bpChartA.data.labels = labels; bpChartA.data.datasets[0].data = bpPriceHistory.map(p=>p.pA); bpChartA.update('none');
   bpChartB.data.labels = labels; bpChartB.data.datasets[0].data = bpPriceHistory.map(p=>p.pB); bpChartB.update('none');
 }
 
-// ── Battle page price fetch (10s, with vol + mktcap) ──
+// ── Battle page price fetch (15s, with vol + mktcap) ──
 async function fetchBattlePagePrices() {
   if (!bp.coinAId || !bp.coinBId) return;
   try {
@@ -1203,15 +1205,20 @@ async function fetchBattlePagePrices() {
     const res = await fetch(`/api/prices?ids=${encodeURIComponent(ids)}`);
     if (!res.ok) return;
     const data = await res.json();
+    console.log('[VeloxFi] /api/prices response:', JSON.stringify(data));
     [bp.coinAId, bp.coinBId].forEach(id => {
-      if (data[id]) prices[id] = { price: data[id].usd, change: data[id].usd_24h_change||0, vol: data[id].usd_24h_vol||0, marketCap: data[id].usd_market_cap||0 };
+      if (data[id]) {
+        prices[id] = { price: data[id].usd, change: data[id].usd_24h_change||0, vol: data[id].usd_24h_vol||0, marketCap: data[id].usd_market_cap||0 };
+        console.log(`[VeloxFi] prices[${id}] →`, JSON.stringify(prices[id]));
+      }
     });
-    if (bp.state === 'in-progress') {
-      bpPriceHistory.push({ t: Date.now(), pA: prices[bp.coinAId]?.price, pB: prices[bp.coinBId]?.price });
-      if (bpPriceHistory.length > 10) bpPriceHistory.shift();
+    const pA = prices[bp.coinAId]?.price, pB = prices[bp.coinBId]?.price;
+    if (pA && pB) {
+      bpPriceHistory.push({ t: Date.now(), pA, pB });
+      if (bpPriceHistory.length > 20) bpPriceHistory.shift();
     }
     renderBattlePage();
-  } catch(e) {}
+  } catch(e) { console.error('[VeloxFi] fetchBattlePagePrices error:', e); }
 }
 
 // ── Battle page timeframe selector ─────────────────
