@@ -165,6 +165,14 @@
   /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(5,8,15,0.85); backdrop-filter:blur(8px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open { display:flex; }
+  .modal-overlay.battle-mode { background:rgba(2,4,10,0.2); backdrop-filter:none; }
+  .battle-page-glow .bp-panel { background:rgba(10,16,35,1); box-shadow:0 0 60px rgba(37,99,235,0.25), 0 0 0 1px rgba(37,99,235,0.35); }
+  .battle-page-glow .bp-coin { background:rgba(18,28,60,1); border-color:rgba(37,99,235,0.5); }
+  .battle-page-glow .bp-coin-emoji { filter:drop-shadow(0 0 8px rgba(168,85,247,0.6)); }
+  .battle-page-glow .bp-coin-name { color:#fff; text-shadow:0 0 12px rgba(59,130,246,0.8); }
+  .battle-page-glow .bp-coin-price { color:#94a3b8; font-size:13px; }
+  .battle-page-glow .bp-timer-val { text-shadow:0 0 16px rgba(245,158,11,0.7); }
+  .battle-page-glow .bp-vs { font-size:26px; text-shadow:0 0 20px rgba(124,58,237,0.8); }
   .modal { background:#080d1a; border:1px solid var(--border); border-radius:18px; padding:36px 40px; width:100%; max-width:420px; box-shadow:0 0 80px rgba(37,99,235,0.15); position:relative; animation:modal-in 0.25s ease; }
   @keyframes modal-in { from{transform:scale(0.95);opacity:0} to{transform:scale(1);opacity:1} }
   .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; }
@@ -362,7 +370,7 @@
 
 <!-- BATTLE PAGE -->
 <div id="battlePage" style="display:none">
-  <div class="battle-page" style="padding-top:92px;">
+  <div class="battle-page battle-page-glow" style="padding-top:92px;">
     <button class="bp-back" onclick="goHome()">← BACK TO ARENA</button>
     <div class="bp-header">
       <div class="bp-label">⚔️ MEMECOIN BATTLE</div>
@@ -468,15 +476,19 @@ function goHome() { window.location.href = window.location.pathname; }
 
 // ── Modal ────────────────────────────────────────
 function openModal(tab='register', customTitle, customSub) {
+  const overlay = document.getElementById('modalOverlay');
   document.getElementById('modalTitle').textContent = customTitle || 'ENTER THE ARENA';
   document.getElementById('modalSub').textContent   = customSub   || 'Free to play. No wallet needed.';
+  if (customTitle) { overlay.classList.add('battle-mode'); } else { overlay.classList.remove('battle-mode'); }
   switchTab(tab);
-  document.getElementById('modalOverlay').classList.add('open');
+  overlay.classList.add('open');
 }
 
 function closeModal() {
   if (isBattlePage() && bp.state === 'awaiting-auth') { goHome(); return; }
-  document.getElementById('modalOverlay').classList.remove('open');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('open');
+  overlay.classList.remove('battle-mode');
 }
 
 function overlayClick(e) {
@@ -646,26 +658,34 @@ function startBattle() {
 
 // ── BATTLE PAGE ───────────────────────────────────
 async function initBattlePage(coinAId, coinBId, time) {
-  bp.coinAId    = coinAId;
-  bp.coinBId    = coinBId;
-  bp.timeframe  = time;
+  bp.coinAId   = coinAId;
+  bp.coinBId   = coinBId;
+  bp.timeframe = time;
+  bp.state     = currentUser ? 'pick-winner' : 'awaiting-auth';
 
   const label = time<60 ? `${time}s` : `${time/60}m`;
   document.getElementById('bpTimeframeTag').textContent = `${label} BATTLE`;
   document.getElementById('bpTimerVal').textContent     = time<60 ? `0:${String(time).padStart(2,'0')}` : `${time/60}:00`;
 
+  // Render immediately with emoji/name — prices show "..." until loaded
+  renderBattleCoinCards();
+
+  // Fetch live prices and re-render with real data
   await fetchPrices();
 
   if (currentUser) {
     bp.entryPriceA = prices[coinAId]?.price || null;
     bp.entryPriceB = prices[coinBId]?.price || null;
-    bp.state = 'pick-winner';
     renderBattleCoinCards();
     document.getElementById('bpPickPrompt').style.display = 'block';
   } else {
-    bp.state = 'awaiting-auth';
-    renderBattleCoinCards();
-    openModal('register', 'CONFIRM YOUR PREDICTION', 'Create a free account or log in to start the battle.');
+    // Content is now fully rendered — wait one frame so browser paints it,
+    // then show the modal so the user sees the battle layout first
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        openModal('register', 'CONFIRM YOUR PREDICTION', 'Create a free account or log in to start the battle.');
+      }, 400);
+    });
   }
 
   setInterval(fetchPrices, 30000);
