@@ -164,6 +164,35 @@
   .lb-user { font-family:'Orbitron',monospace; font-size:13px; font-weight:600; }
   .lb-tokens { font-family:'Orbitron',monospace; font-size:13px; color:var(--gold); font-weight:700; text-align:right; }
 
+  /* BATTLE CONFIRM POPUP */
+  .bc-modal { max-width:480px !important; padding:32px !important; }
+  .bc-header { text-align:center; margin-bottom:22px; }
+  .bc-title { font-family:'Orbitron',monospace; font-size:19px; font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:4px; letter-spacing:1px; }
+  .bc-sub { font-size:13px; color:var(--text-dim); }
+  .bc-vs-row { display:flex; align-items:stretch; gap:12px; margin-bottom:18px; }
+  .bc-coin { display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; padding:18px 12px 14px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.02); transition:all 0.25s; }
+  .bc-coin.bc-chosen { border-color:var(--blue); background:rgba(37,99,235,0.12); box-shadow:0 0 24px rgba(37,99,235,0.25); }
+  .bc-coin-logo { width:58px; height:58px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .bc-coin.bc-chosen .bc-coin-logo { box-shadow:0 0 14px rgba(37,99,235,0.7); }
+  .bc-coin-name { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:var(--text); text-align:center; }
+  .bc-coin-lbl { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; padding:3px 8px; border-radius:20px; }
+  .bc-coin.bc-chosen .bc-coin-lbl { color:var(--blue-glow); background:rgba(37,99,235,0.15); border:1px solid rgba(37,99,235,0.3); }
+  .bc-coin:not(.bc-chosen) .bc-coin-lbl { color:var(--text-dim); background:rgba(255,255,255,0.03); border:1px solid var(--border); }
+  .bc-vs-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex-shrink:0; padding:0 4px; }
+  .bc-vs-txt { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .bc-meta { text-align:center; padding:14px 16px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.18); border-radius:12px; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .bc-meta-item { display:flex; flex-direction:column; gap:3px; flex:1; }
+  .bc-meta-lbl { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); }
+  .bc-meta-val { font-family:'Orbitron',monospace; font-size:15px; font-weight:700; }
+  .bc-meta-val.gold { color:var(--gold); }
+  .bc-meta-val.blue { color:var(--blue-glow); }
+  .bc-meta-sep { width:1px; background:var(--border); align-self:stretch; flex-shrink:0; }
+  .bc-buttons { display:flex; gap:10px; }
+  .bc-cancel { flex:1; padding:13px 10px; background:rgba(100,116,139,0.1); border:1px solid var(--border); border-radius:11px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.2s; }
+  .bc-cancel:hover { background:rgba(100,116,139,0.2); color:var(--text); border-color:rgba(100,116,139,0.4); }
+  .bc-confirm { flex:2; padding:13px 10px; background:linear-gradient(135deg,#065f46,#059669,#10b981); border:none; border-radius:11px; color:#fff; font-family:'Orbitron',monospace; font-size:12px; font-weight:900; letter-spacing:2px; cursor:pointer; transition:all 0.2s; box-shadow:0 0 20px rgba(16,185,129,0.3); }
+  .bc-confirm:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(16,185,129,0.55); }
+
   /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(5,8,15,0.85); backdrop-filter:blur(8px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open { display:flex; }
@@ -492,6 +521,22 @@
     </div>
 
     <div id="bpResult" style="display:none"></div>
+  </div>
+</div>
+
+<!-- BATTLE CONFIRM POPUP -->
+<div class="modal-overlay" id="battleConfirmOverlay" onclick="bcOverlayClick(event)">
+  <div class="modal bc-modal">
+    <div class="bc-header">
+      <div class="bc-title">CONFIRM YOUR PICK</div>
+      <div class="bc-sub">Once you confirm, the countdown begins and can't be undone.</div>
+    </div>
+    <div class="bc-vs-row" id="bcVsRow"></div>
+    <div class="bc-meta" id="bcMeta"></div>
+    <div class="bc-buttons">
+      <button class="bc-cancel" onclick="cancelBattleConfirm()">WAIT, GO BACK</button>
+      <button class="bc-confirm" onclick="confirmBattleStart()">⚔️ LET'S BATTLE!</button>
+    </div>
   </div>
 </div>
 
@@ -1138,8 +1183,64 @@ function renderBattlePage() {
   updateBattleCharts();
 }
 
+// ── Battle confirm popup ────────────────────────────
+let pendingPickCoinId = null;
+
 function pickWinner(coinId) {
   if (bp.state !== 'pick-winner') return;
+  pendingPickCoinId = coinId;
+  const cA = COINS.find(c=>c.id===bp.coinAId);
+  const cB = COINS.find(c=>c.id===bp.coinBId);
+  if (!cA || !cB) return;
+
+  const label     = bp.timeframe < 60 ? `${bp.timeframe}s` : `${bp.timeframe/60}m`;
+  const reward    = TIMEFRAME_REWARDS[bp.timeframe] || 1;
+  const pickedIsA = coinId === bp.coinAId;
+
+  document.getElementById('bcVsRow').innerHTML = `
+    <div class="bc-coin ${pickedIsA ? 'bc-chosen' : ''}">
+      ${coinLogoHtml(cA, 'bc-coin-logo')}
+      <div class="bc-coin-name">${cA.name}</div>
+      <div class="bc-coin-lbl">${pickedIsA ? '✓ MY PICK' : 'OPPONENT'}</div>
+    </div>
+    <div class="bc-vs-mid"><div class="bc-vs-txt">VS</div></div>
+    <div class="bc-coin ${!pickedIsA ? 'bc-chosen' : ''}">
+      ${coinLogoHtml(cB, 'bc-coin-logo')}
+      <div class="bc-coin-name">${cB.name}</div>
+      <div class="bc-coin-lbl">${!pickedIsA ? '✓ MY PICK' : 'OPPONENT'}</div>
+    </div>`;
+
+  document.getElementById('bcMeta').innerHTML = `
+    <div class="bc-meta-item" style="text-align:center">
+      <div class="bc-meta-lbl">TIMEFRAME</div>
+      <div class="bc-meta-val blue">${label} BATTLE</div>
+    </div>
+    <div class="bc-meta-sep"></div>
+    <div class="bc-meta-item" style="text-align:center">
+      <div class="bc-meta-lbl">WIN REWARD</div>
+      <div class="bc-meta-val gold">+${reward} $BATTLE</div>
+    </div>`;
+
+  document.getElementById('battleConfirmOverlay').classList.add('open');
+}
+
+function bcOverlayClick(e) {
+  if (e.target === e.currentTarget) cancelBattleConfirm();
+}
+
+function cancelBattleConfirm() {
+  document.getElementById('battleConfirmOverlay').classList.remove('open');
+  pendingPickCoinId = null;
+}
+
+function confirmBattleStart() {
+  document.getElementById('battleConfirmOverlay').classList.remove('open');
+  if (!pendingPickCoinId || bp.state !== 'pick-winner') return;
+  startBattle_bp(pendingPickCoinId);
+  pendingPickCoinId = null;
+}
+
+function startBattle_bp(coinId) {
   bp.pickedWinner = coinId;
   bp.state = 'in-progress';
   bp.entryPriceA = prices[bp.coinAId]?.price || bp.entryPriceA;
