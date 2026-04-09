@@ -203,6 +203,58 @@
     .coin-grid-pick{grid-template-columns:repeat(3,1fr)}
     .battle-coins{grid-template-columns:1fr auto 1fr}
   }
+
+  /* ── BATTLE PAGE ─────────────────────────────── */
+  .battle-page { max-width:720px; margin:0 auto; padding:20px 20px 60px; }
+  .bp-back { display:inline-flex; align-items:center; gap:8px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; transition:color 0.2s; margin-bottom:28px; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 16px; }
+  .bp-back:hover { color:var(--text); border-color:var(--blue); }
+  .bp-header { text-align:center; margin-bottom:32px; }
+  .bp-label { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:var(--purple-glow); margin-bottom:10px; }
+  .bp-title { font-family:'Orbitron',monospace; font-size:clamp(18px,4vw,28px); font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1.3; margin-bottom:8px; }
+  .bp-sub { font-size:15px; color:var(--text-dim); }
+  .bp-panel { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; position:relative; overflow:hidden; margin-bottom:20px; box-shadow:0 0 60px rgba(37,99,235,0.08); }
+  .bp-panel::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--purple)); }
+  .bp-coins { display:grid; grid-template-columns:1fr 60px 1fr; gap:12px; align-items:center; }
+  .bp-coin { display:flex; flex-direction:column; align-items:center; gap:8px; padding:22px 14px; border-radius:14px; border:1px solid var(--border); transition:all 0.25s; }
+  .bp-coin.pickable { cursor:pointer; }
+  .bp-coin.pickable:hover { border-color:rgba(37,99,235,0.6); background:rgba(37,99,235,0.07); transform:translateY(-3px); box-shadow:0 8px 24px rgba(37,99,235,0.15); }
+  .bp-coin.picked-a { border-color:var(--blue); background:rgba(37,99,235,0.12); box-shadow:0 0 28px rgba(37,99,235,0.3); transform:translateY(-3px); }
+  .bp-coin.picked-b { border-color:var(--purple-glow); background:rgba(124,58,237,0.12); box-shadow:0 0 28px rgba(124,58,237,0.3); transform:translateY(-3px); }
+  .bp-coin.winning-side { border-color:var(--green); background:rgba(16,185,129,0.1); }
+  .bp-coin.losing-side { border-color:var(--red); background:rgba(239,68,68,0.07); opacity:0.65; }
+  .bp-coin-emoji { font-size:44px; }
+  .bp-coin-name { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; }
+  .bp-coin-price { font-family:'Orbitron',monospace; font-size:12px; color:var(--text-dim); }
+  .bp-coin-change { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; padding:4px 10px; border-radius:6px; }
+  .bp-coin-change.up { background:rgba(16,185,129,0.15); color:var(--green); }
+  .bp-coin-change.down { background:rgba(239,68,68,0.15); color:var(--red); }
+  .bp-coin-change.neutral { background:rgba(255,255,255,0.05); color:var(--text-dim); }
+  .bp-your-pick { font-family:'Orbitron',monospace; font-size:10px; color:var(--blue-glow); letter-spacing:1px; }
+  .bp-vs { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; text-align:center; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .bp-timer-row { display:flex; align-items:center; justify-content:space-between; margin-top:22px; padding-top:18px; border-top:1px solid var(--border); }
+  .bp-timeframe-tag { font-family:'Orbitron',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px; }
+  .bp-timer-val { font-family:'Orbitron',monospace; font-size:22px; font-weight:700; color:var(--gold); }
+  .bp-status-tag { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; padding:5px 14px; border-radius:20px; }
+  .bp-status-tag.waiting { background:rgba(100,116,139,0.12); color:var(--text-dim); border:1px solid var(--border); }
+  .bp-status-tag.running { background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.3); animation:bp-pulse 2s ease-in-out infinite; }
+  .bp-status-tag.done { background:rgba(245,158,11,0.1); color:var(--gold); border:1px solid rgba(245,158,11,0.3); }
+  @keyframes bp-pulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
+  .bp-pick-prompt { text-align:center; padding:18px 0 4px; font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--blue-glow); letter-spacing:2px; animation:bp-pulse 1.5s ease-in-out infinite; }
+  .bp-result { text-align:center; padding:24px; border-radius:14px; margin-top:4px; }
+  .bp-result.correct { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); }
+  .bp-result.wrong { background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); }
+  .bp-result-title { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; margin-bottom:6px; }
+  .bp-result.correct .bp-result-title { color:var(--green); }
+  .bp-result.wrong .bp-result-title { color:var(--red); }
+  .bp-result-sub { font-size:15px; color:var(--text-dim); margin-bottom:16px; line-height:1.5; }
+  .bp-play-again { padding:12px 32px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:10px; color:white; font-family:'Orbitron',monospace; font-size:12px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:all 0.2s; }
+  .bp-play-again:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,0.4); }
+  @media(max-width:600px) {
+    .bp-coins { grid-template-columns:1fr 40px 1fr; }
+    .bp-coin { padding:14px 8px; }
+    .bp-coin-emoji { font-size:32px; }
+    .bp-coin-name { font-size:13px; }
+  }
 </style>
 </head>
 <body>
@@ -233,6 +285,7 @@
   <div class="nav-right" id="navRight"></div>
 </nav>
 
+<div id="mainPage">
 <main>
   <!-- HERO — guests only -->
   <div class="hero" id="heroSection">
@@ -305,13 +358,40 @@
     </div>
   </div>
 </main>
+</div><!-- /mainPage -->
+
+<!-- BATTLE PAGE -->
+<div id="battlePage" style="display:none">
+  <div class="battle-page" style="padding-top:92px;">
+    <button class="bp-back" onclick="goHome()">← BACK TO ARENA</button>
+    <div class="bp-header">
+      <div class="bp-label">⚔️ MEMECOIN BATTLE</div>
+      <div class="bp-title">PREDICT THE WINNER</div>
+      <div class="bp-sub">Highest % gain in the timeframe wins. Entry prices locked at battle start.</div>
+    </div>
+    <div class="bp-panel">
+      <div class="bp-coins" id="bpCoins">
+        <div class="bp-coin" id="bpCoinA"></div>
+        <div class="bp-vs">VS</div>
+        <div class="bp-coin" id="bpCoinB"></div>
+      </div>
+      <div id="bpPickPrompt" class="bp-pick-prompt" style="display:none">⬆️ TAP A COIN — PICK YOUR WINNER ⬆️</div>
+      <div class="bp-timer-row">
+        <span class="bp-timeframe-tag" id="bpTimeframeTag">—</span>
+        <span class="bp-timer-val" id="bpTimerVal">—:——</span>
+        <span class="bp-status-tag waiting" id="bpStatusTag">WAITING</span>
+      </div>
+    </div>
+    <div id="bpResult" style="display:none"></div>
+  </div>
+</div>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title">ENTER THE ARENA</div>
-    <div class="modal-sub">Free to play. No wallet needed.</div>
+    <button class="modal-close" id="modalCloseBtn" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">ENTER THE ARENA</div>
+    <div class="modal-sub" id="modalSub">Free to play. No wallet needed.</div>
     <div class="tab-group">
       <button class="tab-btn active" id="tabRegister" onclick="switchTab('register')">REGISTER</button>
       <button class="tab-btn" id="tabLogin" onclick="switchTab('login')">LOGIN</button>
@@ -352,42 +432,84 @@ let coinB = null;
 let activeBattles = [];
 let battleTimers = {};
 
-// storage
-function getUsers() { return JSON.parse(localStorage.getItem('vfx_users')||'{}'); }
-function saveUsers(u) { localStorage.setItem('vfx_users', JSON.stringify(u)); }
-function getSession() { return localStorage.getItem('vfx_session'); }
-function setSession(u) { localStorage.setItem('vfx_session', u); }
-function clearSession() { localStorage.removeItem('vfx_session'); }
+// ── Battle page state ───────────────────────────
+let bp = {
+  coinAId: null, coinBId: null, timeframe: 30,
+  pickedWinner: null,
+  entryPriceA: null, entryPriceB: null,
+  endTime: null, timer: null,
+  state: 'idle' // idle | awaiting-auth | pick-winner | in-progress | resolved
+};
 
-// modal
-function openModal(tab='register') { switchTab(tab); document.getElementById('modalOverlay').classList.add('open'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function overlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+// ── Storage ─────────────────────────────────────
+function getUsers()  { return JSON.parse(localStorage.getItem('vfx_users')||'{}'); }
+function saveUsers(u){ localStorage.setItem('vfx_users', JSON.stringify(u)); }
+function getSession(){ return localStorage.getItem('vfx_session'); }
+function setSession(u){ localStorage.setItem('vfx_session', u); }
+function clearSession(){ localStorage.removeItem('vfx_session'); }
+
+// ── Routing ─────────────────────────────────────
+function getBattleParams() {
+  const p = new URLSearchParams(window.location.search);
+  return { coinAId: p.get('coinA'), coinBId: p.get('coinB'), time: parseInt(p.get('time'))||30 };
+}
+
+function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
+
+function initRouter() {
+  if (!isBattlePage()) return;
+  const {coinAId, coinBId, time} = getBattleParams();
+  document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('battlePage').style.display = 'block';
+  initBattlePage(coinAId, coinBId, time);
+}
+
+function goHome() { window.location.href = window.location.pathname; }
+
+// ── Modal ────────────────────────────────────────
+function openModal(tab='register', customTitle, customSub) {
+  document.getElementById('modalTitle').textContent = customTitle || 'ENTER THE ARENA';
+  document.getElementById('modalSub').textContent   = customSub   || 'Free to play. No wallet needed.';
+  switchTab(tab);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  if (isBattlePage() && bp.state === 'awaiting-auth') { goHome(); return; }
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function overlayClick(e) {
+  if (e.target !== document.getElementById('modalOverlay')) return;
+  if (isBattlePage() && bp.state === 'awaiting-auth') return;
+  closeModal();
+}
+
 function switchTab(tab) {
   document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
-  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('loginForm').style.display    = tab==='login'?'block':'none';
   document.getElementById('tabRegister').classList.toggle('active', tab==='register');
   document.getElementById('tabLogin').classList.toggle('active', tab==='login');
   document.getElementById('registerError').classList.remove('show');
   document.getElementById('loginError').classList.remove('show');
 }
 
-// auth
+// ── Auth ─────────────────────────────────────────
 function handleRegister() {
   const username = document.getElementById('regUsername').value.trim().toLowerCase();
   const email    = document.getElementById('regEmail').value.trim().toLowerCase();
   const password = document.getElementById('regPassword').value;
   const err      = document.getElementById('registerError');
-  if (username.length<3)                          return showErr(err,'Username must be at least 3 characters.');
-  if (!/^[a-z0-9_]+$/.test(username))             return showErr(err,'Username: only letters, numbers, underscores.');
-  if (!email.includes('@'))                       return showErr(err,'Enter a valid email address.');
-  if (password.length<6)                          return showErr(err,'Password must be at least 6 characters.');
+  if (username.length<3)                               return showErr(err,'Username must be at least 3 characters.');
+  if (!/^[a-z0-9_]+$/.test(username))                 return showErr(err,'Username: only letters, numbers, underscores.');
+  if (!email.includes('@'))                            return showErr(err,'Enter a valid email address.');
+  if (password.length<6)                              return showErr(err,'Password must be at least 6 characters.');
   const users = getUsers();
-  if (users[username])                            return showErr(err,'Username already taken.');
-  if (Object.values(users).some(u=>u.email===email)) return showErr(err,'Email already registered.');
+  if (users[username])                                 return showErr(err,'Username already taken.');
+  if (Object.values(users).some(u=>u.email===email))  return showErr(err,'Email already registered.');
   users[username] = { username, email, password, tokens:0, createdAt:Date.now() };
   saveUsers(users);
-  closeModal();
+  document.getElementById('modalOverlay').classList.remove('open');
   showToast('✅ Account created! Welcome to the arena!','success');
   loginUser(username);
 }
@@ -398,19 +520,24 @@ function handleLogin() {
   const err      = document.getElementById('loginError');
   const users    = getUsers();
   const user     = users[username];
-  if (!user)                     return showErr(err,'Username not found.');
-  if (user.password!==password)  return showErr(err,'Incorrect password.');
-  closeModal(); loginUser(username);
+  if (!user)                    return showErr(err,'Username not found.');
+  if (user.password!==password) return showErr(err,'Incorrect password.');
+  document.getElementById('modalOverlay').classList.remove('open');
+  loginUser(username);
 }
 
 function loginUser(username) {
   currentUser = getUsers()[username];
   setSession(username);
   renderNav();
-  document.getElementById('heroSection').style.display = 'none';
-  document.getElementById('activeBattlesSection').style.display = activeBattles.length?'block':'none';
-  renderLeaderboard();
   showToast(`⚡ Welcome back, ${username.toUpperCase()}!`,'info');
+  if (isBattlePage()) {
+    onBattlePageAuth();
+  } else {
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('activeBattlesSection').style.display = activeBattles.length?'block':'none';
+    renderLeaderboard();
+  }
 }
 
 function handleLogout() {
@@ -419,13 +546,14 @@ function handleLogout() {
   Object.values(battleTimers).forEach(clearInterval);
   battleTimers = {};
   renderNav();
+  if (isBattlePage()) { goHome(); return; }
   document.getElementById('heroSection').style.display = 'block';
   document.getElementById('activeBattlesSection').style.display = 'none';
 }
 
-function showErr(el,msg){el.textContent=msg;el.classList.add('show');}
+function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); }
 
-// nav
+// ── Nav ───────────────────────────────────────────
 function renderNav() {
   const el = document.getElementById('navRight');
   if (currentUser) {
@@ -438,46 +566,48 @@ function renderNav() {
 }
 function updateNavBalance() { const el=document.getElementById('navBal'); if(el&&currentUser) el.textContent=currentUser.tokens; }
 
-// time
+// ── Time selector ─────────────────────────────────
 function selectTime(btn,sec) {
   document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); selectedTime=sec;
 }
 
-// prices
+// ── Prices ────────────────────────────────────────
 async function fetchPrices() {
   try {
-    const res=await fetch('/api/prices');
-    const data=await res.json();
+    const res  = await fetch('/api/prices');
+    const data = await res.json();
     COINS.forEach(c=>{ if(data[c.cgId]) prices[c.id]={price:data[c.cgId].usd,change:data[c.cgId].usd_24h_change||0}; });
-    renderPickGrids();
-    renderSelectedDisplays();
-    renderActiveBattles();
+    if (isBattlePage()) {
+      renderBattleCoinCards();
+    } else {
+      renderPickGrids();
+      renderSelectedDisplays();
+      renderActiveBattles();
+    }
   } catch(e){}
 }
+
 function formatPrice(p) {
   if(!p) return '—';
   if(p<0.000001) return '$'+p.toFixed(10);
-  if(p<0.01) return '$'+p.toFixed(8);
-  if(p<1) return '$'+p.toFixed(6);
+  if(p<0.01)     return '$'+p.toFixed(8);
+  if(p<1)        return '$'+p.toFixed(6);
   return '$'+p.toFixed(4);
 }
 
-// PICK GRIDS
-function renderPickGrids() {
-  renderPickGrid('pickGridA', 'A');
-  renderPickGrid('pickGridB', 'B');
-}
+// ── Main page: pick grids ─────────────────────────
+function renderPickGrids() { renderPickGrid('pickGridA','A'); renderPickGrid('pickGridB','B'); }
 
 function renderPickGrid(gridId, side) {
   const grid = document.getElementById(gridId);
+  if (!grid) return;
   const otherSelected = side==='A' ? coinB : coinA;
   const mySelected    = side==='A' ? coinA : coinB;
-
   grid.innerHTML = COINS.map(coin => {
     const p = prices[coin.id];
-    const isSelected  = mySelected === coin.id;
-    const isDisabled  = otherSelected === coin.id;
+    const isSelected = mySelected===coin.id;
+    const isDisabled = otherSelected===coin.id;
     return `<button class="coin-pick-btn ${isSelected?'selected':''} ${isDisabled?'disabled-pick':''}"
       onclick="selectCoin('${side}','${coin.id}')">
       <span class="pick-emoji">${coin.emoji}</span>
@@ -490,227 +620,283 @@ function renderPickGrid(gridId, side) {
 function selectCoin(side, coinId) {
   if (side==='A') coinA = coinA===coinId ? null : coinId;
   else            coinB = coinB===coinId ? null : coinId;
-  renderPickGrids();
-  renderSelectedDisplays();
-  updateStartBtn();
+  renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
 }
 
-function renderSelectedDisplays() {
-  renderSelectedDisplay('selectedA', coinA);
-  renderSelectedDisplay('selectedB', coinB);
-}
+function renderSelectedDisplays() { renderSelectedDisplay('selectedA',coinA); renderSelectedDisplay('selectedB',coinB); }
 
 function renderSelectedDisplay(elId, coinId) {
-  const el = document.getElementById(elId);
+  const el = document.getElementById(elId); if(!el) return;
   if (!coinId) { el.innerHTML=`<span class="empty-sel">— PICK A COIN —</span>`; return; }
-  const coin = COINS.find(c=>c.id===coinId);
-  const p    = prices[coinId];
-  el.innerHTML=`
-    <span class="sel-emoji">${coin.emoji}</span>
-    <div>
-      <div class="sel-name">${coin.name}</div>
-      <div class="sel-price">${p?formatPrice(p.price):'loading...'}</div>
-    </div>`;
+  const coin=COINS.find(c=>c.id===coinId); const p=prices[coinId];
+  el.innerHTML=`<span class="sel-emoji">${coin.emoji}</span>
+    <div><div class="sel-name">${coin.name}</div><div class="sel-price">${p?formatPrice(p.price):'loading...'}</div></div>`;
 }
 
 function updateStartBtn() {
-  const btn = document.getElementById('startBattleBtn');
+  const btn=document.getElementById('startBattleBtn'); if(!btn) return;
   btn.disabled = !(coinA && coinB && coinA!==coinB);
 }
 
+// ── START BATTLE — always navigate to battle page ─
 function startBattle() {
-  if (!currentUser) { openModal('register'); return; }
   if (!coinA || !coinB) { showToast('Select two coins first!','error'); return; }
-  if (!prices[coinA] || !prices[coinB]) { showToast('Prices not loaded yet. Try again!','error'); return; }
-
-  const cA = COINS.find(c=>c.id===coinA);
-  const cB = COINS.find(c=>c.id===coinB);
-
-  showPickWinnerModal(cA, cB);
+  window.location.href = `${window.location.pathname}?coinA=${coinA}&coinB=${coinB}&time=${selectedTime}`;
 }
 
-function showPickWinnerModal(cA, cB) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(5,8,15,0.9);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+// ── BATTLE PAGE ───────────────────────────────────
+async function initBattlePage(coinAId, coinBId, time) {
+  bp.coinAId    = coinAId;
+  bp.coinBId    = coinBId;
+  bp.timeframe  = time;
 
-  overlay.innerHTML=`
-    <div style="background:#080d1a;border:1px solid rgba(37,99,235,0.3);border-radius:18px;padding:32px;max-width:420px;width:100%;text-align:center;animation:modal-in 0.25s ease;">
-      <div style="font-family:Orbitron,monospace;font-size:18px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">WHO WILL WIN?</div>
-      <div style="color:#64748b;font-size:14px;margin-bottom:24px;">Highest % gain in <strong style="color:#e2e8f0">${selectedTime<60?selectedTime+'s':selectedTime/60+'m'}</strong> wins</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-        <button onclick="confirmBattle('${cA.id}','${cB.id}','${cA.id}',this.closest('[data-overlay]'))" data-winner="${cA.id}"
-          style="padding:20px 12px;background:rgba(37,99,235,0.1);border:2px solid rgba(37,99,235,0.3);border-radius:14px;cursor:pointer;transition:all 0.2s;color:#e2e8f0;"
-          onmouseover="this.style.borderColor='#3b82f6';this.style.background='rgba(37,99,235,0.2)'"
-          onmouseout="this.style.borderColor='rgba(37,99,235,0.3)';this.style.background='rgba(37,99,235,0.1)'">
-          <div style="font-size:36px;margin-bottom:6px;">${cA.emoji}</div>
-          <div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;">${cA.name}</div>
-          <div style="font-size:12px;color:#64748b;margin-top:4px;">${formatPrice(prices[cA.id]?.price)}</div>
-        </button>
-        <button onclick="confirmBattle('${cA.id}','${cB.id}','${cB.id}',this.closest('[data-overlay]'))" data-winner="${cB.id}"
-          style="padding:20px 12px;background:rgba(124,58,237,0.1);border:2px solid rgba(124,58,237,0.3);border-radius:14px;cursor:pointer;transition:all 0.2s;color:#e2e8f0;"
-          onmouseover="this.style.borderColor='#a855f7';this.style.background='rgba(124,58,237,0.2)'"
-          onmouseout="this.style.borderColor='rgba(124,58,237,0.3)';this.style.background='rgba(124,58,237,0.1)'">
-          <div style="font-size:36px;margin-bottom:6px;">${cB.emoji}</div>
-          <div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;">${cB.name}</div>
-          <div style="font-size:12px;color:#64748b;margin-top:4px;">${formatPrice(prices[cB.id]?.price)}</div>
-        </button>
-      </div>
-      <button onclick="this.closest('div[style]').remove()" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 20px;color:#64748b;font-family:Orbitron,monospace;font-size:11px;cursor:pointer;">CANCEL</button>
-    </div>`;
+  const label = time<60 ? `${time}s` : `${time/60}m`;
+  document.getElementById('bpTimeframeTag').textContent = `${label} BATTLE`;
+  document.getElementById('bpTimerVal').textContent     = time<60 ? `0:${String(time).padStart(2,'0')}` : `${time/60}:00`;
 
-  overlay.setAttribute('data-overlay','1');
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  await fetchPrices();
+
+  if (currentUser) {
+    bp.entryPriceA = prices[coinAId]?.price || null;
+    bp.entryPriceB = prices[coinBId]?.price || null;
+    bp.state = 'pick-winner';
+    renderBattleCoinCards();
+    document.getElementById('bpPickPrompt').style.display = 'block';
+  } else {
+    bp.state = 'awaiting-auth';
+    renderBattleCoinCards();
+    openModal('register', 'CONFIRM YOUR PREDICTION', 'Create a free account or log in to start the battle.');
+  }
+
+  setInterval(fetchPrices, 30000);
 }
 
-function confirmBattle(coinAId, coinBId, pickedWinnerId, overlayEl) {
-  if (overlayEl) overlayEl.remove();
-  else { const overlays=document.querySelectorAll('[data-overlay]'); overlays.forEach(o=>o.remove()); }
+function onBattlePageAuth() {
+  bp.entryPriceA = prices[bp.coinAId]?.price || null;
+  bp.entryPriceB = prices[bp.coinBId]?.price || null;
+  bp.state = 'pick-winner';
+  renderBattleCoinCards();
+  document.getElementById('bpPickPrompt').style.display = 'block';
+}
 
+function renderBattleCoinCards() {
+  const cA = COINS.find(c=>c.id===bp.coinAId);
+  const cB = COINS.find(c=>c.id===bp.coinBId);
+  if (!cA || !cB) return;
+
+  const isPickable  = bp.state === 'pick-winner';
+  const isProgress  = bp.state === 'in-progress';
+  const isResolved  = bp.state === 'resolved';
+
+  const pA = prices[bp.coinAId]?.price;
+  const pB = prices[bp.coinBId]?.price;
+
+  let changeA = null, changeB = null;
+  if ((isProgress || isResolved) && bp.entryPriceA && pA) changeA = (pA - bp.entryPriceA)/bp.entryPriceA*100;
+  if ((isProgress || isResolved) && bp.entryPriceB && pB) changeB = (pB - bp.entryPriceB)/bp.entryPriceB*100;
+
+  let classA = '', classB = '';
+  if (isResolved) {
+    const winnerResolved = (changeA||0) >= (changeB||0) ? bp.coinAId : bp.coinBId;
+    classA = winnerResolved===bp.coinAId ? 'winning-side' : 'losing-side';
+    classB = winnerResolved===bp.coinBId ? 'winning-side' : 'losing-side';
+  } else if (isProgress && changeA!==null && changeB!==null) {
+    classA = changeA>=changeB ? 'winning-side' : 'losing-side';
+    classB = changeB>changeA  ? 'winning-side' : 'losing-side';
+  }
+
+  const pickedClassA = bp.pickedWinner===bp.coinAId ? 'picked-a' : '';
+  const pickedClassB = bp.pickedWinner===bp.coinBId ? 'picked-b' : '';
+
+  const displayPriceA = (isProgress||isResolved) && bp.entryPriceA ? `Entry: ${formatPrice(bp.entryPriceA)}` : (pA ? formatPrice(pA) : '...');
+  const displayPriceB = (isProgress||isResolved) && bp.entryPriceB ? `Entry: ${formatPrice(bp.entryPriceB)}` : (pB ? formatPrice(pB) : '...');
+
+  const changeHtmlA = changeA!==null
+    ? `<span class="bp-coin-change ${changeA>=0?'up':'down'}">${changeA>=0?'+':''}${changeA.toFixed(3)}%</span>` : '';
+  const changeHtmlB = changeB!==null
+    ? `<span class="bp-coin-change ${changeB>=0?'up':'down'}">${changeB>=0?'+':''}${changeB.toFixed(3)}%</span>` : '';
+
+  const pickBadgeA = bp.pickedWinner===bp.coinAId ? `<div class="bp-your-pick">✓ YOUR PICK</div>` : '';
+  const pickBadgeB = bp.pickedWinner===bp.coinBId ? `<div class="bp-your-pick">✓ YOUR PICK</div>` : '';
+
+  const clickA = isPickable ? `onclick="pickWinner('${bp.coinAId}')"` : '';
+  const clickB = isPickable ? `onclick="pickWinner('${bp.coinBId}')"` : '';
+
+  document.getElementById('bpCoinA').className = `bp-coin ${classA} ${pickedClassA} ${isPickable?'pickable':''}`;
+  document.getElementById('bpCoinA').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinAId}')` : '');
+  document.getElementById('bpCoinA').innerHTML = `
+    <div class="bp-coin-emoji">${cA.emoji}</div>
+    <div class="bp-coin-name">${cA.name}</div>
+    <div class="bp-coin-price">${displayPriceA}</div>
+    ${changeHtmlA}${pickBadgeA}`;
+
+  document.getElementById('bpCoinB').className = `bp-coin ${classB} ${pickedClassB} ${isPickable?'pickable':''}`;
+  document.getElementById('bpCoinB').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinBId}')` : '');
+  document.getElementById('bpCoinB').innerHTML = `
+    <div class="bp-coin-emoji">${cB.emoji}</div>
+    <div class="bp-coin-name">${cB.name}</div>
+    <div class="bp-coin-price">${displayPriceB}</div>
+    ${changeHtmlB}${pickBadgeB}`;
+}
+
+function pickWinner(coinId) {
+  if (bp.state !== 'pick-winner') return;
+  bp.pickedWinner = coinId;
+  bp.state = 'in-progress';
+  bp.entryPriceA = prices[bp.coinAId]?.price || bp.entryPriceA;
+  bp.entryPriceB = prices[bp.coinBId]?.price || bp.entryPriceB;
+  bp.endTime = Date.now() + bp.timeframe*1000;
+
+  document.getElementById('bpPickPrompt').style.display = 'none';
+
+  const statusEl = document.getElementById('bpStatusTag');
+  statusEl.className = 'bp-status-tag running';
+  statusEl.textContent = 'LIVE';
+
+  const picked = COINS.find(c=>c.id===coinId);
+  const label  = bp.timeframe<60 ? `${bp.timeframe}s` : `${bp.timeframe/60}m`;
+  showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} in ${label}!`,'info');
+
+  renderBattleCoinCards();
+
+  bp.timer = setInterval(()=>{
+    const remaining = Math.max(0, bp.endTime - Date.now());
+    const secs = Math.ceil(remaining/1000);
+    const mins = Math.floor(secs/60);
+    document.getElementById('bpTimerVal').textContent = `${mins}:${String(secs%60).padStart(2,'0')}`;
+    renderBattleCoinCards();
+    if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
+  }, 500);
+}
+
+function resolveBattlePage() {
+  bp.state = 'resolved';
+
+  const pA = prices[bp.coinAId]?.price || bp.entryPriceA;
+  const pB = prices[bp.coinBId]?.price || bp.entryPriceB;
+  const changeA = bp.entryPriceA ? (pA - bp.entryPriceA)/bp.entryPriceA*100 : 0;
+  const changeB = bp.entryPriceB ? (pB - bp.entryPriceB)/bp.entryPriceB*100 : 0;
+
+  const actualWinner = changeA >= changeB ? bp.coinAId : bp.coinBId;
+  const isCorrect    = bp.pickedWinner === actualWinner;
+  const winnerCoin   = COINS.find(c=>c.id===actualWinner);
+
+  const statusEl = document.getElementById('bpStatusTag');
+  statusEl.className = 'bp-status-tag done';
+  statusEl.textContent = 'FINAL';
+
+  document.getElementById('bpTimerVal').textContent = '0:00';
+
+  renderBattleCoinCards();
+
+  if (isCorrect && currentUser) {
+    const users = getUsers();
+    users[currentUser.username].tokens += 1;
+    saveUsers(users);
+    currentUser = users[currentUser.username];
+    updateNavBalance();
+  }
+
+  const resultEl = document.getElementById('bpResult');
+  resultEl.style.display = 'block';
+  if (isCorrect) {
+    resultEl.className = 'bp-result correct';
+    resultEl.innerHTML = `
+      <div class="bp-result-title">🎉 CORRECT!</div>
+      <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won with ${changeA>=changeB?changeA.toFixed(3):changeB.toFixed(3)}% gain.<br>+1 $BATTLE TOKEN earned! Total: ${currentUser?.tokens||0}</div>
+      <button class="bp-play-again" onclick="goHome()">⚔️ PLAY AGAIN</button>`;
+    showToast(`🎉 CORRECT! +1 $BATTLE TOKEN!`,'success');
+  } else {
+    resultEl.className = 'bp-result wrong';
+    resultEl.innerHTML = `
+      <div class="bp-result-title">❌ WRONG CALL</div>
+      <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!</div>
+      <button class="bp-play-again" onclick="goHome()">⚔️ TRY AGAIN</button>`;
+    showToast(`❌ ${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!`,'error');
+  }
+}
+
+// ── Main page: active battles ─────────────────────
+function confirmBattle(coinAId, coinBId, pickedWinnerId) {
   const cA = COINS.find(c=>c.id===coinAId);
   const cB = COINS.find(c=>c.id===coinBId);
-
   const battle = {
-    id: Date.now(),
-    coinA: coinAId, coinB: coinBId,
+    id: Date.now(), coinA:coinAId, coinB:coinBId,
     pickedWinner: pickedWinnerId,
-    entryPriceA: prices[coinAId].price,
-    entryPriceB: prices[coinBId].price,
-    timeframe: selectedTime,
-    endTime: Date.now() + selectedTime*1000,
-    status: 'active'
+    entryPriceA: prices[coinAId].price, entryPriceB: prices[coinBId].price,
+    timeframe: selectedTime, endTime: Date.now()+selectedTime*1000, status:'active'
   };
-
   activeBattles.push(battle);
   document.getElementById('activeBattlesSection').style.display = 'block';
   renderActiveBattles();
-
   const picked = pickedWinnerId===coinAId ? cA : cB;
   const label  = selectedTime<60?`${selectedTime}s`:`${selectedTime/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} to win in ${label}!`,'info');
-
-  coinA=null; coinB=null;
-  renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
-
+  coinA=null; coinB=null; renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
   battleTimers[battle.id] = setInterval(()=>{
-    if (battle.endTime - Date.now() <= 0) { clearInterval(battleTimers[battle.id]); resolveBattle(battle.id); }
+    if (battle.endTime-Date.now()<=0) { clearInterval(battleTimers[battle.id]); resolveBattle(battle.id); }
     else renderActiveBattles();
   }, 1000);
 }
 
 function resolveBattle(battleId) {
   const battle = activeBattles.find(b=>b.id===battleId);
-  if (!battle || battle.status!=='active') return;
-
+  if (!battle||battle.status!=='active') return;
   const pA = prices[battle.coinA]?.price;
   const pB = prices[battle.coinB]?.price;
-  if (!pA || !pB) { setTimeout(()=>resolveBattle(battleId),5000); return; }
-
-  const changeA = (pA - battle.entryPriceA) / battle.entryPriceA * 100;
-  const changeB = (pB - battle.entryPriceB) / battle.entryPriceB * 100;
-
-  const actualWinner = changeA >= changeB ? battle.coinA : battle.coinB;
-  const isCorrect    = battle.pickedWinner === actualWinner;
-
-  battle.status      = 'resolved';
-  battle.actualWinner= actualWinner;
-  battle.finalChangeA= changeA;
-  battle.finalChangeB= changeB;
-
-  const cA = COINS.find(c=>c.id===battle.coinA);
-  const cB = COINS.find(c=>c.id===battle.coinB);
-  const winner = actualWinner===battle.coinA ? cA : cB;
-
+  if (!pA||!pB) { setTimeout(()=>resolveBattle(battleId),5000); return; }
+  const changeA = (pA-battle.entryPriceA)/battle.entryPriceA*100;
+  const changeB = (pB-battle.entryPriceB)/battle.entryPriceB*100;
+  const actualWinner = changeA>=changeB ? battle.coinA : battle.coinB;
+  const isCorrect    = battle.pickedWinner===actualWinner;
+  battle.status='resolved'; battle.actualWinner=actualWinner;
+  battle.finalChangeA=changeA; battle.finalChangeB=changeB;
+  const cA=COINS.find(c=>c.id===battle.coinA); const cB=COINS.find(c=>c.id===battle.coinB);
+  const winner = actualWinner===battle.coinA?cA:cB;
   if (isCorrect) {
-    const users = getUsers();
-    users[currentUser.username].tokens += 1;
-    saveUsers(users);
-    currentUser = users[currentUser.username];
-    updateNavBalance(); renderLeaderboard();
+    const users=getUsers(); users[currentUser.username].tokens+=1; saveUsers(users);
+    currentUser=users[currentUser.username]; updateNavBalance(); renderLeaderboard();
     showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +1 $BATTLE TOKEN! Total: ${currentUser.tokens}`,'success');
   } else {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
   }
-
   renderActiveBattles();
-  setTimeout(()=>{
-    activeBattles = activeBattles.filter(b=>b.id!==battleId);
-    if (!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none';
-    renderActiveBattles();
-  }, 5000);
+  setTimeout(()=>{ activeBattles=activeBattles.filter(b=>b.id!==battleId); if(!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none'; renderActiveBattles(); },5000);
 }
 
 function renderActiveBattles() {
-  const list = document.getElementById('activeBattlesList');
+  const list=document.getElementById('activeBattlesList'); if(!list) return;
   if (!activeBattles.length) { list.innerHTML=''; return; }
-
-  list.innerHTML = activeBattles.map(battle => {
-    const cA = COINS.find(c=>c.id===battle.coinA);
-    const cB = COINS.find(c=>c.id===battle.coinB);
-    const secs = Math.max(0, Math.floor((battle.endTime-Date.now())/1000));
-    const timer = secs>=60 ? `${Math.floor(secs/60)}m ${secs%60}s` : `${secs}s`;
-
-    const pA = prices[battle.coinA]?.price;
-    const pB = prices[battle.coinB]?.price;
-    const liveChangeA = pA ? (pA - battle.entryPriceA)/battle.entryPriceA*100 : null;
-    const liveChangeB = pB ? (pB - battle.entryPriceB)/battle.entryPriceB*100 : null;
-
-    const isPickedA = battle.pickedWinner===battle.coinA;
-    const isPickedB = battle.pickedWinner===battle.coinB;
-
-    let sideClassA='', sideClassB='';
-    if (battle.status==='resolved') {
-      sideClassA = battle.actualWinner===battle.coinA ? 'winning' : 'losing';
-      sideClassB = battle.actualWinner===battle.coinB ? 'winning' : 'losing';
-    } else if (liveChangeA!==null && liveChangeB!==null) {
-      sideClassA = liveChangeA>=liveChangeB ? 'winning' : 'losing';
-      sideClassB = liveChangeB>liveChangeA ? 'winning' : 'losing';
-    }
-
-    const changeHtmlA = liveChangeA!==null
-      ? `<span class="b-change ${liveChangeA>=0?'up':'down'}">${liveChangeA>=0?'+':''}${liveChangeA.toFixed(3)}%</span>`
-      : `<span class="b-change neutral">...</span>`;
-    const changeHtmlB = liveChangeB!==null
-      ? `<span class="b-change ${liveChangeB>=0?'up':'down'}">${liveChangeB>=0?'+':''}${liveChangeB.toFixed(3)}%</span>`
-      : `<span class="b-change neutral">...</span>`;
-
-    const statusText = battle.status==='resolved' ? 'RESOLVED' : `⏱ ${timer}`;
-
-    return `
-      <div class="battle-card">
-        <div class="battle-header">
-          <span class="battle-timeframe">${battle.timeframe<60?battle.timeframe+'s':battle.timeframe/60+'m'} BATTLE</span>
-          <span class="battle-timer">${statusText}</span>
-        </div>
-        <div class="battle-coins">
-          <div class="battle-coin-side ${sideClassA} ${isPickedA?'picked':''}">
-            <div class="b-emoji">${cA.emoji}</div>
-            <div class="b-name">${cA.name}</div>
-            <div class="b-entry">${formatPrice(battle.entryPriceA)}</div>
-            ${changeHtmlA}
-            ${isPickedA?'<div class="b-picked-badge">YOUR PICK</div>':''}
-          </div>
-          <div class="vs-center">VS</div>
-          <div class="battle-coin-side ${sideClassB} ${isPickedB?'picked':''}">
-            <div class="b-emoji">${cB.emoji}</div>
-            <div class="b-name">${cB.name}</div>
-            <div class="b-entry">${formatPrice(battle.entryPriceB)}</div>
-            ${changeHtmlB}
-            ${isPickedB?'<div class="b-picked-badge">YOUR PICK</div>':''}
-          </div>
-        </div>
-      </div>`;
+  list.innerHTML=activeBattles.map(battle=>{
+    const cA=COINS.find(c=>c.id===battle.coinA); const cB=COINS.find(c=>c.id===battle.coinB);
+    const secs=Math.max(0,Math.floor((battle.endTime-Date.now())/1000));
+    const timer=secs>=60?`${Math.floor(secs/60)}m ${secs%60}s`:`${secs}s`;
+    const pA=prices[battle.coinA]?.price; const pB=prices[battle.coinB]?.price;
+    const liveChangeA=pA?(pA-battle.entryPriceA)/battle.entryPriceA*100:null;
+    const liveChangeB=pB?(pB-battle.entryPriceB)/battle.entryPriceB*100:null;
+    const isPickedA=battle.pickedWinner===battle.coinA; const isPickedB=battle.pickedWinner===battle.coinB;
+    let sideClassA='',sideClassB='';
+    if (battle.status==='resolved') { sideClassA=battle.actualWinner===battle.coinA?'winning':'losing'; sideClassB=battle.actualWinner===battle.coinB?'winning':'losing'; }
+    else if (liveChangeA!==null&&liveChangeB!==null) { sideClassA=liveChangeA>=liveChangeB?'winning':'losing'; sideClassB=liveChangeB>liveChangeA?'winning':'losing'; }
+    const changeHtmlA=liveChangeA!==null?`<span class="b-change ${liveChangeA>=0?'up':'down'}">${liveChangeA>=0?'+':''}${liveChangeA.toFixed(3)}%</span>`:`<span class="b-change neutral">...</span>`;
+    const changeHtmlB=liveChangeB!==null?`<span class="b-change ${liveChangeB>=0?'up':'down'}">${liveChangeB>=0?'+':''}${liveChangeB.toFixed(3)}%</span>`:`<span class="b-change neutral">...</span>`;
+    const statusText=battle.status==='resolved'?'RESOLVED':`⏱ ${timer}`;
+    return `<div class="battle-card">
+      <div class="battle-header"><span class="battle-timeframe">${battle.timeframe<60?battle.timeframe+'s':battle.timeframe/60+'m'} BATTLE</span><span class="battle-timer">${statusText}</span></div>
+      <div class="battle-coins">
+        <div class="battle-coin-side ${sideClassA} ${isPickedA?'picked':''}"><div class="b-emoji">${cA.emoji}</div><div class="b-name">${cA.name}</div><div class="b-entry">${formatPrice(battle.entryPriceA)}</div>${changeHtmlA}${isPickedA?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
+        <div class="vs-center">VS</div>
+        <div class="battle-coin-side ${sideClassB} ${isPickedB?'picked':''}"><div class="b-emoji">${cB.emoji}</div><div class="b-name">${cB.name}</div><div class="b-entry">${formatPrice(battle.entryPriceB)}</div>${changeHtmlB}${isPickedB?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
+      </div></div>`;
   }).join('');
 }
 
-// leaderboard
+// ── Leaderboard ───────────────────────────────────
 function renderLeaderboard() {
-  const users = getUsers();
-  const sorted = Object.values(users).sort((a,b)=>b.tokens-a.tokens).slice(0,10);
-  const tbody  = document.getElementById('lbBody');
+  const users=getUsers(); const sorted=Object.values(users).sort((a,b)=>b.tokens-a.tokens).slice(0,10);
+  const tbody=document.getElementById('lbBody'); if(!tbody) return;
   if (!sorted.length||sorted.every(u=>u.tokens===0)) {
-    tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
-    return;
+    tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`; return;
   }
   const medals=['🥇','🥈','🥉']; const rc=['gold','silver','bronze'];
   tbody.innerHTML=sorted.map((user,i)=>`
@@ -721,24 +907,35 @@ function renderLeaderboard() {
     </tr>`).join('');
 }
 
+// ── Toast ─────────────────────────────────────────
 function showToast(msg,type='info') {
   const c=document.getElementById('toastContainer');
   const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg;
   c.appendChild(t); setTimeout(()=>t.remove(),5000);
 }
 
+// ── Keyboard shortcuts ────────────────────────────
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') closeModal();
+  if(e.key==='Escape' && !(isBattlePage()&&bp.state==='awaiting-auth')) closeModal();
   if(e.key==='Enter'&&document.getElementById('modalOverlay').classList.contains('open')) {
     document.getElementById('registerForm').style.display!=='none'?handleRegister():handleLogin();
   }
 });
 
+// ── Init ──────────────────────────────────────────
 function init() {
-  renderNav(); renderPickGrids(); renderLeaderboard();
-  fetchPrices(); setInterval(fetchPrices,30000);
+  renderNav();
   const session=getSession();
-  if(session){const users=getUsers();if(users[session])loginUser(session);}
+  if(session){ const users=getUsers(); if(users[session]) { currentUser=users[session]; renderNav(); } }
+  initRouter();
+  if (!isBattlePage()) {
+    renderPickGrids(); renderLeaderboard();
+    fetchPrices(); setInterval(fetchPrices,30000);
+    if (currentUser) {
+      document.getElementById('heroSection').style.display='none';
+      document.getElementById('activeBattlesSection').style.display='none';
+    }
+  }
 }
 init();
 </script>
