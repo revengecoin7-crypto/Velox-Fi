@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VeloxFi — Memecoin Battle Arena</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --bg: #05080f;
@@ -167,13 +168,6 @@
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(5,8,15,0.85); backdrop-filter:blur(8px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open { display:flex; }
   .modal-overlay.battle-mode { background:rgba(2,4,10,0.2); backdrop-filter:none; }
-  .battle-page-glow .bp-panel { background:rgba(10,16,35,1); box-shadow:0 0 60px rgba(37,99,235,0.25), 0 0 0 1px rgba(37,99,235,0.35); }
-  .battle-page-glow .bp-coin { background:rgba(18,28,60,1); border-color:rgba(37,99,235,0.5); }
-  .battle-page-glow .bp-coin-logo { filter:drop-shadow(0 0 10px rgba(168,85,247,0.6)); }
-  .battle-page-glow .bp-coin-name { color:#fff; text-shadow:0 0 12px rgba(59,130,246,0.8); }
-  .battle-page-glow .bp-coin-price { color:#94a3b8; font-size:13px; }
-  .battle-page-glow .bp-timer-val { text-shadow:0 0 16px rgba(245,158,11,0.7); }
-  .battle-page-glow .bp-vs { font-size:26px; text-shadow:0 0 20px rgba(124,58,237,0.8); }
   .modal { background:#080d1a; border:1px solid var(--border); border-radius:18px; padding:36px 40px; width:100%; max-width:420px; box-shadow:0 0 80px rgba(37,99,235,0.15); position:relative; animation:modal-in 0.25s ease; }
   @keyframes modal-in { from{transform:scale(0.95);opacity:0} to{transform:scale(1);opacity:1} }
   .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; }
@@ -224,42 +218,80 @@
   }
 
   /* ── BATTLE PAGE ─────────────────────────────── */
-  .battle-page { max-width:720px; margin:0 auto; padding:20px 20px 60px; }
-  .bp-back { display:inline-flex; align-items:center; gap:8px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; transition:color 0.2s; margin-bottom:28px; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 16px; }
+  .battle-page { max-width:860px; margin:0 auto; padding:20px 20px 80px; }
+  .bp-back { display:inline-flex; align-items:center; gap:8px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; cursor:pointer; transition:color 0.2s; margin-bottom:20px; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 16px; }
   .bp-back:hover { color:var(--text); border-color:var(--blue); }
-  .bp-header { text-align:center; margin-bottom:32px; }
-  .bp-label { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:var(--purple-glow); margin-bottom:10px; }
-  .bp-title { font-family:'Orbitron',monospace; font-size:clamp(18px,4vw,28px); font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1.3; margin-bottom:8px; }
-  .bp-sub { font-size:15px; color:var(--text-dim); }
-  .bp-panel { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; position:relative; overflow:hidden; margin-bottom:20px; box-shadow:0 0 60px rgba(37,99,235,0.08); }
-  .bp-panel::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--purple)); }
-  .bp-coins { display:grid; grid-template-columns:1fr 60px 1fr; gap:12px; align-items:center; }
-  .bp-coin { display:flex; flex-direction:column; align-items:center; gap:8px; padding:22px 14px; border-radius:14px; border:1px solid var(--border); transition:all 0.25s; }
-  .bp-coin.pickable { cursor:pointer; }
-  .bp-coin.pickable:hover { border-color:rgba(37,99,235,0.6); background:rgba(37,99,235,0.07); transform:translateY(-3px); box-shadow:0 8px 24px rgba(37,99,235,0.15); }
-  .bp-coin.picked-a { border-color:var(--blue); background:rgba(37,99,235,0.12); box-shadow:0 0 28px rgba(37,99,235,0.3); transform:translateY(-3px); }
-  .bp-coin.picked-b { border-color:var(--purple-glow); background:rgba(124,58,237,0.12); box-shadow:0 0 28px rgba(124,58,237,0.3); transform:translateY(-3px); }
-  .bp-coin.winning-side { border-color:var(--green); background:rgba(16,185,129,0.1); }
-  .bp-coin.losing-side { border-color:var(--red); background:rgba(239,68,68,0.07); opacity:0.65; }
-  .bp-coin-logo { width:72px; height:72px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); box-shadow:0 0 16px rgba(37,99,235,0.3); }
-  .bp-coin-name { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; }
-  .bp-coin-price { font-family:'Orbitron',monospace; font-size:12px; color:var(--text-dim); }
-  .bp-coin-change { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; padding:4px 10px; border-radius:6px; }
-  .bp-coin-change.up { background:rgba(16,185,129,0.15); color:var(--green); }
-  .bp-coin-change.down { background:rgba(239,68,68,0.15); color:var(--red); }
-  .bp-coin-change.neutral { background:rgba(255,255,255,0.05); color:var(--text-dim); }
-  .bp-your-pick { font-family:'Orbitron',monospace; font-size:10px; color:var(--blue-glow); letter-spacing:1px; }
-  .bp-vs { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; text-align:center; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .bp-timer-row { display:flex; align-items:center; justify-content:space-between; margin-top:22px; padding-top:18px; border-top:1px solid var(--border); }
+
+  /* MK HEALTH BAR */
+  .mk-section { position:relative; border-radius:16px; overflow:hidden; margin-bottom:16px; border:1px solid rgba(37,99,235,0.35); box-shadow:0 0 50px rgba(37,99,235,0.12),0 0 50px rgba(124,58,237,0.08); }
+  .mk-bg { position:absolute; inset:0; background-image:url('/battle-bar.jpg'); background-size:cover; background-position:center 42%; }
+  .mk-bg-overlay { position:absolute; inset:0; background:linear-gradient(180deg,rgba(2,4,15,0.82) 0%,rgba(2,4,15,0.6) 50%,rgba(2,4,15,0.86) 100%); }
+  .mk-overlay { position:relative; z-index:1; padding:22px 24px; }
+  .mk-bar-row { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; }
+  .mk-side { display:flex; align-items:center; gap:12px; }
+  .mk-side-b { flex-direction:row-reverse; }
+  .mk-logo { width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.25); flex-shrink:0; box-shadow:0 0 14px rgba(0,0,0,0.6); }
+  .mk-side-info { display:flex; flex-direction:column; gap:3px; }
+  .mk-info-right { text-align:right; }
+  .mk-name { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; color:#e2e8f0; letter-spacing:1px; }
+  .mk-pct { font-family:'Orbitron',monospace; font-size:18px; font-weight:900; line-height:1; }
+  .mk-pct.up { color:var(--green); text-shadow:0 0 14px rgba(16,185,129,0.9); }
+  .mk-pct.down { color:var(--red); text-shadow:0 0 14px rgba(239,68,68,0.9); }
+  .mk-pct.neutral { color:var(--text-dim); }
+  .mk-bars { display:flex; align-items:center; gap:6px; width:100%; min-width:120px; }
+  .mk-bar-track { flex:1; height:26px; background:rgba(0,0,0,0.6); border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); }
+  .mk-track-a { display:flex; justify-content:flex-start; }
+  .mk-fill-a { height:100%; background:linear-gradient(90deg,#1e3a8a,#3b82f6,#93c5fd); box-shadow:inset 0 0 8px rgba(59,130,246,0.5),0 0 12px rgba(59,130,246,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1); border-radius:3px 0 0 3px; }
+  .mk-track-b { display:flex; justify-content:flex-end; }
+  .mk-fill-b { height:100%; background:linear-gradient(270deg,#7f1d1d,#ef4444,#fca5a5); box-shadow:inset 0 0 8px rgba(239,68,68,0.5),0 0 12px rgba(239,68,68,0.6); transition:width 0.7s cubic-bezier(0.4,0,0.2,1); border-radius:0 3px 3px 0; }
+  .mk-bolt { font-size:32px; flex-shrink:0; transition:transform 0.7s cubic-bezier(0.4,0,0.2,1); filter:drop-shadow(0 0 12px rgba(250,204,21,1)) drop-shadow(0 0 4px #fff); line-height:1; }
+
+  /* STAT CARDS */
+  .bp-stats-row { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:stretch; margin-bottom:14px; }
+  .bp-stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px; transition:all 0.25s; }
+  .bp-stat-card.pickable { cursor:pointer; }
+  .bp-stat-card.pickable:hover { border-color:rgba(37,99,235,0.5); background:rgba(37,99,235,0.06); transform:translateY(-2px); box-shadow:0 6px 20px rgba(37,99,235,0.12); }
+  .bp-stat-card.coin-a-picked { border-color:var(--blue); background:rgba(37,99,235,0.1); box-shadow:0 0 24px rgba(37,99,235,0.2); }
+  .bp-stat-card.coin-b-picked { border-color:var(--purple-glow); background:rgba(124,58,237,0.1); box-shadow:0 0 24px rgba(124,58,237,0.2); }
+  .bp-stat-card.winning-card { border-color:var(--green); background:rgba(16,185,129,0.06); }
+  .bp-stat-card.losing-card { border-color:rgba(239,68,68,0.3); opacity:0.6; }
+  .bp-card-header { display:flex; align-items:center; gap:10px; }
+  .bp-card-logo { width:42px; height:42px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); flex-shrink:0; }
+  .bp-card-names { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .bp-card-name { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bp-card-fullname { font-size:11px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bp-stat-change { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; padding:7px 10px; border-radius:8px; text-align:center; }
+  .bp-stat-change.up { background:rgba(16,185,129,0.12); color:var(--green); box-shadow:0 0 14px rgba(16,185,129,0.18); }
+  .bp-stat-change.down { background:rgba(239,68,68,0.1); color:var(--red); }
+  .bp-stat-change.neutral { background:rgba(255,255,255,0.04); color:var(--text-dim); }
+  .bp-stat-rows { display:flex; flex-direction:column; gap:5px; }
+  .bp-stat-row { display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .bp-stat-row:last-child { border-bottom:none; }
+  .bp-stat-lbl { font-size:10px; color:var(--text-dim); font-family:'Orbitron',monospace; letter-spacing:1px; }
+  .bp-stat-val { font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; color:var(--text); }
+  .bp-pick-badge { font-family:'Orbitron',monospace; font-size:10px; color:var(--blue-glow); letter-spacing:1px; text-align:center; padding:4px 8px; border:1px solid rgba(37,99,235,0.3); border-radius:6px; background:rgba(37,99,235,0.07); }
+  .bp-tap-hint { text-align:center; font-family:'Orbitron',monospace; font-size:10px; color:rgba(59,130,246,0.6); letter-spacing:1px; }
+  .bp-vs-badge { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; text-align:center; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; align-self:center; white-space:nowrap; padding:0 4px; }
+
+  /* CHARTS */
+  .bp-charts-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .bp-chart-wrap { background:rgba(6,10,22,0.95); border:1px solid var(--border); border-radius:12px; padding:12px; }
+  .bp-chart-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .bp-chart-name { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; color:var(--text); }
+  .bp-chart-tag { font-family:'Orbitron',monospace; font-size:9px; color:var(--text-dim); letter-spacing:1px; }
+  .bp-chart-empty { text-align:center; padding:28px 0; font-family:'Orbitron',monospace; font-size:10px; color:var(--text-dim); letter-spacing:1px; }
+
+  /* TIMER ROW */
+  .bp-timer-row { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:20px; }
   .bp-timeframe-tag { font-family:'Orbitron',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px; }
-  .bp-timer-val { font-family:'Orbitron',monospace; font-size:22px; font-weight:700; color:var(--gold); }
+  .bp-timer-val { font-family:'Orbitron',monospace; font-size:26px; font-weight:700; color:var(--gold); }
   .bp-status-tag { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:1px; padding:5px 14px; border-radius:20px; }
   .bp-status-tag.waiting { background:rgba(100,116,139,0.12); color:var(--text-dim); border:1px solid var(--border); }
   .bp-status-tag.running { background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.3); animation:bp-pulse 2s ease-in-out infinite; }
   .bp-status-tag.done { background:rgba(245,158,11,0.1); color:var(--gold); border:1px solid rgba(245,158,11,0.3); }
   @keyframes bp-pulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
-  .bp-pick-prompt { text-align:center; padding:18px 0 4px; font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--blue-glow); letter-spacing:2px; animation:bp-pulse 1.5s ease-in-out infinite; }
-  .bp-result { text-align:center; padding:24px; border-radius:14px; margin-top:4px; }
+  .bp-pick-prompt { text-align:center; padding:12px; font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--blue-glow); letter-spacing:2px; animation:bp-pulse 1.5s ease-in-out infinite; margin-bottom:10px; }
+  .bp-result { text-align:center; padding:24px; border-radius:14px; }
   .bp-result.correct { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); }
   .bp-result.wrong { background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); }
   .bp-result-title { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; margin-bottom:6px; }
@@ -268,11 +300,14 @@
   .bp-result-sub { font-size:15px; color:var(--text-dim); margin-bottom:16px; line-height:1.5; }
   .bp-play-again { padding:12px 32px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:10px; color:white; font-family:'Orbitron',monospace; font-size:12px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:all 0.2s; }
   .bp-play-again:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,0.4); }
-  @media(max-width:600px) {
-    .bp-coins { grid-template-columns:1fr 40px 1fr; }
-    .bp-coin { padding:14px 8px; }
-    .bp-coin-logo { width:52px; height:52px; }
-    .bp-coin-name { font-size:13px; }
+  @media(max-width:640px) {
+    .mk-bar-row { grid-template-columns:1fr; gap:8px; }
+    .mk-side,.mk-side-b { justify-content:center; flex-direction:row; }
+    .mk-info-right { text-align:left; }
+    .mk-bars { order:3; width:100%; }
+    .bp-stats-row { grid-template-columns:1fr; }
+    .bp-vs-badge { display:none; }
+    .bp-charts-row { grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -381,26 +416,81 @@
 
 <!-- BATTLE PAGE -->
 <div id="battlePage" style="display:none">
-  <div class="battle-page battle-page-glow" style="padding-top:92px;">
+  <div class="battle-page" style="padding-top:92px;">
     <button class="bp-back" onclick="goHome()">← BACK TO ARENA</button>
-    <div class="bp-header">
-      <div class="bp-label">⚔️ MEMECOIN BATTLE</div>
-      <div class="bp-title">PREDICT THE WINNER</div>
-      <div class="bp-sub">Highest % gain in the timeframe wins. Entry prices locked at battle start.</div>
-    </div>
-    <div class="bp-panel">
-      <div class="bp-coins" id="bpCoins">
-        <div class="bp-coin" id="bpCoinA"></div>
-        <div class="bp-vs">VS</div>
-        <div class="bp-coin" id="bpCoinB"></div>
+
+    <!-- MK HEALTH BAR -->
+    <div class="mk-section">
+      <div class="mk-bg"></div>
+      <div class="mk-bg-overlay"></div>
+      <div class="mk-overlay">
+        <div class="mk-bar-row">
+          <div class="mk-side">
+            <img id="mkLogoA" class="mk-logo" src="" alt="">
+            <div class="mk-side-info">
+              <div class="mk-name" id="mkNameA">—</div>
+              <div class="mk-pct neutral" id="mkPctA">—</div>
+            </div>
+          </div>
+          <div class="mk-bars">
+            <div class="mk-bar-track mk-track-a">
+              <div class="mk-fill-a" id="mkFillA" style="width:50%"></div>
+            </div>
+            <div class="mk-bolt" id="mkBolt">⚡</div>
+            <div class="mk-bar-track mk-track-b">
+              <div class="mk-fill-b" id="mkFillB" style="width:50%"></div>
+            </div>
+          </div>
+          <div class="mk-side mk-side-b">
+            <div class="mk-side-info mk-info-right">
+              <div class="mk-name" id="mkNameB">—</div>
+              <div class="mk-pct neutral" id="mkPctB">—</div>
+            </div>
+            <img id="mkLogoB" class="mk-logo" src="" alt="">
+          </div>
+        </div>
       </div>
-      <div id="bpPickPrompt" class="bp-pick-prompt" style="display:none">⬆️ TAP A COIN — PICK YOUR WINNER ⬆️</div>
-      <div class="bp-timer-row">
-        <span class="bp-timeframe-tag" id="bpTimeframeTag">—</span>
-        <span class="bp-timer-val" id="bpTimerVal">—:——</span>
-        <span class="bp-status-tag waiting" id="bpStatusTag">WAITING</span>
+    </div>
+
+    <!-- PICK PROMPT -->
+    <div id="bpPickPrompt" class="bp-pick-prompt" style="display:none">⬆️ TAP A COIN TO PICK YOUR WINNER ⬆️</div>
+
+    <!-- COIN STAT CARDS -->
+    <div class="bp-stats-row">
+      <div class="bp-stat-card" id="bpCoinA"></div>
+      <div class="bp-vs-badge">VS</div>
+      <div class="bp-stat-card" id="bpCoinB"></div>
+    </div>
+
+    <!-- LIVE CHARTS -->
+    <div class="bp-charts-row">
+      <div class="bp-chart-wrap">
+        <div class="bp-chart-hdr">
+          <span class="bp-chart-name" id="chartLabelA">—</span>
+          <span class="bp-chart-tag">PRICE HISTORY</span>
+        </div>
+        <div style="position:relative;height:88px">
+          <canvas id="chartA"></canvas>
+        </div>
+      </div>
+      <div class="bp-chart-wrap">
+        <div class="bp-chart-hdr">
+          <span class="bp-chart-name" id="chartLabelB">—</span>
+          <span class="bp-chart-tag">PRICE HISTORY</span>
+        </div>
+        <div style="position:relative;height:88px">
+          <canvas id="chartB"></canvas>
+        </div>
       </div>
     </div>
+
+    <!-- TIMER -->
+    <div class="bp-timer-row">
+      <span class="bp-timeframe-tag" id="bpTimeframeTag">—</span>
+      <span class="bp-timer-val" id="bpTimerVal">—:——</span>
+      <span class="bp-status-tag waiting" id="bpStatusTag">WAITING</span>
+    </div>
+
     <div id="bpResult" style="display:none"></div>
   </div>
 </div>
@@ -476,12 +566,15 @@ let battleTimers = {};
 
 // ── Battle page state ───────────────────────────
 let bp = {
-  coinAId: null, coinBId: null, timeframe: 30,
+  coinAId: null, coinBId: null, timeframe: 300,
   pickedWinner: null,
   entryPriceA: null, entryPriceB: null,
   endTime: null, timer: null,
   state: 'idle' // idle | awaiting-auth | pick-winner | in-progress | resolved
 };
+let bpPriceHistory = []; // [{t, pA, pB}] — last 10 updates
+let bpChartA = null, bpChartB = null;
+let bpPriceInterval = null;
 
 // ── Storage ─────────────────────────────────────
 function getUsers()  { return JSON.parse(localStorage.getItem('vfx_users')||'{}'); }
@@ -686,10 +779,15 @@ async function fetchPrices() {
     const res  = await fetch(`/api/prices?ids=${encodeURIComponent(ids)}`);
     const data = await res.json();
     COINS.forEach(c => {
-      if (data[c.cgId]) prices[c.id] = { price: data[c.cgId].usd, change: data[c.cgId].usd_24h_change || 0 };
+      if (data[c.cgId]) prices[c.id] = {
+        price: data[c.cgId].usd,
+        change: data[c.cgId].usd_24h_change || 0,
+        vol: data[c.cgId].usd_24h_vol || 0,
+        marketCap: data[c.cgId].usd_market_cap || 0
+      };
     });
     if (isBattlePage()) {
-      renderBattleCoinCards();
+      renderBattlePage();
     } else {
       renderPickGrids();
       renderSelectedDisplays();
@@ -804,26 +902,22 @@ async function initBattlePage(coinAId, coinBId, time) {
   ensureCoin(coinAId);
   ensureCoin(coinBId);
 
-  // Render immediately with emoji/name — prices show "..." until loaded
-  renderBattleCoinCards();
+  // Render skeleton (prices show "..." until loaded)
+  renderBattlePage();
 
-  // Fetch fresh prices for just these two coins
-  try {
-    const res = await fetch(`/api/prices?ids=${encodeURIComponent(`${coinAId},${coinBId}`)}`);
-    const data = await res.json();
-    if (data[coinAId]) prices[coinAId] = { price: data[coinAId].usd, change: data[coinAId].usd_24h_change||0 };
-    if (data[coinBId]) prices[coinBId] = { price: data[coinBId].usd, change: data[coinBId].usd_24h_change||0 };
-    renderBattleCoinCards();
-  } catch(e) {}
+  // Fetch fresh prices with vol + mktcap for both battle coins
+  await fetchBattlePagePrices();
+
+  // Init charts after COINS/prices are ready
+  const cA = COINS.find(c=>c.id===coinAId), cB = COINS.find(c=>c.id===coinBId);
+  if (cA && cB) initBattleCharts(cA, cB);
 
   if (currentUser) {
     bp.entryPriceA = prices[coinAId]?.price || null;
     bp.entryPriceB = prices[coinBId]?.price || null;
-    renderBattleCoinCards();
+    renderBattlePage();
     document.getElementById('bpPickPrompt').style.display = 'block';
   } else {
-    // Content is now fully rendered — wait one frame so browser paints it,
-    // then show the modal so the user sees the battle layout first
     requestAnimationFrame(() => {
       setTimeout(() => {
         openModal('register', 'CONFIRM YOUR PREDICTION', 'Create a free account or log in to start the battle.');
@@ -831,6 +925,9 @@ async function initBattlePage(coinAId, coinBId, time) {
     });
   }
 
+  // 10s price refresh (only on battle page)
+  if (bpPriceInterval) clearInterval(bpPriceInterval);
+  bpPriceInterval = setInterval(fetchBattlePagePrices, 10000);
   setInterval(fetchPrices, 30000);
 }
 
@@ -838,68 +935,175 @@ function onBattlePageAuth() {
   bp.entryPriceA = prices[bp.coinAId]?.price || null;
   bp.entryPriceB = prices[bp.coinBId]?.price || null;
   bp.state = 'pick-winner';
-  renderBattleCoinCards();
+  renderBattlePage();
   document.getElementById('bpPickPrompt').style.display = 'block';
 }
 
-function renderBattleCoinCards() {
+// ── Format large number (vol / market cap) ────────
+function formatLarge(n) {
+  if (!n || n <= 0) return '—';
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(2);
+}
+
+// ── MK Health Bar ─────────────────────────────────
+function updateMKHealthBar() {
   const cA = COINS.find(c=>c.id===bp.coinAId);
   const cB = COINS.find(c=>c.id===bp.coinBId);
   if (!cA || !cB) return;
+  const lA = document.getElementById('mkLogoA'), lB = document.getElementById('mkLogoB');
+  const nA = document.getElementById('mkNameA'), nB = document.getElementById('mkNameB');
+  if (lA && cA.image && !lA.src.includes(cA.image)) lA.src = cA.image;
+  if (lB && cB.image && !lB.src.includes(cB.image)) lB.src = cB.image;
+  if (nA) nA.textContent = cA.name;
+  if (nB) nB.textContent = cB.name;
 
-  const isPickable  = bp.state === 'pick-winner';
-  const isProgress  = bp.state === 'in-progress';
-  const isResolved  = bp.state === 'resolved';
+  const isActive = bp.state === 'in-progress' || bp.state === 'resolved';
+  const pA = prices[bp.coinAId]?.price, pB = prices[bp.coinBId]?.price;
+  let changeA = 0, changeB = 0;
+  if (isActive && bp.entryPriceA && pA) changeA = (pA - bp.entryPriceA)/bp.entryPriceA*100;
+  if (isActive && bp.entryPriceB && pB) changeB = (pB - bp.entryPriceB)/bp.entryPriceB*100;
 
-  const pA = prices[bp.coinAId]?.price;
-  const pB = prices[bp.coinBId]?.price;
+  let normA = 50;
+  if (changeA !== 0 || changeB !== 0) {
+    const adjA = Math.max(changeA, 0), adjB = Math.max(changeB, 0);
+    if (adjA + adjB > 0) {
+      normA = adjA / (adjA + adjB) * 100;
+    } else {
+      const d = changeA - changeB;
+      const span = Math.abs(d) || 1;
+      normA = 50 + d / span * 45;
+    }
+    normA = Math.max(5, Math.min(95, normA));
+  }
+  const normB = 100 - normA;
 
-  let changeA = null, changeB = null;
-  if ((isProgress || isResolved) && bp.entryPriceA && pA) changeA = (pA - bp.entryPriceA)/bp.entryPriceA*100;
-  if ((isProgress || isResolved) && bp.entryPriceB && pB) changeB = (pB - bp.entryPriceB)/bp.entryPriceB*100;
-
-  let classA = '', classB = '';
-  if (isResolved) {
-    const winnerResolved = (changeA||0) >= (changeB||0) ? bp.coinAId : bp.coinBId;
-    classA = winnerResolved===bp.coinAId ? 'winning-side' : 'losing-side';
-    classB = winnerResolved===bp.coinBId ? 'winning-side' : 'losing-side';
-  } else if (isProgress && changeA!==null && changeB!==null) {
-    classA = changeA>=changeB ? 'winning-side' : 'losing-side';
-    classB = changeB>changeA  ? 'winning-side' : 'losing-side';
+  const fillA = document.getElementById('mkFillA');
+  const fillB = document.getElementById('mkFillB');
+  const bolt  = document.getElementById('mkBolt');
+  if (fillA) fillA.style.width = normA + '%';
+  if (fillB) fillB.style.width = normB + '%';
+  if (bolt) {
+    const shift = ((normA - 50) / 50) * 26;
+    bolt.style.transform = `translateX(${-shift}px) scale(${1 + Math.abs(normA-50)/120})`;
   }
 
-  const pickedClassA = bp.pickedWinner===bp.coinAId ? 'picked-a' : '';
-  const pickedClassB = bp.pickedWinner===bp.coinBId ? 'picked-b' : '';
+  const pctA = document.getElementById('mkPctA'), pctB = document.getElementById('mkPctB');
+  if (pctA) { pctA.textContent = isActive ? `${changeA>=0?'+':''}${changeA.toFixed(3)}%` : '—'; pctA.className = `mk-pct ${!isActive?'neutral':changeA>=0?'up':'down'}`; }
+  if (pctB) { pctB.textContent = isActive ? `${changeB>=0?'+':''}${changeB.toFixed(3)}%` : '—'; pctB.className = `mk-pct ${!isActive?'neutral':changeB>=0?'up':'down'}`; }
+}
 
-  const displayPriceA = (isProgress||isResolved) && bp.entryPriceA ? `Entry: ${formatPrice(bp.entryPriceA)}` : (pA ? formatPrice(pA) : '...');
-  const displayPriceB = (isProgress||isResolved) && bp.entryPriceB ? `Entry: ${formatPrice(bp.entryPriceB)}` : (pB ? formatPrice(pB) : '...');
+// ── Coin stat cards ────────────────────────────────
+function renderBattleStats() {
+  const cA = COINS.find(c=>c.id===bp.coinAId);
+  const cB = COINS.find(c=>c.id===bp.coinBId);
+  if (!cA || !cB) return;
+  const isPickable = bp.state === 'pick-winner';
+  const isActive   = bp.state === 'in-progress' || bp.state === 'resolved';
+  const pA = prices[bp.coinAId], pB = prices[bp.coinBId];
 
-  const changeHtmlA = changeA!==null
-    ? `<span class="bp-coin-change ${changeA>=0?'up':'down'}">${changeA>=0?'+':''}${changeA.toFixed(3)}%</span>` : '';
-  const changeHtmlB = changeB!==null
-    ? `<span class="bp-coin-change ${changeB>=0?'up':'down'}">${changeB>=0?'+':''}${changeB.toFixed(3)}%</span>` : '';
+  let changeA = null, changeB = null;
+  if (isActive && bp.entryPriceA && pA?.price) changeA = (pA.price - bp.entryPriceA)/bp.entryPriceA*100;
+  if (isActive && bp.entryPriceB && pB?.price) changeB = (pB.price - bp.entryPriceB)/bp.entryPriceB*100;
 
-  const pickBadgeA = bp.pickedWinner===bp.coinAId ? `<div class="bp-your-pick">✓ YOUR PICK</div>` : '';
-  const pickBadgeB = bp.pickedWinner===bp.coinBId ? `<div class="bp-your-pick">✓ YOUR PICK</div>` : '';
+  const aWin = (changeA||0) >= (changeB||0);
+  const cardCls = (isActive, win, coinId) => {
+    let c = 'bp-stat-card';
+    if (isPickable) c += ' pickable';
+    if (bp.pickedWinner===coinId) c += (coinId===bp.coinAId?' coin-a-picked':' coin-b-picked');
+    if (isActive) c += (win?' winning-card':' losing-card');
+    return c;
+  };
 
-  const clickA = isPickable ? `onclick="pickWinner('${bp.coinAId}')"` : '';
-  const clickB = isPickable ? `onclick="pickWinner('${bp.coinBId}')"` : '';
+  const buildCard = (coin, p, change, coinId) => {
+    const chgLabel = change !== null ? `${change>=0?'+':''}${change.toFixed(3)}%` : '—';
+    const chgCls   = change===null ? 'neutral' : change>=0 ? 'up' : 'down';
+    const picked   = bp.pickedWinner === coinId;
+    const entryPx  = coinId===bp.coinAId ? bp.entryPriceA : bp.entryPriceB;
+    return `
+      <div class="bp-card-header">
+        ${coinLogoHtml(coin,'bp-card-logo')}
+        <div class="bp-card-names">
+          <div class="bp-card-name">${coin.name}</div>
+          <div class="bp-card-fullname">${coin.fullName||coin.name}</div>
+        </div>
+      </div>
+      <div class="bp-stat-change ${chgCls}">${chgLabel}</div>
+      <div class="bp-stat-rows">
+        <div class="bp-stat-row"><span class="bp-stat-lbl">PRICE</span><span class="bp-stat-val">${p?.price?formatPrice(p.price):'...'}</span></div>
+        ${entryPx?`<div class="bp-stat-row"><span class="bp-stat-lbl">ENTRY</span><span class="bp-stat-val" style="color:var(--text-dim)">${formatPrice(entryPx)}</span></div>`:''}
+        <div class="bp-stat-row"><span class="bp-stat-lbl">24H VOL</span><span class="bp-stat-val">${formatLarge(p?.vol)}</span></div>
+        <div class="bp-stat-row"><span class="bp-stat-lbl">MKT CAP</span><span class="bp-stat-val">${formatLarge(p?.marketCap)}</span></div>
+      </div>
+      ${picked?'<div class="bp-pick-badge">✓ YOUR PICK</div>':''}
+      ${isPickable?'<div class="bp-tap-hint">TAP TO PICK ↑</div>':''}`;
+  };
 
-  document.getElementById('bpCoinA').className = `bp-coin ${classA} ${pickedClassA} ${isPickable?'pickable':''}`;
-  document.getElementById('bpCoinA').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinAId}')` : '');
-  document.getElementById('bpCoinA').innerHTML = `
-    ${coinLogoHtml(cA,'bp-coin-logo')}
-    <div class="bp-coin-name">${cA.name}</div>
-    <div class="bp-coin-price">${displayPriceA}</div>
-    ${changeHtmlA}${pickBadgeA}`;
+  const elA = document.getElementById('bpCoinA');
+  const elB = document.getElementById('bpCoinB');
+  if (elA) { elA.className = cardCls(isActive, aWin, bp.coinAId); elA.setAttribute('onclick', isPickable?`pickWinner('${bp.coinAId}')`:``); elA.innerHTML = buildCard(cA, pA, changeA, bp.coinAId); }
+  if (elB) { elB.className = cardCls(isActive, !aWin, bp.coinBId); elB.setAttribute('onclick', isPickable?`pickWinner('${bp.coinBId}')`:``); elB.innerHTML = buildCard(cB, pB, changeB, bp.coinBId); }
+}
 
-  document.getElementById('bpCoinB').className = `bp-coin ${classB} ${pickedClassB} ${isPickable?'pickable':''}`;
-  document.getElementById('bpCoinB').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinBId}')` : '');
-  document.getElementById('bpCoinB').innerHTML = `
-    ${coinLogoHtml(cB,'bp-coin-logo')}
-    <div class="bp-coin-name">${cB.name}</div>
-    <div class="bp-coin-price">${displayPriceB}</div>
-    ${changeHtmlB}${pickBadgeB}`;
+// ── Chart.js mini line charts ──────────────────────
+function initBattleCharts(cA, cB) {
+  if (typeof Chart === 'undefined') return;
+  if (bpChartA) { bpChartA.destroy(); bpChartA = null; }
+  if (bpChartB) { bpChartB.destroy(); bpChartB = null; }
+  const cfg = (color) => ({
+    type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color.replace('rgb(','rgba(').replace(')',',0.12)'), borderWidth: 2, pointRadius: 2, tension: 0.4, fill: true }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 250 },
+      plugins: { legend: { display:false }, tooltip: { enabled:false } },
+      scales: {
+        x: { display: false },
+        y: { display:true, position:'right', ticks: { color:'#475569', font:{size:9}, maxTicksLimit:4, callback: v => formatPrice(v) }, grid: { color:'rgba(255,255,255,0.04)' }, border: { display:false } }
+      }
+    }
+  });
+  const ctxA = document.getElementById('chartA'), ctxB = document.getElementById('chartB');
+  if (ctxA) bpChartA = new Chart(ctxA, cfg('rgb(59,130,246)'));
+  if (ctxB) bpChartB = new Chart(ctxB, cfg('rgb(239,68,68)'));
+  const lblA = document.getElementById('chartLabelA'), lblB = document.getElementById('chartLabelB');
+  if (lblA) lblA.textContent = cA.name;
+  if (lblB) lblB.textContent = cB.name;
+}
+
+function updateBattleCharts() {
+  if (!bpChartA || !bpChartB || bpPriceHistory.length < 2) return;
+  const labels = bpPriceHistory.map((_,i) => `${i+1}`);
+  bpChartA.data.labels = labels; bpChartA.data.datasets[0].data = bpPriceHistory.map(p=>p.pA); bpChartA.update('none');
+  bpChartB.data.labels = labels; bpChartB.data.datasets[0].data = bpPriceHistory.map(p=>p.pB); bpChartB.update('none');
+}
+
+// ── Battle page price fetch (10s, with vol + mktcap) ──
+async function fetchBattlePagePrices() {
+  if (!bp.coinAId || !bp.coinBId) return;
+  try {
+    const ids = `${bp.coinAId},${bp.coinBId}`;
+    const res = await fetch(`/api/prices?ids=${encodeURIComponent(ids)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    [bp.coinAId, bp.coinBId].forEach(id => {
+      if (data[id]) prices[id] = { price: data[id].usd, change: data[id].usd_24h_change||0, vol: data[id].usd_24h_vol||0, marketCap: data[id].usd_market_cap||0 };
+    });
+    if (bp.state === 'in-progress') {
+      bpPriceHistory.push({ t: Date.now(), pA: prices[bp.coinAId]?.price, pB: prices[bp.coinBId]?.price });
+      if (bpPriceHistory.length > 10) bpPriceHistory.shift();
+    }
+    renderBattlePage();
+  } catch(e) {}
+}
+
+// ── Master render for battle page ──────────────────
+function renderBattlePage() {
+  updateMKHealthBar();
+  renderBattleStats();
+  updateBattleCharts();
 }
 
 function pickWinner(coinId) {
@@ -920,14 +1124,17 @@ function pickWinner(coinId) {
   const label  = bp.timeframe<60 ? `${bp.timeframe}s` : `${bp.timeframe/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} in ${label}!`,'info');
 
-  renderBattleCoinCards();
+  // Seed price history with current prices
+  bpPriceHistory = [{ t: Date.now(), pA: prices[bp.coinAId]?.price, pB: prices[bp.coinBId]?.price }];
+
+  renderBattlePage();
 
   bp.timer = setInterval(()=>{
     const remaining = Math.max(0, bp.endTime - Date.now());
     const secs = Math.ceil(remaining/1000);
     const mins = Math.floor(secs/60);
     document.getElementById('bpTimerVal').textContent = `${mins}:${String(secs%60).padStart(2,'0')}`;
-    renderBattleCoinCards();
+    renderBattlePage();
     if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
   }, 500);
 }
@@ -950,7 +1157,10 @@ function resolveBattlePage() {
 
   document.getElementById('bpTimerVal').textContent = '0:00';
 
-  renderBattleCoinCards();
+  // Stop the 10s price interval — battle is over
+  if (bpPriceInterval) { clearInterval(bpPriceInterval); bpPriceInterval = null; }
+
+  renderBattlePage();
 
   if (isCorrect && currentUser) {
     const users = getUsers();

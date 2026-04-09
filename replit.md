@@ -2,7 +2,27 @@
 
 ## Overview
 
-Dark-themed memecoin battle platform on Solana. Users pit memecoins against each other in on-chain price battles. The $BATTLE token (1 SOL = 100,000 $BATTLE, presale goal 500 SOL) powers the arena, with presale opening June 1, 2026. pnpm workspace monorepo using TypeScript.
+Dark-themed memecoin battle platform. Users pick two coins from the top 10 most volatile memecoins (via CoinGecko), choose a timeframe (5/15/30 min), and predict which coin gains the most % from entry price. Earn $BATTLE tokens: 1/2/3 for 5/15/30 min wins. Free-to-play, localStorage auth, live prices via server-side API proxy. pnpm workspace monorepo using TypeScript.
+
+## VeloxFi App (`artifacts/veloxfi`)
+
+Single `index.html` SPA (served by Vite). Key features:
+- **Main page**: hero section, 2-column pick grids (5 coins each), timeframe selector (5/15/30 min with reward labels), selected coin display, start battle button, active battles tracker, leaderboard
+- **Battle page** (URL: `?coinA=<id>&coinB=<id>&time=<secs>`): MK-style health bar with `battle-bar.jpg` background + animated ⚡ bolt; two stat cards (price, % change since entry, 24h vol, market cap); Chart.js mini line charts (price history, updated every 10s); live countdown timer; result card with PLAY AGAIN
+- **Price data**: `/api/prices` returns USD price + 24h change + 24h vol + market cap (CoinGecko simple/price, 60s cache)
+- **Auth**: localStorage (`vfx_users`, `vfx_session`); free registration; $BATTLE token balance stored per user
+- **TIMEFRAME_REWARDS**: `{300:1, 900:2, 1800:3}` (seconds → tokens)
+
+## Key Files
+
+- `artifacts/veloxfi/index.html` — entire app (HTML + CSS + JS, Orbitron/Rajdhani fonts, Chart.js CDN)
+- `artifacts/veloxfi/public/battle-bar.jpg` — MK health bar background image
+- `artifacts/api-server/src/routes/prices.ts` — CoinGecko proxy (includes vol + mktcap)
+- `artifacts/api-server/src/routes/memecoins.ts` — top 10 volatile memecoins
+
+## Design Tokens
+
+`--bg:#05080f`, `--blue:#2563eb`, `--blue-glow:#3b82f6`, `--purple:#7c3aed`, `--purple-glow:#a855f7`, `--green:#10b981`, `--red:#ef4444`, `--gold:#f59e0b`; fonts: Orbitron (headings), Rajdhani (body)
 
 ## Stack
 
