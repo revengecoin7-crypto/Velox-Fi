@@ -1,55 +1,668 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloxFi — Memecoin Prediction Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05080f;
+    --blue: #2563eb;
+    --blue-glow: #3b82f6;
+    --purple: #7c3aed;
+    --purple-glow: #a855f7;
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --border: rgba(37,99,235,0.25);
+    --card: rgba(13,20,40,0.9);
+  }
 
-    <!-- Primary Meta Tags -->
-    <title>VeloxFi — Memecoin Battle Platform on Solana</title>
-    <meta name="title" content="VeloxFi — Memecoin Battle Platform on Solana" />
-    <meta name="description" content="The first memecoin battle arena on Solana. Create your coin, challenge rivals, and win. Highest % price surge wins. $BATTLE token presale coming soon." />
-    <meta name="keywords" content="memecoin, battle, Solana, crypto, DeFi, $BATTLE, VeloxFi, pump.fun, Phantom wallet, meme coin arena" />
-    <meta name="author" content="VeloxFi" />
-    <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#05080f" />
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://veloxfi.io" />
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://veloxfi.io" />
-    <meta property="og:title" content="VeloxFi — Let Your Memecoin Go To War" />
-    <meta property="og:description" content="The first memecoin battle platform on Solana. Create your coin, challenge rivals, and win. $BATTLE token presale coming soon." />
-    <meta property="og:image" content="https://veloxfi.io/opengraph.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="VeloxFi — Memecoin Battle Platform on Solana" />
-    <meta property="og:site_name" content="VeloxFi" />
-    <meta property="og:locale" content="en_US" />
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@VeloxFi" />
-    <meta name="twitter:creator" content="@VeloxFi" />
-    <meta name="twitter:url" content="https://veloxfi.io" />
-    <meta name="twitter:title" content="VeloxFi — Let Your Memecoin Go To War" />
-    <meta name="twitter:description" content="The first memecoin battle platform on Solana. Create your coin, challenge rivals, and win. $BATTLE token presale coming soon." />
-    <meta name="twitter:image" content="https://veloxfi.io/opengraph.jpg" />
-    <meta name="twitter:image:alt" content="VeloxFi — Memecoin Battle Platform on Solana" />
+  /* TICKER */
+  .ticker {
+    position: fixed; top: 0; left: 0; right: 0; height: 32px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    z-index: 1000; overflow: hidden; display: flex; align-items: center;
+  }
+  .ticker-track { display: flex; animation: ticker 40s linear infinite; white-space: nowrap; }
+  .ticker-item { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600; padding: 0 24px; letter-spacing: 1px; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
-    <link rel="shortcut icon" href="/favicon.jpg" />
-    <link rel="apple-touch-icon" href="/favicon.jpg" />
+  /* NAV */
+  nav {
+    position: fixed; top: 32px; left: 0; right: 0; height: 60px;
+    background: rgba(5,8,15,0.95); border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px); z-index: 999;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+  }
+  .logo {
+    font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 900;
+    background: linear-gradient(135deg, var(--blue-glow), var(--purple-glow));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;
+  }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  .btn-nav-login {
+    padding: 8px 18px; background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-dim); font-family: 'Orbitron', monospace;
+    font-size: 11px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-nav-login:hover { border-color: var(--blue); color: var(--text); }
+
+  .btn-nav-register {
+    padding: 8px 18px; background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none; border-radius: 8px; color: white; font-family: 'Orbitron', monospace;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-nav-register:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,0.4); }
+
+  .battle-balance {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px; padding: 6px 14px; font-family: 'Orbitron', monospace;
+    font-size: 13px; font-weight: 700; color: var(--gold);
+  }
+  .btn-logout {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px; padding: 8px 16px; color: #fca5a5; font-family: 'Orbitron', monospace;
+    font-size: 11px; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s;
+  }
+  .btn-logout:hover { background: rgba(239,68,68,0.2); }
+
+  /* MAIN */
+  main { position: relative; z-index: 1; padding-top: 92px; min-height: 100vh; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 48px 20px 36px; }
+  .wolf-logo {
+    font-size: 72px; display: block; margin-bottom: 8px;
+    animation: pulse-wolf 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(124,58,237,0.6));
+  }
+  @keyframes pulse-wolf {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(124,58,237,0.5)); }
+    50% { filter: drop-shadow(0 0 36px rgba(124,58,237,0.9)); }
+  }
+  .unit-badge { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 4px; color: var(--purple-glow); margin-bottom: 20px; }
+  .hero-title {
+    font-family: 'Orbitron', monospace; font-size: clamp(22px, 5vw, 40px); font-weight: 900;
+    background: linear-gradient(135deg, var(--blue-glow), var(--purple-glow));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 14px; line-height: 1.25;
+  }
+  .hero-sub { color: var(--text-dim); font-size: 17px; max-width: 520px; margin: 0 auto 28px; line-height: 1.6; }
+  .hero-cta {
+    display: inline-block; padding: 14px 36px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none; border-radius: 10px; color: white; font-family: 'Orbitron', monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+  }
+  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,0.5); }
+  .hero-note { font-size: 13px; color: var(--text-dim); }
+  .hero-note span { color: var(--blue-glow); cursor: pointer; text-decoration: underline; }
+
+  /* GAME AREA */
+  .game-area { max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+
+  .info-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .info-icon { font-size: 24px; flex-shrink: 0; }
+  .info-text { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .info-text strong { color: var(--text); font-size: 14px; display: block; margin-bottom: 2px; }
+
+  .section-title {
+    font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700;
+    letter-spacing: 3px; color: var(--text-dim); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .time-selector { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .time-btn {
+    padding: 10px 20px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-dim); font-family: 'Orbitron', monospace;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+  }
+  .time-btn:hover { border-color: var(--blue); color: var(--text); }
+  .time-btn.active {
+    background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2));
+    border-color: var(--blue); color: var(--blue-glow); box-shadow: 0 0 16px rgba(37,99,235,0.2);
+  }
+
+  .coins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .coin-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .coin-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple)); opacity: 0; transition: opacity 0.2s;
+  }
+  .coin-card:hover { border-color: rgba(37,99,235,0.5); transform: translateY(-2px); }
+  .coin-card:hover::before { opacity: 1; }
+
+  .coin-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .coin-emoji { font-size: 32px; }
+  .coin-name { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 700; }
+  .coin-ticker { font-size: 12px; color: var(--text-dim); font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+  .coin-price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .coin-price { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; }
+  .coin-change { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+  .coin-change.up { background: rgba(16,185,129,0.15); color: var(--green); }
+  .coin-change.down { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .predict-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .predict-btn {
+    padding: 12px; border: none; border-radius: 10px;
+    font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .predict-up { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--green); }
+  .predict-up:hover:not(:disabled) { background: rgba(16,185,129,0.25); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.2); }
+  .predict-down { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--red); }
+  .predict-down:hover:not(:disabled) { background: rgba(239,68,68,0.25); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(239,68,68,0.2); }
+  .predict-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .loading-price { font-family: 'Orbitron', monospace; font-size: 14px; color: var(--text-dim); animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .pred-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .pred-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .pred-coin { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; min-width: 80px; }
+  .pred-direction { padding: 4px 12px; border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+  .pred-direction.up { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .pred-direction.down { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .pred-timer { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--gold); font-weight: 700; margin-left: auto; }
+  .pred-entry { font-size: 12px; color: var(--text-dim); }
+
+  .lb-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; margin-bottom: 32px; }
+  .lb-row { background: var(--card); }
+  .lb-row td { padding: 14px 16px; font-size: 14px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .lb-row td:first-child { border-left: 1px solid var(--border); border-radius: 10px 0 0 10px; }
+  .lb-row td:last-child { border-right: 1px solid var(--border); border-radius: 0 10px 10px 0; }
+  .lb-rank { font-family: 'Orbitron', monospace; font-weight: 700; color: var(--text-dim); }
+  .lb-rank.gold { color: #f59e0b; } .lb-rank.silver { color: #94a3b8; } .lb-rank.bronze { color: #b45309; }
+  .lb-user { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 600; }
+  .lb-tokens { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--gold); font-weight: 700; text-align: right; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,8,15,0.85); backdrop-filter: blur(8px);
+    z-index: 2000; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #080d1a; border: 1px solid var(--border); border-radius: 18px;
+    padding: 36px 40px; width: 100%; max-width: 420px;
+    box-shadow: 0 0 80px rgba(37,99,235,0.15); position: relative;
+    animation: modal-in 0.25s ease;
+  }
+  @keyframes modal-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; transition: color 0.2s; }
+  .modal-close:hover { color: var(--text); }
+  .modal-title { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; background: linear-gradient(135deg, var(--blue-glow), var(--purple-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .modal-sub { text-align: center; color: var(--text-dim); font-size: 14px; margin-bottom: 22px; }
+
+  .tab-group { display: flex; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+  .tab-btn { flex: 1; padding: 10px; border: none; background: none; color: var(--text-dim); font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600; letter-spacing: 1px; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+  .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--purple)); color: white; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 11px; font-family: 'Orbitron', monospace; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 6px; }
+  .form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .form-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+  .btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--blue), var(--purple)); border: none; border-radius: 10px; color: white; font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+  .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 10px 14px; color: #fca5a5; font-size: 13px; margin-top: 10px; display: none; }
+  .error-msg.show { display: block; }
+
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { padding: 14px 20px; border-radius: 12px; font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; animation: toast-in 0.3s ease; max-width: 300px; line-height: 1.5; }
+  .toast.success { background: rgba(16,185,129,0.92); color: white; box-shadow: 0 8px 24px rgba(16,185,129,0.4); }
+  .toast.error { background: rgba(239,68,68,0.92); color: white; box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+  .toast.info { background: rgba(37,99,235,0.92); color: white; box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+  @keyframes toast-in { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .empty-state { text-align: center; padding: 28px; color: var(--text-dim); font-size: 14px; border: 1px dashed var(--border); border-radius: 12px; }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+  .disclaimer { text-align: center; color: var(--text-dim); font-size: 11px; padding: 20px; border-top: 1px solid var(--border); line-height: 1.8; margin-top: 8px; }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 16px; }
+    .modal { padding: 28px 20px; }
+    .game-area { padding: 0 12px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">🐺 VELOXFI PREDICTION ARENA</span>
+    <span class="ticker-item">⚡ PREDICT TO EARN $BATTLE</span>
+    <span class="ticker-item">🎯 CORRECT GUESS = +1 $BATTLE</span>
+    <span class="ticker-item">📊 LIVE COINGECKO PRICE DATA</span>
+    <span class="ticker-item">🔥 NOT FINANCIAL ADVICE — DYOR</span>
+    <span class="ticker-item">🚫 NOT FOR US RESIDENTS</span>
+    <span class="ticker-item">🐺 VELOXFI PREDICTION ARENA</span>
+    <span class="ticker-item">⚡ PREDICT TO EARN $BATTLE</span>
+    <span class="ticker-item">🎯 CORRECT GUESS = +1 $BATTLE</span>
+    <span class="ticker-item">📊 LIVE COINGECKO PRICE DATA</span>
+    <span class="ticker-item">🔥 NOT FINANCIAL ADVICE — DYOR</span>
+    <span class="ticker-item">🚫 NOT FOR US RESIDENTS</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">VELOXFI</div>
+  <div class="nav-right" id="navRight"></div>
+</nav>
+
+<main>
+
+  <!-- HERO — only shown to guests -->
+  <div class="hero" id="heroSection">
+    <span class="wolf-logo">🐺</span>
+    <div class="unit-badge">UNIT-1 ONLINE</div>
+    <div class="hero-title">PREDICT MEMECOINS.<br>EARN $BATTLE TOKENS.</div>
+    <div class="hero-sub">Watch live memecoin prices, predict UP or DOWN within your chosen timeframe, and earn $BATTLE tokens for every correct prediction. 100% free to play.</div>
+    <button class="hero-cta" onclick="openModal('register')">🚀 CREATE FREE ACCOUNT</button>
+    <div class="hero-note">Already have an account? <span onclick="openModal('login')">Log in here</span></div>
+  </div>
+
+  <!-- GAME AREA — always visible -->
+  <div class="game-area">
+
+    <div class="info-strip">
+      <div class="info-card"><div class="info-icon">🎯</div><div class="info-text"><strong>PICK A COIN</strong>Choose any memecoin below</div></div>
+      <div class="info-card"><div class="info-icon">⬆️⬇️</div><div class="info-text"><strong>PREDICT UP OR DOWN</strong>Will it rise or fall?</div></div>
+      <div class="info-card"><div class="info-icon">⏱️</div><div class="info-text"><strong>CHOOSE TIMEFRAME</strong>30s, 1m, 5m, or 15m</div></div>
+      <div class="info-card"><div class="info-icon">⚔️</div><div class="info-text"><strong>WIN $BATTLE TOKENS</strong>+1 per correct prediction</div></div>
+    </div>
+
+    <div class="section-title">SELECT TIMEFRAME</div>
+    <div class="time-selector">
+      <button class="time-btn active" onclick="selectTime(this,30)">30 SEC</button>
+      <button class="time-btn" onclick="selectTime(this,60)">1 MIN</button>
+      <button class="time-btn" onclick="selectTime(this,300)">5 MIN</button>
+      <button class="time-btn" onclick="selectTime(this,900)">15 MIN</button>
+    </div>
+
+    <div class="section-title">CHOOSE YOUR BATTLEGROUND</div>
+    <div class="coins-grid" id="coinsGrid"></div>
+
+    <div id="activePredSection" style="display:none">
+      <div class="section-title">YOUR ACTIVE PREDICTIONS</div>
+      <div class="pred-list" id="predList"></div>
+    </div>
+
+    <div class="section-title">$BATTLE LEADERBOARD</div>
+    <table class="lb-table"><tbody id="lbBody"></tbody></table>
+
+    <div class="disclaimer">
+      ⚠️ This is a prediction game for entertainment purposes only. Not financial advice. DYOR.<br>
+      $BATTLE tokens earned here are game tokens with no guaranteed monetary value.<br>
+      Not for US residents. © 2025 VeloxFi — veloxfi.io
+    </div>
+  </div>
+</main>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">ENTER THE ARENA</div>
+    <div class="modal-sub">Free to play. No wallet needed.</div>
+    <div class="tab-group">
+      <button class="tab-btn active" id="tabRegister" onclick="switchTab('register')">REGISTER</button>
+      <button class="tab-btn" id="tabLogin" onclick="switchTab('login')">LOGIN</button>
+    </div>
+    <div id="registerForm">
+      <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="regUsername" placeholder="wolf_trader" autocomplete="username"></div>
+      <div class="form-group"><label class="form-label">EMAIL</label><input type="email" class="form-input" id="regEmail" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="form-group"><label class="form-label">PASSWORD</label><input type="password" class="form-input" id="regPassword" placeholder="min. 6 characters" autocomplete="new-password"></div>
+      <button class="btn-primary" onclick="handleRegister()">🚀 CREATE ACCOUNT</button>
+      <div class="error-msg" id="registerError"></div>
+    </div>
+    <div id="loginForm" style="display:none">
+      <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="loginUsername" placeholder="your_username" autocomplete="username"></div>
+      <div class="form-group"><label class="form-label">PASSWORD</label><input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-primary" onclick="handleLogin()">⚡ LOGIN</button>
+      <div class="error-msg" id="loginError"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const COINS = [
+  { id:'pepe',      name:'PEPE',  ticker:'$PEPE',  emoji:'🐸', cgId:'pepe' },
+  { id:'bonk',      name:'BONK',  ticker:'$BONK',  emoji:'🐕', cgId:'bonk' },
+  { id:'dogecoin',  name:'DOGE',  ticker:'$DOGE',  emoji:'🐶', cgId:'dogecoin' },
+  { id:'shiba-inu', name:'SHIB',  ticker:'$SHIB',  emoji:'🦊', cgId:'shiba-inu' },
+  { id:'floki',     name:'FLOKI', ticker:'$FLOKI', emoji:'⚡', cgId:'floki' },
+  { id:'brett-based',name:'BRETT',ticker:'$BRETT', emoji:'🎩', cgId:'brett-based' },
+];
+
+let currentUser = null;
+let selectedTime = 30;
+let prices = {};
+let activePredictions = [];
+let predTimers = {};
+
+// storage
+function getUsers() { return JSON.parse(localStorage.getItem('vfx_users')||'{}'); }
+function saveUsers(u) { localStorage.setItem('vfx_users', JSON.stringify(u)); }
+function getSession() { return localStorage.getItem('vfx_session'); }
+function setSession(u) { localStorage.setItem('vfx_session', u); }
+function clearSession() { localStorage.removeItem('vfx_session'); }
+
+// modal
+function openModal(tab='register') { switchTab(tab); document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target===document.getElementById('modalOverlay')) closeModal(); }
+function switchTab(tab) {
+  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('registerError').classList.remove('show');
+  document.getElementById('loginError').classList.remove('show');
+}
+
+// auth
+function handleRegister() {
+  const username = document.getElementById('regUsername').value.trim().toLowerCase();
+  const email    = document.getElementById('regEmail').value.trim().toLowerCase();
+  const password = document.getElementById('regPassword').value;
+  const err      = document.getElementById('registerError');
+  if (username.length < 3)                   return showErr(err,'Username must be at least 3 characters.');
+  if (!/^[a-z0-9_]+$/.test(username))        return showErr(err,'Username: only letters, numbers, underscores.');
+  if (!email.includes('@'))                  return showErr(err,'Enter a valid email address.');
+  if (password.length < 6)                   return showErr(err,'Password must be at least 6 characters.');
+  const users = getUsers();
+  if (users[username])                       return showErr(err,'Username already taken.');
+  if (Object.values(users).some(u=>u.email===email)) return showErr(err,'Email already registered.');
+  users[username] = { username, email, password, tokens:0, createdAt:Date.now() };
+  saveUsers(users);
+  closeModal();
+  showToast('✅ Account created! Welcome to the arena!','success');
+  loginUser(username);
+}
+
+function handleLogin() {
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  const err      = document.getElementById('loginError');
+  const users    = getUsers();
+  const user     = users[username];
+  if (!user)                    return showErr(err,'Username not found.');
+  if (user.password !== password) return showErr(err,'Incorrect password.');
+  closeModal();
+  loginUser(username);
+}
+
+function loginUser(username) {
+  currentUser = getUsers()[username];
+  setSession(username);
+  renderNav();
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('activePredSection').style.display = 'block';
+  renderCoins();
+  renderPredictions();
+  renderLeaderboard();
+  showToast(`⚡ Welcome back, ${username.toUpperCase()}!`,'info');
+}
+
+function handleLogout() {
+  currentUser = null;
+  clearSession();
+  activePredictions = [];
+  Object.values(predTimers).forEach(clearInterval);
+  predTimers = {};
+  renderNav();
+  document.getElementById('heroSection').style.display = 'block';
+  document.getElementById('activePredSection').style.display = 'none';
+  renderCoins();
+}
+
+function showErr(el, msg) { el.textContent = msg; el.classList.add('show'); }
+
+// nav
+function renderNav() {
+  const el = document.getElementById('navRight');
+  if (currentUser) {
+    el.innerHTML = `
+      <div class="battle-balance">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</div>
+      <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
+  } else {
+    el.innerHTML = `
+      <button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
+      <button class="btn-nav-register" onclick="openModal('register')">REGISTER</button>`;
+  }
+}
+
+function updateNavBalance() {
+  const el = document.getElementById('navBal');
+  if (el && currentUser) el.textContent = currentUser.tokens;
+}
+
+// time
+function selectTime(btn, sec) {
+  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTime = sec;
+}
+
+// prices
+async function fetchPrices() {
+  try {
+    const ids = COINS.map(c=>c.cgId).join(',');
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    const data = await res.json();
+    COINS.forEach(c => {
+      if (data[c.cgId]) prices[c.id] = { price: data[c.cgId].usd, change: data[c.cgId].usd_24h_change||0 };
+    });
+    renderCoins();
+  } catch(e) {}
+}
+
+function formatPrice(p) {
+  if (!p) return '—';
+  if (p < 0.000001) return '$'+p.toFixed(10);
+  if (p < 0.01)     return '$'+p.toFixed(8);
+  if (p < 1)        return '$'+p.toFixed(6);
+  return '$'+p.toFixed(4);
+}
+
+// coins
+function renderCoins() {
+  document.getElementById('coinsGrid').innerHTML = COINS.map(coin => {
+    const p = prices[coin.id];
+    const hasActive = activePredictions.some(ap=>ap.coinId===coin.id && ap.status==='active');
+
+    const priceHtml = p
+      ? `<span class="coin-price">${formatPrice(p.price)}</span>
+         <span class="coin-change ${p.change>=0?'up':'down'}">${p.change>=0?'+':''}${p.change.toFixed(2)}%</span>`
+      : `<span class="loading-price">LOADING...</span>`;
+
+    let upBtn, downBtn;
+    if (!currentUser) {
+      // Guest: fully visible, clicking opens register modal
+      upBtn  = `<button class="predict-btn predict-up"  onclick="openModal('register')">⬆️ MOON</button>`;
+      downBtn= `<button class="predict-btn predict-down" onclick="openModal('register')">⬇️ DUMP</button>`;
+    } else if (!p || hasActive) {
+      upBtn  = `<button class="predict-btn predict-up"  disabled>⬆️ MOON</button>`;
+      downBtn= `<button class="predict-btn predict-down" disabled>⬇️ DUMP</button>`;
+    } else {
+      upBtn  = `<button class="predict-btn predict-up"  onclick="placePrediction('${coin.id}','up')">⬆️ MOON</button>`;
+      downBtn= `<button class="predict-btn predict-down" onclick="placePrediction('${coin.id}','down')">⬇️ DUMP</button>`;
+    }
+
+    return `
+      <div class="coin-card">
+        <div class="coin-header">
+          <div class="coin-emoji">${coin.emoji}</div>
+          <div><div class="coin-name">${coin.name}</div><div class="coin-ticker">${coin.ticker}</div></div>
+        </div>
+        <div class="coin-price-row">${priceHtml}</div>
+        <div class="predict-btns">${upBtn}${downBtn}</div>
+      </div>`;
+  }).join('');
+}
+
+// predictions
+function placePrediction(coinId, direction) {
+  const coin = COINS.find(c=>c.id===coinId);
+  const p = prices[coinId];
+  if (!p) { showToast('Price not loaded yet. Try again!','error'); return; }
+
+  const pred = {
+    id: Date.now(), coinId, coinName: coin.name, coinEmoji: coin.emoji,
+    direction, entryPrice: p.price, timeframe: selectedTime,
+    startTime: Date.now(), endTime: Date.now() + selectedTime*1000, status:'active'
+  };
+  activePredictions.push(pred);
+  renderPredictions(); renderCoins();
+
+  const label = selectedTime<60 ? `${selectedTime}s` : `${selectedTime/60}m`;
+  showToast(`${coin.emoji} Predicting ${coin.name} goes ${direction.toUpperCase()} in ${label}!`,'info');
+
+  predTimers[pred.id] = setInterval(()=>{
+    if (pred.endTime - Date.now() <= 0) { clearInterval(predTimers[pred.id]); resolvePrediction(pred.id); }
+    else renderPredictions();
+  }, 1000);
+}
+
+function resolvePrediction(predId) {
+  const pred = activePredictions.find(p=>p.id===predId);
+  if (!pred || pred.status!=='active') return;
+  const cp = prices[pred.coinId]?.price;
+  if (!cp) { setTimeout(()=>resolvePrediction(predId), 5000); return; }
+
+  pred.status = 'resolved'; pred.exitPrice = cp;
+  const up = cp > pred.entryPrice;
+  const correct = (pred.direction==='up' && up) || (pred.direction==='down' && !up);
+
+  if (correct) {
+    const users = getUsers();
+    users[currentUser.username].tokens += 1;
+    saveUsers(users);
+    currentUser = users[currentUser.username];
+    updateNavBalance(); renderLeaderboard();
+    showToast(`🎉 CORRECT! +1 $BATTLE TOKEN! Total: ${currentUser.tokens} $BATTLE`,'success');
+  } else {
+    showToast(`❌ Wrong prediction on ${pred.coinEmoji} ${pred.coinName}. Try again!`,'error');
+  }
+
+  setTimeout(()=>{ activePredictions = activePredictions.filter(p=>p.id!==predId); renderPredictions(); renderCoins(); }, 3000);
+  renderPredictions();
+}
+
+function renderPredictions() {
+  const list = document.getElementById('predList');
+  if (!list) return;
+  const active = activePredictions.filter(p=>p.status==='active'||p.status==='resolved');
+  if (!active.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div>No active predictions yet. Pick a coin and predict!</div>`;
+    return;
+  }
+  list.innerHTML = active.map(pred=>{
+    const secs = Math.max(0, Math.floor((pred.endTime-Date.now())/1000));
+    const timer = secs>=60 ? `${Math.floor(secs/60)}m ${secs%60}s` : `${secs}s`;
+    const badge = pred.status==='resolved'
+      ? `<span style="font-family:Orbitron,monospace;font-size:11px;color:var(--text-dim);margin-left:auto;">RESOLVING...</span>`
+      : `<span class="pred-timer">⏱ ${timer}</span>`;
+    return `<div class="pred-item">
+      <div class="pred-coin">${pred.coinEmoji} ${pred.coinName}</div>
+      <div class="pred-direction ${pred.direction}">${pred.direction==='up'?'⬆️ MOON':'⬇️ DUMP'}</div>
+      <div class="pred-entry">Entry: ${formatPrice(pred.entryPrice)}</div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+function renderLeaderboard() {
+  const users = getUsers();
+  const sorted = Object.values(users).sort((a,b)=>b.tokens-a.tokens).slice(0,10);
+  const tbody = document.getElementById('lbBody');
+  if (!sorted.length || sorted.every(u=>u.tokens===0)) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
+    return;
+  }
+  const medals=['🥇','🥈','🥉']; const rc=['gold','silver','bronze'];
+  tbody.innerHTML = sorted.map((user,i)=>`
+    <tr class="lb-row" style="${currentUser&&user.username===currentUser.username?'background:rgba(37,99,235,0.08);':''}">
+      <td class="lb-rank ${rc[i]||''}">${medals[i]||'#'+(i+1)}</td>
+      <td class="lb-user">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''}</td>
+      <td class="lb-tokens">⚔️ ${user.tokens} $BATTLE</td>
+    </tr>`).join('');
+}
+
+function showToast(msg, type='info') {
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg;
+  c.appendChild(t); setTimeout(()=>t.remove(), 4500);
+}
+
+// keyboard support
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape') closeModal();
+  if (e.key==='Enter' && document.getElementById('modalOverlay').classList.contains('open')) {
+    document.getElementById('registerForm').style.display!=='none' ? handleRegister() : handleLogin();
+  }
+});
+
+// init
+function init() {
+  renderNav();
+  renderCoins();
+  fetchPrices();
+  renderLeaderboard();
+  setInterval(fetchPrices, 30000);
+
+  const session = getSession();
+  if (session) {
+    const users = getUsers();
+    if (users[session]) loginUser(session);
+  }
+}
+
+init();
+</script>
+</body>
 </html>
