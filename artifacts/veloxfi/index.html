@@ -92,7 +92,8 @@
     box-shadow:0 0 16px rgba(37,99,235,0.25);
   }
   .coin-pick-btn.disabled-pick { opacity:0.3; cursor:not-allowed; pointer-events:none; }
-  .pick-emoji { font-size:18px; }
+  .coin-logo { width:32px; height:32px; border-radius:50%; object-fit:cover; display:block; background:rgba(255,255,255,0.05); }
+  .coin-logo-sm { width:22px; height:22px; border-radius:50%; object-fit:cover; display:inline-block; vertical-align:middle; background:rgba(255,255,255,0.05); }
   .pick-name { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; color:var(--text); }
   .pick-price { font-size:10px; color:var(--text-dim); }
 
@@ -103,7 +104,7 @@
     border:1px solid rgba(37,99,235,0.3); border-radius:10px; padding:10px;
     min-height:52px;
   }
-  .selected-display .sel-emoji { font-size:26px; }
+  .selected-display .sel-logo { width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,0.05); }
   .selected-display .sel-name { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; }
   .selected-display .sel-price { font-size:12px; color:var(--text-dim); }
   .empty-sel { font-family:'Orbitron',monospace; font-size:11px; color:var(--text-dim); letter-spacing:1px; }
@@ -140,7 +141,7 @@
   .battle-coin-side.picked { border-color:var(--blue); background:rgba(37,99,235,0.1); }
   .battle-coin-side.winning { border-color:var(--green); background:rgba(16,185,129,0.1); }
   .battle-coin-side.losing { border-color:var(--red); background:rgba(239,68,68,0.07); opacity:0.7; }
-  .b-emoji { font-size:28px; }
+  .b-logo { width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); }
   .b-name { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; }
   .b-entry { font-size:11px; color:var(--text-dim); }
   .b-change { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; padding:3px 8px; border-radius:5px; }
@@ -168,7 +169,7 @@
   .modal-overlay.battle-mode { background:rgba(2,4,10,0.2); backdrop-filter:none; }
   .battle-page-glow .bp-panel { background:rgba(10,16,35,1); box-shadow:0 0 60px rgba(37,99,235,0.25), 0 0 0 1px rgba(37,99,235,0.35); }
   .battle-page-glow .bp-coin { background:rgba(18,28,60,1); border-color:rgba(37,99,235,0.5); }
-  .battle-page-glow .bp-coin-emoji { filter:drop-shadow(0 0 8px rgba(168,85,247,0.6)); }
+  .battle-page-glow .bp-coin-logo { filter:drop-shadow(0 0 10px rgba(168,85,247,0.6)); }
   .battle-page-glow .bp-coin-name { color:#fff; text-shadow:0 0 12px rgba(59,130,246,0.8); }
   .battle-page-glow .bp-coin-price { color:#94a3b8; font-size:13px; }
   .battle-page-glow .bp-timer-val { text-shadow:0 0 16px rgba(245,158,11,0.7); }
@@ -240,7 +241,7 @@
   .bp-coin.picked-b { border-color:var(--purple-glow); background:rgba(124,58,237,0.12); box-shadow:0 0 28px rgba(124,58,237,0.3); transform:translateY(-3px); }
   .bp-coin.winning-side { border-color:var(--green); background:rgba(16,185,129,0.1); }
   .bp-coin.losing-side { border-color:var(--red); background:rgba(239,68,68,0.07); opacity:0.65; }
-  .bp-coin-emoji { font-size:44px; }
+  .bp-coin-logo { width:72px; height:72px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); box-shadow:0 0 16px rgba(37,99,235,0.3); }
   .bp-coin-name { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; }
   .bp-coin-price { font-family:'Orbitron',monospace; font-size:12px; color:var(--text-dim); }
   .bp-coin-change { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; padding:4px 10px; border-radius:6px; }
@@ -270,7 +271,7 @@
   @media(max-width:600px) {
     .bp-coins { grid-template-columns:1fr 40px 1fr; }
     .bp-coin { padding:14px 8px; }
-    .bp-coin-emoji { font-size:32px; }
+    .bp-coin-logo { width:52px; height:52px; }
     .bp-coin-name { font-size:13px; }
   }
 </style>
@@ -633,6 +634,7 @@ async function fetchMemecoins() {
       fullName: coin.name,
       ticker: '$' + coin.symbol.toUpperCase(),
       emoji: getCoinEmoji(coin.id, coin.symbol),
+      image: coin.image || '',
       cgId: coin.id,
     }));
 
@@ -704,6 +706,14 @@ function formatPrice(p) {
   return '$'+p.toFixed(4);
 }
 
+// ── Coin logo helper ──────────────────────────────
+function coinLogoHtml(coin, className) {
+  if (coin && coin.image) {
+    return `<img src="${coin.image}" alt="${coin.name}" class="${className}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none;font-size:${className==='bp-coin-logo'?'44px':className==='sel-logo'?'26px':className==='b-logo'?'28px':'18px'}">${coin.emoji||'🪙'}</span>`;
+  }
+  return `<span style="font-size:${className==='bp-coin-logo'?'44px':className==='sel-logo'?'26px':className==='b-logo'?'28px':'18px'}">${coin ? coin.emoji||'🪙' : '🪙'}</span>`;
+}
+
 // ── Main page: pick grids ─────────────────────────
 function renderPickGrids() { renderPickGrid('pickGridA','A'); renderPickGrid('pickGridB','B'); }
 
@@ -723,7 +733,7 @@ function renderPickGrid(gridId, side) {
       : '';
     return `<button class="coin-pick-btn ${isSelected?'selected':''} ${isDisabled?'disabled-pick':''}"
       onclick="selectCoin('${side}','${coin.id}')">
-      <span class="pick-emoji">${coin.emoji}</span>
+      ${coinLogoHtml(coin,'coin-logo')}
       <span class="pick-name">${coin.name}</span>
       <span class="pick-price">${p?formatPrice(p.price):'...'}</span>
       ${chgHtml}
@@ -743,7 +753,7 @@ function renderSelectedDisplay(elId, coinId) {
   const el = document.getElementById(elId); if(!el) return;
   if (!coinId) { el.innerHTML=`<span class="empty-sel">— PICK A COIN —</span>`; return; }
   const coin=COINS.find(c=>c.id===coinId); const p=prices[coinId];
-  el.innerHTML=`<span class="sel-emoji">${coin.emoji}</span>
+  el.innerHTML=`${coinLogoHtml(coin,'sel-logo')}
     <div><div class="sel-name">${coin.name}</div><div class="sel-price">${p?formatPrice(p.price):'loading...'}</div></div>`;
 }
 
@@ -777,7 +787,8 @@ async function initBattlePage(coinAId, coinBId, time) {
         const data = await res.json();
         COINS = data.map(coin => ({
           id: coin.id, name: coin.symbol.toUpperCase(), fullName: coin.name,
-          ticker: '$' + coin.symbol.toUpperCase(), emoji: getCoinEmoji(coin.id, coin.symbol), cgId: coin.id,
+          ticker: '$' + coin.symbol.toUpperCase(), emoji: getCoinEmoji(coin.id, coin.symbol),
+          image: coin.image || '', cgId: coin.id,
         }));
         data.forEach(coin => { prices[coin.id] = { price: coin.current_price, change: coin.price_change_percentage_24h||0 }; });
       }
@@ -877,7 +888,7 @@ function renderBattleCoinCards() {
   document.getElementById('bpCoinA').className = `bp-coin ${classA} ${pickedClassA} ${isPickable?'pickable':''}`;
   document.getElementById('bpCoinA').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinAId}')` : '');
   document.getElementById('bpCoinA').innerHTML = `
-    <div class="bp-coin-emoji">${cA.emoji}</div>
+    ${coinLogoHtml(cA,'bp-coin-logo')}
     <div class="bp-coin-name">${cA.name}</div>
     <div class="bp-coin-price">${displayPriceA}</div>
     ${changeHtmlA}${pickBadgeA}`;
@@ -885,7 +896,7 @@ function renderBattleCoinCards() {
   document.getElementById('bpCoinB').className = `bp-coin ${classB} ${pickedClassB} ${isPickable?'pickable':''}`;
   document.getElementById('bpCoinB').setAttribute('onclick', isPickable ? `pickWinner('${bp.coinBId}')` : '');
   document.getElementById('bpCoinB').innerHTML = `
-    <div class="bp-coin-emoji">${cB.emoji}</div>
+    ${coinLogoHtml(cB,'bp-coin-logo')}
     <div class="bp-coin-name">${cB.name}</div>
     <div class="bp-coin-price">${displayPriceB}</div>
     ${changeHtmlB}${pickBadgeB}`;
@@ -1036,9 +1047,9 @@ function renderActiveBattles() {
     return `<div class="battle-card">
       <div class="battle-header"><span class="battle-timeframe">${battle.timeframe<60?battle.timeframe+'s':battle.timeframe/60+'m'} BATTLE</span><span class="battle-timer">${statusText}</span></div>
       <div class="battle-coins">
-        <div class="battle-coin-side ${sideClassA} ${isPickedA?'picked':''}"><div class="b-emoji">${cA.emoji}</div><div class="b-name">${cA.name}</div><div class="b-entry">${formatPrice(battle.entryPriceA)}</div>${changeHtmlA}${isPickedA?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
+        <div class="battle-coin-side ${sideClassA} ${isPickedA?'picked':''}"><div class="b-logo-wrap">${coinLogoHtml(cA,'b-logo')}</div><div class="b-name">${cA.name}</div><div class="b-entry">${formatPrice(battle.entryPriceA)}</div>${changeHtmlA}${isPickedA?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
         <div class="vs-center">VS</div>
-        <div class="battle-coin-side ${sideClassB} ${isPickedB?'picked':''}"><div class="b-emoji">${cB.emoji}</div><div class="b-name">${cB.name}</div><div class="b-entry">${formatPrice(battle.entryPriceB)}</div>${changeHtmlB}${isPickedB?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
+        <div class="battle-coin-side ${sideClassB} ${isPickedB?'picked':''}"><div class="b-logo-wrap">${coinLogoHtml(cB,'b-logo')}</div><div class="b-name">${cB.name}</div><div class="b-entry">${formatPrice(battle.entryPriceB)}</div>${changeHtmlB}${isPickedB?'<div class="b-picked-badge">YOUR PICK</div>':''}</div>
       </div></div>`;
   }).join('');
 }
