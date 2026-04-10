@@ -586,9 +586,34 @@
 .prof-username { font-family: Orbitron, monospace; font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .prof-email { font-family: Rajdhani, sans-serif; font-size: .95rem; color: var(--text-dim); margin-bottom: 0; word-break: break-all; }
 .prof-member { font-family: Rajdhani, sans-serif; font-size: .82rem; color: #475569; margin-top: 4px; }
-.prof-balance-box { text-align: center; flex-shrink: 0; }
-.prof-balance-val { font-family: Orbitron, monospace; font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 4px; }
+.prof-balance-box { text-align: center; flex-shrink: 0; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.prof-balance-val { font-family: Orbitron, monospace; font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 0; }
 .prof-balance-label { font-family: Orbitron, monospace; font-size: .6rem; letter-spacing: .15em; color: var(--text-dim); }
+.prof-claim-btn { font-family:'Orbitron',monospace; font-size:10px; font-weight:900; letter-spacing:.08em; padding:8px 16px; border-radius:8px; border:none; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.prof-claim-btn.gold { background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; box-shadow:0 0 18px rgba(245,158,11,.35); }
+.prof-claim-btn.gold:hover { transform:scale(1.04); box-shadow:0 0 28px rgba(245,158,11,.55); }
+.prof-claim-btn.add-wallet { background:rgba(255,255,255,.07); border:1px solid var(--border); color:var(--text-dim); }
+.prof-claim-btn.add-wallet:hover { border-color:var(--purple); color:var(--text); }
+.prof-claim-pending-badge { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.06em; padding:6px 14px; border-radius:20px; background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3); color:#fbbf24; white-space:nowrap; }
+.prof-claim-sent-badge { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.06em; padding:6px 14px; border-radius:20px; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.3); color:#34d399; white-space:nowrap; }
+/* Claim confirm popup */
+#claimConfirmOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:3500; align-items:center; justify-content:center; padding:20px; }
+#claimConfirmOverlay.open { display:flex; }
+#claimConfirmBox { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px; max-width:460px; width:100%; box-shadow:0 24px 64px rgba(0,0,0,.6); }
+.claim-confirm-title { font-family:'Orbitron',monospace; font-size:15px; font-weight:900; color:var(--text); margin-bottom:8px; }
+.claim-confirm-body { font-size:14px; color:var(--text-dim); line-height:1.6; margin-bottom:10px; }
+.claim-confirm-addr { font-family:'Rajdhani',monospace; font-size:12px; color:#34d399; background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2); border-radius:8px; padding:8px 12px; word-break:break-all; margin-bottom:18px; }
+.claim-confirm-note { font-size:12px; color:#fbbf24; background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:8px 12px; margin-bottom:24px; }
+.claim-confirm-btns { display:flex; gap:10px; }
+.claim-confirm-cancel { flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; padding:13px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:.08em; cursor:pointer; transition:background .2s; }
+.claim-confirm-cancel:hover { background:rgba(255,255,255,.1); }
+.claim-confirm-submit { flex:2; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; border-radius:10px; padding:13px; color:#000; font-family:'Orbitron',monospace; font-size:11px; font-weight:900; letter-spacing:.08em; cursor:pointer; transition:opacity .2s; }
+.claim-confirm-submit:hover { opacity:.88; }
+.claim-confirm-submit:disabled { opacity:.4; cursor:not-allowed; }
+.claim-confirm-success { text-align:center; padding:8px 0; }
+.claim-confirm-success-icon { font-size:44px; margin-bottom:12px; }
+.claim-confirm-success-title { font-family:'Orbitron',monospace; font-size:14px; font-weight:900; color:#34d399; margin-bottom:8px; }
+.claim-confirm-success-msg { font-size:13px; color:var(--text-dim); line-height:1.5; }
 
 .prof-stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 36px; }
 @media(max-width:640px){ .prof-stats-grid { grid-template-columns: repeat(2,1fr); } }
@@ -1772,6 +1797,29 @@
   </div>
 </div>
 
+<!-- CLAIM CONFIRM POPUP -->
+<div id="claimConfirmOverlay" onclick="if(event.target===this)closeClaimConfirm()">
+  <div id="claimConfirmBox">
+    <div id="claimConfirmForm">
+      <div class="claim-confirm-title">💎 CONFIRM TOKEN CLAIM</div>
+      <div class="claim-confirm-body">You are about to claim <strong id="claimConfirmAmt"></strong> $BATTLE tokens to the following Solana wallet address:</div>
+      <div class="claim-confirm-addr" id="claimConfirmAddr"></div>
+      <div class="claim-confirm-note">⏱ This will be processed within <strong>7 days</strong>. Once submitted, this cannot be changed.</div>
+      <div class="claim-confirm-btns">
+        <button class="claim-confirm-cancel" onclick="closeClaimConfirm()">CANCEL</button>
+        <button class="claim-confirm-submit" id="claimConfirmSubmitBtn" onclick="submitClaim()">⚔️ CONFIRM CLAIM</button>
+      </div>
+    </div>
+    <div id="claimConfirmSuccess" style="display:none">
+      <div class="claim-confirm-success">
+        <div class="claim-confirm-success-icon">🎉</div>
+        <div class="claim-confirm-success-title">CLAIM SUBMITTED!</div>
+        <div class="claim-confirm-success-msg">You will receive your <strong id="claimSuccessAmt"></strong> $BATTLE tokens within <strong>7 days</strong>. Thank you for playing VeloxFi!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
   <div class="modal">
@@ -2141,6 +2189,13 @@ async function loadProfile() {
         <div class="prof-balance-box">
           <div class="prof-balance-val">${d.tokens.toLocaleString()}</div>
           <div class="prof-balance-label">$BATTLE TOKENS</div>
+          ${(() => {
+            if (d.claimedAt) return `<div class="prof-claim-sent-badge">✅ TOKENS SENT</div>`;
+            if (d.claimRequestedAt) return `<div class="prof-claim-pending-badge">⏳ CLAIM PENDING</div>`;
+            if (d.tokens > 0 && d.walletAddress) return `<button class="prof-claim-btn gold" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress}')">💎 CLAIM $BATTLE</button>`;
+            if (d.tokens > 0 && !d.walletAddress) return `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>`;
+            return '';
+          })()}
         </div>
       </div>
 
@@ -2186,6 +2241,50 @@ async function loadProfile() {
       </div>`;
   } catch(e) {
     el.innerHTML = '<div class="prof-loading">Failed to load profile. Try again.</div>';
+  }
+}
+
+// ── Claim $BATTLE tokens ──────────────────────────
+let _claimData = null;
+function openClaimConfirm(tokens, walletAddress) {
+  _claimData = { tokens, walletAddress };
+  document.getElementById('claimConfirmAmt').textContent = tokens.toLocaleString();
+  document.getElementById('claimConfirmAddr').textContent = walletAddress;
+  document.getElementById('claimSuccessAmt').textContent = tokens.toLocaleString();
+  document.getElementById('claimConfirmForm').style.display = '';
+  document.getElementById('claimConfirmSuccess').style.display = 'none';
+  document.getElementById('claimConfirmSubmitBtn').disabled = false;
+  document.getElementById('claimConfirmSubmitBtn').textContent = '⚔️ CONFIRM CLAIM';
+  document.getElementById('claimConfirmOverlay').classList.add('open');
+}
+function closeClaimConfirm() {
+  document.getElementById('claimConfirmOverlay').classList.remove('open');
+  _claimData = null;
+}
+async function submitClaim() {
+  const btn = document.getElementById('claimConfirmSubmitBtn');
+  btn.disabled = true; btn.textContent = 'SUBMITTING…';
+  const session = getSession();
+  try {
+    const res = await fetch('/api/veloxfi/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.tok}` },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('claimConfirmForm').style.display = 'none';
+      document.getElementById('claimConfirmSuccess').style.display = '';
+      setTimeout(() => {
+        closeClaimConfirm();
+        loadProfile();
+      }, 3000);
+    } else {
+      btn.disabled = false; btn.textContent = '⚔️ CONFIRM CLAIM';
+      showToast(`❌ ${data.error || 'Failed to submit claim.'}`, 'error');
+    }
+  } catch {
+    btn.disabled = false; btn.textContent = '⚔️ CONFIRM CLAIM';
+    showToast('❌ Network error. Try again.', 'error');
   }
 }
 
@@ -3795,6 +3894,7 @@ function admRenderClaims(claims, pw) {
   }
   wrap.innerHTML = claims.map(c => {
     const isPaid = !!c.claimedAt;
+    const reqDate = c.claimRequestedAt ? new Date(c.claimRequestedAt).toLocaleDateString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
     const paidLabel = isPaid
       ? `<span class="adm-claim-status paid">✓ PAID ${new Date(c.claimedAt).toLocaleDateString('en',{month:'short',day:'numeric'})}</span>`
       : `<span class="adm-claim-status pending">PENDING</span>`;
@@ -3803,6 +3903,7 @@ function admRenderClaims(claims, pw) {
       <div class="adm-claim-user">${c.username}</div>
       <div class="adm-claim-wallet" title="${c.walletAddress}">${c.walletAddress}</div>
       <div class="adm-claim-tokens">${c.tokens} ⚔️</div>
+      <div style="font-size:10px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;white-space:nowrap">${reqDate}</div>
       ${paidLabel}
     </div>`;
   }).join('');

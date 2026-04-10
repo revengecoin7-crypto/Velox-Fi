@@ -99,14 +99,15 @@ router.get("/veloxfi/admin/claims", requireAdmin as any, async (_req: any, res: 
   try {
     const claims = await db
       .select({
-        username:      veloxfiUsers.username,
-        walletAddress: veloxfiUsers.walletAddress,
-        tokens:        veloxfiUsers.tokens,
-        claimedAt:     veloxfiUsers.claimedAt,
-        createdAt:     veloxfiUsers.createdAt,
+        username:         veloxfiUsers.username,
+        walletAddress:    veloxfiUsers.walletAddress,
+        tokens:           veloxfiUsers.tokens,
+        claimRequestedAt: veloxfiUsers.claimRequestedAt,
+        claimedAt:        veloxfiUsers.claimedAt,
+        createdAt:        veloxfiUsers.createdAt,
       })
       .from(veloxfiUsers)
-      .where(isNotNull(veloxfiUsers.walletAddress))
+      .where(isNotNull(veloxfiUsers.claimRequestedAt))
       .orderBy(desc(veloxfiUsers.tokens));
     res.json(claims);
   } catch (e) {
@@ -148,7 +149,7 @@ router.get("/veloxfi/admin/export-csv", requireAdmin as any, async (_req: any, r
         claimedAt:     veloxfiUsers.claimedAt,
       })
       .from(veloxfiUsers)
-      .where(isNotNull(veloxfiUsers.walletAddress))
+      .where(isNotNull(veloxfiUsers.claimRequestedAt))
       .orderBy(desc(veloxfiUsers.tokens));
 
     const rows = users.map(u =>

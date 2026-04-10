@@ -12,6 +12,7 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   referralTokens:   integer("referral_tokens").notNull().default(0),
   resetToken:       text("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
-  walletAddress:    text("wallet_address"),
-  claimedAt:        timestamp("claimed_at"),
+  walletAddress:      text("wallet_address"),
+  claimRequestedAt:   timestamp("claim_requested_at"),
+  claimedAt:          timestamp("claimed_at"),
 });

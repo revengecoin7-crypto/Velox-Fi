@@ -116,6 +116,27 @@ router.post("/veloxfi/update-tokens", requireAuth as any, async (req: any, res) 
   }
 });
 
+router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    if (!user.walletAddress) {
+      res.status(400).json({ error: "You must save a wallet address before claiming." }); return;
+    }
+    if (user.tokens <= 0) {
+      res.status(400).json({ error: "No tokens to claim." }); return;
+    }
+    if (user.claimRequestedAt) {
+      res.status(409).json({ error: "A claim has already been submitted for this account." }); return;
+    }
+    const now = new Date();
+    await db.update(veloxfiUsers).set({ claimRequestedAt: now }).where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true, claimRequestedAt: now.toISOString() });
+  } catch (e) {
+    console.error("veloxfi/claim error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
 router.put("/veloxfi/profile/wallet", requireAuth as any, async (req: any, res) => {
   try {
     const { walletAddress } = req.body;
