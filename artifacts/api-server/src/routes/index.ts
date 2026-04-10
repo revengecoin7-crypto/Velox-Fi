@@ -12,6 +12,7 @@ import memecoinsRouter from "./memecoins";
 import veloxfiAuthRouter from "./veloxfi-auth";
 import veloxfiBattlesRouter from "./veloxfi-battles";
 import veloxfiAdminRouter from "./veloxfi-admin";
+import veloxfiPasswordRouter from "./veloxfi-password";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(memecoinsRouter);
 router.use(veloxfiAuthRouter);
 router.use(veloxfiBattlesRouter);
 router.use(veloxfiAdminRouter);
+router.use(veloxfiPasswordRouter);
 
 export default router;

@@ -617,6 +617,25 @@
 
 @media(max-width:640px) { .prof-header { flex-direction: column; text-align: center; } .prof-balance-box { margin-top: 4px; } }
 
+/* ── Forgot / Reset password ─────────────────────── */
+.forgot-link { display:block; text-align:right; margin-top:6px; font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:none; transition:color .2s; }
+.forgot-link:hover { color:var(--blue-glow); }
+#forgotForm { display:none; }
+.forgot-back { background:none; border:none; color:var(--text-dim); font-size:12px; cursor:pointer; padding:0; margin-bottom:16px; }
+.forgot-back:hover { color:var(--text); }
+.forgot-success { display:flex; flex-direction:column; align-items:center; gap:10px; padding:20px 0; text-align:center; }
+.forgot-success-icon { font-size:40px; }
+.forgot-success-title { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:var(--text); }
+.forgot-success-sub { font-size:13px; color:var(--text-dim); line-height:1.6; }
+
+/* Reset password modal (separate overlay) */
+#resetOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:4000; align-items:center; justify-content:center; }
+#resetOverlay.open { display:flex; }
+#resetModal { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:36px 32px; width:420px; max-width:94vw; box-shadow:0 24px 64px rgba(0,0,0,.6); }
+.reset-title { font-family:'Orbitron',monospace; font-size:16px; font-weight:900; color:var(--text); margin-bottom:6px; }
+.reset-sub { font-size:13px; color:var(--text-dim); margin-bottom:24px; }
+.reset-success { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 0; text-align:center; }
+
 /* ── Referral ─────────────────────────────────────── */
 .ref-banner { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(124,58,237,.12)); border:1px solid rgba(37,99,235,.35); border-radius:12px; padding:12px 18px; margin-bottom:0; font-size:14px; color:var(--text); animation:fadeInDown .35s ease; }
 .ref-banner-icon { font-size:22px; flex-shrink:0; }
@@ -1683,9 +1702,45 @@
     </div>
     <div id="loginForm" style="display:none">
       <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="loginUsername" placeholder="your_username" autocomplete="username"></div>
-      <div class="form-group"><label class="form-label">PASSWORD</label><input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="form-group">
+        <label class="form-label">PASSWORD</label>
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+        <span class="forgot-link" onclick="showForgotPw()">Forgot password?</span>
+      </div>
       <button class="btn-primary" onclick="handleLogin()">⚡ LOGIN</button>
       <div class="error-msg" id="loginError"></div>
+    </div>
+    <div id="forgotForm">
+      <button class="forgot-back" onclick="hideForgotPw()">← Back to login</button>
+      <div id="forgotFormInner">
+        <div class="form-group"><label class="form-label">YOUR EMAIL ADDRESS</label><input type="email" class="form-input" id="forgotEmail" placeholder="you@example.com" autocomplete="email"></div>
+        <button class="btn-primary" onclick="handleForgotPw()">📧 SEND RESET LINK</button>
+        <div class="error-msg" id="forgotError"></div>
+      </div>
+      <div id="forgotSuccess" style="display:none" class="forgot-success">
+        <div class="forgot-success-icon">📬</div>
+        <div class="forgot-success-title">CHECK YOUR INBOX</div>
+        <div class="forgot-success-sub">If that email is registered, we've sent a reset link. Check your spam folder if it doesn't arrive in a minute.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD OVERLAY (shown when ?reset=TOKEN) -->
+<div id="resetOverlay">
+  <div id="resetModal">
+    <div class="reset-title">🔐 SET NEW PASSWORD</div>
+    <div class="reset-sub">Choose a strong password for your VeloxFi account.</div>
+    <div id="resetFormInner">
+      <div class="form-group"><label class="form-label">NEW PASSWORD</label><input type="password" class="form-input" id="resetPw1" placeholder="min. 6 characters" autocomplete="new-password"></div>
+      <div class="form-group"><label class="form-label">CONFIRM PASSWORD</label><input type="password" class="form-input" id="resetPw2" placeholder="repeat password" autocomplete="new-password"></div>
+      <button class="btn-primary" onclick="handleResetPw()">⚡ UPDATE PASSWORD</button>
+      <div class="error-msg" id="resetError"></div>
+    </div>
+    <div id="resetSuccess" style="display:none" class="reset-success">
+      <div style="font-size:42px">✅</div>
+      <div class="reset-title" style="margin-bottom:4px">PASSWORD UPDATED</div>
+      <div class="reset-sub" style="margin-bottom:0">You are now logged in. Taking you to the arena…</div>
     </div>
   </div>
 </div>
@@ -2456,6 +2511,7 @@ function overlayClick(e) {
 function switchTab(tab) {
   document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
   document.getElementById('loginForm').style.display    = tab==='login'?'block':'none';
+  document.getElementById('forgotForm').style.display   = 'none';
   document.getElementById('tabRegister').classList.toggle('active', tab==='register');
   document.getElementById('tabLogin').classList.toggle('active', tab==='login');
   document.getElementById('registerError').classList.remove('show');
@@ -3323,6 +3379,69 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+// ══ FORGOT / RESET PASSWORD ════════════════════════
+function showForgotPw() {
+  document.getElementById('loginForm').style.display   = 'none';
+  document.getElementById('forgotForm').style.display  = 'block';
+  document.getElementById('forgotError').classList.remove('show');
+  document.getElementById('forgotFormInner').style.display = 'block';
+  document.getElementById('forgotSuccess').style.display   = 'none';
+}
+function hideForgotPw() {
+  document.getElementById('loginForm').style.display  = 'block';
+  document.getElementById('forgotForm').style.display = 'none';
+}
+
+async function handleForgotPw() {
+  const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+  const err   = document.getElementById('forgotError');
+  if (!email.includes('@')) { showErr(err, 'Enter a valid email address.'); return; }
+  err.classList.remove('show');
+  try {
+    await fetch('/api/veloxfi/forgot-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    document.getElementById('forgotFormInner').style.display = 'none';
+    document.getElementById('forgotSuccess').style.display   = 'flex';
+  } catch { showErr(err, 'Network error. Please try again.'); }
+}
+
+let _resetToken = null;
+
+function checkResetParam() {
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('reset');
+  if (!token) return;
+  _resetToken = token;
+  document.getElementById('resetOverlay').classList.add('open');
+  window.history.replaceState({}, '', window.location.pathname);
+}
+
+async function handleResetPw() {
+  const pw1 = document.getElementById('resetPw1').value;
+  const pw2 = document.getElementById('resetPw2').value;
+  const err  = document.getElementById('resetError');
+  if (pw1.length < 6) { showErr(err, 'Password must be at least 6 characters.'); return; }
+  if (pw1 !== pw2)    { showErr(err, 'Passwords do not match.'); return; }
+  err.classList.remove('show');
+  try {
+    const res  = await fetch('/api/veloxfi/reset-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: _resetToken, newPassword: pw1 }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showErr(err, data.error || 'Reset failed.'); return; }
+    document.getElementById('resetFormInner').style.display = 'none';
+    document.getElementById('resetSuccess').style.display   = 'flex';
+    setTimeout(() => {
+      document.getElementById('resetOverlay').classList.remove('open');
+      afterLogin(data);
+      showToast('🔐 Password updated! Welcome back.', 'success');
+    }, 2200);
+  } catch { showErr(err, 'Network error. Please try again.'); }
+}
+
 // ══ REFERRAL ═══════════════════════════════════════
 function checkRefParam() {
   const params = new URLSearchParams(window.location.search);
@@ -3480,6 +3599,7 @@ async function init() {
     return;
   }
 
+  checkResetParam();
   checkRefParam();
   renderNav();
   const session = getSession();
