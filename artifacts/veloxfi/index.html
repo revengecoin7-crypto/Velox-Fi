@@ -636,6 +636,51 @@
 .reset-sub { font-size:13px; color:var(--text-dim); margin-bottom:24px; }
 .reset-success { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 0; text-align:center; }
 
+/* ── Battle result video overlay ─────────────────── */
+#battleResultOverlay {
+  display:none; position:fixed; inset:0; z-index:5000; overflow:hidden; background:#000;
+  align-items:center; justify-content:center; flex-direction:column;
+}
+#battleResultOverlay.brv-active { display:flex; }
+#battleResultVideo {
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
+}
+#battleResultOverlay::after {
+  content:''; position:absolute; inset:0; background:rgba(0,0,0,.52); z-index:1; pointer-events:none;
+}
+#battleResultContent {
+  position:relative; z-index:2; text-align:center; padding:24px 32px; pointer-events:none;
+}
+#battleResultTitle {
+  font-family:'Orbitron',monospace; font-weight:900;
+  font-size:clamp(44px,10vw,96px); letter-spacing:.04em;
+  text-shadow:0 0 48px currentColor,0 4px 12px rgba(0,0,0,.9);
+  margin-bottom:18px; animation:brvPop .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+#battleResultSub {
+  font-family:'Orbitron',monospace; font-weight:700;
+  font-size:clamp(16px,3.5vw,28px); opacity:.92;
+  text-shadow:0 2px 8px rgba(0,0,0,.8); animation:brvFadeUp .5s .25s ease both;
+}
+#battleResultSkip {
+  position:absolute; top:20px; right:20px; z-index:2;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+  color:#fff; font-family:'Orbitron',monospace; font-size:11px; letter-spacing:.12em;
+  padding:8px 18px; border-radius:6px; cursor:pointer; transition:background .2s;
+}
+#battleResultSkip:hover { background:rgba(255,255,255,.26); }
+@keyframes brvPop {
+  0% { transform:scale(.6); opacity:0; }
+  70% { transform:scale(1.06); opacity:1; }
+  100% { transform:scale(1); opacity:1; }
+}
+@keyframes brvFadeUp {
+  from { transform:translateY(14px); opacity:0; }
+  to   { transform:translateY(0);    opacity:1; }
+}
+#battleResultOverlay.brv-fade-out { animation:brvFade .6s ease forwards; }
+@keyframes brvFade { to { opacity:0; } }
+
 /* ── Referral ─────────────────────────────────────── */
 .ref-banner { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(124,58,237,.12)); border:1px solid rgba(37,99,235,.35); border-radius:12px; padding:12px 18px; margin-bottom:0; font-size:14px; color:var(--text); animation:fadeInDown .35s ease; }
 .ref-banner-icon { font-size:22px; flex-shrink:0; }
@@ -1745,6 +1790,15 @@
   </div>
 </div>
 
+<div id="battleResultOverlay">
+  <video id="battleResultVideo" autoplay muted playsinline></video>
+  <div id="battleResultContent">
+    <div id="battleResultTitle"></div>
+    <div id="battleResultSub"></div>
+  </div>
+  <button id="battleResultSkip" onclick="hideBattleResultOverlay()">SKIP ›</button>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -1878,6 +1932,43 @@ function notifyBattleResult(won, winnerCoinName, tokensEarned) {
     });
     console.log('[VeloxFi Notif] Battle result notification fired ✓', n);
   } catch (e) { console.error('[VeloxFi Notif] new Notification() threw:', e); }
+}
+
+// ── Battle result video overlay ──────────────────
+let _brvTimer = null;
+function showBattleResultOverlay(won, reward) {
+  const overlay = document.getElementById('battleResultOverlay');
+  const video   = document.getElementById('battleResultVideo');
+  const title   = document.getElementById('battleResultTitle');
+  const sub     = document.getElementById('battleResultSub');
+  video.src = won ? '/win.mp4' : '/loss.mp4';
+  video.load();
+  video.play().catch(() => {});
+  if (won) {
+    title.textContent = 'YOU WIN!';
+    title.style.color = '#fbbf24';
+    sub.textContent   = reward > 0 ? `+${reward} $BATTLE TOKEN${reward !== 1 ? 'S' : ''} EARNED!` : '🎉 CORRECT PREDICTION!';
+    sub.style.color   = '#fde68a';
+  } else {
+    title.textContent = 'BETTER LUCK NEXT TIME';
+    title.style.color = '#ef4444';
+    sub.textContent   = '⚔️ KEEP FIGHTING';
+    sub.style.color   = '#fca5a5';
+  }
+  overlay.classList.remove('brv-fade-out');
+  overlay.classList.add('brv-active');
+  if (_brvTimer) clearTimeout(_brvTimer);
+  _brvTimer = setTimeout(hideBattleResultOverlay, 4000);
+}
+function hideBattleResultOverlay() {
+  if (_brvTimer) { clearTimeout(_brvTimer); _brvTimer = null; }
+  const overlay = document.getElementById('battleResultOverlay');
+  overlay.classList.add('brv-fade-out');
+  setTimeout(() => {
+    overlay.classList.remove('brv-active', 'brv-fade-out');
+    const video = document.getElementById('battleResultVideo');
+    video.pause(); video.src = '';
+  }, 620);
 }
 
 // ── Routing ─────────────────────────────────────
@@ -3232,6 +3323,7 @@ async function resolveBattlePage() {
       <button class="bp-play-again" onclick="goHome()">⚔️ PLAY AGAIN</button>`;
     showToast(`🎉 CORRECT! +${reward} $BATTLE TOKEN${reward>1?'S':''}!`,'success');
     notifyBattleResult(true, winnerCoin.name, reward);
+    showBattleResultOverlay(true, reward);
   } else {
     resultEl.className = 'bp-result wrong';
     resultEl.innerHTML = `
@@ -3240,6 +3332,7 @@ async function resolveBattlePage() {
       <button class="bp-play-again" onclick="goHome()">⚔️ TRY AGAIN</button>`;
     showToast(`❌ ${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!`,'error');
     notifyBattleResult(false, winnerCoin.name, 0);
+    showBattleResultOverlay(false, 0);
   }
 }
 
