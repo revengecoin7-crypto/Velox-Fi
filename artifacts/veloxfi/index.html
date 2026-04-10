@@ -6,6 +6,7 @@
 <title>VeloxFi — Memecoin Battle Arena</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root {
     --bg: #05080f;
@@ -765,6 +766,44 @@ function getSession()             { try { return JSON.parse(localStorage.getItem
 function setSession(username,tok) { localStorage.setItem('vx_session', JSON.stringify({username,tok})); }
 function clearSession()           { localStorage.removeItem('vx_session'); }
 
+// ── EmailJS config — fill in your credentials below ─────────────────────────
+const EJJS_SERVICE_ID      = 'YOUR_SERVICE_ID';
+const EJJS_TEMPLATE_START  = 'YOUR_TEMPLATE_START_ID';
+const EJJS_TEMPLATE_RESULT = 'YOUR_TEMPLATE_RESULT_ID';
+const EJJS_PUBLIC_KEY      = 'YOUR_PUBLIC_KEY';
+(function _initEmailJS() {
+  if (typeof emailjs !== 'undefined' && EJJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+    emailjs.init({ publicKey: EJJS_PUBLIC_KEY });
+  }
+})();
+
+function _ejjsReady()    { return EJJS_SERVICE_ID !== 'YOUR_SERVICE_ID' && typeof emailjs !== 'undefined'; }
+function _tfLabel(sec)   { return sec===300?'5 minutes':sec===900?'15 minutes':'30 minutes'; }
+
+function sendBattleStartEmail(coinAName, coinBName, timeframeSec) {
+  if (!_ejjsReady() || !currentUser?.email) return;
+  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_START, {
+    to_email:        currentUser.email,
+    to_name:         currentUser.username.toUpperCase(),
+    coin_a:          coinAName,
+    coin_b:          coinBName,
+    timeframe_label: _tfLabel(timeframeSec),
+  }).catch(()=>{});
+}
+
+function sendBattleResultEmail(won, winnerCoinName, tokensEarned, totalTokens) {
+  if (!_ejjsReady() || !currentUser?.email) return;
+  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, {
+    to_email:      currentUser.email,
+    to_name:       currentUser.username.toUpperCase(),
+    subject:       won ? '🏆 Battle Result — You Won!' : '❌ Battle Result — Better Luck Next Time',
+    result_word:   won ? 'WON' : 'LOST',
+    winner_coin:   winnerCoinName,
+    tokens_earned: tokensEarned,
+    total_tokens:  totalTokens,
+  }).catch(()=>{});
+}
+
 // ── Routing ─────────────────────────────────────
 function getBattleParams() {
   const p = new URLSearchParams(window.location.search);
@@ -1454,6 +1493,8 @@ function startBattle_bp(coinId) {
   const picked = COINS.find(c=>c.id===coinId);
   const label  = bp.timeframe<60 ? `${bp.timeframe}s` : `${bp.timeframe/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} in ${label}!`,'info');
+  const bpCoinA = COINS.find(c=>c.id===bp.coinAId), bpCoinB = COINS.find(c=>c.id===bp.coinBId);
+  if (bpCoinA && bpCoinB) sendBattleStartEmail(bpCoinA.name, bpCoinB.name, bp.timeframe);
 
   // Seed price history with current prices
   bpPriceHistory = [{ t: Date.now(), pA: prices[bp.coinAId]?.price, pB: prices[bp.coinBId]?.price }];
@@ -1514,6 +1555,7 @@ async function resolveBattlePage() {
       <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won with ${changeA>=changeB?changeA.toFixed(3):changeB.toFixed(3)}% gain.<br>+${reward} $BATTLE TOKEN${reward>1?'S':''} earned! Total: ${currentUser?.tokens||0}</div>
       <button class="bp-play-again" onclick="goHome()">⚔️ PLAY AGAIN</button>`;
     showToast(`🎉 CORRECT! +${reward} $BATTLE TOKEN${reward>1?'S':''}!`,'success');
+    sendBattleResultEmail(true, winnerCoin.name, reward, currentUser?.tokens||0);
   } else {
     resultEl.className = 'bp-result wrong';
     resultEl.innerHTML = `
@@ -1521,6 +1563,7 @@ async function resolveBattlePage() {
       <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!</div>
       <button class="bp-play-again" onclick="goHome()">⚔️ TRY AGAIN</button>`;
     showToast(`❌ ${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!`,'error');
+    sendBattleResultEmail(false, winnerCoin.name, 0, currentUser?.tokens||0);
   }
 }
 
@@ -1540,6 +1583,7 @@ function confirmBattle(coinAId, coinBId, pickedWinnerId) {
   const picked = pickedWinnerId===coinAId ? cA : cB;
   const label  = selectedTime<60?`${selectedTime}s`:`${selectedTime/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} to win in ${label}!`,'info');
+  sendBattleStartEmail(cA.name, cB.name, selectedTime);
   coinA=null; coinB=null; renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
   battleTimers[battle.id] = setInterval(()=>{
     if (battle.endTime-Date.now()<=0) { clearInterval(battleTimers[battle.id]); resolveBattle(battle.id); }
@@ -1574,8 +1618,10 @@ async function resolveBattle(battleId) {
       updateNavBalance(); renderLeaderboard();
     }
     showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +${battleReward} $BATTLE TOKEN${battleReward>1?'S':''}! Total: ${currentUser.tokens}`,'success');
+    sendBattleResultEmail(true, winner.name, battleReward, currentUser.tokens);
   } else {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
+    sendBattleResultEmail(false, winner.name, 0, currentUser?.tokens||0);
   }
   renderActiveBattles();
   setTimeout(()=>{ activeBattles=activeBattles.filter(b=>b.id!==battleId); if(!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none'; renderActiveBattles(); },5000);
