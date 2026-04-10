@@ -772,39 +772,60 @@ const EJJS_TEMPLATE_START  = 'template_vmoojtr';
 const EJJS_TEMPLATE_RESULT = 'template_i7vs5d8';
 const EJJS_PUBLIC_KEY      = 'PRhkzrhP9EjKYhmnhWV6D';
 (function _initEmailJS() {
-  if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: EJJS_PUBLIC_KEY });
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init({ publicKey: EJJS_PUBLIC_KEY });
+    console.log('[VeloxFi EmailJS] Initialized ✓ key:', EJJS_PUBLIC_KEY.slice(0,6)+'…');
+  } else {
+    console.warn('[VeloxFi EmailJS] SDK not loaded — CDN script may have failed');
+  }
 })();
 
 function _ejjsReady()  { return typeof emailjs !== 'undefined'; }
 function _tfLabel(sec) { return sec===300?'5 minutes':sec===900?'15 minutes':'30 minutes'; }
 
 function sendBattleStartEmail(coinAName, coinBName, timeframeSec) {
-  if (!_ejjsReady() || !currentUser?.email) return;
-  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_START, {
+  console.log('[VeloxFi EmailJS] sendBattleStartEmail called', {
+    ejjsReady: _ejjsReady(),
+    userEmail: currentUser?.email || '(none)',
+    coinAName, coinBName, timeframeSec
+  });
+  if (!_ejjsReady()) { console.warn('[VeloxFi EmailJS] Skipped — SDK not ready'); return; }
+  if (!currentUser?.email) { console.warn('[VeloxFi EmailJS] Skipped — no user email on currentUser:', currentUser); return; }
+  const params = {
     to_email:  currentUser.email,
     to_name:   currentUser.username.toUpperCase(),
     coin_a:    coinAName,
     coin_b:    coinBName,
     timeframe: _tfLabel(timeframeSec),
-  }).catch(()=>{});
+  };
+  console.log('[VeloxFi EmailJS] Sending start email →', EJJS_SERVICE_ID, EJJS_TEMPLATE_START, params);
+  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_START, params)
+    .then(r  => console.log('[VeloxFi EmailJS] Start email sent OK ✓', r))
+    .catch(e => console.error('[VeloxFi EmailJS] Start email FAILED ✗', e));
 }
 
 function sendBattleResultEmail(won, coinAName, coinBName, winnerCoinName, tokensEarned, totalTokens) {
-  if (!_ejjsReady() || !currentUser?.email) return;
+  console.log('[VeloxFi EmailJS] sendBattleResultEmail called', {
+    won, ejjsReady: _ejjsReady(),
+    userEmail: currentUser?.email || '(none)',
+    coinAName, coinBName, winnerCoinName, tokensEarned, totalTokens
+  });
+  if (!_ejjsReady()) { console.warn('[VeloxFi EmailJS] Skipped — SDK not ready'); return; }
+  if (!currentUser?.email) { console.warn('[VeloxFi EmailJS] Skipped — no user email on currentUser:', currentUser); return; }
   const result_subject = won ? '🏆 Battle Result — You Won!' : '❌ Battle Result — Better Luck Next Time';
   const result_message = won
     ? `🎉 ${winnerCoinName} won! You earned +${tokensEarned} $BATTLE token${tokensEarned!==1?'s':''}. New total: ${totalTokens} $BATTLE.`
     : `❌ ${winnerCoinName} won the battle. Better luck next time!`;
-  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, {
-    to_email:       currentUser.email,
-    to_name:        currentUser.username.toUpperCase(),
-    coin_a:         coinAName,
-    coin_b:         coinBName,
-    result_subject,
-    result_message,
-    tokens_earned:  tokensEarned,
-    total_tokens:   totalTokens,
-  }).catch(()=>{});
+  const params = {
+    to_email: currentUser.email, to_name: currentUser.username.toUpperCase(),
+    coin_a: coinAName, coin_b: coinBName,
+    result_subject, result_message,
+    tokens_earned: tokensEarned, total_tokens: totalTokens,
+  };
+  console.log('[VeloxFi EmailJS] Sending result email →', EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, params);
+  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, params)
+    .then(r  => console.log('[VeloxFi EmailJS] Result email sent OK ✓', r))
+    .catch(e => console.error('[VeloxFi EmailJS] Result email FAILED ✗', e));
 }
 
 // ── Routing ─────────────────────────────────────
