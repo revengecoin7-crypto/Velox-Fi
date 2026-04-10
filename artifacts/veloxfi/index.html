@@ -61,6 +61,24 @@
   .hero-note { font-size:13px; color:var(--text-dim); }
   .hero-note span { color:var(--blue-glow); cursor:pointer; text-decoration:underline; }
 
+  /* HOW IT WORKS */
+  .hiw { max-width:860px; margin:48px auto 0; padding:0 20px; }
+  .hiw-title { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; letter-spacing:3px; color:var(--text-dim); text-align:center; margin-bottom:24px; }
+  .hiw-steps { display:flex; gap:16px; }
+  .hiw-step { flex:1; position:relative; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:28px 20px 24px; text-align:center; overflow:hidden; transition:border-color 0.2s, transform 0.2s; }
+  .hiw-step::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .hiw-step:nth-child(1)::before { background:linear-gradient(90deg,var(--blue),rgba(37,99,235,0.2)); }
+  .hiw-step:nth-child(2)::before { background:linear-gradient(90deg,var(--blue),var(--purple)); }
+  .hiw-step:nth-child(3)::before { background:linear-gradient(90deg,rgba(124,58,237,0.2),var(--purple)); }
+  .hiw-step:hover { border-color:rgba(37,99,235,0.3); transform:translateY(-3px); }
+  .hiw-num { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:var(--text-dim); margin-bottom:14px; }
+  .hiw-icon { font-size:32px; margin-bottom:14px; display:block; line-height:1; }
+  .hiw-step-title { font-family:'Orbitron',monospace; font-size:12px; font-weight:800; letter-spacing:2px; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:10px; }
+  .hiw-desc { font-family:'Rajdhani',sans-serif; font-size:14px; color:var(--text-dim); line-height:1.55; }
+  @media(max-width:640px){
+    .hiw-steps { flex-direction:column; gap:12px; }
+  }
+
   /* GAME AREA */
   .game-area { max-width:900px; margin:0 auto; padding:0 20px 60px; }
 
@@ -399,6 +417,31 @@
     <div class="hero-sub">Pick two memecoins, choose a timeframe, and predict which one gains the most. Earn $BATTLE tokens for every correct prediction. 100% free.</div>
     <button class="hero-cta" onclick="openModal('register')">🚀 CREATE FREE ACCOUNT</button>
     <div class="hero-note">Already have an account? <span onclick="openModal('login')">Log in here</span></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw">
+    <div class="hiw-title">HOW IT WORKS</div>
+    <div class="hiw-steps">
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 01</div>
+        <span class="hiw-icon">⚔️</span>
+        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
+        <div class="hiw-desc">Choose any two memecoins from the top 10 most volatile tokens, updated live every 5 minutes.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 02</div>
+        <span class="hiw-icon">🎯</span>
+        <div class="hiw-step-title">PREDICT THE WINNER</div>
+        <div class="hiw-desc">Pick which coin you think will gain the most % in your chosen timeframe — 5, 15, or 30 minutes.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 03</div>
+        <span class="hiw-icon">🪙</span>
+        <div class="hiw-step-title">EARN $BATTLE TOKENS</div>
+        <div class="hiw-desc">Correct predictions earn you 1, 2, or 3 $BATTLE tokens depending on your chosen timeframe.</div>
+      </div>
+    </div>
   </div>
 
   <div class="game-area">
