@@ -48,6 +48,22 @@
   .btn-logout { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px 16px; color:#fca5a5; font-family:'Orbitron',monospace; font-size:11px; font-weight:600; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
   .btn-logout:hover { background:rgba(239,68,68,0.2); }
 
+  /* HAMBURGER */
+  .hamburger { display:none; flex-direction:column; justify-content:center; gap:5px; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; flex-shrink:0; }
+  .hamburger span { display:block; width:18px; height:2px; background:var(--text); border-radius:2px; transition:all 0.22s; }
+  .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .mobile-menu { display:none; background:rgba(5,8,15,0.98); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); padding:8px 20px 16px; position:sticky; top:60px; z-index:998; }
+  .mobile-menu.open { display:block; }
+  .mob-menu-btn { display:block; width:100%; padding:13px 16px; margin-bottom:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Orbitron',monospace; font-size:11px; font-weight:600; letter-spacing:1px; cursor:pointer; text-align:left; transition:all 0.2s; }
+  .mob-menu-btn:last-child { margin-bottom:0; }
+  .mob-menu-btn:hover { border-color:var(--blue); color:var(--text); }
+  .mob-menu-btn.mob-register { background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(124,58,237,0.2)); border-color:rgba(37,99,235,0.4); color:var(--blue-glow); }
+  .mob-menu-btn.mob-logout { border-color:rgba(239,68,68,0.3); color:#fca5a5; }
+
   main { position:relative; z-index:1; min-height:100vh; }
 
   /* STATS BAR */
@@ -298,14 +314,84 @@
   .coin-pick-btn .pick-change.up { color:var(--green); }
   .coin-pick-btn .pick-change.down { color:var(--red); }
 
+  /* ══ MOBILE — ≤600px ══ */
   @media(max-width:600px) {
-    nav{padding:0 16px}
-    .modal{padding:28px 20px}
-    .game-area{padding:0 12px 60px}
-    .vs-row{grid-template-columns:1fr; gap:10px}
-    .vs-label{display:none}
-    .coin-grid-pick{grid-template-columns:repeat(3,1fr)}
-    .battle-coins{grid-template-columns:1fr auto 1fr}
+    /* Nav */
+    nav { padding:0 16px; }
+    .hamburger { display:flex; }
+    .btn-nav-login, .btn-nav-register, .btn-nav-profile, .btn-logout { display:none !important; }
+
+    /* Stats bar — allow wrapping */
+    #statsBar { height:auto; min-height:36px; flex-wrap:wrap; padding:6px 16px; gap:4px 16px; top:60px; }
+
+    /* Hero wolf */
+    .wolf-logo { width:120px; height:120px; }
+    .hero { padding:28px 16px 24px; }
+    .hero-sub { font-size:15px; }
+    .hero-cta { padding:12px 24px; font-size:12px; }
+
+    /* Modals */
+    .modal { padding:28px 18px; border-radius:14px; }
+    .bc-vs-row { flex-direction:column; gap:8px; }
+    .bc-vs-mid { flex-direction:row; padding:4px 0; }
+
+    /* Game area */
+    .game-area { padding:0 12px 60px; }
+    .battle-builder { padding:18px 14px; }
+    .vs-row { grid-template-columns:1fr; gap:10px; }
+    .vs-label { display:none; }
+    .coin-grid-pick { grid-template-columns:repeat(3,1fr); }
+    .battle-coins { grid-template-columns:1fr auto 1fr; }
+    .coin-pick-btn { padding:6px 2px; }
+    .pick-name { font-size:8px; }
+
+    /* Battle page */
+    .battle-page { padding:16px 12px 60px; }
+    .mk-overlay { padding:14px 12px; }
+    .mk-logo { width:38px; height:38px; }
+    .mk-pct { font-size:15px; }
+    .mk-name { font-size:10px; }
+    .bp-timer-row { padding:10px 14px; flex-wrap:wrap; gap:8px; }
+    .bp-timer-val { font-size:22px; }
+    .bp-charts-row { grid-template-columns:1fr; }
+    .bp-stats-row { grid-template-columns:1fr; }
+    .bp-vs-badge { display:none; }
+
+    /* Team battle grid */
+    .tb-pick-grid { grid-template-columns:repeat(2,1fr); }
+
+    /* Content pages (whitepaper/FAQ) */
+    .cp-page { padding:16px 14px 60px; }
+    .cp-back { margin-bottom:20px; }
+    .cp-hero { margin-bottom:28px; }
+
+    /* Profile */
+    .prof-header { flex-direction:column; text-align:center; padding:20px 16px; }
+    .prof-balance-box { margin-top:8px; }
+    .prof-stats-grid { grid-template-columns:repeat(2,1fr); }
+    .prof-history-table th:nth-child(3), .prof-history-table td:nth-child(3),
+    .prof-history-table th:nth-child(4), .prof-history-table td:nth-child(4) { display:none; }
+
+    /* Toast */
+    .toast-container { right:12px; bottom:16px; left:12px; }
+    .toast { max-width:100%; font-size:11px; }
+
+    /* Whitepaper/FAQ social buttons at bottom */
+    .social-links { gap:10px; }
+
+    /* Leaderboard */
+    .lb-row td { padding:10px 10px; font-size:13px; }
+  }
+
+  /* ══ EXTRA SMALL — ≤400px ══ */
+  @media(max-width:400px) {
+    .logo { font-size:16px; letter-spacing:2px; }
+    .hero-title { font-size:22px; }
+    .wolf-logo { width:100px; height:100px; }
+    .coin-grid-pick { grid-template-columns:repeat(3,1fr); gap:4px; }
+    .tb-pick-grid { grid-template-columns:repeat(2,1fr); }
+    .battle-balance { font-size:11px; padding:5px 10px; }
+    #statsBar { gap:4px 10px; font-size:10px; }
   }
 
   /* ── BATTLE PAGE ─────────────────────────────── */
@@ -402,7 +488,7 @@
   }
 
 /* ── Content pages (Whitepaper / FAQ) ── */
-.cp-page { padding: 120px 24px 80px; min-height: 100vh; max-width: 860px; margin: 0 auto; }
+.cp-page { padding: 24px 24px 80px; min-height: 100vh; max-width: 860px; margin: 0 auto; }
 .cp-back  { display: inline-flex; align-items: center; gap: 7px; font-family: Orbitron, monospace; font-size: 10px; letter-spacing: .12em; color: var(--text-dim); background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; cursor: pointer; margin-bottom: 40px; transition: all .2s; }
 .cp-back:hover { color: var(--text); border-color: rgba(37,99,235,.5); }
 .cp-hero  { text-align: center; margin-bottom: 56px; }
@@ -789,7 +875,13 @@
 <nav>
   <div class="logo">VELOXFI</div>
   <div class="nav-right" id="navRight"></div>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-menu" id="mobileMenu">
+  <div id="mobileMenuContent"></div>
+</div>
 
 <div id="mainPage">
 <main>
@@ -2264,16 +2356,36 @@ function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); }
 // ── Nav ───────────────────────────────────────────
 function renderNav() {
   const el = document.getElementById('navRight');
+  const mob = document.getElementById('mobileMenuContent');
   if (currentUser) {
     el.innerHTML=`<div class="battle-balance">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</div>
     <button class="btn-nav-profile" onclick="goProfile()">${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()}</button>
+    <button class="mob-menu-btn mob-logout" onclick="handleLogout();closeMobileMenu()">LOGOUT</button>`;
   } else {
     el.innerHTML=`<button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
     <button class="btn-nav-register" onclick="openModal('register')">REGISTER</button>`;
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="openModal('login');closeMobileMenu()">LOGIN</button>
+    <button class="mob-menu-btn mob-register" onclick="openModal('register');closeMobileMenu()">🚀 REGISTER FREE</button>`;
   }
 }
 function updateNavBalance() { const el=document.getElementById('navBal'); if(el&&currentUser) el.textContent=currentUser.tokens; }
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.getElementById('hamburgerBtn');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+function closeMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.getElementById('hamburgerBtn');
+  menu.classList.remove('open');
+  btn.classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+}
 
 // ── Time selector ─────────────────────────────────
 function selectTime(btn,sec) {
