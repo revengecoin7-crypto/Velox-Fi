@@ -847,6 +847,66 @@
 
   a { color: #2563eb !important; text-decoration: underline; }
 }
+
+/* ══ ADMIN DASHBOARD ══════════════════════════════════ */
+#adminPage { display:none; min-height:100vh; background:var(--bg); font-family:'Rajdhani',sans-serif; }
+.adm-login-wrap { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+.adm-login-box { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:48px 40px; width:360px; max-width:90vw; }
+.adm-login-logo { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:3px; margin-bottom:6px; }
+.adm-login-sub { color:var(--text-dim); font-size:13px; margin-bottom:32px; }
+.adm-login-label { display:block; font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.15em; color:var(--text-dim); margin-bottom:8px; }
+.adm-login-input { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:12px 16px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:16px; outline:none; box-sizing:border-box; transition:border-color .2s; }
+.adm-login-input:focus { border-color:var(--blue); }
+.adm-login-btn { width:100%; margin-top:20px; padding:14px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:12px; color:#fff; font-family:'Orbitron',monospace; font-size:12px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity .2s; }
+.adm-login-btn:hover { opacity:.88; }
+.adm-login-err { color:#f87171; font-size:13px; margin-top:12px; min-height:18px; }
+.adm-login-home { display:block; text-align:center; margin-top:20px; color:var(--text-dim); font-size:13px; cursor:pointer; text-decoration:underline; }
+.adm-login-home:hover { color:var(--text); }
+
+.adm-dash { max-width:1200px; margin:0 auto; padding:32px 24px 60px; }
+.adm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:12px; }
+.adm-title { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; background:linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; }
+.adm-subtitle { color:var(--text-dim); font-size:13px; margin-top:4px; }
+.adm-logout-btn { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35); border-radius:8px; padding:8px 18px; color:#fca5a5; font-family:'Orbitron',monospace; font-size:10px; font-weight:600; letter-spacing:1px; cursor:pointer; transition:background .2s; }
+.adm-logout-btn:hover { background:rgba(239,68,68,.22); }
+
+.adm-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
+.adm-stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; }
+.adm-stat-label { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.18em; color:var(--text-dim); margin-bottom:8px; }
+.adm-stat-val { font-family:'Orbitron',monospace; font-size:26px; font-weight:900; color:var(--text); }
+.adm-stat-sub { font-size:12px; color:var(--text-dim); margin-top:4px; }
+.adm-stat-card.gold .adm-stat-val { color:var(--gold); }
+.adm-stat-card.blue .adm-stat-val { color:var(--blue-glow); }
+.adm-stat-card.green .adm-stat-val { color:var(--green); }
+
+.adm-section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:24px; }
+.adm-section-title { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:.18em; color:var(--text-dim); margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+.adm-table { width:100%; border-collapse:collapse; font-size:13px; }
+.adm-table th { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.12em; color:var(--text-dim); text-align:left; padding:0 12px 10px; white-space:nowrap; }
+.adm-table td { padding:9px 12px; border-top:1px solid rgba(255,255,255,.04); color:var(--text); vertical-align:middle; white-space:nowrap; }
+.adm-table tr:hover td { background:rgba(255,255,255,.02); }
+.adm-badge-win  { background:rgba(16,185,129,.15); color:var(--green); border-radius:5px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'Orbitron',monospace; }
+.adm-badge-loss { background:rgba(239,68,68,.12); color:#f87171; border-radius:5px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'Orbitron',monospace; }
+.adm-badge-draw { background:rgba(156,163,175,.1); color:#9ca3af; border-radius:5px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'Orbitron',monospace; }
+.adm-tokens-pill { color:var(--gold); font-weight:700; }
+
+.adm-chart-wrap { display:flex; align-items:flex-end; gap:10px; height:140px; }
+.adm-bar-col { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; height:100%; justify-content:flex-end; }
+.adm-bar { width:100%; background:linear-gradient(to top,var(--blue),var(--purple)); border-radius:5px 5px 0 0; min-height:3px; transition:height .4s; }
+.adm-bar-label { font-family:'Orbitron',monospace; font-size:8px; color:var(--text-dim); }
+.adm-bar-count { font-size:11px; font-weight:700; color:var(--text); }
+
+.adm-overflow { overflow-x:auto; }
+@media(max-width:700px) {
+  .adm-stats-grid { grid-template-columns:repeat(2,1fr); }
+  .adm-dash { padding:20px 14px 50px; }
+  .adm-table th:nth-child(4),.adm-table td:nth-child(4),
+  .adm-table th:nth-child(5),.adm-table td:nth-child(5) { display:none; }
+}
+@media(max-width:440px) {
+  .adm-stats-grid { grid-template-columns:1fr 1fr; }
+  .adm-stat-val { font-size:20px; }
+}
 </style>
 </head>
 <body>
@@ -866,6 +926,77 @@
     <span class="ticker-item">⚡ EARN $BATTLE TOKENS</span>
     <span class="ticker-item">📊 LIVE COINGECKO DATA</span>
     <span class="ticker-item">🔥 NOT FINANCIAL ADVICE — DYOR</span>
+  </div>
+</div>
+
+<!-- ADMIN PAGE (shown only at /admin path) -->
+<div id="adminPage">
+  <!-- Login state -->
+  <div id="admLoginState" class="adm-login-wrap">
+    <div class="adm-login-box">
+      <div class="adm-login-logo">VELOXFI</div>
+      <div class="adm-login-sub">Admin Access Required</div>
+      <label class="adm-login-label" for="admPwInput">PASSWORD</label>
+      <input class="adm-login-input" id="admPwInput" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')admDoLogin()">
+      <button class="adm-login-btn" onclick="admDoLogin()">ACCESS DASHBOARD</button>
+      <div class="adm-login-err" id="admLoginErr"></div>
+      <span class="adm-login-home" onclick="window.location.href='/'">← Back to VeloxFi</span>
+    </div>
+  </div>
+  <!-- Dashboard state -->
+  <div id="admDashState" style="display:none">
+    <div class="adm-dash">
+      <div class="adm-header">
+        <div>
+          <div class="adm-title">⚡ ADMIN DASHBOARD</div>
+          <div class="adm-subtitle" id="admLastRefresh">Loading...</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="adm-logout-btn" onclick="admRefresh()" style="border-color:rgba(37,99,235,.4);color:var(--blue-glow);">↻ REFRESH</button>
+          <button class="adm-logout-btn" onclick="admLogout()">LOGOUT</button>
+          <button class="adm-logout-btn" onclick="window.location.href='/'" style="border-color:var(--border);color:var(--text-dim);">← HOME</button>
+        </div>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="adm-stats-grid" id="admStatsGrid">
+        <div class="adm-stat-card blue"><div class="adm-stat-label">TOTAL USERS</div><div class="adm-stat-val" id="admStatUsers">—</div></div>
+        <div class="adm-stat-card"><div class="adm-stat-label">BATTLES TODAY</div><div class="adm-stat-val" id="admStatBattlesToday">—</div><div class="adm-stat-sub" id="admStatBattlesAll">— all time</div></div>
+        <div class="adm-stat-card gold"><div class="adm-stat-label">$BATTLE TODAY</div><div class="adm-stat-val" id="admStatTokensToday">—</div><div class="adm-stat-sub" id="admStatTokensAll">— all time</div></div>
+      </div>
+
+      <!-- Daily chart -->
+      <div class="adm-section">
+        <div class="adm-section-title">BATTLES PER DAY — LAST 7 DAYS</div>
+        <div class="adm-chart-wrap" id="admChartWrap"></div>
+      </div>
+
+      <!-- Recent battles -->
+      <div class="adm-section">
+        <div class="adm-section-title">LAST 20 BATTLES (ALL USERS)</div>
+        <div class="adm-overflow">
+          <table class="adm-table">
+            <thead><tr>
+              <th>USER</th><th>COINS</th><th>TIME</th><th>RESULT</th><th>TOKENS</th><th>WHEN</th>
+            </tr></thead>
+            <tbody id="admBattlesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- User list -->
+      <div class="adm-section">
+        <div class="adm-section-title">ALL USERS</div>
+        <div class="adm-overflow">
+          <table class="adm-table">
+            <thead><tr>
+              <th>USERNAME</th><th>EMAIL</th><th>REGISTERED</th><th>BATTLES</th><th>TOKENS EARNED</th><th>BALANCE</th>
+            </tr></thead>
+            <tbody id="admUsersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3143,8 +3274,133 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+// ══ ADMIN ══════════════════════════════════════════
+async function admDoLogin() {
+  const pw = document.getElementById('admPwInput').value.trim();
+  const errEl = document.getElementById('admLoginErr');
+  errEl.textContent = '';
+  if (!pw) { errEl.textContent = 'Enter a password.'; return; }
+  try {
+    const res = await fetch('/api/veloxfi/admin/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    });
+    if (!res.ok) { errEl.textContent = 'Incorrect password. Access denied.'; return; }
+    sessionStorage.setItem('admPw', pw);
+    admShowDash(pw);
+  } catch { errEl.textContent = 'Network error. Try again.'; }
+}
+
+function admShowDash(pw) {
+  document.getElementById('admLoginState').style.display = 'none';
+  document.getElementById('admDashState').style.display  = 'block';
+  admRefreshWith(pw);
+}
+
+function admLogout() {
+  sessionStorage.removeItem('admPw');
+  document.getElementById('admDashState').style.display  = 'none';
+  document.getElementById('admLoginState').style.display = 'flex';
+  document.getElementById('admPwInput').value = '';
+}
+
+async function admRefresh() {
+  const pw = sessionStorage.getItem('admPw');
+  if (pw) admRefreshWith(pw);
+}
+
+async function admRefreshWith(pw) {
+  document.getElementById('admLastRefresh').textContent = 'Fetching...';
+  try {
+    const res = await fetch('/api/veloxfi/admin/stats', {
+      headers: { 'x-admin-password': pw },
+    });
+    if (res.status === 401) { admLogout(); return; }
+    const data = await res.json();
+    admRenderStats(data);
+    admRenderChart(data.dailyBattles || []);
+    admRenderBattles(data.recentBattles || []);
+    admRenderUsers(data.users || []);
+    document.getElementById('admLastRefresh').textContent =
+      'Last updated: ' + new Date().toLocaleTimeString();
+  } catch { document.getElementById('admLastRefresh').textContent = 'Error loading data.'; }
+}
+
+function admRenderStats(d) {
+  document.getElementById('admStatUsers').textContent       = d.totalUsers?.toLocaleString()    || '0';
+  document.getElementById('admStatBattlesToday').textContent = d.battlesToday?.toLocaleString()  || '0';
+  document.getElementById('admStatBattlesAll').textContent   = (d.battlesAllTime?.toLocaleString() || '0') + ' all time';
+  document.getElementById('admStatTokensToday').textContent  = d.tokensToday?.toLocaleString()   || '0';
+  document.getElementById('admStatTokensAll').textContent    = (d.tokensAllTime?.toLocaleString() || '0') + ' all time';
+}
+
+function admRenderChart(daily) {
+  const wrap = document.getElementById('admChartWrap');
+  if (!daily.length) { wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;margin:auto">No data yet</div>'; return; }
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const found = daily.find(r => r.date === key);
+    days.push({ label: d.toLocaleDateString('en',{weekday:'short'}), count: found?.count || 0 });
+  }
+  const max = Math.max(...days.map(d => d.count), 1);
+  wrap.innerHTML = days.map(d => `
+    <div class="adm-bar-col">
+      <div class="adm-bar-count">${d.count}</div>
+      <div class="adm-bar" style="height:${Math.max(3, Math.round((d.count/max)*110))}px"></div>
+      <div class="adm-bar-label">${d.label}</div>
+    </div>`).join('');
+}
+
+function admRenderBattles(battles) {
+  const tbody = document.getElementById('admBattlesTbody');
+  if (!battles.length) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:24px">No battles yet</td></tr>'; return; }
+  tbody.innerHTML = battles.map(b => {
+    const coins = `${b.coinAEmoji||''}${b.coinAName} vs ${b.coinBEmoji||''}${b.coinBName}`;
+    const mins  = Math.round((b.timeframe||300)/60);
+    const badge = b.result==='win'  ? `<span class="adm-badge-win">WIN</span>`
+                : b.result==='loss' ? `<span class="adm-badge-loss">LOSS</span>`
+                :                     `<span class="adm-badge-draw">DRAW</span>`;
+    const when  = new Date(b.createdAt).toLocaleString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td><strong>${b.username}</strong></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${coins}</td>
+      <td>${mins}m</td>
+      <td>${badge}</td>
+      <td class="adm-tokens-pill">+${b.tokensEarned}</td>
+      <td style="color:var(--text-dim)">${when}</td>
+    </tr>`;
+  }).join('');
+}
+
+function admRenderUsers(users) {
+  const tbody = document.getElementById('admUsersTbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:24px">No users yet</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => {
+    const reg = new Date(u.createdAt).toLocaleDateString('en',{year:'numeric',month:'short',day:'numeric'});
+    return `<tr>
+      <td><strong>${u.username}</strong></td>
+      <td style="color:var(--text-dim)">${u.email}</td>
+      <td style="color:var(--text-dim)">${reg}</td>
+      <td>${u.totalBattles}</td>
+      <td class="adm-tokens-pill">${u.totalTokensEarned}</td>
+      <td style="color:var(--gold)">${u.tokens}</td>
+    </tr>`;
+  }).join('');
+}
+
 // ── Init ──────────────────────────────────────────
 async function init() {
+  if (window.location.pathname === '/admin') {
+    document.getElementById('adminPage').style.display = 'block';
+    document.getElementById('scroller').style.display  = 'none';
+    document.querySelector('.ticker').style.display    = 'none';
+    const savedPw = sessionStorage.getItem('admPw');
+    if (savedPw) { admShowDash(savedPw); } else { document.getElementById('admLoginState').style.display='flex'; }
+    return;
+  }
+
   renderNav();
   const session = getSession();
   if (session?.username && session?.tok) {
