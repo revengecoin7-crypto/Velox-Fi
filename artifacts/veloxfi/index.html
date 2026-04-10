@@ -6,7 +6,6 @@
 <title>VeloxFi — Memecoin Battle Arena</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root {
     --bg: #05080f;
@@ -398,6 +397,27 @@
     .bp-vs-badge { display:none; }
     .bp-charts-row { grid-template-columns:1fr; }
   }
+
+/* ── Notification permission popup ── */
+#notifPermPopup {
+  position: fixed; top: 104px; left: 50%; transform: translateX(-50%);
+  z-index: 8000; animation: notifSlideDown .35s cubic-bezier(.22,1,.36,1);
+}
+@keyframes notifSlideDown { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+.notif-perm-inner {
+  background: #0d1729; border: 1px solid var(--blue); border-radius: 14px;
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 6px 32px rgba(37,99,235,.4); min-width: 320px; max-width: 440px;
+}
+.notif-perm-icon { font-size: 1.7rem; flex-shrink: 0; }
+.notif-perm-text { flex: 1; }
+.notif-perm-text strong { display: block; color: var(--text); font-family: Orbitron, sans-serif; font-size: .7rem; letter-spacing:.05em; margin-bottom: 3px; }
+.notif-perm-text span  { font-size: .82rem; color: #94a3b8; }
+.notif-perm-btns { display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+.notif-perm-btns button { font-family: Orbitron, sans-serif; font-size: .62rem; letter-spacing:.05em; padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer; transition: opacity .15s; white-space: nowrap; }
+.notif-perm-btns button:first-child  { background: var(--blue); color: #fff; }
+.notif-perm-btns button:last-child   { background: transparent; border: 1px solid #334155; color: #94a3b8; }
+.notif-perm-btns button:hover { opacity: .85; }
 </style>
 </head>
 <body>
@@ -680,6 +700,21 @@
   </div>
 </div>
 
+<!-- NOTIFICATION PERMISSION POPUP -->
+<div id="notifPermPopup" style="display:none">
+  <div class="notif-perm-inner">
+    <div class="notif-perm-icon">🔔</div>
+    <div class="notif-perm-text">
+      <strong>Stay in the loop!</strong>
+      <span>Get notified when your battle starts and ends!</span>
+    </div>
+    <div class="notif-perm-btns">
+      <button onclick="grantNotifPerm()">Allow Notifications</button>
+      <button onclick="dismissNotifPopup()">Maybe Later</button>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
   <div class="modal">
@@ -766,66 +801,50 @@ function getSession()             { try { return JSON.parse(localStorage.getItem
 function setSession(username,tok) { localStorage.setItem('vx_session', JSON.stringify({username,tok})); }
 function clearSession()           { localStorage.removeItem('vx_session'); }
 
-// ── EmailJS config ────────────────────────────────
-const EJJS_SERVICE_ID      = 'service_tozkhzf';
-const EJJS_TEMPLATE_START  = 'template_vmoojtr';
-const EJJS_TEMPLATE_RESULT = 'template_i7vs5d8';
-const EJJS_PUBLIC_KEY      = 'PRhkzrhP9EjKYhmnhWV6D';
-(function _initEmailJS() {
-  if (typeof emailjs !== 'undefined') {
-    emailjs.init({ publicKey: EJJS_PUBLIC_KEY });
-    console.log('[VeloxFi EmailJS] Initialized ✓ key:', EJJS_PUBLIC_KEY.slice(0,6)+'…');
-  } else {
-    console.warn('[VeloxFi EmailJS] SDK not loaded — CDN script may have failed');
-  }
-})();
-
-function _ejjsReady()  { return typeof emailjs !== 'undefined'; }
-function _tfLabel(sec) { return sec===300?'5 minutes':sec===900?'15 minutes':'30 minutes'; }
-
-function sendBattleStartEmail(coinAName, coinBName, timeframeSec) {
-  console.log('[VeloxFi EmailJS] sendBattleStartEmail called', {
-    ejjsReady: _ejjsReady(),
-    userEmail: currentUser?.email || '(none)',
-    coinAName, coinBName, timeframeSec
-  });
-  if (!_ejjsReady()) { console.warn('[VeloxFi EmailJS] Skipped — SDK not ready'); return; }
-  if (!currentUser?.email) { console.warn('[VeloxFi EmailJS] Skipped — no user email on currentUser:', currentUser); return; }
-  const params = {
-    to_email:  currentUser.email,
-    to_name:   currentUser.username.toUpperCase(),
-    coin_a:    coinAName,
-    coin_b:    coinBName,
-    timeframe: _tfLabel(timeframeSec),
-  };
-  console.log('[VeloxFi EmailJS] Sending start email →', EJJS_SERVICE_ID, EJJS_TEMPLATE_START, params);
-  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_START, params)
-    .then(r  => console.log('[VeloxFi EmailJS] Start email sent OK ✓', r))
-    .catch(e => console.error('[VeloxFi EmailJS] Start email FAILED ✗', e));
+// ── Browser Notifications ─────────────────────────
+function maybeRequestNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') return;
+  if (Notification.permission === 'denied') return;
+  if (localStorage.getItem('vx_notif_dismissed')) return;
+  setTimeout(() => { document.getElementById('notifPermPopup').style.display = 'block'; }, 1200);
 }
 
-function sendBattleResultEmail(won, coinAName, coinBName, winnerCoinName, tokensEarned, totalTokens) {
-  console.log('[VeloxFi EmailJS] sendBattleResultEmail called', {
-    won, ejjsReady: _ejjsReady(),
-    userEmail: currentUser?.email || '(none)',
-    coinAName, coinBName, winnerCoinName, tokensEarned, totalTokens
+async function grantNotifPerm() {
+  document.getElementById('notifPermPopup').style.display = 'none';
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') showToast('🔔 Notifications enabled!', 'success');
+}
+
+function dismissNotifPopup() {
+  document.getElementById('notifPermPopup').style.display = 'none';
+  localStorage.setItem('vx_notif_dismissed', '1');
+}
+
+function notifyBattleStart(coinAName, coinBName) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  new Notification('⚔️ Your battle has started!', {
+    body: `${coinAName} VS ${coinBName}`,
+    icon: 'https://cdn.jsdelivr.net/npm/twemoji@14/assets/72x72/2694.png',
+    tag: 'vx-battle-start',
   });
-  if (!_ejjsReady()) { console.warn('[VeloxFi EmailJS] Skipped — SDK not ready'); return; }
-  if (!currentUser?.email) { console.warn('[VeloxFi EmailJS] Skipped — no user email on currentUser:', currentUser); return; }
-  const result_subject = won ? '🏆 Battle Result — You Won!' : '❌ Battle Result — Better Luck Next Time';
-  const result_message = won
-    ? `🎉 ${winnerCoinName} won! You earned +${tokensEarned} $BATTLE token${tokensEarned!==1?'s':''}. New total: ${totalTokens} $BATTLE.`
-    : `❌ ${winnerCoinName} won the battle. Better luck next time!`;
-  const params = {
-    to_email: currentUser.email, to_name: currentUser.username.toUpperCase(),
-    coin_a: coinAName, coin_b: coinBName,
-    result_subject, result_message,
-    tokens_earned: tokensEarned, total_tokens: totalTokens,
-  };
-  console.log('[VeloxFi EmailJS] Sending result email →', EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, params);
-  emailjs.send(EJJS_SERVICE_ID, EJJS_TEMPLATE_RESULT, params)
-    .then(r  => console.log('[VeloxFi EmailJS] Result email sent OK ✓', r))
-    .catch(e => console.error('[VeloxFi EmailJS] Result email FAILED ✗', e));
+}
+
+function notifyBattleResult(won, winnerCoinName, tokensEarned) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  if (won) {
+    new Notification('🏆 You won!', {
+      body: `+${tokensEarned} $BATTLE token${tokensEarned !== 1 ? 's' : ''} earned!`,
+      icon: 'https://cdn.jsdelivr.net/npm/twemoji@14/assets/72x72/1f3c6.png',
+      tag: 'vx-battle-result',
+    });
+  } else {
+    new Notification('❌ Better luck next time!', {
+      body: `${winnerCoinName} won the battle.`,
+      icon: 'https://cdn.jsdelivr.net/npm/twemoji@14/assets/72x72/274c.png',
+      tag: 'vx-battle-result',
+    });
+  }
 }
 
 // ── Routing ─────────────────────────────────────
@@ -949,6 +968,7 @@ function afterLogin(data) {
   setSession(data.username, data.token);
   renderNav();
   showToast(`⚡ Welcome back, ${data.username.toUpperCase()}!`,'info');
+  maybeRequestNotifications();
   if (isBattlePage()) {
     onBattlePageAuth();
   } else {
@@ -1518,7 +1538,7 @@ function startBattle_bp(coinId) {
   const label  = bp.timeframe<60 ? `${bp.timeframe}s` : `${bp.timeframe/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} in ${label}!`,'info');
   const bpCoinA = COINS.find(c=>c.id===bp.coinAId), bpCoinB = COINS.find(c=>c.id===bp.coinBId);
-  if (bpCoinA && bpCoinB) sendBattleStartEmail(bpCoinA.name, bpCoinB.name, bp.timeframe);
+  if (bpCoinA && bpCoinB) notifyBattleStart(bpCoinA.name, bpCoinB.name);
 
   // Seed price history with current prices
   bpPriceHistory = [{ t: Date.now(), pA: prices[bp.coinAId]?.price, pB: prices[bp.coinBId]?.price }];
@@ -1579,8 +1599,7 @@ async function resolveBattlePage() {
       <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won with ${changeA>=changeB?changeA.toFixed(3):changeB.toFixed(3)}% gain.<br>+${reward} $BATTLE TOKEN${reward>1?'S':''} earned! Total: ${currentUser?.tokens||0}</div>
       <button class="bp-play-again" onclick="goHome()">⚔️ PLAY AGAIN</button>`;
     showToast(`🎉 CORRECT! +${reward} $BATTLE TOKEN${reward>1?'S':''}!`,'success');
-    const _bpA = COINS.find(c=>c.id===bp.coinAId), _bpB = COINS.find(c=>c.id===bp.coinBId);
-    sendBattleResultEmail(true, _bpA?.name||'', _bpB?.name||'', winnerCoin.name, reward, currentUser?.tokens||0);
+    notifyBattleResult(true, winnerCoin.name, reward);
   } else {
     resultEl.className = 'bp-result wrong';
     resultEl.innerHTML = `
@@ -1588,8 +1607,7 @@ async function resolveBattlePage() {
       <div class="bp-result-sub">${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!</div>
       <button class="bp-play-again" onclick="goHome()">⚔️ TRY AGAIN</button>`;
     showToast(`❌ ${winnerCoin.emoji} ${winnerCoin.name} won. Better luck next time!`,'error');
-    const _bpA = COINS.find(c=>c.id===bp.coinAId), _bpB = COINS.find(c=>c.id===bp.coinBId);
-    sendBattleResultEmail(false, _bpA?.name||'', _bpB?.name||'', winnerCoin.name, 0, currentUser?.tokens||0);
+    notifyBattleResult(false, winnerCoin.name, 0);
   }
 }
 
@@ -1609,7 +1627,7 @@ function confirmBattle(coinAId, coinBId, pickedWinnerId) {
   const picked = pickedWinnerId===coinAId ? cA : cB;
   const label  = selectedTime<60?`${selectedTime}s`:`${selectedTime/60}m`;
   showToast(`⚔️ Battle started! You picked ${picked.emoji} ${picked.name} to win in ${label}!`,'info');
-  sendBattleStartEmail(cA.name, cB.name, selectedTime);
+  notifyBattleStart(cA.name, cB.name);
   coinA=null; coinB=null; renderPickGrids(); renderSelectedDisplays(); updateStartBtn();
   battleTimers[battle.id] = setInterval(()=>{
     if (battle.endTime-Date.now()<=0) { clearInterval(battleTimers[battle.id]); resolveBattle(battle.id); }
@@ -1644,10 +1662,10 @@ async function resolveBattle(battleId) {
       updateNavBalance(); renderLeaderboard();
     }
     showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +${battleReward} $BATTLE TOKEN${battleReward>1?'S':''}! Total: ${currentUser.tokens}`,'success');
-    sendBattleResultEmail(true, cA.name, cB.name, winner.name, battleReward, currentUser.tokens);
+    notifyBattleResult(true, winner.name, battleReward);
   } else {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
-    sendBattleResultEmail(false, cA.name, cB.name, winner.name, 0, currentUser?.tokens||0);
+    notifyBattleResult(false, winner.name, 0);
   }
   renderActiveBattles();
   setTimeout(()=>{ activeBattles=activeBattles.filter(b=>b.id!==battleId); if(!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none'; renderActiveBattles(); },5000);
