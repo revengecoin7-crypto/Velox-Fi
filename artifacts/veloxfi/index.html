@@ -760,12 +760,10 @@ let bpPriceHistory = []; // [{t, pA, pB}] — last 10 updates
 let bpChartA = null, bpChartB = null;
 let bpPriceInterval = null;
 
-// ── Storage ─────────────────────────────────────
-function getUsers()  { return JSON.parse(localStorage.getItem('vfx_users')||'{}'); }
-function saveUsers(u){ localStorage.setItem('vfx_users', JSON.stringify(u)); }
-function getSession(){ return localStorage.getItem('vfx_session'); }
-function setSession(u){ localStorage.setItem('vfx_session', u); }
-function clearSession(){ localStorage.removeItem('vfx_session'); }
+// ── Session (token only in localStorage — data fetched from server) ──────────
+function getSession()             { try { return JSON.parse(localStorage.getItem('vx_session')||'null'); } catch { return null; } }
+function setSession(username,tok) { localStorage.setItem('vx_session', JSON.stringify({username,tok})); }
+function clearSession()           { localStorage.removeItem('vx_session'); }
 
 // ── Routing ─────────────────────────────────────
 function getBattleParams() {
@@ -851,42 +849,43 @@ function switchTab(tab) {
 }
 
 // ── Auth ─────────────────────────────────────────
-function handleRegister() {
+async function handleRegister() {
   const username = document.getElementById('regUsername').value.trim().toLowerCase();
   const email    = document.getElementById('regEmail').value.trim().toLowerCase();
   const password = document.getElementById('regPassword').value;
   const err      = document.getElementById('registerError');
-  if (username.length<3)                               return showErr(err,'Username must be at least 3 characters.');
-  if (!/^[a-z0-9_]+$/.test(username))                 return showErr(err,'Username: only letters, numbers, underscores.');
-  if (!email.includes('@'))                            return showErr(err,'Enter a valid email address.');
-  if (password.length<6)                              return showErr(err,'Password must be at least 6 characters.');
-  const users = getUsers();
-  if (users[username])                                 return showErr(err,'Username already taken.');
-  if (Object.values(users).some(u=>u.email===email))  return showErr(err,'Email already registered.');
-  users[username] = { username, email, password, tokens:0, createdAt:Date.now() };
-  saveUsers(users);
-  document.getElementById('modalOverlay').classList.remove('open');
-  showToast('✅ Account created! Welcome to the arena!','success');
-  loginUser(username);
+  if (username.length<3)               return showErr(err,'Username must be at least 3 characters.');
+  if (!/^[a-z0-9_]+$/.test(username)) return showErr(err,'Username: only letters, numbers, underscores.');
+  if (!email.includes('@'))            return showErr(err,'Enter a valid email address.');
+  if (password.length<6)               return showErr(err,'Password must be at least 6 characters.');
+  try {
+    const res  = await fetch('/api/veloxfi/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,email,password}) });
+    const data = await res.json();
+    if (!res.ok) return showErr(err, data.error || 'Registration failed.');
+    document.getElementById('modalOverlay').classList.remove('open');
+    showToast('✅ Account created! Welcome to the arena!','success');
+    afterLogin(data);
+  } catch (e) { showErr(err,'Network error. Please try again.'); }
 }
 
-function handleLogin() {
+async function handleLogin() {
   const username = document.getElementById('loginUsername').value.trim().toLowerCase();
   const password = document.getElementById('loginPassword').value;
   const err      = document.getElementById('loginError');
-  const users    = getUsers();
-  const user     = users[username];
-  if (!user)                    return showErr(err,'Username not found.');
-  if (user.password!==password) return showErr(err,'Incorrect password.');
-  document.getElementById('modalOverlay').classList.remove('open');
-  loginUser(username);
+  try {
+    const res  = await fetch('/api/veloxfi/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password}) });
+    const data = await res.json();
+    if (!res.ok) return showErr(err, data.error || 'Login failed.');
+    document.getElementById('modalOverlay').classList.remove('open');
+    afterLogin(data);
+  } catch (e) { showErr(err,'Network error. Please try again.'); }
 }
 
-function loginUser(username) {
-  currentUser = getUsers()[username];
-  setSession(username);
+function afterLogin(data) {
+  currentUser = { username: data.username, tokens: data.tokens, email: data.email };
+  setSession(data.username, data.token);
   renderNav();
-  showToast(`⚡ Welcome back, ${username.toUpperCase()}!`,'info');
+  showToast(`⚡ Welcome back, ${data.username.toUpperCase()}!`,'info');
   if (isBattlePage()) {
     onBattlePageAuth();
   } else {
@@ -905,6 +904,7 @@ function handleLogout() {
   if (isBattlePage()) { goHome(); return; }
   document.getElementById('heroSection').style.display = 'block';
   document.getElementById('activeBattlesSection').style.display = 'none';
+  renderLeaderboard();
 }
 
 function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); }
@@ -1470,7 +1470,7 @@ function startBattle_bp(coinId) {
   }, 500);
 }
 
-function resolveBattlePage() {
+async function resolveBattlePage() {
   bp.state = 'resolved';
 
   const pA = prices[bp.coinAId]?.price || bp.entryPriceA;
@@ -1493,17 +1493,18 @@ function resolveBattlePage() {
 
   renderBattlePage();
 
-  if (isCorrect && currentUser) {
-    const users = getUsers();
-    const reward = TIMEFRAME_REWARDS[bp.timeframe] || 1;
-    users[currentUser.username].tokens += reward;
-    saveUsers(users);
-    currentUser = users[currentUser.username];
-    updateNavBalance();
-  }
-
   const reward = isCorrect ? (TIMEFRAME_REWARDS[bp.timeframe] || 1) : 0;
   addBattleStat(reward);
+  if (isCorrect && currentUser) {
+    const session = getSession();
+    try {
+      const res = await fetch('/api/veloxfi/update-tokens', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session?.tok}`}, body:JSON.stringify({amount:reward}) });
+      if (res.ok) { const d = await res.json(); currentUser.tokens = d.tokens; }
+      else { currentUser.tokens += reward; }
+    } catch { currentUser.tokens += reward; }
+    updateNavBalance();
+    renderLeaderboard();
+  }
   const resultEl = document.getElementById('bpResult');
   resultEl.style.display = 'block';
   if (isCorrect) {
@@ -1546,7 +1547,7 @@ function confirmBattle(coinAId, coinBId, pickedWinnerId) {
   }, 1000);
 }
 
-function resolveBattle(battleId) {
+async function resolveBattle(battleId) {
   const battle = activeBattles.find(b=>b.id===battleId);
   if (!battle||battle.status!=='active') return;
   const pA = prices[battle.coinA]?.price;
@@ -1562,8 +1563,16 @@ function resolveBattle(battleId) {
   const winner = actualWinner===battle.coinA?cA:cB;
   if (isCorrect) {
     const battleReward = TIMEFRAME_REWARDS[battle.timeframe] || 1;
-    const users=getUsers(); users[currentUser.username].tokens+=battleReward; saveUsers(users);
-    currentUser=users[currentUser.username]; updateNavBalance(); renderLeaderboard();
+    addBattleStat(battleReward);
+    if (currentUser) {
+      const session = getSession();
+      try {
+        const res = await fetch('/api/veloxfi/update-tokens', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session?.tok}`}, body:JSON.stringify({amount:battleReward}) });
+        if (res.ok) { const d = await res.json(); currentUser.tokens = d.tokens; }
+        else { currentUser.tokens += battleReward; }
+      } catch { currentUser.tokens += battleReward; }
+      updateNavBalance(); renderLeaderboard();
+    }
     showToast(`🎉 CORRECT! ${winner.emoji} ${winner.name} won! +${battleReward} $BATTLE TOKEN${battleReward>1?'S':''}! Total: ${currentUser.tokens}`,'success');
   } else {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
@@ -1600,19 +1609,25 @@ function renderActiveBattles() {
 }
 
 // ── Leaderboard ───────────────────────────────────
-function renderLeaderboard() {
-  const users=getUsers(); const sorted=Object.values(users).sort((a,b)=>b.tokens-a.tokens).slice(0,10);
+async function renderLeaderboard() {
   const tbody=document.getElementById('lbBody'); if(!tbody) return;
-  if (!sorted.length||sorted.every(u=>u.tokens===0)) {
-    tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`; return;
+  try {
+    const res = await fetch('/api/veloxfi/leaderboard');
+    if (!res.ok) throw new Error();
+    const sorted = await res.json();
+    if (!sorted.length||sorted.every(u=>u.tokens===0)) {
+      tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`; return;
+    }
+    const medals=['🥇','🥈','🥉']; const rc=['gold','silver','bronze'];
+    tbody.innerHTML=sorted.map((user,i)=>`
+      <tr class="lb-row" style="${currentUser&&user.username===currentUser.username?'background:rgba(37,99,235,0.08);':''}">
+        <td class="lb-rank ${rc[i]||''}">${medals[i]||'#'+(i+1)}</td>
+        <td class="lb-user">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''}</td>
+        <td class="lb-tokens">⚔️ ${user.tokens} $BATTLE</td>
+      </tr>`).join('');
+  } catch {
+    tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
   }
-  const medals=['🥇','🥈','🥉']; const rc=['gold','silver','bronze'];
-  tbody.innerHTML=sorted.map((user,i)=>`
-    <tr class="lb-row" style="${currentUser&&user.username===currentUser.username?'background:rgba(37,99,235,0.08);':''}">
-      <td class="lb-rank ${rc[i]||''}">${medals[i]||'#'+(i+1)}</td>
-      <td class="lb-user">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''}</td>
-      <td class="lb-tokens">⚔️ ${user.tokens} $BATTLE</td>
-    </tr>`).join('');
 }
 
 // ── Toast ─────────────────────────────────────────
@@ -1631,10 +1646,21 @@ document.addEventListener('keydown',e=>{
 });
 
 // ── Init ──────────────────────────────────────────
-function init() {
+async function init() {
   renderNav();
-  const session=getSession();
-  if(session){ const users=getUsers(); if(users[session]) { currentUser=users[session]; renderNav(); } }
+  const session = getSession();
+  if (session?.username && session?.tok) {
+    try {
+      const res = await fetch(`/api/veloxfi/user/${session.username}`, { headers:{'Authorization':`Bearer ${session.tok}`} });
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = { username: data.username, tokens: data.tokens, email: data.email };
+        renderNav();
+      } else {
+        clearSession();
+      }
+    } catch { /* network error — stay logged out */ }
+  }
 
   initRouter();
 
@@ -1644,12 +1670,9 @@ function init() {
       document.getElementById('heroSection').style.display='none';
       document.getElementById('activeBattlesSection').style.display='none';
     }
-    // Load volatile coins immediately, refresh every 5 minutes
     fetchMemecoins();
     setInterval(fetchMemecoins, 5 * 60_000);
-    // Refresh prices every 30s during active battles
     setInterval(() => { if (activeBattles.length) fetchPrices(); }, 30_000);
-    // Update refresh label every minute
     setInterval(updateRefreshLabel, 60_000);
   }
 }
