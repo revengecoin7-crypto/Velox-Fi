@@ -12,6 +12,8 @@ Single `index.html` SPA (served by Vite). Key features:
 - **Price data**: `/api/prices` returns USD price + 24h change + 24h vol + market cap (CoinGecko simple/price, 60s cache)
 - **Auth**: localStorage (`vfx_users`, `vfx_session`); free registration; $BATTLE token balance stored per user
 - **TIMEFRAME_REWARDS**: `{300:1, 900:2, 1800:3}` (seconds → tokens)
+- **Referral system**: `?ref=username` URL param → saved to localStorage as `vfxRef` → referral banner shown → 3 bonus $BATTLE tokens for both parties on register; profile shows unique referral link + referral count + bonus tokens earned
+- **Admin dashboard**: `/admin` path; password `veloxfi2025`; shows stats cards, 7-day bar chart, last 20 battles, full user list; server-side password check on every API call
 
 ## Key Files
 

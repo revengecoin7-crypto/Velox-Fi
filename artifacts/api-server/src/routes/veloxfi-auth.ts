@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
 import { veloxfiUsers } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 
@@ -17,9 +17,11 @@ async function requireAuth(req: Request & { veloxfiUser?: typeof veloxfiUsers.$i
   next();
 }
 
+const REFERRAL_BONUS = 3;
+
 router.post("/veloxfi/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, referredBy } = req.body;
     if (!username || !email || !password) { res.status(400).json({ error: "Missing required fields." }); return; }
     if (username.length < 3) { res.status(400).json({ error: "Username must be at least 3 characters." }); return; }
     if (!/^[a-z0-9_]+$/.test(username)) { res.status(400).json({ error: "Username: only letters, numbers, underscores." }); return; }
@@ -32,12 +34,44 @@ router.post("/veloxfi/register", async (req, res) => {
     const [existingEmail] = await db.select({ username: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.email, email)).limit(1);
     if (existingEmail) { res.status(409).json({ error: "Email already registered." }); return; }
 
+    let validReferrer: string | null = null;
+    if (referredBy && typeof referredBy === "string" && referredBy.trim()) {
+      const refName = referredBy.trim().toLowerCase();
+      if (refName !== username) {
+        const [referrer] = await db.select({ username: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.username, refName)).limit(1);
+        if (referrer) validReferrer = referrer.username;
+      }
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const token = randomUUID();
+    const startingTokens = validReferrer ? REFERRAL_BONUS : 0;
 
-    const [user] = await db.insert(veloxfiUsers).values({ username, email, passwordHash, tokens: 0, sessionToken: token }).returning();
-    res.json({ username: user.username, tokens: user.tokens, email: user.email, token });
+    const [user] = await db
+      .insert(veloxfiUsers)
+      .values({
+        username, email, passwordHash, tokens: startingTokens, sessionToken: token,
+        referredBy: validReferrer ?? undefined,
+      })
+      .returning();
+
+    if (validReferrer) {
+      await db
+        .update(veloxfiUsers)
+        .set({
+          tokens:         sql`${veloxfiUsers.tokens} + ${REFERRAL_BONUS}`,
+          referralCount:  sql`${veloxfiUsers.referralCount} + 1`,
+          referralTokens: sql`${veloxfiUsers.referralTokens} + ${REFERRAL_BONUS}`,
+        })
+        .where(eq(veloxfiUsers.username, validReferrer));
+    }
+
+    res.json({
+      username: user.username, tokens: user.tokens, email: user.email, token,
+      referralBonus: validReferrer ? REFERRAL_BONUS : 0,
+    });
   } catch (e) {
+    console.error("register error:", e);
     res.status(500).json({ error: "Server error. Please try again." });
   }
 });
@@ -64,7 +98,10 @@ router.post("/veloxfi/login", async (req, res) => {
 router.get("/veloxfi/user/:username", requireAuth as any, async (req: any, res) => {
   const user = req.veloxfiUser;
   if (user.username !== req.params.username) { res.status(403).json({ error: "Forbidden." }); return; }
-  res.json({ username: user.username, tokens: user.tokens, email: user.email });
+  res.json({
+    username: user.username, tokens: user.tokens, email: user.email,
+    referralCount: user.referralCount, referralTokens: user.referralTokens,
+  });
 });
 
 router.post("/veloxfi/update-tokens", requireAuth as any, async (req: any, res) => {

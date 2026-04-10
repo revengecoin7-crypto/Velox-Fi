@@ -98,10 +98,12 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
     const winPct       = totalBattles > 0 ? Math.round((totalWins / totalBattles) * 100) : 0;
 
     res.json({
-      username:     user.username,
-      email:        user.email,
-      tokens:       user.tokens,
-      createdAt:    user.createdAt,
+      username:       user.username,
+      email:          user.email,
+      tokens:         user.tokens,
+      createdAt:      user.createdAt,
+      referralCount:  user.referralCount,
+      referralTokens: user.referralTokens,
       stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
     });
