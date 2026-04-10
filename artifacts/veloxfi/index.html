@@ -604,7 +604,19 @@
 .claim-confirm-body { font-size:14px; color:var(--text-dim); line-height:1.6; margin-bottom:10px; }
 .claim-confirm-addr { font-family:'Rajdhani',monospace; font-size:12px; color:#34d399; background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2); border-radius:8px; padding:8px 12px; word-break:break-all; margin-bottom:18px; }
 .claim-confirm-note { font-size:12px; color:#fbbf24; background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:8px 12px; margin-bottom:24px; }
-.claim-confirm-btns { display:flex; gap:10px; }
+.claim-amount-wrap { display:flex; gap:8px; margin-bottom:14px; }
+.claim-amount-input { flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Orbitron',monospace; font-size:16px; font-weight:900; outline:none; transition:border .2s; -moz-appearance:textfield; }
+.claim-amount-input::-webkit-inner-spin-button,.claim-amount-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+.claim-amount-input:focus { border-color:rgba(245,158,11,.6); }
+.claim-amount-max { padding:0 14px; background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.35); border-radius:10px; color:#f59e0b; font-family:'Orbitron',monospace; font-size:11px; font-weight:900; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.claim-amount-max:hover { background:rgba(245,158,11,.25); }
+.claim-confirm-meta { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+.claim-confirm-meta-row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.claim-meta-label { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.1em; color:var(--text-dim); }
+.claim-meta-val { font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--text); font-weight:600; }
+.claim-meta-wallet { font-family:'Rajdhani',monospace; font-size:11px; color:#34d399; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.claim-confirm-preview { font-size:13px; color:var(--text-dim); line-height:1.6; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.18); border-radius:10px; padding:12px 14px; margin-bottom:18px; }
+.claim-confirm-btns { display:flex; gap:10px; margin-top:4px; }
 .claim-confirm-cancel { flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; padding:13px; color:var(--text-dim); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:.08em; cursor:pointer; transition:background .2s; }
 .claim-confirm-cancel:hover { background:rgba(255,255,255,.1); }
 .claim-confirm-submit { flex:2; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; border-radius:10px; padding:13px; color:#000; font-family:'Orbitron',monospace; font-size:11px; font-weight:900; letter-spacing:.08em; cursor:pointer; transition:opacity .2s; }
@@ -755,6 +767,9 @@
 .adm-claim-status.pending { background:rgba(251,191,36,.12); color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
 .adm-claim-status.paid    { background:rgba(52,211,153,.12); color:#34d399; border:1px solid rgba(52,211,153,.3); }
 .adm-paid-cb { width:16px; height:16px; accent-color:var(--green); cursor:pointer; flex-shrink:0; }
+.adm-mark-paid-btn { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:.04em; padding:5px 12px; border-radius:8px; border:1px solid rgba(52,211,153,.4); background:rgba(52,211,153,.12); color:#34d399; cursor:pointer; transition:all .2s; white-space:nowrap; flex-shrink:0; }
+.adm-mark-paid-btn:hover:not(:disabled) { background:rgba(52,211,153,.22); border-color:#34d399; }
+.adm-mark-paid-btn:disabled { opacity:.5; cursor:not-allowed; }
 
 /* ── Mode tabs ───────────────────────────────────── */
 .mode-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
@@ -1801,20 +1816,30 @@
 <div id="claimConfirmOverlay" onclick="if(event.target===this)closeClaimConfirm()">
   <div id="claimConfirmBox">
     <div id="claimConfirmForm">
-      <div class="claim-confirm-title">💎 CONFIRM TOKEN CLAIM</div>
-      <div class="claim-confirm-body">You are about to claim <strong id="claimConfirmAmt"></strong> $BATTLE tokens to the following Solana wallet address:</div>
-      <div class="claim-confirm-addr" id="claimConfirmAddr"></div>
-      <div class="claim-confirm-note">⏱ This will be processed within <strong>7 days</strong>. Once submitted, this cannot be changed.</div>
+      <div class="claim-confirm-title">💎 CLAIM $BATTLE TOKENS</div>
+      <div class="claim-confirm-body">How many tokens would you like to claim?</div>
+      <div class="claim-amount-wrap">
+        <input type="number" id="claimAmountInput" class="claim-amount-input" min="1" placeholder="Enter amount" oninput="onClaimAmountInput(this)">
+        <button class="claim-amount-max" onclick="document.getElementById('claimAmountInput').value=_claimData?.tokens||0;onClaimAmountInput(document.getElementById('claimAmountInput'))">MAX</button>
+      </div>
+      <div class="claim-confirm-meta">
+        <div class="claim-confirm-meta-row"><span class="claim-meta-label">YOUR BALANCE</span><span class="claim-meta-val" id="claimMetaBalance"></span></div>
+        <div class="claim-confirm-meta-row"><span class="claim-meta-label">WALLET</span><span class="claim-meta-val claim-meta-wallet" id="claimMetaWallet"></span></div>
+      </div>
+      <div class="claim-confirm-preview" id="claimConfirmPreview" style="display:none">
+        You are about to claim <strong id="claimConfirmAmt"></strong> $BATTLE tokens to wallet <strong id="claimConfirmAddr"></strong>.<br><br>
+        Claims are processed within <strong>24 hours</strong> on weekdays. Weekend claims are processed on Monday.
+      </div>
       <div class="claim-confirm-btns">
         <button class="claim-confirm-cancel" onclick="closeClaimConfirm()">CANCEL</button>
-        <button class="claim-confirm-submit" id="claimConfirmSubmitBtn" onclick="submitClaim()">⚔️ CONFIRM CLAIM</button>
+        <button class="claim-confirm-submit" id="claimConfirmSubmitBtn" onclick="submitClaim()" disabled>⚔️ CONFIRM CLAIM</button>
       </div>
     </div>
     <div id="claimConfirmSuccess" style="display:none">
       <div class="claim-confirm-success">
         <div class="claim-confirm-success-icon">🎉</div>
         <div class="claim-confirm-success-title">CLAIM SUBMITTED!</div>
-        <div class="claim-confirm-success-msg">You will receive your <strong id="claimSuccessAmt"></strong> $BATTLE tokens within <strong>7 days</strong>. Thank you for playing VeloxFi!</div>
+        <div class="claim-confirm-success-msg"><strong id="claimSuccessAmt"></strong> $BATTLE tokens will be sent to your wallet. Thank you for playing VeloxFi!</div>
       </div>
     </div>
   </div>
@@ -2189,13 +2214,8 @@ async function loadProfile() {
         <div class="prof-balance-box">
           <div class="prof-balance-val">${d.tokens.toLocaleString()}</div>
           <div class="prof-balance-label">$BATTLE TOKENS</div>
-          ${(() => {
-            if (d.claimedAt) return `<div class="prof-claim-sent-badge">✅ TOKENS SENT</div>`;
-            if (d.claimRequestedAt) return `<div class="prof-claim-pending-badge">⏳ CLAIM PENDING</div>`;
-            if (d.tokens > 0 && d.walletAddress) return `<button class="prof-claim-btn gold" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress}')">💎 CLAIM $BATTLE</button>`;
-            if (d.tokens > 0 && !d.walletAddress) return `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>`;
-            return '';
-          })()}
+          ${d.tokens > 0 && d.walletAddress ? `<button class="prof-claim-btn gold" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM $BATTLE</button>` : ''}
+          ${d.tokens > 0 && !d.walletAddress ? `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>` : ''}
         </div>
       </div>
 
@@ -2248,14 +2268,38 @@ async function loadProfile() {
 let _claimData = null;
 function openClaimConfirm(tokens, walletAddress) {
   _claimData = { tokens, walletAddress };
-  document.getElementById('claimConfirmAmt').textContent = tokens.toLocaleString();
+  const input = document.getElementById('claimAmountInput');
+  input.value = '';
+  input.max = tokens;
+  document.getElementById('claimMetaBalance').textContent = tokens.toLocaleString() + ' $BATTLE';
+  document.getElementById('claimMetaWallet').textContent = walletAddress;
+  document.getElementById('claimMetaWallet').title = walletAddress;
+  document.getElementById('claimConfirmAmt').textContent = '';
   document.getElementById('claimConfirmAddr').textContent = walletAddress;
-  document.getElementById('claimSuccessAmt').textContent = tokens.toLocaleString();
+  document.getElementById('claimConfirmPreview').style.display = 'none';
+  document.getElementById('claimConfirmSubmitBtn').disabled = true;
+  document.getElementById('claimConfirmSubmitBtn').textContent = '⚔️ CONFIRM CLAIM';
   document.getElementById('claimConfirmForm').style.display = '';
   document.getElementById('claimConfirmSuccess').style.display = 'none';
-  document.getElementById('claimConfirmSubmitBtn').disabled = false;
-  document.getElementById('claimConfirmSubmitBtn').textContent = '⚔️ CONFIRM CLAIM';
   document.getElementById('claimConfirmOverlay').classList.add('open');
+  setTimeout(() => input.focus(), 80);
+}
+function onClaimAmountInput(input) {
+  const val = parseInt(input.value, 10);
+  const max = _claimData?.tokens || 0;
+  const preview = document.getElementById('claimConfirmPreview');
+  const btn = document.getElementById('claimConfirmSubmitBtn');
+  if (val > max) input.value = max;
+  const v = parseInt(input.value, 10);
+  if (v > 0 && v <= max) {
+    document.getElementById('claimConfirmAmt').textContent = v.toLocaleString();
+    document.getElementById('claimSuccessAmt').textContent = v.toLocaleString();
+    preview.style.display = '';
+    btn.disabled = false;
+  } else {
+    preview.style.display = 'none';
+    btn.disabled = true;
+  }
 }
 function closeClaimConfirm() {
   document.getElementById('claimConfirmOverlay').classList.remove('open');
@@ -2263,12 +2307,15 @@ function closeClaimConfirm() {
 }
 async function submitClaim() {
   const btn = document.getElementById('claimConfirmSubmitBtn');
+  const amount = parseInt(document.getElementById('claimAmountInput').value, 10);
+  if (!amount || amount <= 0) { showToast('Enter a valid amount.', 'error'); return; }
   btn.disabled = true; btn.textContent = 'SUBMITTING…';
   const session = getSession();
   try {
     const res = await fetch('/api/veloxfi/claim', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.tok}` },
+      body: JSON.stringify({ amount }),
     });
     const data = await res.json();
     if (res.ok) {
@@ -3893,34 +3940,36 @@ function admRenderClaims(claims, pw) {
     return;
   }
   wrap.innerHTML = claims.map(c => {
-    const isPaid = !!c.claimedAt;
-    const reqDate = c.claimRequestedAt ? new Date(c.claimRequestedAt).toLocaleDateString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    const paidLabel = isPaid
-      ? `<span class="adm-claim-status paid">✓ PAID ${new Date(c.claimedAt).toLocaleDateString('en',{month:'short',day:'numeric'})}</span>`
-      : `<span class="adm-claim-status pending">PENDING</span>`;
+    const isPaid = !!c.paidAt;
+    const reqDate = c.requestedAt ? new Date(c.requestedAt).toLocaleString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const paidDate = isPaid ? new Date(c.paidAt).toLocaleString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : null;
     return `<div class="adm-claim-row${isPaid?' paid':''}">
-      <input type="checkbox" class="adm-paid-cb" ${isPaid?'checked':''} title="${isPaid?'Mark as unpaid':'Mark as paid'}" onchange="admTogglePaid(this,'${c.username}','${pw}')">
       <div class="adm-claim-user">${c.username}</div>
       <div class="adm-claim-wallet" title="${c.walletAddress}">${c.walletAddress}</div>
-      <div class="adm-claim-tokens">${c.tokens} ⚔️</div>
+      <div class="adm-claim-tokens">${(c.amount||0).toLocaleString()} ⚔️</div>
       <div style="font-size:10px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;white-space:nowrap">${reqDate}</div>
-      ${paidLabel}
+      ${isPaid
+        ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+             <span class="adm-claim-status paid">✓ PAID</span>
+             <span style="font-size:9px;color:var(--text-dim)">${paidDate}</span>
+           </div>`
+        : `<button class="adm-mark-paid-btn" onclick="admMarkPaid(this,${c.id},'${pw}')">✅ MARK AS PAID</button>`}
     </div>`;
   }).join('');
 }
 
-async function admTogglePaid(checkbox, username, pw) {
-  const method = checkbox.checked ? 'PUT' : 'DELETE';
-  checkbox.disabled = true;
+async function admMarkPaid(btn, claimId, pw) {
+  btn.disabled = true;
+  btn.textContent = '…';
   try {
-    const res = await fetch(`/api/veloxfi/admin/claims/${encodeURIComponent(username)}/paid`, {
-      method, headers: { 'x-admin-password': pw }
+    const res = await fetch(`/api/veloxfi/admin/claims/${claimId}/paid`, {
+      method: 'PUT', headers: { 'x-admin-password': pw }
     });
     if (!res.ok) throw new Error();
     await admRefreshClaims();
   } catch {
-    checkbox.checked = !checkbox.checked;
-    checkbox.disabled = false;
+    btn.disabled = false;
+    btn.textContent = '✅ MARK AS PAID';
   }
 }
 

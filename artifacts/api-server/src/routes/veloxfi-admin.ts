@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiBattles, veloxfiClaims } from "@workspace/db/schema";
 import { eq, desc, sql, isNotNull } from "drizzle-orm";
 
 const ADMIN_PASSWORD = "veloxfi2025";
@@ -95,20 +95,14 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
   }
 });
 
+// ── Claims (from veloxfi_claims table) ────────────────────────────────────────
+
 router.get("/veloxfi/admin/claims", requireAdmin as any, async (_req: any, res: any) => {
   try {
     const claims = await db
-      .select({
-        username:         veloxfiUsers.username,
-        walletAddress:    veloxfiUsers.walletAddress,
-        tokens:           veloxfiUsers.tokens,
-        claimRequestedAt: veloxfiUsers.claimRequestedAt,
-        claimedAt:        veloxfiUsers.claimedAt,
-        createdAt:        veloxfiUsers.createdAt,
-      })
-      .from(veloxfiUsers)
-      .where(isNotNull(veloxfiUsers.claimRequestedAt))
-      .orderBy(desc(veloxfiUsers.tokens));
+      .select()
+      .from(veloxfiClaims)
+      .orderBy(desc(veloxfiClaims.requestedAt));
     res.json(claims);
   } catch (e) {
     console.error("admin/claims error:", e);
@@ -116,12 +110,11 @@ router.get("/veloxfi/admin/claims", requireAdmin as any, async (_req: any, res: 
   }
 });
 
-router.put("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async (req: any, res: any) => {
+router.put("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req: any, res: any) => {
   try {
-    const { username } = req.params;
-    const [user] = await db.select({ username: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.username, username)).limit(1);
-    if (!user) { res.status(404).json({ error: "User not found" }); return; }
-    await db.update(veloxfiUsers).set({ claimedAt: new Date() }).where(eq(veloxfiUsers.username, username));
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid claim id" }); return; }
+    await db.update(veloxfiClaims).set({ paidAt: new Date() }).where(eq(veloxfiClaims.id, id));
     res.json({ ok: true });
   } catch (e) {
     console.error("admin/claims paid error:", e);
@@ -129,10 +122,11 @@ router.put("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async (r
   }
 });
 
-router.delete("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async (req: any, res: any) => {
+router.delete("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req: any, res: any) => {
   try {
-    const { username } = req.params;
-    await db.update(veloxfiUsers).set({ claimedAt: null }).where(eq(veloxfiUsers.username, username));
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid claim id" }); return; }
+    await db.update(veloxfiClaims).set({ paidAt: null }).where(eq(veloxfiClaims.id, id));
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: "Server error" });
@@ -141,21 +135,15 @@ router.delete("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async
 
 router.get("/veloxfi/admin/export-csv", requireAdmin as any, async (_req: any, res: any) => {
   try {
-    const users = await db
-      .select({
-        username:      veloxfiUsers.username,
-        walletAddress: veloxfiUsers.walletAddress,
-        tokens:        veloxfiUsers.tokens,
-        claimedAt:     veloxfiUsers.claimedAt,
-      })
-      .from(veloxfiUsers)
-      .where(isNotNull(veloxfiUsers.claimRequestedAt))
-      .orderBy(desc(veloxfiUsers.tokens));
+    const claims = await db
+      .select()
+      .from(veloxfiClaims)
+      .orderBy(desc(veloxfiClaims.requestedAt));
 
-    const rows = users.map(u =>
-      `${u.username},${u.walletAddress},${u.tokens},${u.claimedAt ? 'PAID' : 'PENDING'}`
+    const rows = claims.map(c =>
+      `${c.username},${c.walletAddress},${c.amount},${c.requestedAt.toISOString()},${c.paidAt ? c.paidAt.toISOString() : 'PENDING'}`
     );
-    const csv = "username,wallet_address,token_balance,status\n" + rows.join("\n");
+    const csv = "username,wallet_address,amount,requested_at,paid_at\n" + rows.join("\n");
 
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", 'attachment; filename="veloxfi-claims.csv"');

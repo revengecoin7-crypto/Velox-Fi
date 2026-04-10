@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiClaims } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -125,12 +125,26 @@ router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
     if (user.tokens <= 0) {
       res.status(400).json({ error: "No tokens to claim." }); return;
     }
-    if (user.claimRequestedAt) {
-      res.status(409).json({ error: "A claim has already been submitted for this account." }); return;
+    const { amount } = req.body;
+    const claimAmt = parseInt(amount, 10);
+    if (!claimAmt || claimAmt <= 0) {
+      res.status(400).json({ error: "Enter a valid amount to claim." }); return;
     }
-    const now = new Date();
-    await db.update(veloxfiUsers).set({ claimRequestedAt: now }).where(eq(veloxfiUsers.username, user.username));
-    res.json({ ok: true, claimRequestedAt: now.toISOString() });
+    if (claimAmt > user.tokens) {
+      res.status(400).json({ error: "Claim amount exceeds your token balance." }); return;
+    }
+    // Deduct tokens from balance
+    const newTokens = user.tokens - claimAmt;
+    await db.update(veloxfiUsers)
+      .set({ tokens: newTokens })
+      .where(eq(veloxfiUsers.username, user.username));
+    // Insert a claim record
+    await db.insert(veloxfiClaims).values({
+      username:      user.username,
+      walletAddress: user.walletAddress,
+      amount:        claimAmt,
+    });
+    res.json({ ok: true, newTokens, claimAmt });
   } catch (e) {
     console.error("veloxfi/claim error:", e);
     res.status(500).json({ error: "Server error." });
