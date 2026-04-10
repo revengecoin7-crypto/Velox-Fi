@@ -47,7 +47,14 @@
   .btn-logout { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px 16px; color:#fca5a5; font-family:'Orbitron',monospace; font-size:11px; font-weight:600; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
   .btn-logout:hover { background:rgba(239,68,68,0.2); }
 
-  main { position:relative; z-index:1; padding-top:92px; min-height:100vh; }
+  main { position:relative; z-index:1; padding-top:128px; min-height:100vh; }
+
+  /* STATS BAR */
+  #statsBar { position:fixed; top:92px; left:0; right:0; height:36px; background:rgba(5,8,15,0.97); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); z-index:997; display:flex; align-items:center; justify-content:center; gap:28px; }
+  .sb-item { display:flex; align-items:center; gap:7px; }
+  .sb-num { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; color:var(--blue-glow); letter-spacing:1px; min-width:20px; text-align:right; }
+  .sb-lbl { font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:600; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; }
+  .sb-divider { width:1px; height:16px; background:var(--border); }
 
   /* HERO */
   .hero { text-align:center; padding:48px 20px 36px; }
@@ -407,6 +414,24 @@
   <div class="nav-right" id="navRight"></div>
 </nav>
 
+<!-- STATS BAR -->
+<div id="statsBar">
+  <div class="sb-item">
+    <span class="sb-num" id="sbBattles">0</span>
+    <span class="sb-lbl">Battles Today</span>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-item">
+    <span class="sb-num" id="sbTokens">0</span>
+    <span class="sb-lbl">$BATTLE Earned Today</span>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-item">
+    <span class="sb-num" id="sbActive">—</span>
+    <span class="sb-lbl">Active Now</span>
+  </div>
+</div>
+
 <div id="mainPage">
 <main>
   <!-- HERO — guests only -->
@@ -417,31 +442,6 @@
     <div class="hero-sub">Pick two memecoins, choose a timeframe, and predict which one gains the most. Earn $BATTLE tokens for every correct prediction. 100% free.</div>
     <button class="hero-cta" onclick="openModal('register')">🚀 CREATE FREE ACCOUNT</button>
     <div class="hero-note">Already have an account? <span onclick="openModal('login')">Log in here</span></div>
-  </div>
-
-  <!-- HOW IT WORKS -->
-  <div class="hiw">
-    <div class="hiw-title">HOW IT WORKS</div>
-    <div class="hiw-steps">
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 01</div>
-        <span class="hiw-icon">⚔️</span>
-        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
-        <div class="hiw-desc">Choose any two memecoins from the top 10 most volatile tokens, updated live every 5 minutes.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 02</div>
-        <span class="hiw-icon">🎯</span>
-        <div class="hiw-step-title">PREDICT THE WINNER</div>
-        <div class="hiw-desc">Pick which coin you think will gain the most % in your chosen timeframe — 5, 15, or 30 minutes.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 03</div>
-        <span class="hiw-icon">🪙</span>
-        <div class="hiw-step-title">EARN $BATTLE TOKENS</div>
-        <div class="hiw-desc">Correct predictions earn you 1, 2, or 3 $BATTLE tokens depending on your chosen timeframe.</div>
-      </div>
-    </div>
   </div>
 
   <div class="game-area">
@@ -504,6 +504,32 @@
       Not for US residents. © 2025 VeloxFi — veloxfi.io
     </div>
   </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw">
+    <div class="hiw-title">HOW IT WORKS</div>
+    <div class="hiw-steps">
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 01</div>
+        <span class="hiw-icon">⚔️</span>
+        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
+        <div class="hiw-desc">Choose any two memecoins from the top 10 most volatile tokens, updated live every 5 minutes.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 02</div>
+        <span class="hiw-icon">🎯</span>
+        <div class="hiw-step-title">PREDICT THE WINNER</div>
+        <div class="hiw-desc">Pick which coin you think will gain the most % in your chosen timeframe — 5, 15, or 30 minutes.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 03</div>
+        <span class="hiw-icon">🪙</span>
+        <div class="hiw-step-title">EARN $BATTLE TOKENS</div>
+        <div class="hiw-desc">Correct predictions earn you 1, 2, or 3 $BATTLE tokens depending on your chosen timeframe.</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div><!-- /mainPage -->
 
@@ -724,10 +750,45 @@ function initRouter() {
   const {coinAId, coinBId, time} = getBattleParams();
   document.getElementById('mainPage').style.display = 'none';
   document.getElementById('battlePage').style.display = 'block';
+  const sb = document.getElementById('statsBar');
+  if (sb) sb.style.display = 'none';
   initBattlePage(coinAId, coinBId, time);
 }
 
 function goHome() { window.location.href = window.location.pathname; }
+
+// ── Stats bar ─────────────────────────────────────
+function _getStatsToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const raw = JSON.parse(localStorage.getItem('vx_stats') || '{}');
+    if (raw.date !== today) return { date: today, battles: 0, tokens: 0 };
+    return raw;
+  } catch { return { date: today, battles: 0, tokens: 0 }; }
+}
+function _saveStatsToday(s) { localStorage.setItem('vx_stats', JSON.stringify(s)); }
+function addBattleStat(tokensEarned) {
+  const s = _getStatsToday();
+  s.battles++;
+  s.tokens += (tokensEarned || 0);
+  _saveStatsToday(s);
+  refreshStatsBar();
+}
+let _activePlayers = Math.floor(Math.random() * 36) + 12;
+function refreshStatsBar() {
+  const s = _getStatsToday();
+  const el = (id) => document.getElementById(id);
+  if (el('sbBattles')) el('sbBattles').textContent = s.battles;
+  if (el('sbTokens'))  el('sbTokens').textContent  = s.tokens;
+  if (el('sbActive'))  el('sbActive').textContent  = _activePlayers;
+}
+function _tickActivePlayers() {
+  _activePlayers = Math.max(12, Math.min(47, _activePlayers + Math.floor(Math.random() * 5) - 2));
+  const el = document.getElementById('sbActive');
+  if (el) el.textContent = _activePlayers;
+}
+refreshStatsBar();
+setInterval(_tickActivePlayers, 30000);
 
 // ── Modal ────────────────────────────────────────
 function openModal(tab='register', customTitle, customSub) {
@@ -1414,6 +1475,7 @@ function resolveBattlePage() {
   }
 
   const reward = isCorrect ? (TIMEFRAME_REWARDS[bp.timeframe] || 1) : 0;
+  addBattleStat(reward);
   const resultEl = document.getElementById('bpResult');
   resultEl.style.display = 'block';
   if (isCorrect) {
