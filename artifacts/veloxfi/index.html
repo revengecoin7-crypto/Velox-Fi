@@ -702,6 +702,35 @@
 .ref-stat-val.gold { color:var(--gold); }
 .ref-stat-label { font-size:10px; color:var(--text-dim); letter-spacing:.1em; margin-top:4px; font-family:'Orbitron',monospace; }
 
+/* ── Wallet claim section (profile) ─────────────── */
+.prof-wallet-section { background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(37,99,235,.08)); border:1px solid rgba(124,58,237,.28); border-radius:16px; padding:22px 24px; margin-bottom:28px; }
+.prof-wallet-title { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.18em; color:var(--purple-glow); margin-bottom:8px; }
+.prof-wallet-desc { font-size:13px; color:var(--text-dim); line-height:1.5; margin-bottom:16px; }
+.prof-wallet-row { display:flex; align-items:center; gap:10px; }
+.prof-wallet-input { flex:1; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; padding:11px 14px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:14px; outline:none; transition:border .2s; min-width:0; }
+.prof-wallet-input:focus { border-color:var(--purple); }
+.prof-wallet-input::placeholder { color:#475569; }
+.prof-wallet-save { background:linear-gradient(135deg,var(--purple),var(--blue)); border:none; border-radius:8px; padding:11px 18px; color:#fff; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:1px; cursor:pointer; white-space:nowrap; transition:opacity .2s; flex-shrink:0; }
+.prof-wallet-save:hover { opacity:.85; }
+.prof-wallet-save:disabled { opacity:.45; cursor:not-allowed; }
+.prof-wallet-msg { font-size:12px; margin-top:10px; font-family:'Rajdhani',sans-serif; min-height:18px; }
+.prof-wallet-msg.ok  { color:#34d399; }
+.prof-wallet-msg.err { color:#f87171; }
+.prof-wallet-saved-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.3); border-radius:20px; padding:4px 12px; font-size:11px; color:#34d399; font-family:'Orbitron',monospace; letter-spacing:.06em; margin-top:10px; }
+
+/* ── Admin claims section ────────────────────────── */
+.adm-claims-section { margin-top:8px; }
+.adm-claim-row { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--border); font-size:13px; font-family:'Rajdhani',sans-serif; }
+.adm-claim-row:last-child { border-bottom:none; }
+.adm-claim-row.paid { opacity:.5; }
+.adm-claim-user { font-family:'Orbitron',monospace; font-size:11px; color:var(--text); min-width:120px; }
+.adm-claim-wallet { flex:1; color:var(--text-dim); font-size:12px; font-family:'Rajdhani',monospace; word-break:break-all; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adm-claim-tokens { font-family:'Orbitron',monospace; font-size:12px; color:var(--gold); min-width:70px; text-align:right; }
+.adm-claim-status { font-size:11px; padding:3px 10px; border-radius:12px; font-family:'Orbitron',monospace; white-space:nowrap; }
+.adm-claim-status.pending { background:rgba(251,191,36,.12); color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+.adm-claim-status.paid    { background:rgba(52,211,153,.12); color:#34d399; border:1px solid rgba(52,211,153,.3); }
+.adm-paid-cb { width:16px; height:16px; accent-color:var(--green); cursor:pointer; flex-shrink:0; }
+
 /* ── Mode tabs ───────────────────────────────────── */
 .mode-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
 .mode-tab  { flex: 1; font-family: Orbitron, monospace; font-size: .68rem; letter-spacing: .08em; font-weight: 700; color: var(--text-dim); background: none; border: none; border-bottom: 2px solid transparent; padding: 12px 0 11px; cursor: pointer; transition: all .2s; margin-bottom: -1px; }
@@ -1069,13 +1098,28 @@
         </div>
       </div>
 
+      <!-- Pending Claims -->
+      <div class="adm-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div class="adm-section-title" style="margin-bottom:0">💎 PENDING CLAIMS</div>
+          <div style="display:flex;gap:8px">
+            <button class="adm-logout-btn" onclick="admExportCsv()" style="border-color:rgba(251,191,36,.4);color:#fbbf24;">⬇ EXPORT CSV</button>
+            <button class="adm-logout-btn" onclick="admRefreshClaims()" style="border-color:rgba(37,99,235,.4);color:var(--blue-glow);">↻ REFRESH</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px;font-family:'Rajdhani',sans-serif">Users who have saved a Solana wallet address. Use the CSV export to upload to <strong style="color:var(--text-dim)">solana.bulksender.app</strong>. Check the box after you send their tokens.</div>
+        <div id="admClaimsWrap" class="adm-claims-section">
+          <div style="color:var(--text-dim);font-size:13px;text-align:center;padding:24px">Loading claims...</div>
+        </div>
+      </div>
+
       <!-- User list -->
       <div class="adm-section">
         <div class="adm-section-title">ALL USERS</div>
         <div class="adm-overflow">
           <table class="adm-table">
             <thead><tr>
-              <th>USERNAME</th><th>EMAIL</th><th>REGISTERED</th><th>BATTLES</th><th>TOKENS EARNED</th><th>BALANCE</th>
+              <th>USERNAME</th><th>EMAIL</th><th>REGISTERED</th><th>BATTLES</th><th>TOKENS EARNED</th><th>BALANCE</th><th>WALLET</th>
             </tr></thead>
             <tbody id="admUsersTbody"></tbody>
           </table>
@@ -2112,6 +2156,16 @@ async function loadProfile() {
         </div>
       </div>
 
+      <div class="prof-wallet-section">
+        <div class="prof-wallet-title">💎 CLAIM $BATTLE TOKENS</div>
+        <div class="prof-wallet-desc">When $BATTLE launches on Solana, your earned tokens will be airdropped to this address. Paste your Solana wallet address below to register your claim.</div>
+        <div class="prof-wallet-row">
+          <input type="text" class="prof-wallet-input" id="walletInput" placeholder="Solana wallet address (e.g. 7xKj…9mNp)" value="${d.walletAddress || ''}" spellcheck="false" autocomplete="off">
+          <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
+        </div>
+        ${d.claimedAt ? `<div class="prof-wallet-saved-badge">✅ TOKENS SENT — ${new Date(d.claimedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>` : d.walletAddress ? `<div class="prof-wallet-msg ok">✓ Wallet address saved. You're registered for the $BATTLE airdrop.</div>` : `<div class="prof-wallet-msg" id="walletSaveMsg"></div>`}
+      </div>
+
       <div class="cp-section-title" style="margin-bottom:16px">BATTLE STATISTICS</div>
       <div class="prof-stats-grid">
         <div class="prof-stat"><div class="prof-stat-val">${d.stats.totalBattles}</div><div class="prof-stat-label">BATTLES PLAYED</div></div>
@@ -2132,6 +2186,37 @@ async function loadProfile() {
       </div>`;
   } catch(e) {
     el.innerHTML = '<div class="prof-loading">Failed to load profile. Try again.</div>';
+  }
+}
+
+async function saveWalletAddress() {
+  const input = document.getElementById('walletInput');
+  const btn   = document.getElementById('walletSaveBtn');
+  const msg   = document.getElementById('walletSaveMsg');
+  if (!input || !btn) return;
+  const addr = input.value.trim();
+  if (!addr) { if (msg) { msg.textContent = 'Please enter a wallet address.'; msg.className = 'prof-wallet-msg err'; } return; }
+  btn.disabled = true; btn.textContent = 'SAVING…';
+  if (msg) { msg.textContent = ''; msg.className = 'prof-wallet-msg'; }
+  const session = getSession();
+  try {
+    const res = await fetch('/api/veloxfi/profile/wallet', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.tok}` },
+      body: JSON.stringify({ walletAddress: addr }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      btn.textContent = 'SAVED ✓'; btn.disabled = false;
+      if (msg) { msg.textContent = '✓ Wallet address saved. You\'re registered for the $BATTLE airdrop.'; msg.className = 'prof-wallet-msg ok'; }
+      setTimeout(() => { btn.textContent = 'SAVE'; }, 2000);
+    } else {
+      btn.disabled = false; btn.textContent = 'SAVE';
+      if (msg) { msg.textContent = data.error || 'Failed to save.'; msg.className = 'prof-wallet-msg err'; }
+    }
+  } catch {
+    btn.disabled = false; btn.textContent = 'SAVE';
+    if (msg) { msg.textContent = 'Network error. Try again.'; msg.className = 'prof-wallet-msg err'; }
   }
 }
 
@@ -3601,17 +3686,19 @@ async function admRefresh() {
 }
 
 async function admRefreshWith(pw) {
+  _admClaimsPw = pw;
   document.getElementById('admLastRefresh').textContent = 'Fetching...';
   try {
-    const res = await fetch('/api/veloxfi/admin/stats', {
-      headers: { 'x-admin-password': pw },
-    });
-    if (res.status === 401) { admLogout(); return; }
-    const data = await res.json();
+    const [statsRes] = await Promise.all([
+      fetch('/api/veloxfi/admin/stats', { headers: { 'x-admin-password': pw } }),
+    ]);
+    if (statsRes.status === 401) { admLogout(); return; }
+    const data = await statsRes.json();
     admRenderStats(data);
     admRenderChart(data.dailyBattles || []);
     admRenderBattles(data.recentBattles || []);
     admRenderUsers(data.users || []);
+    admRefreshClaims();
     document.getElementById('admLastRefresh').textContent =
       'Last updated: ' + new Date().toLocaleTimeString();
   } catch { document.getElementById('admLastRefresh').textContent = 'Error loading data.'; }
@@ -3667,9 +3754,12 @@ function admRenderBattles(battles) {
 
 function admRenderUsers(users) {
   const tbody = document.getElementById('admUsersTbody');
-  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:24px">No users yet</td></tr>'; return; }
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-dim);text-align:center;padding:24px">No users yet</td></tr>'; return; }
   tbody.innerHTML = users.map(u => {
     const reg = new Date(u.createdAt).toLocaleDateString('en',{year:'numeric',month:'short',day:'numeric'});
+    const walletCell = u.walletAddress
+      ? `<td style="color:#34d399;font-size:11px;font-family:'Rajdhani',monospace;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${u.walletAddress}">${u.walletAddress.slice(0,8)}…${u.walletAddress.slice(-4)}</td>`
+      : `<td style="color:#475569;font-size:11px">—</td>`;
     return `<tr>
       <td><strong>${u.username}</strong></td>
       <td style="color:var(--text-dim)">${u.email}</td>
@@ -3677,8 +3767,74 @@ function admRenderUsers(users) {
       <td>${u.totalBattles}</td>
       <td class="adm-tokens-pill">${u.totalTokensEarned}</td>
       <td style="color:var(--gold)">${u.tokens}</td>
+      ${walletCell}
     </tr>`;
   }).join('');
+}
+
+let _admClaimsPw = null;
+async function admRefreshClaims() {
+  const pw = _admClaimsPw || sessionStorage.getItem('admPw');
+  if (!pw) return;
+  const wrap = document.getElementById('admClaimsWrap');
+  if (wrap) wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:24px">Loading...</div>';
+  try {
+    const res = await fetch('/api/veloxfi/admin/claims', { headers: { 'x-admin-password': pw } });
+    if (!res.ok) return;
+    const claims = await res.json();
+    admRenderClaims(claims, pw);
+  } catch { if (wrap) wrap.innerHTML = '<div style="color:var(--red);font-size:13px;text-align:center;padding:24px">Failed to load claims.</div>'; }
+}
+
+function admRenderClaims(claims, pw) {
+  const wrap = document.getElementById('admClaimsWrap');
+  if (!wrap) return;
+  if (!claims.length) {
+    wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:24px">No wallet addresses registered yet.</div>';
+    return;
+  }
+  wrap.innerHTML = claims.map(c => {
+    const isPaid = !!c.claimedAt;
+    const paidLabel = isPaid
+      ? `<span class="adm-claim-status paid">✓ PAID ${new Date(c.claimedAt).toLocaleDateString('en',{month:'short',day:'numeric'})}</span>`
+      : `<span class="adm-claim-status pending">PENDING</span>`;
+    return `<div class="adm-claim-row${isPaid?' paid':''}">
+      <input type="checkbox" class="adm-paid-cb" ${isPaid?'checked':''} title="${isPaid?'Mark as unpaid':'Mark as paid'}" onchange="admTogglePaid(this,'${c.username}','${pw}')">
+      <div class="adm-claim-user">${c.username}</div>
+      <div class="adm-claim-wallet" title="${c.walletAddress}">${c.walletAddress}</div>
+      <div class="adm-claim-tokens">${c.tokens} ⚔️</div>
+      ${paidLabel}
+    </div>`;
+  }).join('');
+}
+
+async function admTogglePaid(checkbox, username, pw) {
+  const method = checkbox.checked ? 'PUT' : 'DELETE';
+  checkbox.disabled = true;
+  try {
+    const res = await fetch(`/api/veloxfi/admin/claims/${encodeURIComponent(username)}/paid`, {
+      method, headers: { 'x-admin-password': pw }
+    });
+    if (!res.ok) throw new Error();
+    await admRefreshClaims();
+  } catch {
+    checkbox.checked = !checkbox.checked;
+    checkbox.disabled = false;
+  }
+}
+
+function admExportCsv() {
+  const pw = sessionStorage.getItem('admPw');
+  if (!pw) return;
+  const url = `/api/veloxfi/admin/export-csv`;
+  const a = document.createElement('a');
+  a.href = url; a.download = 'veloxfi-claims.csv';
+  const headers = new Headers({ 'x-admin-password': pw });
+  fetch(url, { headers }).then(r => r.blob()).then(blob => {
+    const bUrl = URL.createObjectURL(blob);
+    a.href = bUrl; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(bUrl);
+  });
 }
 
 // ── Init ──────────────────────────────────────────

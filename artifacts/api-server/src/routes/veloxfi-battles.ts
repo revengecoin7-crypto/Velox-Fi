@@ -104,6 +104,8 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       createdAt:      user.createdAt,
       referralCount:  user.referralCount,
       referralTokens: user.referralTokens,
+      walletAddress:  user.walletAddress ?? null,
+      claimedAt:      user.claimedAt ?? null,
       stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
     });

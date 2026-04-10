@@ -116,6 +116,23 @@ router.post("/veloxfi/update-tokens", requireAuth as any, async (req: any, res) 
   }
 });
 
+router.put("/veloxfi/profile/wallet", requireAuth as any, async (req: any, res) => {
+  try {
+    const { walletAddress } = req.body;
+    if (!walletAddress || typeof walletAddress !== "string") {
+      res.status(400).json({ error: "Wallet address is required." }); return;
+    }
+    const trimmed = walletAddress.trim();
+    if (trimmed.length < 32 || trimmed.length > 44 || !/^[1-9A-HJ-NP-Za-km-z]+$/.test(trimmed)) {
+      res.status(400).json({ error: "Invalid Solana wallet address. It should be 32–44 base58 characters." }); return;
+    }
+    await db.update(veloxfiUsers).set({ walletAddress: trimmed }).where(eq(veloxfiUsers.username, req.veloxfiUser.username));
+    res.json({ ok: true, walletAddress: trimmed });
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
 router.get("/veloxfi/leaderboard", async (_req, res) => {
   try {
     const users = await db

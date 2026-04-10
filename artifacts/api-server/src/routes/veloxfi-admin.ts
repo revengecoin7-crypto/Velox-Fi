@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiBattles } from "@workspace/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, isNotNull } from "drizzle-orm";
 
 const ADMIN_PASSWORD = "veloxfi2025";
 
@@ -52,6 +52,8 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         email:             veloxfiUsers.email,
         tokens:            veloxfiUsers.tokens,
         createdAt:         veloxfiUsers.createdAt,
+        walletAddress:     veloxfiUsers.walletAddress,
+        claimedAt:         veloxfiUsers.claimedAt,
         totalBattles:      sql<number>`count(${veloxfiBattles.id})::int`,
         totalTokensEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
       })
@@ -62,6 +64,8 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         veloxfiUsers.email,
         veloxfiUsers.tokens,
         veloxfiUsers.createdAt,
+        veloxfiUsers.walletAddress,
+        veloxfiUsers.claimedAt,
       )
       .orderBy(desc(veloxfiUsers.createdAt));
 
@@ -87,6 +91,76 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
     });
   } catch (e) {
     console.error("admin/stats error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.get("/veloxfi/admin/claims", requireAdmin as any, async (_req: any, res: any) => {
+  try {
+    const claims = await db
+      .select({
+        username:      veloxfiUsers.username,
+        walletAddress: veloxfiUsers.walletAddress,
+        tokens:        veloxfiUsers.tokens,
+        claimedAt:     veloxfiUsers.claimedAt,
+        createdAt:     veloxfiUsers.createdAt,
+      })
+      .from(veloxfiUsers)
+      .where(isNotNull(veloxfiUsers.walletAddress))
+      .orderBy(desc(veloxfiUsers.tokens));
+    res.json(claims);
+  } catch (e) {
+    console.error("admin/claims error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.put("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async (req: any, res: any) => {
+  try {
+    const { username } = req.params;
+    const [user] = await db.select({ username: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.username, username)).limit(1);
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    await db.update(veloxfiUsers).set({ claimedAt: new Date() }).where(eq(veloxfiUsers.username, username));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("admin/claims paid error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.delete("/veloxfi/admin/claims/:username/paid", requireAdmin as any, async (req: any, res: any) => {
+  try {
+    const { username } = req.params;
+    await db.update(veloxfiUsers).set({ claimedAt: null }).where(eq(veloxfiUsers.username, username));
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.get("/veloxfi/admin/export-csv", requireAdmin as any, async (_req: any, res: any) => {
+  try {
+    const users = await db
+      .select({
+        username:      veloxfiUsers.username,
+        walletAddress: veloxfiUsers.walletAddress,
+        tokens:        veloxfiUsers.tokens,
+        claimedAt:     veloxfiUsers.claimedAt,
+      })
+      .from(veloxfiUsers)
+      .where(isNotNull(veloxfiUsers.walletAddress))
+      .orderBy(desc(veloxfiUsers.tokens));
+
+    const rows = users.map(u =>
+      `${u.username},${u.walletAddress},${u.tokens},${u.claimedAt ? 'PAID' : 'PENDING'}`
+    );
+    const csv = "username,wallet_address,token_balance,status\n" + rows.join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="veloxfi-claims.csv"');
+    res.send(csv);
+  } catch (e) {
+    console.error("admin/export-csv error:", e);
     res.status(500).json({ error: "Server error" });
   }
 });
