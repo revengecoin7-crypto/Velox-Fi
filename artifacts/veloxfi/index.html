@@ -398,6 +398,77 @@
     .bp-charts-row { grid-template-columns:1fr; }
   }
 
+/* ── Content pages (Whitepaper / FAQ) ── */
+.cp-page { padding: 120px 24px 80px; min-height: 100vh; max-width: 860px; margin: 0 auto; }
+.cp-back  { display: inline-flex; align-items: center; gap: 7px; font-family: Orbitron, monospace; font-size: 10px; letter-spacing: .12em; color: var(--text-dim); background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; cursor: pointer; margin-bottom: 40px; transition: all .2s; }
+.cp-back:hover { color: var(--text); border-color: rgba(37,99,235,.5); }
+.cp-hero  { text-align: center; margin-bottom: 56px; }
+.cp-tag   { font-family: Orbitron, monospace; font-size: 10px; letter-spacing: .2em; color: var(--blue-glow); background: rgba(37,99,235,.1); border: 1px solid rgba(37,99,235,.3); border-radius: 20px; padding: 5px 16px; display: inline-block; margin-bottom: 20px; }
+.cp-title { font-family: Orbitron, monospace; font-size: clamp(1.6rem,4vw,2.8rem); font-weight: 900; background: linear-gradient(135deg,#e2e8f0,#94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; margin-bottom: 14px; }
+.cp-sub   { font-family: Rajdhani, sans-serif; font-size: 1.1rem; color: var(--text-dim); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+.cp-section { margin-bottom: 48px; }
+.cp-section-title { font-family: Orbitron, monospace; font-size: .85rem; font-weight: 700; letter-spacing: .1em; color: var(--blue-glow); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.cp-section-title::before { content:''; display:inline-block; width:3px; height:18px; background:var(--blue); border-radius:2px; }
+.cp-body  { font-family: Rajdhani, sans-serif; font-size: 1.05rem; color: #94a3b8; line-height: 1.75; }
+.cp-body p { margin-bottom: 12px; }
+.cp-body strong { color: var(--text); font-weight: 600; }
+.cp-card  { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 14px; }
+.cp-card-title { font-family: Orbitron, monospace; font-size: .75rem; font-weight: 700; letter-spacing: .1em; color: var(--text); margin-bottom: 8px; }
+.cp-card-body  { font-family: Rajdhani, sans-serif; font-size: 1rem; color: #94a3b8; line-height: 1.6; }
+
+/* Tokenomics grid */
+.tknm-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 8px; }
+@media(max-width:480px){ .tknm-grid { grid-template-columns:1fr; } }
+.tknm-item { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.tknm-pct  { font-family: Orbitron, monospace; font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; }
+.tknm-label{ font-family: Rajdhani, sans-serif; font-size: .95rem; color: #94a3b8; }
+.tknm-pct.blue   { color: var(--blue-glow); }
+.tknm-pct.purple { color: var(--purple-glow); }
+.tknm-pct.green  { color: var(--green); }
+.tknm-pct.gold   { color: var(--gold); }
+
+/* Reward table */
+.reward-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.reward-table th { font-family: Orbitron, monospace; font-size: .65rem; letter-spacing: .1em; color: var(--text-dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+.reward-table td { font-family: Rajdhani, sans-serif; font-size: 1rem; color: var(--text); padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.reward-table tr:last-child td { border-bottom: none; }
+.reward-badge { display: inline-flex; align-items: center; gap: 6px; font-family: Orbitron, monospace; font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.reward-badge.gold   { color: var(--gold);   background: rgba(245,158,11,.12);  border: 1px solid rgba(245,158,11,.3); }
+.reward-badge.silver { color: #94a3b8;        background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.25); }
+.reward-badge.bronze { color: #c97c3a;        background: rgba(201,124,58,.1);   border: 1px solid rgba(201,124,58,.3); }
+
+/* Roadmap */
+.roadmap-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.rm-item { display: flex; gap: 18px; align-items: flex-start; }
+.rm-dot   { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); margin-top: 6px; flex-shrink: 0; box-shadow: 0 0 10px rgba(37,99,235,.5); }
+.rm-dot.done    { background: var(--green);  box-shadow: 0 0 10px rgba(16,185,129,.5); }
+.rm-dot.active  { background: var(--blue);   box-shadow: 0 0 10px rgba(37,99,235,.7); }
+.rm-dot.pending { background: #334155;        box-shadow: none; }
+.rm-content { flex: 1; }
+.rm-phase { font-family: Orbitron, monospace; font-size: .7rem; letter-spacing: .1em; color: var(--blue-glow); margin-bottom: 3px; }
+.rm-phase.done   { color: var(--green); }
+.rm-phase.pending{ color: var(--text-dim); }
+.rm-desc  { font-family: Rajdhani, sans-serif; font-size: .95rem; color: var(--text); }
+.rm-detail{ font-family: Rajdhani, sans-serif; font-size: .88rem; color: #64748b; margin-top: 2px; }
+
+/* FAQ accordion */
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-item { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.faq-q    { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; cursor: pointer; font-family: Orbitron, monospace; font-size: .75rem; font-weight: 700; letter-spacing: .05em; color: var(--text); transition: background .15s; gap: 12px; }
+.faq-q:hover { background: rgba(255,255,255,.03); }
+.faq-q svg { flex-shrink: 0; color: var(--text-dim); transition: transform .25s; }
+.faq-item.open .faq-q svg { transform: rotate(180deg); }
+.faq-a    { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+.faq-item.open .faq-a { max-height: 300px; }
+.faq-a-inner { padding: 0 22px 18px; font-family: Rajdhani, sans-serif; font-size: 1rem; color: #94a3b8; line-height: 1.65; }
+.faq-a-inner strong { color: var(--text); }
+
+/* Footer page links */
+.footer-page-links { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+.footer-page-link  { font-family: Orbitron, monospace; font-size: .65rem; letter-spacing: .1em; color: var(--text-dim); text-decoration: none; cursor: pointer; padding: 4px 0; border-bottom: 1px solid transparent; transition: all .2s; }
+.footer-page-link:hover { color: var(--text); border-bottom-color: rgba(37,99,235,.5); }
+.footer-copy { font-family: Rajdhani, sans-serif; font-size: .82rem; color: #475569; text-align: center; margin-top: 28px; }
+
 /* ── Notification permission popup ── */
 #notifPermPopup {
   position: fixed; top: 104px; left: 50%; transform: translateX(-50%);
@@ -579,6 +650,11 @@
         X
       </a>
     </div>
+    <div class="footer-page-links">
+      <span class="footer-page-link" onclick="goWhitepaper()">WHITEPAPER</span>
+      <span class="footer-page-link" onclick="goFaq()">FAQ</span>
+    </div>
+    <div class="footer-copy">© 2025 VeloxFi. All rights reserved. Not financial advice.</div>
   </div>
 
 </main>
@@ -681,6 +757,229 @@
     </div>
 
     <div id="bpResult" style="display:none"></div>
+  </div>
+</div>
+
+<!-- WHITEPAPER PAGE -->
+<div id="whitepaperPage" style="display:none">
+  <div class="cp-page">
+    <button class="cp-back" onclick="goHome()">← BACK TO ARENA</button>
+    <div class="cp-hero">
+      <div class="cp-tag">OFFICIAL DOCUMENT</div>
+      <div class="cp-title">VELOXFI WHITEPAPER</div>
+      <div class="cp-sub">The memecoin battle prediction platform built on Solana — earn real $BATTLE tokens for free.</div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">WHAT IS VELOXFI?</div>
+      <div class="cp-body">
+        <p>VeloxFi is a <strong>free-to-play memecoin battle prediction platform</strong> built on the Solana blockchain. Players select two of the most volatile memecoins from the top 10 by 24-hour price movement, choose a battle timeframe, and predict which coin will gain the highest percentage within that window.</p>
+        <p>No wallet required. No entry fee. No financial risk. VeloxFi is designed to be the most accessible on-chain prediction game in crypto — anyone can play, anyone can earn, and the best analysts rise to the top of the global leaderboard.</p>
+        <p>Correct predictions are rewarded with <strong>$BATTLE tokens</strong>, the native currency of the VeloxFi ecosystem. $BATTLE tokens will be tradeable on Solana once launched via pump.fun, giving skilled players a real financial reward for their market knowledge.</p>
+      </div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">HOW THE PREDICTION GAME WORKS</div>
+      <div class="cp-body">
+        <p>Every battle follows a simple, transparent process:</p>
+      </div>
+      <div class="cp-card">
+        <div class="cp-card-title">01 — SELECT YOUR COINS</div>
+        <div class="cp-card-body">Choose two memecoins from the live top-10 most volatile list, updated in real time using CoinGecko price data with Binance.US fallback to ensure maximum uptime.</div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-card-title">02 — PICK A TIMEFRAME</div>
+        <div class="cp-card-body">Choose your battle window: 5 minutes, 15 minutes, or 30 minutes. Longer battles carry higher risk but reward more $BATTLE tokens on a correct call.</div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-card-title">03 — PREDICT THE WINNER</div>
+        <div class="cp-card-body">Pick which coin you believe will gain the highest percentage by the end of the battle window. Entry prices are locked at the moment you confirm your pick.</div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-card-title">04 — BATTLE RESOLVES</div>
+        <div class="cp-card-body">When the timer expires, VeloxFi fetches the final prices and calculates percentage change from each coin's entry price. The coin with the higher percentage gain wins. Tied battles award no tokens.</div>
+      </div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">EARNING $BATTLE TOKENS</div>
+      <table class="reward-table">
+        <thead>
+          <tr><th>BATTLE TIMEFRAME</th><th>REWARD</th><th>DIFFICULTY</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 Minutes</td>
+            <td><span class="reward-badge bronze">⚔️ 1 $BATTLE</span></td>
+            <td>Fast &amp; frantic</td>
+          </tr>
+          <tr>
+            <td>15 Minutes</td>
+            <td><span class="reward-badge silver">⚔️ 2 $BATTLE</span></td>
+            <td>Balanced</td>
+          </tr>
+          <tr>
+            <td>30 Minutes</td>
+            <td><span class="reward-badge gold">⚔️ 3 $BATTLE</span></td>
+            <td>Strategic</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cp-body" style="margin-top:14px">
+        <p>Tokens are credited to your account instantly on a correct prediction. Your total is stored server-side and will be claimable on-chain once the $BATTLE token launches on pump.fun.</p>
+      </div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">$BATTLE TOKEN</div>
+      <div class="cp-body">
+        <p><strong>Total Supply: 1,000,000,000 $BATTLE</strong> — launched on <strong>pump.fun</strong> on Solana. Fixed supply. No minting after launch.</p>
+      </div>
+      <div class="tknm-grid">
+        <div class="tknm-item">
+          <div class="tknm-pct blue">60%</div>
+          <div class="tknm-label">Public Sale<br><span style="font-size:.82rem;color:#475569">600M tokens via pump.fun</span></div>
+        </div>
+        <div class="tknm-item">
+          <div class="tknm-pct purple">20%</div>
+          <div class="tknm-label">Platform Reserves<br><span style="font-size:.82rem;color:#475569">Battle rewards &amp; ecosystem growth</span></div>
+        </div>
+        <div class="tknm-item">
+          <div class="tknm-pct green">10%</div>
+          <div class="tknm-label">Community &amp; Marketing<br><span style="font-size:.82rem;color:#475569">Airdrops, campaigns, partnerships</span></div>
+        </div>
+        <div class="tknm-item">
+          <div class="tknm-pct gold">10%</div>
+          <div class="tknm-label">Dev Fund — Locked 1 Year<br><span style="font-size:.82rem;color:#475569">Vested on-chain, publicly verifiable</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">ROADMAP</div>
+      <div class="roadmap-list">
+        <div class="rm-item">
+          <div class="rm-dot done"></div>
+          <div class="rm-content">
+            <div class="rm-phase done">PHASE 1 — BUILD ✓</div>
+            <div class="rm-desc">VeloxFi platform development</div>
+            <div class="rm-detail">Live price feeds, battle engine, leaderboard, account system, battle page with real-time charts</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-dot active"></div>
+          <div class="rm-content">
+            <div class="rm-phase">PHASE 2 — PRESALE</div>
+            <div class="rm-desc">Community building &amp; early access</div>
+            <div class="rm-detail">Public beta, Telegram &amp; Discord growth, whitelist for early $BATTLE holders, token airdrop for top leaderboard players</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-dot pending"></div>
+          <div class="rm-content">
+            <div class="rm-phase pending">PHASE 3 — LAUNCH</div>
+            <div class="rm-desc">$BATTLE token goes live on pump.fun</div>
+            <div class="rm-detail">Token launch, on-chain reward claiming, DEX liquidity, community airdrop for accumulated $BATTLE</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-dot pending"></div>
+          <div class="rm-content">
+            <div class="rm-phase pending">PHASE 4 — SCALE</div>
+            <div class="rm-desc">Platform expansion &amp; more battle types</div>
+            <div class="rm-detail">Tournaments, team battles, custom battle creation, more supported coins, mobile-optimized PWA</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-dot pending"></div>
+          <div class="rm-content">
+            <div class="rm-phase pending">PHASE 5 — GLOBAL EXPANSION</div>
+            <div class="rm-desc">Multi-chain support &amp; institutional partnerships</div>
+            <div class="rm-detail">Expand beyond Solana memecoins, CEX listings, API for third-party integrations, VeloxFi DAO governance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-section">
+      <div class="cp-section-title">RISK DISCLAIMER</div>
+      <div class="cp-body">
+        <p>VeloxFi is a free prediction game. <strong>No real funds are required or risked to play.</strong> $BATTLE tokens earned in-game are recorded on our platform and will be claimable once the token launches. The value of $BATTLE after launch is entirely market-determined and not guaranteed.</p>
+        <p>Cryptocurrency markets are highly volatile. VeloxFi is not a financial advisor and nothing on this platform constitutes financial advice. Not available for residents of the United States or other restricted jurisdictions.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ PAGE -->
+<div id="faqPage" style="display:none">
+  <div class="cp-page">
+    <button class="cp-back" onclick="goHome()">← BACK TO ARENA</button>
+    <div class="cp-hero">
+      <div class="cp-tag">HELP CENTER</div>
+      <div class="cp-title">FREQUENTLY ASKED QUESTIONS</div>
+      <div class="cp-sub">Everything you need to know about VeloxFi and the $BATTLE token.</div>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          What is VeloxFi?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">VeloxFi is a <strong>free-to-play memecoin battle prediction platform</strong> on Solana. You pick two memecoins, choose a timeframe (5, 15, or 30 minutes), predict which one will gain the most in price percentage, and earn <strong>$BATTLE tokens</strong> for correct predictions. No wallet, no entry fee, no financial risk — just skill and market knowledge.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          How do I earn $BATTLE tokens?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">Create a free account, then start a battle. Pick two memecoins and predict the winner. If your pick gains more % by the time the battle ends, you win tokens. Rewards are: <strong>1 token</strong> for a 5-minute win, <strong>2 tokens</strong> for 15 minutes, <strong>3 tokens</strong> for 30 minutes. Tokens are tracked server-side and will be claimable on-chain after the $BATTLE token launches.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          Are $BATTLE tokens real crypto?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">Not yet — but they will be. $BATTLE tokens are currently tracked in your VeloxFi account as you earn them. Once the token officially launches on <strong>pump.fun</strong> on Solana, you'll be able to claim your accumulated tokens on-chain and trade them freely. The total supply is fixed at <strong>1 billion $BATTLE</strong> with no minting after launch.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          Is it free to play?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner"><strong>100% free.</strong> You do not need a crypto wallet, Solana SOL, or any payment to play VeloxFi. Just create a free account with a username, email, and password. There are no premium tiers, no paid battles, and no hidden costs. Everyone earns $BATTLE purely through skill.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          How are winners determined?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">When your battle timer expires, VeloxFi fetches the live price for both coins and calculates the <strong>percentage change</strong> from each coin's entry price (the price at the moment you confirmed your pick). The coin with the <strong>higher percentage gain</strong> wins the battle. If both coins move exactly the same %, the battle is a draw and no tokens are awarded.</div></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          When will $BATTLE launch on pump.fun?
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner">The $BATTLE token launch is planned for <strong>Phase 3</strong> of our roadmap, following the community presale period. Join our <a href="https://t.me/VeloxFiOfficial" target="_blank" style="color:var(--blue-glow)">Telegram</a> and <a href="https://discord.gg/u2UhxuTd" target="_blank" style="color:var(--purple-glow)">Discord</a> for real-time announcements. Players who have accumulated $BATTLE tokens before launch will be among the first to claim on-chain.</div></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:56px;">
+      <div style="font-family:Rajdhani,sans-serif; font-size:.95rem; color:#475569; margin-bottom:16px;">Still have questions? Join the community.</div>
+      <div class="social-links">
+        <a class="social-btn tg" href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          TELEGRAM
+        </a>
+        <a class="social-btn dc" href="https://discord.gg/u2UhxuTd" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          DISCORD
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -884,15 +1183,58 @@ function getBattleParams() {
 
 function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
 
-function initRouter() {
-  if (!isBattlePage()) return;
-  const {coinAId, coinBId, time} = getBattleParams();
-  document.getElementById('mainPage').style.display = 'none';
-  document.getElementById('battlePage').style.display = 'block';
-  initBattlePage(coinAId, coinBId, time);
+function _showOnlyPage(id) {
+  ['mainPage','battlePage','whitepaperPage','faqPage'].forEach(p => {
+    const el = document.getElementById(p);
+    if (el) el.style.display = p === id ? 'block' : 'none';
+  });
 }
 
-function goHome() { window.location.href = window.location.pathname; }
+function initRouter() {
+  const hash = window.location.hash;
+  if (isBattlePage()) {
+    const {coinAId, coinBId, time} = getBattleParams();
+    _showOnlyPage('battlePage');
+    initBattlePage(coinAId, coinBId, time);
+  } else if (hash === '#whitepaper') {
+    _showOnlyPage('whitepaperPage');
+    window.scrollTo(0,0);
+  } else if (hash === '#faq') {
+    _showOnlyPage('faqPage');
+    window.scrollTo(0,0);
+  }
+}
+
+function goHome() {
+  window.location.hash = '';
+  _showOnlyPage('mainPage');
+  window.scrollTo(0,0);
+}
+
+function goWhitepaper() {
+  window.location.hash = 'whitepaper';
+  _showOnlyPage('whitepaperPage');
+  window.scrollTo(0,0);
+}
+
+function goFaq() {
+  window.location.hash = 'faq';
+  _showOnlyPage('faqPage');
+  window.scrollTo(0,0);
+}
+
+function toggleFaq(item) {
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash;
+  if (hash === '#whitepaper') { _showOnlyPage('whitepaperPage'); window.scrollTo(0,0); }
+  else if (hash === '#faq')   { _showOnlyPage('faqPage');        window.scrollTo(0,0); }
+  else if (!isBattlePage())   { _showOnlyPage('mainPage');       window.scrollTo(0,0); }
+});
 
 // ── Stats bar ─────────────────────────────────────
 function _getStatsToday() {
