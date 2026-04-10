@@ -1783,15 +1783,16 @@ function toggleTbCoin(id) {
 function renderTbPickGrid() {
   const grid = document.getElementById('tbPickGrid');
   if (!grid || !COINS.length) return;
-  grid.innerHTML = COINS.map(c => {
+  grid.innerHTML = COINS.filter(c => c && c.id).map(c => {
     const sel = tbSelectedCoins.includes(c.id);
     const p = prices[c.id];
     const chg = p?.change ?? p?.change24h;
-    const chgStr = chg !== undefined ? `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%` : '—';
+    const chgStr = chg !== undefined && chg !== null ? `${chg >= 0 ? '+' : ''}${Number(chg).toFixed(2)}%` : '—';
     const chgClass = chg > 0 ? 'up' : chg < 0 ? 'down' : '';
+    const sym = (c.symbol || c.id || '?').toUpperCase();
     return `<div class="tb-coin-btn ${sel ? 'selected' : ''}" onclick="toggleTbCoin('${c.id}')">
-      <div class="tb-cb-emoji">${c.emoji}</div>
-      <div class="tb-cb-name">${c.symbol.toUpperCase()}</div>
+      <div class="tb-cb-emoji">${c.emoji || '🪙'}</div>
+      <div class="tb-cb-name">${sym}</div>
       <div class="tb-cb-chg ${chgClass}">${chgStr}</div>
     </div>`;
   }).join('');
@@ -1961,7 +1962,7 @@ function renderTeamCoinRows(teamIds, containerId) {
       <div class="tbp-coin-left">
         <span class="tbp-coin-emoji">${coin.emoji}</span>
         <div>
-          <div class="tbp-coin-name">${coin.symbol.toUpperCase()}</div>
+          <div class="tbp-coin-name">${(coin.symbol || coin.id || '?').toUpperCase()}</div>
           <div class="tbp-coin-entry">${entryStr}</div>
         </div>
       </div>
@@ -2011,8 +2012,8 @@ function renderTeamBattlePage() {
   // Health bar labels
   const mkNameA = document.getElementById('tbMkNameA');
   const mkNameB = document.getElementById('tbMkNameB');
-  if (mkNameA) mkNameA.textContent = tbState.myTeam.map(id=>COINS.find(c=>c.id===id)?.symbol.toUpperCase()||id).join(' + ');
-  if (mkNameB) mkNameB.textContent = tbState.oppTeam.map(id=>COINS.find(c=>c.id===id)?.symbol.toUpperCase()||id).join(' + ');
+  if (mkNameA) mkNameA.textContent = tbState.myTeam.map(id=>{const c=COINS.find(x=>x.id===id);return (c?.symbol||c?.id||id).toUpperCase();}).join(' + ');
+  if (mkNameB) mkNameB.textContent = tbState.oppTeam.map(id=>{const c=COINS.find(x=>x.id===id);return (c?.symbol||c?.id||id).toUpperCase();}).join(' + ');
 }
 
 function updateTbHealthBar(avgMy, avgOpp) {
