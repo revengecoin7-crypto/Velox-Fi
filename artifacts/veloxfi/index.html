@@ -490,6 +490,44 @@
 .notif-perm-btns button:last-child   { background: transparent; border: 1px solid #334155; color: #94a3b8; }
 .notif-perm-btns button:hover { opacity: .85; }
 
+/* ── Profile page ────────────────────────────────── */
+.prof-header { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 36px; }
+.prof-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; font-family: Orbitron, monospace; font-size: 1.5rem; font-weight: 900; color: #fff; flex-shrink: 0; box-shadow: 0 0 20px rgba(37,99,235,.4); }
+.prof-info { flex: 1; min-width: 0; }
+.prof-username { font-family: Orbitron, monospace; font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+.prof-email { font-family: Rajdhani, sans-serif; font-size: .95rem; color: var(--text-dim); margin-bottom: 0; word-break: break-all; }
+.prof-member { font-family: Rajdhani, sans-serif; font-size: .82rem; color: #475569; margin-top: 4px; }
+.prof-balance-box { text-align: center; flex-shrink: 0; }
+.prof-balance-val { font-family: Orbitron, monospace; font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 4px; }
+.prof-balance-label { font-family: Orbitron, monospace; font-size: .6rem; letter-spacing: .15em; color: var(--text-dim); }
+
+.prof-stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 36px; }
+@media(max-width:640px){ .prof-stats-grid { grid-template-columns: repeat(2,1fr); } }
+.prof-stat { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; }
+.prof-stat-val { font-family: Orbitron, monospace; font-size: 1.25rem; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+.prof-stat-val.win  { color: var(--green); }
+.prof-stat-val.loss { color: var(--red); }
+.prof-stat-val.tokens { background: linear-gradient(135deg,var(--blue-glow),var(--purple-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.prof-stat-label { font-family: Rajdhani, sans-serif; font-size: .78rem; color: var(--text-dim); letter-spacing: .04em; }
+
+.prof-history-table { width: 100%; border-collapse: collapse; }
+.prof-history-table th { font-family: Orbitron, monospace; font-size: .58rem; letter-spacing: .1em; color: var(--text-dim); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.prof-history-table td { font-family: Rajdhani, sans-serif; font-size: .9rem; color: var(--text); padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+.prof-history-table tr:last-child td { border-bottom: none; }
+.prof-history-table tr:hover td { background: rgba(255,255,255,.02); }
+.ph-badge { display: inline-flex; align-items: center; gap: 5px; font-family: Orbitron, monospace; font-size: .62rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.ph-badge.win  { color: var(--green); background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); }
+.ph-badge.loss { color: var(--red);   background: rgba(239,68,68,.1);   border: 1px solid rgba(239,68,68,.3); }
+.ph-badge.draw { color: #94a3b8;      background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.25); }
+.ph-empty { text-align: center; padding: 48px; font-family: Rajdhani, sans-serif; color: var(--text-dim); font-size: .95rem; }
+.prof-loading { text-align: center; padding: 80px; font-family: Orbitron, monospace; font-size: .7rem; letter-spacing: .1em; color: var(--text-dim); }
+
+/* Nav profile button */
+.btn-nav-profile { font-family: Orbitron, monospace; font-size: .62rem; letter-spacing: .06em; font-weight: 700; color: var(--text-dim); background: transparent; border: 1px solid var(--border); border-radius: 7px; padding: 7px 12px; cursor: pointer; transition: all .2s; }
+.btn-nav-profile:hover { color: var(--text); border-color: rgba(37,99,235,.5); }
+
+@media(max-width:640px) { .prof-header { flex-direction: column; text-align: center; } .prof-balance-box { margin-top: 4px; } }
+
 /* ── Whitepaper download button ─────────────────── */
 .wp-download-btn {
   display: inline-flex; align-items: center; gap: 9px;
@@ -1132,6 +1170,14 @@
   </div>
 </div>
 
+<!-- PROFILE PAGE -->
+<div id="profilePage" style="display:none">
+  <div class="cp-page">
+    <button class="cp-back" onclick="goHome()">← BACK TO ARENA</button>
+    <div id="profileContent"><div class="prof-loading">LOADING PROFILE…</div></div>
+  </div>
+</div>
+
 <!-- BATTLE CONFIRM POPUP -->
 <div class="modal-overlay" id="battleConfirmOverlay" onclick="bcOverlayClick(event)">
   <div class="modal bc-modal">
@@ -1333,7 +1379,7 @@ function getBattleParams() {
 function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
 
 function _showOnlyPage(id) {
-  ['mainPage','battlePage','whitepaperPage','faqPage'].forEach(p => {
+  ['mainPage','battlePage','whitepaperPage','faqPage','profilePage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -1350,6 +1396,11 @@ function initRouter() {
     window.scrollTo(0,0);
   } else if (hash === '#faq') {
     _showOnlyPage('faqPage');
+    window.scrollTo(0,0);
+  } else if (hash === '#profile') {
+    if (!currentUser) { window.location.hash = ''; return; }
+    _showOnlyPage('profilePage');
+    loadProfile();
     window.scrollTo(0,0);
   }
 }
@@ -1372,16 +1423,108 @@ function goFaq() {
   window.scrollTo(0,0);
 }
 
+function goProfile() {
+  if (!currentUser) { openModal('login'); return; }
+  window.location.hash = 'profile';
+  _showOnlyPage('profilePage');
+  loadProfile();
+  window.scrollTo(0,0);
+}
+
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
 
+async function loadProfile() {
+  const el = document.getElementById('profileContent');
+  if (!el) return;
+  el.innerHTML = '<div class="prof-loading">LOADING PROFILE…</div>';
+  const session = getSession();
+  if (!session?.tok) { el.innerHTML = '<div class="prof-loading">Please log in to view your profile.</div>'; return; }
+  try {
+    const res = await fetch('/api/veloxfi/profile', { headers: { Authorization: `Bearer ${session.tok}` } });
+    if (!res.ok) throw new Error('fetch failed');
+    const d = await res.json();
+    const joined = d.createdAt ? new Date(d.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
+    const winPct = d.stats.winPct;
+    const pctColor = winPct >= 60 ? 'win' : winPct >= 40 ? '' : 'loss';
+
+    const histRows = d.battles.length === 0
+      ? `<tr><td colspan="6" class="ph-empty">No battles yet — start playing to build your history!</td></tr>`
+      : d.battles.map(b => {
+          const timeLabel = b.timeframe < 60 ? `${b.timeframe}s` : `${b.timeframe/60}m`;
+          const dtStr = new Date(b.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+          const badgeClass = b.result === 'win' ? 'win' : b.result === 'draw' ? 'draw' : 'loss';
+          const badgeText  = b.result === 'win' ? '⚔️ WON' : b.result === 'draw' ? '— DRAW' : '✗ LOST';
+          const tokStr = b.tokensEarned > 0 ? `+${b.tokensEarned} ⚔️` : '—';
+          return `<tr>
+            <td><span style="font-size:1.1em">${b.coinAEmoji||''}</span> ${b.coinAName} <span style="color:#475569">vs</span> <span style="font-size:1.1em">${b.coinBEmoji||''}</span> ${b.coinBName}</td>
+            <td style="color:var(--text-dim)">${timeLabel}</td>
+            <td><span class="ph-badge ${badgeClass}">${badgeText}</span></td>
+            <td style="color:var(--blue-glow);font-family:Orbitron,monospace;font-size:.78rem">${tokStr}</td>
+            <td style="color:#475569;font-size:.82rem">${dtStr}</td>
+          </tr>`;
+        }).join('');
+
+    el.innerHTML = `
+      <div class="prof-header">
+        <div class="prof-avatar">${d.username.charAt(0).toUpperCase()}</div>
+        <div class="prof-info">
+          <div class="prof-username">${d.username.toUpperCase()}</div>
+          <div class="prof-email">${d.email}</div>
+          ${joined ? `<div class="prof-member">Member since ${joined}</div>` : ''}
+        </div>
+        <div class="prof-balance-box">
+          <div class="prof-balance-val">${d.tokens.toLocaleString()}</div>
+          <div class="prof-balance-label">$BATTLE TOKENS</div>
+        </div>
+      </div>
+
+      <div class="cp-section-title" style="margin-bottom:16px">BATTLE STATISTICS</div>
+      <div class="prof-stats-grid">
+        <div class="prof-stat"><div class="prof-stat-val">${d.stats.totalBattles}</div><div class="prof-stat-label">BATTLES PLAYED</div></div>
+        <div class="prof-stat"><div class="prof-stat-val win">${d.stats.totalWins}</div><div class="prof-stat-label">BATTLES WON</div></div>
+        <div class="prof-stat"><div class="prof-stat-val loss">${d.stats.totalLosses}</div><div class="prof-stat-label">BATTLES LOST</div></div>
+        <div class="prof-stat"><div class="prof-stat-val ${pctColor}">${winPct}%</div><div class="prof-stat-label">WIN RATE</div></div>
+        <div class="prof-stat"><div class="prof-stat-val tokens">${d.stats.totalTokens}</div><div class="prof-stat-label">ALL-TIME TOKENS</div></div>
+      </div>
+
+      <div class="cp-section-title" style="margin-bottom:16px">BATTLE HISTORY</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        <table class="prof-history-table">
+          <thead><tr>
+            <th>COINS</th><th>TIME</th><th>RESULT</th><th>EARNED</th><th>DATE</th>
+          </tr></thead>
+          <tbody>${histRows}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    el.innerHTML = '<div class="prof-loading">Failed to load profile. Try again.</div>';
+  }
+}
+
+async function saveBattleHistory(payload) {
+  const session = getSession();
+  if (!session?.tok || !currentUser) return;
+  try {
+    await fetch('/api/veloxfi/battles', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.tok}` },
+      body: JSON.stringify(payload),
+    });
+  } catch(e) { /* silent — battle still resolves locally */ }
+}
+
 window.addEventListener('hashchange', () => {
   const hash = window.location.hash;
   if (hash === '#whitepaper') { _showOnlyPage('whitepaperPage'); window.scrollTo(0,0); }
   else if (hash === '#faq')   { _showOnlyPage('faqPage');        window.scrollTo(0,0); }
+  else if (hash === '#profile') {
+    if (!currentUser) { window.location.hash = ''; _showOnlyPage('mainPage'); window.scrollTo(0,0); return; }
+    _showOnlyPage('profilePage'); loadProfile(); window.scrollTo(0,0);
+  }
   else if (!isBattlePage())   { _showOnlyPage('mainPage');       window.scrollTo(0,0); }
 });
 
@@ -1517,6 +1660,7 @@ function renderNav() {
   const el = document.getElementById('navRight');
   if (currentUser) {
     el.innerHTML=`<div class="battle-balance">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</div>
+    <button class="btn-nav-profile" onclick="goProfile()">${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
   } else {
     el.innerHTML=`<button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
@@ -2110,6 +2254,20 @@ async function resolveBattlePage() {
     updateNavBalance();
     renderLeaderboard();
   }
+  const coinAObj = COINS.find(c=>c.id===bp.coinAId);
+  const coinBObj = COINS.find(c=>c.id===bp.coinBId);
+  saveBattleHistory({
+    coinAId: bp.coinAId, coinBId: bp.coinBId,
+    coinAName: coinAObj?.name||bp.coinAId, coinBName: coinBObj?.name||bp.coinBId,
+    coinAEmoji: coinAObj?.emoji||'', coinBEmoji: coinBObj?.emoji||'',
+    timeframe: bp.timeframe,
+    pickedWinner: bp.pickedWinner, actualWinner,
+    result: isCorrect ? 'win' : 'loss',
+    tokensEarned: reward,
+    entryPriceA: bp.entryPriceA, entryPriceB: bp.entryPriceB,
+    finalPriceA: pA, finalPriceB: pB,
+    changeA, changeB,
+  });
   const resultEl = document.getElementById('bpResult');
   resultEl.style.display = 'block';
   if (isCorrect) {
@@ -2169,8 +2327,8 @@ async function resolveBattle(battleId) {
   battle.finalChangeA=changeA; battle.finalChangeB=changeB;
   const cA=COINS.find(c=>c.id===battle.coinA); const cB=COINS.find(c=>c.id===battle.coinB);
   const winner = actualWinner===battle.coinA?cA:cB;
+  const battleReward = isCorrect ? (TIMEFRAME_REWARDS[battle.timeframe] || 1) : 0;
   if (isCorrect) {
-    const battleReward = TIMEFRAME_REWARDS[battle.timeframe] || 1;
     addBattleStat(battleReward);
     if (currentUser) {
       const session = getSession();
@@ -2187,6 +2345,18 @@ async function resolveBattle(battleId) {
     showToast(`❌ ${winner.emoji} ${winner.name} won the battle. Better luck next time!`,'error');
     notifyBattleResult(false, winner.name, 0);
   }
+  saveBattleHistory({
+    coinAId: battle.coinA, coinBId: battle.coinB,
+    coinAName: cA?.name||battle.coinA, coinBName: cB?.name||battle.coinB,
+    coinAEmoji: cA?.emoji||'', coinBEmoji: cB?.emoji||'',
+    timeframe: battle.timeframe,
+    pickedWinner: battle.pickedWinner, actualWinner,
+    result: isCorrect ? 'win' : 'loss',
+    tokensEarned: battleReward,
+    entryPriceA: battle.entryPriceA, entryPriceB: battle.entryPriceB,
+    finalPriceA: pA, finalPriceB: pB,
+    changeA, changeB,
+  });
   renderActiveBattles();
   setTimeout(()=>{ activeBattles=activeBattles.filter(b=>b.id!==battleId); if(!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none'; renderActiveBattles(); },5000);
 }
