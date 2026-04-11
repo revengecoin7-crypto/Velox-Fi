@@ -143,6 +143,13 @@ router.get("/veloxfi/stats", async (_req, res) => {
       .from(veloxfiBattles)
       .where(gte(veloxfiBattles.createdAt, todayStart));
 
+    // All-time total tokens earned across all players
+    const [allTimeRow] = await db
+      .select({
+        totalEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
+      })
+      .from(veloxfiBattles);
+
     // Active now — count users with a non-null activeBattle whose endTime hasn't passed
     const [activeRow] = await db
       .select({ cnt: sql<number>`count(*)::int` })
@@ -153,9 +160,10 @@ router.get("/veloxfi/stats", async (_req, res) => {
       );
 
     res.json({
-      battlesToday: todayRow?.battlesToday ?? 0,
-      tokensToday:  todayRow?.tokensToday  ?? 0,
-      activeNow:    activeRow?.cnt         ?? 0,
+      battlesToday: todayRow?.battlesToday   ?? 0,
+      tokensToday:  todayRow?.tokensToday    ?? 0,
+      activeNow:    activeRow?.cnt           ?? 0,
+      totalEarned:  allTimeRow?.totalEarned  ?? 0,
     });
   } catch (e) {
     console.error("veloxfi/stats GET error:", e);

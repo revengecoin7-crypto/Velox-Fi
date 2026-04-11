@@ -73,6 +73,28 @@
   .sb-lbl { font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:600; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; }
   .sb-divider { width:1px; height:16px; background:var(--border); }
 
+  /* TOKEN SUPPLY BLOCK */
+  #tokenSupplyBlock { padding:18px 20px 0; max-width:900px; margin:0 auto; width:100%; box-sizing:border-box; }
+  .tsb-card { background:linear-gradient(135deg,rgba(245,158,11,0.06) 0%,rgba(5,8,15,0.9) 60%); border:1px solid rgba(245,158,11,0.22); border-radius:14px; padding:18px 24px 16px; }
+  .tsb-title { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(245,158,11,0.6); text-transform:uppercase; margin-bottom:14px; text-align:center; }
+  .tsb-nums { display:flex; justify-content:space-between; gap:8px; }
+  .tsb-num-block { flex:1; text-align:center; }
+  .tsb-num { font-family:'Orbitron',monospace; font-size:17px; font-weight:900; color:#f59e0b; letter-spacing:0.5px; line-height:1; display:block; }
+  .tsb-num.gold { color:#fbbf24; text-shadow:0 0 18px rgba(251,191,36,0.4); }
+  .tsb-num.dim  { color:rgba(245,158,11,0.55); }
+  .tsb-num-lbl { font-family:'Rajdhani',sans-serif; font-size:10px; font-weight:600; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-top:5px; display:block; }
+  .tsb-sep { width:1px; background:rgba(245,158,11,0.15); align-self:stretch; flex:0; }
+  .tsb-bar-wrap { margin-top:14px; }
+  .tsb-bar-bg { background:rgba(245,158,11,0.1); border-radius:99px; height:4px; overflow:hidden; position:relative; }
+  .tsb-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#b45309,#f59e0b,#fbbf24); transition:width 0.8s ease; min-width:2px; }
+  .tsb-bar-labels { display:flex; justify-content:space-between; margin-top:5px; }
+  .tsb-bar-lbl { font-family:'Rajdhani',sans-serif; font-size:9px; font-weight:600; letter-spacing:1px; color:rgba(245,158,11,0.45); }
+  @media(max-width:600px){
+    .tsb-num { font-size:13px; }
+    .tsb-card { padding:14px 14px 12px; }
+    .tsb-nums { gap:4px; }
+  }
+
   /* SOCIAL FOOTER */
   .social-footer { text-align:center; padding:32px 20px 48px; border-top:1px solid var(--border); margin-top:8px; }
   .social-footer-title { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:3px; color:var(--text-dim); margin-bottom:18px; }
@@ -1312,6 +1334,39 @@
     <div class="sb-item">
       <span class="sb-num" id="sbActive">—</span>
       <span class="sb-lbl">Active Now</span>
+    </div>
+  </div>
+
+  <!-- TOKEN SUPPLY BLOCK -->
+  <div id="tokenSupplyBlock">
+    <div class="tsb-card">
+      <div class="tsb-title">$BATTLE Token Distribution</div>
+      <div class="tsb-nums">
+        <div class="tsb-num-block">
+          <span class="tsb-num" id="tsbSupply">1,000,000,000</span>
+          <span class="tsb-num-lbl">Total Supply</span>
+        </div>
+        <div class="tsb-sep"></div>
+        <div class="tsb-num-block">
+          <span class="tsb-num gold" id="tsbEarned">—</span>
+          <span class="tsb-num-lbl">Earned by Players</span>
+        </div>
+        <div class="tsb-sep"></div>
+        <div class="tsb-num-block">
+          <span class="tsb-num dim" id="tsbRemaining">—</span>
+          <span class="tsb-num-lbl">Remaining Supply</span>
+        </div>
+      </div>
+      <div class="tsb-bar-wrap">
+        <div class="tsb-bar-bg">
+          <div class="tsb-bar-fill" id="tsbBarFill" style="width:0%"></div>
+        </div>
+        <div class="tsb-bar-labels">
+          <span class="tsb-bar-lbl">0%</span>
+          <span class="tsb-bar-lbl" id="tsbBarPct">0% distributed</span>
+          <span class="tsb-bar-lbl">100%</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3625,6 +3680,19 @@ async function fetchStatsBar() {
     if (bEl) bEl.textContent = Number(d.battlesToday).toLocaleString();
     if (tEl) tEl.textContent = Number(d.tokensToday).toLocaleString();
     if (aEl) aEl.textContent = Number(d.activeNow).toLocaleString();
+    // Token supply block
+    const SUPPLY = 1_000_000_000;
+    const earned    = Number(d.totalEarned ?? 0);
+    const remaining = SUPPLY - earned;
+    const pct       = Math.min((earned / SUPPLY) * 100, 100);
+    const eEl  = document.getElementById('tsbEarned');
+    const rEl  = document.getElementById('tsbRemaining');
+    const fill = document.getElementById('tsbBarFill');
+    const pctEl= document.getElementById('tsbBarPct');
+    if (eEl)   eEl.textContent  = earned.toLocaleString();
+    if (rEl)   rEl.textContent  = remaining.toLocaleString();
+    if (fill)  fill.style.width = pct.toFixed(4) + '%';
+    if (pctEl) pctEl.textContent= pct.toFixed(4) + '% distributed';
   } catch {}
 }
 
