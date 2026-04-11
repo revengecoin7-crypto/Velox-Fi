@@ -2081,7 +2081,7 @@ function clearSession()           { localStorage.removeItem('vx_session'); }
   const protocol  = window.location.protocol;
   const inIframe  = window !== window.top;
   const perm      = supported ? Notification.permission : 'N/A';
-  console.log('[VeloxFi Notif] Diagnostics:', { supported, protocol, inIframe, permission: perm, dismissed: !!localStorage.getItem('vx_notif_dismissed') });
+  console.log('[VeloxFi Notif] Diagnostics:', { supported, protocol, inIframe, permission: perm, dismissed: !!sessionStorage.getItem('vx_notif_dismissed') });
   if (!supported)             console.warn('[VeloxFi Notif] Notification API NOT supported in this browser/context');
   if (protocol !== 'https:')  console.warn('[VeloxFi Notif] Protocol is', protocol, '— notifications require HTTPS');
   if (inIframe)               console.warn('[VeloxFi Notif] Running inside an iframe — browsers may block Notification.requestPermission() from cross-origin iframes. Open the app in its own tab to test notifications.');
@@ -2843,8 +2843,6 @@ async function resolveTeamBattle() {
   const isDraw  = (avgMy !== null && avgOpp !== null) ? avgMy === avgOpp : false;
   const reward  = isWin ? (TB_REWARDS[tbState.timeframe] || 2) : 0;
 
-  addBattleStat(reward);
-
   if (isWin && currentUser) {
     const session = getSession();
     try {
@@ -2858,7 +2856,7 @@ async function resolveTeamBattle() {
     updateNavBalance();
   }
 
-  // Save to history
+  // Save to history and refresh real DB stats
   if (currentUser && !isDraw) {
     const myNames  = tbState.myTeam.map(id=>{const c=COINS.find(x=>x.id===id);return c?`${c.emoji} ${c.name}`:id;}).join(', ');
     const oppNames = tbState.oppTeam.map(id=>{const c=COINS.find(x=>x.id===id);return c?`${c.emoji} ${c.name}`:id;}).join(', ');
@@ -2877,6 +2875,7 @@ async function resolveTeamBattle() {
       finalPriceB: prices[tbState.oppTeam[0]]?.price || 0,
       changeA: avgMy  || 0, changeB: avgOpp || 0,
     });
+    fetchStatsBar();
   }
 
   const fmtAvg = v => v !== null ? `${v >= 0 ? '+' : ''}${v.toFixed(3)}%` : '—';
@@ -2905,38 +2904,7 @@ async function resolveTeamBattle() {
   }
 }
 
-// ── Stats bar ─────────────────────────────────────
-function _getStatsToday() {
-  const today = new Date().toISOString().slice(0, 10);
-  try {
-    const raw = JSON.parse(localStorage.getItem('vx_stats') || '{}');
-    if (raw.date !== today) return { date: today, battles: 47, tokens: 89 };
-    return raw;
-  } catch { return { date: today, battles: 47, tokens: 89 }; }
-}
-function _saveStatsToday(s) { localStorage.setItem('vx_stats', JSON.stringify(s)); }
-function addBattleStat(tokensEarned) {
-  const s = _getStatsToday();
-  s.battles++;
-  s.tokens += (tokensEarned || 0);
-  _saveStatsToday(s);
-  refreshStatsBar();
-}
-let _activePlayers = Math.floor(Math.random() * 36) + 12;
-function refreshStatsBar() {
-  const s = _getStatsToday();
-  const el = (id) => document.getElementById(id);
-  if (el('sbBattles')) el('sbBattles').textContent = s.battles;
-  if (el('sbTokens'))  el('sbTokens').textContent  = s.tokens;
-  if (el('sbActive'))  el('sbActive').textContent  = _activePlayers;
-}
-function _tickActivePlayers() {
-  _activePlayers = Math.max(12, Math.min(47, _activePlayers + Math.floor(Math.random() * 5) - 2));
-  const el = document.getElementById('sbActive');
-  if (el) el.textContent = _activePlayers;
-}
-refreshStatsBar();
-setInterval(_tickActivePlayers, 30000);
+// Stats bar values come entirely from the server — see fetchStatsBar() below.
 
 // ── Modal ────────────────────────────────────────
 function openModal(tab='register', customTitle, customSub) {
@@ -2977,7 +2945,7 @@ async function handleRegister() {
   const email      = document.getElementById('regEmail').value.trim().toLowerCase();
   const password   = document.getElementById('regPassword').value;
   const err        = document.getElementById('registerError');
-  const referredBy = localStorage.getItem('vfxRef') || undefined;
+  const referredBy = sessionStorage.getItem('vfxRef') || undefined;
   if (username.length<3)               return showErr(err,'Username must be at least 3 characters.');
   if (!/^[a-z0-9_]+$/.test(username)) return showErr(err,'Username: only letters, numbers, underscores.');
   if (!email.includes('@'))            return showErr(err,'Enter a valid email address.');
@@ -2992,7 +2960,7 @@ async function handleRegister() {
     } else {
       showToast('✅ Account created! Welcome to the arena!','success');
     }
-    localStorage.removeItem('vfxRef');
+    sessionStorage.removeItem('vfxRef');
     document.getElementById('refBanner').style.display = 'none';
     afterLogin(data);
   } catch (e) { showErr(err,'Network error. Please try again.'); }
@@ -3973,7 +3941,6 @@ async function resolveBattlePage() {
   renderBattlePage();
 
   const reward = isCorrect ? (TIMEFRAME_REWARDS[bp.timeframe] || 1) : 0;
-  addBattleStat(reward);
   if (isCorrect && currentUser) {
     const session = getSession();
     try {
@@ -4060,8 +4027,8 @@ async function resolveBattle(battleId) {
   const cA=COINS.find(c=>c.id===battle.coinA); const cB=COINS.find(c=>c.id===battle.coinB);
   const winner = actualWinner===battle.coinA?cA:cB;
   const battleReward = isCorrect ? (TIMEFRAME_REWARDS[battle.timeframe] || 1) : 0;
+  fetchStatsBar();
   if (isCorrect) {
-    addBattleStat(battleReward);
     if (currentUser) {
       const session = getSession();
       try {
@@ -4226,9 +4193,9 @@ function checkRefParam() {
   const ref = params.get('ref');
   if (ref && ref.trim()) {
     const clean = ref.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-    if (clean) localStorage.setItem('vfxRef', clean);
+    if (clean) sessionStorage.setItem('vfxRef', clean);
   }
-  const stored = localStorage.getItem('vfxRef');
+  const stored = sessionStorage.getItem('vfxRef');
   if (stored) {
     document.getElementById('refBannerUser').textContent = stored;
     document.getElementById('refBanner').style.display = 'block';

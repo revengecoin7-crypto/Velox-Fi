@@ -99,15 +99,11 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
     const totalTokens  = stats?.totalTokens  || 0;
     const winPct       = totalBattles > 0 ? Math.round((totalWins / totalBattles) * 100) : 0;
 
-    // Parse activeBattle JSON safely
+    // Parse activeBattle JSON safely — return it even if expired so the
+    // client's resolveFromServer() can handle it (save history, award tokens).
     let activeBattle: object | null = null;
     if (user.activeBattle) {
       try { activeBattle = JSON.parse(user.activeBattle); } catch {}
-    }
-    // If battle endTime has passed, clear it
-    if (activeBattle && (activeBattle as any).endTime && (activeBattle as any).endTime < Date.now()) {
-      activeBattle = null;
-      await db.update(veloxfiUsers).set({ activeBattle: null }).where(eq(veloxfiUsers.username, user.username));
     }
 
     res.json({
