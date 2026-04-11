@@ -3275,10 +3275,47 @@ async function initBattlePage(coinAId, coinBId, time) {
   if (cA && cB) initBattleCharts(cA, cB);
 
   if (currentUser) {
-    bp.entryPriceA = prices[coinAId]?.price || null;
-    bp.entryPriceB = prices[coinBId]?.price || null;
-    renderBattlePage();
-    document.getElementById('bpPickPrompt').style.display = 'block';
+    // Check if this is a resume from goToActiveBattle()
+    let resumed = false;
+    try {
+      const resumeRaw = sessionStorage.getItem('veloxfi_resume_battle');
+      if (resumeRaw) {
+        const ab = JSON.parse(resumeRaw);
+        if (ab.coinAId === coinAId && ab.coinBId === coinBId && ab.endTime > Date.now()) {
+          sessionStorage.removeItem('veloxfi_resume_battle');
+          _activeBattle = ab;
+          bp.pickedWinner = ab.pickedWinner;
+          bp.entryPriceA  = ab.entryPriceA || prices[coinAId]?.price || null;
+          bp.entryPriceB  = ab.entryPriceB || prices[coinBId]?.price || null;
+          bp.endTime      = ab.endTime;
+          bp.state        = 'in-progress';
+          document.getElementById('bpPickPrompt').style.display = 'none';
+          const statusEl = document.getElementById('bpStatusTag');
+          if (statusEl) { statusEl.className = 'bp-status-tag running'; statusEl.textContent = 'LIVE'; }
+          renderBattlePage();
+          // Start the countdown
+          if (bp.timer) clearInterval(bp.timer);
+          bp.timer = setInterval(() => {
+            const remaining = Math.max(0, bp.endTime - Date.now());
+            const m = Math.floor(remaining / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            const tv = document.getElementById('bpTimerVal');
+            if (tv) tv.textContent = `${m}:${String(s).padStart(2, '0')}`;
+            if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
+          }, 1000);
+          resumed = true;
+        } else {
+          sessionStorage.removeItem('veloxfi_resume_battle');
+        }
+      }
+    } catch(e) { sessionStorage.removeItem('veloxfi_resume_battle'); }
+
+    if (!resumed) {
+      bp.entryPriceA = prices[coinAId]?.price || null;
+      bp.entryPriceB = prices[coinBId]?.price || null;
+      renderBattlePage();
+      document.getElementById('bpPickPrompt').style.display = 'block';
+    }
   } else {
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -3287,7 +3324,7 @@ async function initBattlePage(coinAId, coinBId, time) {
     });
   }
 
-  // 10s price refresh (only on battle page)
+  // price refresh (only on battle page)
   if (bpPriceInterval) clearInterval(bpPriceInterval);
   bpPriceInterval = setInterval(fetchBattlePagePrices, 15000);
   setInterval(fetchPrices, 30000);
@@ -3693,7 +3730,7 @@ function showHomeLiveBattleCard(ab) {
     }
   }
   tickTimer();
-  _hlcTimerInterval = setInterval(tickTimer, 500);
+  _hlcTimerInterval = setInterval(tickTimer, 1000);
 
   // Live price polling
   if (_hlcPriceInterval) clearInterval(_hlcPriceInterval);
@@ -3766,52 +3803,13 @@ function goToActiveBattle() {
     showToast('Your battle has already ended.', 'info');
     return;
   }
-  // Stop home card polling (battle page has its own)
+  // Stop home card intervals — battle page will handle its own
   if (_hlcTimerInterval) { clearInterval(_hlcTimerInterval); _hlcTimerInterval = null; }
   if (_hlcPriceInterval) { clearInterval(_hlcPriceInterval); _hlcPriceInterval = null; }
-
-  // Restore bp state
-  bp.coinAId      = ab.coinAId;
-  bp.coinBId      = ab.coinBId;
-  bp.timeframe    = ab.timeframe;
-  bp.pickedWinner = ab.pickedWinner;
-  bp.entryPriceA  = ab.entryPriceA;
-  bp.entryPriceB  = ab.entryPriceB;
-  bp.endTime      = ab.endTime;
-  bp.state        = 'in-progress';
-
-  // Ensure COINS has both coins
-  const ensureCoin = (coinId, name, symbol, emoji, image) => {
-    if (!COINS.find(c => c.id === coinId)) {
-      COINS.push({ id:coinId, name, fullName:name, symbol:symbol||name, ticker:'$'+(symbol||coinId).toUpperCase(), emoji:emoji||'🪙', image:image||'', cgId:coinId });
-    }
-  };
-  ensureCoin(ab.coinAId, ab.coinAName, ab.coinASymbol, ab.coinAEmoji, ab.coinAImage);
-  ensureCoin(ab.coinBId, ab.coinBName, ab.coinBSymbol, ab.coinBEmoji, ab.coinBImage);
-
-  showPage('battle');
-  renderBattlePage();
-
-  const statusEl = document.getElementById('bpStatusTag');
-  if (statusEl) { statusEl.className = 'bp-status-tag running'; statusEl.textContent = 'LIVE'; }
-  const pickPrompt = document.getElementById('bpPickPrompt');
-  if (pickPrompt) pickPrompt.style.display = 'none';
-
-  if (bp.timer) clearInterval(bp.timer);
-  bp.timer = setInterval(() => {
-    const remaining = Math.max(0, bp.endTime - Date.now());
-    const secs = Math.ceil(remaining / 1000);
-    const mins = Math.floor(secs / 60);
-    const tv = document.getElementById('bpTimerVal');
-    if (tv) tv.textContent = `${mins}:${String(secs % 60).padStart(2, '0')}`;
-    renderBattlePage();
-    if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
-  }, 500);
-
-  if (!bpPriceInterval) {
-    fetchBattlePagePrices();
-    bpPriceInterval = setInterval(fetchBattlePagePrices, 10_000);
-  }
+  // Persist resume state so initBattlePage can restore in-progress mode
+  sessionStorage.setItem('veloxfi_resume_battle', JSON.stringify(ab));
+  // Navigate to the battle URL — initRouter picks it up via URL params
+  window.location.href = `${window.location.pathname}?coinA=${encodeURIComponent(ab.coinAId)}&coinB=${encodeURIComponent(ab.coinBId)}&time=${ab.timeframe}`;
 }
 
 function checkAndShowActiveBattle(activeBattle) {
@@ -3867,12 +3865,13 @@ function startBattle_bp(coinId) {
 
   bp.timer = setInterval(()=>{
     const remaining = Math.max(0, bp.endTime - Date.now());
-    const secs = Math.ceil(remaining/1000);
-    const mins = Math.floor(secs/60);
-    document.getElementById('bpTimerVal').textContent = `${mins}:${String(secs%60).padStart(2,'0')}`;
+    const m = Math.floor(remaining / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    const tv = document.getElementById('bpTimerVal');
+    if (tv) tv.textContent = `${m}:${String(s).padStart(2,'0')}`;
     renderBattlePage();
     if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
-  }, 500);
+  }, 1000);
 }
 
 async function resolveBattlePage() {
