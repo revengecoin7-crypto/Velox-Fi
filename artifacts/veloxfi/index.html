@@ -3024,6 +3024,8 @@ function afterLogin(data) {
     document.getElementById('wolfSmallSection').style.display = 'block';
     document.getElementById('activeBattlesSection').style.display = activeBattles.length?'block':'none';
     renderLeaderboard();
+    // Check for any in-progress battle saved to DB from a previous session
+    checkActiveBattleNow();
   }
 }
 
@@ -3032,6 +3034,9 @@ function handleLogout() {
   activeBattles = [];
   Object.values(battleTimers).forEach(clearInterval);
   battleTimers = {};
+  _activeBattle = null;
+  _resolving = false;
+  hideHomeLiveBattleCard(); // clears timer + price intervals
   renderNav();
   if (isBattlePage()) { goHome(); return; }
   document.getElementById('heroSection').style.display = 'block';
@@ -3747,11 +3752,8 @@ function showHomeLiveBattleCard(ab) {
     if (rem <= 0) {
       clearInterval(_hlcTimerInterval); _hlcTimerInterval = null;
       if (_hlcPriceInterval) { clearInterval(_hlcPriceInterval); _hlcPriceInterval = null; }
-      // Give user a moment to see "0:00" then restore the builder
-      setTimeout(() => {
-        hideHomeLiveBattleCard();
-        clearActiveBattleFromDb();
-      }, 1800);
+      // Auto-resolve on the server: saves history, awards tokens, shows result
+      setTimeout(() => resolveFromServer(), 1800);
     }
   }
   tickTimer();
@@ -3823,9 +3825,8 @@ function goToActiveBattle() {
   const ab = _activeBattle;
   const rem = ab.endTime - Date.now();
   if (rem <= 0) {
-    hideHomeLiveBattleCard();
-    clearActiveBattleFromDb();
-    showToast('Your battle has already ended.', 'info');
+    // Auto-resolve — saves history, awards tokens, shows result
+    resolveFromServer();
     return;
   }
   // Stop home card intervals — battle page will handle its own
@@ -3837,10 +3838,58 @@ function goToActiveBattle() {
   window.location.href = `${window.location.pathname}?coinA=${encodeURIComponent(ab.coinAId)}&coinB=${encodeURIComponent(ab.coinBId)}&time=${ab.timeframe}`;
 }
 
+// ── Server-side auto-resolve ───────────────────────────────────────────────
+// Called whenever we detect an expired active battle (from home card timer,
+// checkActiveBattleNow, or any other detection point). Fetches final prices
+// server-side, saves battle to history, awards tokens, and shows the result.
+let _resolving = false; // guard against duplicate concurrent calls
+async function resolveFromServer() {
+  if (_resolving) return;
+  _resolving = true;
+  const sess = getSession();
+  if (!sess?.tok) { _resolving = false; return; }
+
+  // Hide the live card and clear local state first
+  _activeBattle = null;
+  hideHomeLiveBattleCard();
+
+  try {
+    const r = await fetch('/api/veloxfi/resolve-battle', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${sess.tok}`, 'Content-Type': 'application/json' },
+    });
+    if (!r.ok) {
+      // No battle to resolve (already gone) — just ensure UI is clean
+      _resolving = false; return;
+    }
+    const d = await r.json();
+
+    // Update local token balance
+    if (currentUser && typeof d.newTokens === 'number') {
+      currentUser.tokens = d.newTokens;
+      updateNavBalance();
+    }
+    renderLeaderboard();
+    fetchStatsBar();
+
+    const winnerName = `${d.isCorrect ? d.pickedWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji : d.actualWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji} ${d.isCorrect ? (d.pickedWinner === d.coinAId ? d.coinAName : d.coinBName) : (d.actualWinner === d.coinAId ? d.coinAName : d.coinBName)}`;
+
+    if (d.isCorrect) {
+      showToast(`🎉 CORRECT! ${winnerName} won! +${d.reward} $BATTLE TOKEN${d.reward!==1?'S':''}!`, 'success');
+      showBattleResultOverlay(true, d.reward);
+    } else {
+      showToast(`❌ ${winnerName} won. Better luck next time!`, 'error');
+      showBattleResultOverlay(false, 0);
+    }
+  } catch { /* network error — battle may already be resolved */ }
+  _resolving = false;
+}
+
 function checkAndShowActiveBattle(activeBattle) {
   if (!activeBattle) { hideHomeLiveBattleCard(); return; }
   const rem = activeBattle.endTime - Date.now();
-  if (rem <= 0) { clearActiveBattleFromDb(); return; }
+  // Battle expired — auto-resolve server-side (saves history + awards tokens)
+  if (rem <= 0) { resolveFromServer(); return; }
   _activeBattle = activeBattle;
   showHomeLiveBattleCard(activeBattle);
 }
@@ -4405,20 +4454,44 @@ async function init() {
 
   checkResetParam();
   checkRefParam();
+
+  // ── Immediately hide hero if we have a session token (before any network call)
+  // This eliminates the flash of the hero/CTA for returning logged-in users.
+  const earlySession = getSession();
+  if (!isBattlePage() && earlySession?.username && earlySession?.tok) {
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('wolfSmallSection').style.display = 'block';
+  }
+
   renderNav();
   const session = getSession();
   if (session?.username && session?.tok) {
     try {
-      const res = await fetch(`/api/veloxfi/user/${session.username}`, { headers:{'Authorization':`Bearer ${session.tok}`} });
+      // Use profile endpoint — it also returns activeBattle so we can resolve
+      // everything in a single round-trip instead of two sequential fetches.
+      const res = await fetch(`/api/veloxfi/profile?_t=${Date.now()}`, { headers:{'Authorization':`Bearer ${session.tok}`}, cache:'no-store' });
       if (res.ok) {
         const data = await res.json();
         currentUser = { username: data.username, tokens: data.tokens, email: data.email };
         renderNav();
         document.getElementById('refBanner').style.display = 'none';
+        // Surface any active battle found in the DB during this same fetch
+        if (!isBattlePage()) {
+          document.getElementById('heroSection').style.display = 'none';
+          document.getElementById('wolfSmallSection').style.display = 'block';
+          document.getElementById('activeBattlesSection').style.display = 'none';
+          checkAndShowActiveBattle(data.activeBattle || null);
+        }
       } else {
         clearSession();
+        // Session invalid — show hero for guests
+        document.getElementById('heroSection').style.display = 'block';
+        document.getElementById('wolfSmallSection').style.display = 'none';
       }
-    } catch { /* network error — stay logged out */ }
+    } catch {
+      // Network error — keep the optimistic hero-hide; still try active battle
+      if (!isBattlePage() && earlySession?.tok) checkActiveBattleNow();
+    }
   }
 
   initRouter();
@@ -4426,11 +4499,10 @@ async function init() {
   if (!isBattlePage()) {
     renderLeaderboard();
     if (currentUser) {
-      document.getElementById('heroSection').style.display='none';
-      document.getElementById('wolfSmallSection').style.display='block';
-      document.getElementById('activeBattlesSection').style.display='none';
-      // Immediately check DB for active battle — runs in parallel, shows card as soon as data arrives
-      checkActiveBattleNow();
+      // If active battle wasn't already surfaced in the profile fetch above,
+      // do a dedicated check now (covers the case where init() reached here
+      // without going through the profile branch, e.g. network error path).
+      if (!_activeBattle) checkActiveBattleNow();
     }
     // Fire stats + coins concurrently — do not await so they load in parallel
     fetchStatsBar();

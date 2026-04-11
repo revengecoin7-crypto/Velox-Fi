@@ -10,7 +10,7 @@ Single `index.html` SPA (served by Vite). Key features:
 - **Main page**: hero section, 2-column pick grids (5 coins each), timeframe selector (5/15/30 min with reward labels), selected coin display, start battle button, active battles tracker, leaderboard
 - **Battle page** (URL: `?coinA=<id>&coinB=<id>&time=<secs>`): MK-style health bar with `battle-bar.jpg` background + animated ⚡ bolt; two stat cards (price, % change since entry, 24h vol, market cap); Chart.js mini line charts (price history, updated every 10s); live countdown timer; result card with PLAY AGAIN
 - **Price data**: `/api/prices` returns USD price + 24h change + 24h vol + market cap (CoinGecko simple/price, 60s cache)
-- **Auth**: localStorage (`vfx_users`, `vfx_session`); free registration; $BATTLE token balance stored per user
+- **Auth**: PostgreSQL-backed session token (`veloxfiUsers.sessionToken`); `vx_session` in localStorage holds `{username, tok}`; validated on every page load via `/api/veloxfi/profile`
 - **TIMEFRAME_REWARDS**: `{300:1, 900:2, 1800:3}` (seconds → tokens)
 - **Referral system**: `?ref=username` URL param → saved to localStorage as `vfxRef` → referral banner shown → 3 bonus $BATTLE tokens for both parties on register; profile shows unique referral link + referral count + bonus tokens earned
 - **Admin dashboard**: `/admin` path; password `veloxfi2025`; shows stats cards, 7-day bar chart, last 20 battles, full user list; server-side password check on every API call
