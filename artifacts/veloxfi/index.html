@@ -1228,7 +1228,7 @@
 
 <!-- NAV -->
 <nav>
-  <div class="logo">VELOXFI</div>
+  <div class="logo" onclick="goHome()" style="cursor:pointer">VELOXFI</div>
   <div class="nav-right" id="navRight"></div>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -2243,6 +2243,9 @@ function goHome() {
   history.replaceState(null, '', window.location.pathname);
   _showOnlyPage('mainPage');
   window.scrollTo(0,0);
+  // Always re-check DB immediately when returning to the main page
+  if (currentUser) checkActiveBattleNow();
+  fetchStatsBar();
 }
 
 function goWhitepaper() {
@@ -2503,7 +2506,13 @@ window.addEventListener('hashchange', () => {
     if (!currentUser) { window.location.hash = ''; _showOnlyPage('mainPage'); window.scrollTo(0,0); return; }
     _showOnlyPage('profilePage'); loadProfile(); window.scrollTo(0,0);
   }
-  else if (!isBattlePage() && !isTeamBattlePage()) { _showOnlyPage('mainPage'); window.scrollTo(0,0); }
+  else if (!isBattlePage() && !isTeamBattlePage()) {
+    _showOnlyPage('mainPage');
+    window.scrollTo(0,0);
+    // Re-check DB immediately every time user returns to main page
+    if (currentUser) checkActiveBattleNow();
+    fetchStatsBar();
+  }
 });
 
 // ═══════════════════════════════════════════════════
@@ -3622,10 +3631,10 @@ function confirmBattleStart() {
   pendingPickCoinId = null;
 }
 
-// ── Stats bar (real DB data) ─────────────────────────────────────
+// ── Stats bar (real DB data, always fresh) ───────────────────────
 async function fetchStatsBar() {
   try {
-    const r = await fetch('/api/veloxfi/stats');
+    const r = await fetch(`/api/veloxfi/stats?_t=${Date.now()}`, { cache: 'no-store' });
     if (!r.ok) return;
     const d = await r.json();
     const bEl = document.getElementById('sbBattles');
@@ -3634,6 +3643,22 @@ async function fetchStatsBar() {
     if (bEl) bEl.textContent = Number(d.battlesToday).toLocaleString();
     if (tEl) tEl.textContent = Number(d.tokensToday).toLocaleString();
     if (aEl) aEl.textContent = Number(d.activeNow).toLocaleString();
+  } catch {}
+}
+
+// ── Active battle status — always checked from DB ────────────────
+async function checkActiveBattleNow() {
+  if (!currentUser) return;
+  const sess = getSession();
+  if (!sess?.tok) return;
+  try {
+    const r = await fetch(`/api/veloxfi/profile?_t=${Date.now()}`, {
+      headers: { Authorization: `Bearer ${sess.tok}` },
+      cache: 'no-store',
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    checkAndShowActiveBattle(d.activeBattle || null);
   } catch {}
 }
 
@@ -4404,17 +4429,12 @@ async function init() {
       document.getElementById('heroSection').style.display='none';
       document.getElementById('wolfSmallSection').style.display='block';
       document.getElementById('activeBattlesSection').style.display='none';
-      // Check for active battle in DB and show banner if running
-      const sess = getSession();
-      if (sess?.tok) {
-        fetch('/api/veloxfi/profile', { headers: { Authorization: `Bearer ${sess.tok}` } })
-          .then(r => r.ok ? r.json() : null)
-          .then(d => { if (d?.activeBattle) checkAndShowActiveBattle(d.activeBattle); })
-          .catch(() => {});
-      }
+      // Immediately check DB for active battle — runs in parallel, shows card as soon as data arrives
+      checkActiveBattleNow();
     }
-    fetchMemecoins();
+    // Fire stats + coins concurrently — do not await so they load in parallel
     fetchStatsBar();
+    fetchMemecoins();
     setInterval(fetchMemecoins, 5 * 60_000);
     setInterval(() => { if (activeBattles.length) fetchPrices(); }, 30_000);
     setInterval(updateRefreshLabel, 60_000);
