@@ -97,6 +97,17 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
     const totalTokens  = stats?.totalTokens  || 0;
     const winPct       = totalBattles > 0 ? Math.round((totalWins / totalBattles) * 100) : 0;
 
+    // Parse activeBattle JSON safely
+    let activeBattle: object | null = null;
+    if (user.activeBattle) {
+      try { activeBattle = JSON.parse(user.activeBattle); } catch {}
+    }
+    // If battle endTime has passed, clear it
+    if (activeBattle && (activeBattle as any).endTime && (activeBattle as any).endTime < Date.now()) {
+      activeBattle = null;
+      await db.update(veloxfiUsers).set({ activeBattle: null }).where(eq(veloxfiUsers.username, user.username));
+    }
+
     res.json({
       username:       user.username,
       email:          user.email,
@@ -107,11 +118,44 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       walletAddress:      user.walletAddress      ?? null,
       claimRequestedAt:   user.claimRequestedAt   ?? null,
       claimedAt:          user.claimedAt           ?? null,
+      activeBattle,
       stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
     });
   } catch (e) {
     console.error("veloxfi/profile GET error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ── Active battle persistence ────────────────────────────────────────────────
+
+router.put("/veloxfi/active-battle", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const battleData = req.body;
+    if (!battleData || !battleData.coinAId || !battleData.coinBId) {
+      res.status(400).json({ error: "Invalid battle data." }); return;
+    }
+    await db.update(veloxfiUsers)
+      .set({ activeBattle: JSON.stringify(battleData) })
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("veloxfi/active-battle PUT error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.delete("/veloxfi/active-battle", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    await db.update(veloxfiUsers)
+      .set({ activeBattle: null })
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("veloxfi/active-battle DELETE error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });

@@ -15,4 +15,5 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   walletAddress:      text("wallet_address"),
   claimRequestedAt:   timestamp("claim_requested_at"),
   claimedAt:          timestamp("claimed_at"),
+  activeBattle:       text("active_battle"), // JSON-serialized active battle state
 });

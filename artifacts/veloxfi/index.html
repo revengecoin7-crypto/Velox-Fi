@@ -729,6 +729,27 @@
 .ref-banner-close:hover { color:var(--text); }
 @keyframes fadeInDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
 
+/* ── Active Battle Banner ─────────────────────────── */
+.hab-inner { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(124,58,237,.10)); border:1px solid rgba(37,99,235,.45); border-radius:14px; padding:14px 18px; position:relative; overflow:hidden; }
+.hab-pulse { position:absolute; top:0; left:0; right:0; bottom:0; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(37,99,235,.6); animation:habPulse 2s ease-in-out infinite; pointer-events:none; }
+@keyframes habPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.hab-icon { font-size:22px; flex-shrink:0; }
+.hab-info { flex:1; min-width:0; }
+.hab-title { font-family:'Orbitron',monospace; font-size:10px; font-weight:900; letter-spacing:.14em; color:var(--text); margin-bottom:3px; }
+.hab-sub { font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hab-time { color:#f59e0b; font-weight:700; font-family:'Orbitron',monospace; font-size:11px; }
+.hab-btn { flex-shrink:0; font-family:'Orbitron',monospace; font-size:10px; font-weight:900; letter-spacing:.08em; padding:10px 16px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:9px; color:#fff; cursor:pointer; transition:opacity .2s; white-space:nowrap; }
+.hab-btn:hover { opacity:.85; }
+
+/* ── Profile active battle card ──────────────────── */
+.prof-ab-card { background:linear-gradient(135deg,rgba(37,99,235,.1),rgba(124,58,237,.08)); border:1px solid rgba(37,99,235,.35); border-radius:14px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:14px; }
+.prof-ab-icon { font-size:20px; flex-shrink:0; }
+.prof-ab-info { flex:1; min-width:0; }
+.prof-ab-label { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.14em; color:var(--blue-glow); margin-bottom:4px; }
+.prof-ab-coins { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prof-ab-time { font-family:'Rajdhani',sans-serif; font-size:12px; color:#f59e0b; margin-top:2px; }
+.prof-ab-btn { flex-shrink:0; font-family:'Orbitron',monospace; font-size:10px; font-weight:900; padding:9px 14px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:9px; color:#fff; cursor:pointer; white-space:nowrap; }
+
 .ref-section { background:rgba(37,99,235,.06); border:1px solid rgba(37,99,235,.2); border-radius:16px; padding:22px 24px; margin-bottom:28px; }
 .ref-section-title { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.18em; color:var(--blue-glow); margin-bottom:16px; }
 .ref-link-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
@@ -1210,6 +1231,19 @@
   <!-- WOLF — logged-in view (small, always centered above stats) -->
   <div id="wolfSmallSection">
     <img class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi Wolf">
+  </div>
+
+  <!-- ACTIVE BATTLE BANNER — shown when user has a running battle -->
+  <div id="homeActiveBattleBanner" style="display:none; padding:0 20px 14px">
+    <div class="hab-inner">
+      <div class="hab-pulse"></div>
+      <div class="hab-icon">⚔️</div>
+      <div class="hab-info">
+        <div class="hab-title">YOU HAVE AN ACTIVE BATTLE RUNNING</div>
+        <div class="hab-sub"><span id="habCoinNames">—</span> &nbsp;·&nbsp; <span id="habTimeLeft" class="hab-time">—</span></div>
+      </div>
+      <button class="hab-btn" onclick="goToActiveBattle()">BACK TO BATTLE →</button>
+    </div>
   </div>
 
   <!-- STATS BAR — inline sticky, appears below hero -->
@@ -2221,6 +2255,23 @@ async function loadProfile() {
           ${d.tokens > 0 && !d.walletAddress ? `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>` : ''}
         </div>
       </div>
+
+      ${d.activeBattle ? (() => {
+        const ab = d.activeBattle;
+        const remaining = Math.max(0, ab.endTime - Date.now());
+        const mins = Math.floor(remaining/60000);
+        const secs = Math.floor((remaining%60000)/1000);
+        const timeStr = remaining > 0 ? `${mins}:${String(secs).padStart(2,'0')} remaining` : 'Battle ending…';
+        return `<div class="prof-ab-card">
+          <div class="prof-ab-icon">⚔️</div>
+          <div class="prof-ab-info">
+            <div class="prof-ab-label">⚡ ACTIVE BATTLE</div>
+            <div class="prof-ab-coins">${(ab.coinAName||ab.coinAId||'?').toUpperCase()} VS ${(ab.coinBName||ab.coinBId||'?').toUpperCase()}</div>
+            <div class="prof-ab-time">${timeStr}</div>
+          </div>
+          <button class="prof-ab-btn" onclick="goToActiveBattle()">BACK TO BATTLE →</button>
+        </div>`;
+      })() : ''}
 
       <div class="ref-section">
         <div class="ref-section-title">🎁 YOUR REFERRAL LINK</div>
@@ -3467,12 +3518,146 @@ function confirmBattleStart() {
   pendingPickCoinId = null;
 }
 
+// ── Active battle persistence ────────────────────────────────────
+let _activeBattle = null; // local copy for banner countdown
+let _habTimer = null;
+
+async function saveActiveBattleToDb(data) {
+  const session = getSession(); if (!session?.tok) return;
+  try {
+    await fetch('/api/veloxfi/active-battle', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.tok}` },
+      body: JSON.stringify(data),
+    });
+  } catch {}
+}
+
+async function clearActiveBattleFromDb() {
+  const session = getSession(); if (!session?.tok) return;
+  _activeBattle = null;
+  hideHomeBattleBanner();
+  try {
+    await fetch('/api/veloxfi/active-battle', {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session.tok}` },
+    });
+  } catch {}
+}
+
+function showHomeBattleBanner(ab) {
+  const banner = document.getElementById('homeActiveBattleBanner');
+  if (!banner) return;
+  const coinNames = document.getElementById('habCoinNames');
+  if (coinNames) coinNames.textContent = `${(ab.coinAName||ab.coinAId||'?').toUpperCase()} VS ${(ab.coinBName||ab.coinBId||'?').toUpperCase()}`;
+  banner.style.display = 'block';
+  // Countdown ticker
+  if (_habTimer) clearInterval(_habTimer);
+  function tick() {
+    const el = document.getElementById('habTimeLeft');
+    if (!el || !ab.endTime) return;
+    const rem = Math.max(0, ab.endTime - Date.now());
+    if (rem <= 0) {
+      el.textContent = 'Battle ended';
+      clearInterval(_habTimer); _habTimer = null;
+      hideHomeBattleBanner();
+      clearActiveBattleFromDb();
+      return;
+    }
+    const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
+    el.textContent = `${m}:${String(s).padStart(2,'0')} remaining`;
+  }
+  tick();
+  _habTimer = setInterval(tick, 1000);
+}
+
+function hideHomeBattleBanner() {
+  const banner = document.getElementById('homeActiveBattleBanner');
+  if (banner) banner.style.display = 'none';
+  if (_habTimer) { clearInterval(_habTimer); _habTimer = null; }
+}
+
+function goToActiveBattle() {
+  if (!_activeBattle) return;
+  const ab = _activeBattle;
+  const rem = ab.endTime - Date.now();
+  if (rem <= 0) {
+    hideHomeBattleBanner();
+    clearActiveBattleFromDb();
+    showToast('Your battle has already ended.', 'info');
+    return;
+  }
+  // Restore bp state
+  bp.coinAId      = ab.coinAId;
+  bp.coinBId      = ab.coinBId;
+  bp.timeframe    = ab.timeframe;
+  bp.pickedWinner = ab.pickedWinner;
+  bp.entryPriceA  = ab.entryPriceA;
+  bp.entryPriceB  = ab.entryPriceB;
+  bp.endTime      = ab.endTime;
+  bp.state        = 'in-progress';
+  // Ensure COINS has both coins
+  const ensureCoin = (ab_coin) => {
+    if (!COINS.find(c=>c.id===ab_coin.coinId)) {
+      COINS.push({ id:ab_coin.coinId, name:ab_coin.name, fullName:ab_coin.name, symbol:ab_coin.symbol||ab_coin.name, ticker:'$'+(ab_coin.symbol||ab_coin.coinId).toUpperCase(), emoji:ab_coin.emoji||'🪙', image:ab_coin.image||'', cgId:ab_coin.coinId });
+    }
+  };
+  ensureCoin({ coinId:ab.coinAId, name:ab.coinAName, symbol:ab.coinASymbol, emoji:ab.coinAEmoji, image:ab.coinAImage });
+  ensureCoin({ coinId:ab.coinBId, name:ab.coinBName, symbol:ab.coinBSymbol, emoji:ab.coinBEmoji, image:ab.coinBImage });
+
+  showPage('battle');
+  renderBattlePage();
+
+  // Update status display
+  const statusEl = document.getElementById('bpStatusTag');
+  if (statusEl) { statusEl.className = 'bp-status-tag running'; statusEl.textContent = 'LIVE'; }
+  document.getElementById('bpPickPrompt').style.display = 'none';
+
+  // Restart timer
+  if (bp.timer) clearInterval(bp.timer);
+  bp.timer = setInterval(() => {
+    const remaining = Math.max(0, bp.endTime - Date.now());
+    const secs = Math.ceil(remaining/1000);
+    const mins = Math.floor(secs/60);
+    document.getElementById('bpTimerVal').textContent = `${mins}:${String(secs%60).padStart(2,'0')}`;
+    renderBattlePage();
+    if (remaining <= 0) { clearInterval(bp.timer); resolveBattlePage(); }
+  }, 500);
+
+  if (!bpPriceInterval) {
+    fetchBattlePagePrices();
+    bpPriceInterval = setInterval(fetchBattlePagePrices, 10_000);
+  }
+}
+
+function checkAndShowActiveBattle(activeBattle) {
+  if (!activeBattle) { hideHomeBattleBanner(); return; }
+  const rem = activeBattle.endTime - Date.now();
+  if (rem <= 0) { clearActiveBattleFromDb(); return; }
+  _activeBattle = activeBattle;
+  showHomeBattleBanner(activeBattle);
+}
+
 function startBattle_bp(coinId) {
   bp.pickedWinner = coinId;
   bp.state = 'in-progress';
   bp.entryPriceA = prices[bp.coinAId]?.price || bp.entryPriceA;
   bp.entryPriceB = prices[bp.coinBId]?.price || bp.entryPriceB;
   bp.endTime = Date.now() + bp.timeframe*1000;
+
+  const cA = COINS.find(c=>c.id===bp.coinAId), cB = COINS.find(c=>c.id===bp.coinBId);
+  const battleRecord = {
+    coinAId: bp.coinAId, coinBId: bp.coinBId,
+    coinAName: cA?.name||bp.coinAId, coinBName: cB?.name||bp.coinBId,
+    coinASymbol: cA?.symbol||'', coinBSymbol: cB?.symbol||'',
+    coinAEmoji: cA?.emoji||'', coinBEmoji: cB?.emoji||'',
+    coinAImage: cA?.image||'', coinBImage: cB?.image||'',
+    timeframe: bp.timeframe, pickedWinner: bp.pickedWinner,
+    entryPriceA: bp.entryPriceA, entryPriceB: bp.entryPriceB,
+    endTime: bp.endTime,
+  };
+  _activeBattle = battleRecord;
+  saveActiveBattleToDb(battleRecord);
 
   document.getElementById('bpPickPrompt').style.display = 'none';
 
@@ -3503,6 +3688,7 @@ function startBattle_bp(coinId) {
 
 async function resolveBattlePage() {
   bp.state = 'resolved';
+  clearActiveBattleFromDb(); // Remove from DB and hide banner
 
   const pA = prices[bp.coinAId]?.price || bp.entryPriceA;
   const pB = prices[bp.coinBId]?.price || bp.entryPriceB;
@@ -4030,6 +4216,14 @@ async function init() {
       document.getElementById('heroSection').style.display='none';
       document.getElementById('wolfSmallSection').style.display='block';
       document.getElementById('activeBattlesSection').style.display='none';
+      // Check for active battle in DB and show banner if running
+      const sess = getSession();
+      if (sess?.tok) {
+        fetch('/api/veloxfi/profile', { headers: { Authorization: `Bearer ${sess.tok}` } })
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d?.activeBattle) checkAndShowActiveBattle(d.activeBattle); })
+          .catch(() => {});
+      }
     }
     fetchMemecoins();
     setInterval(fetchMemecoins, 5 * 60_000);
