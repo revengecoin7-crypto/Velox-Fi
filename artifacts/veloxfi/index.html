@@ -200,6 +200,7 @@
   .battle-coin-side.winning { border-color:var(--green); background:rgba(16,185,129,0.1); }
   .battle-coin-side.losing { border-color:var(--red); background:rgba(239,68,68,0.07); opacity:0.7; }
   .b-logo { width:40px; height:40px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); }
+  .tb-coin-logo { width:28px; height:28px; border-radius:50%; object-fit:cover; background:rgba(255,255,255,0.05); flex-shrink:0; }
   .b-name { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; }
   .b-entry { font-size:11px; color:var(--text-dim); }
   .b-change { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; padding:3px 8px; border-radius:5px; }
@@ -407,6 +408,7 @@
   .mk-bar-row { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; }
   .mk-side { display:flex; align-items:center; gap:12px; }
   .mk-side-b { flex-direction:row-reverse; }
+  .mk-logo-wrap { display:flex; align-items:center; justify-content:center; width:54px; height:54px; flex-shrink:0; }
   .mk-logo { width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.25); flex-shrink:0; box-shadow:0 0 14px rgba(0,0,0,0.6); }
   .mk-side-info { display:flex; flex-direction:column; gap:3px; }
   .mk-info-right { text-align:right; }
@@ -1386,7 +1388,7 @@
       <div class="mk-overlay">
         <div class="mk-bar-row">
           <div class="mk-side">
-            <img id="mkLogoA" class="mk-logo" src="" alt="">
+            <span id="mkLogoWrapA" class="mk-logo-wrap"></span>
             <div class="mk-side-info">
               <div class="mk-name" id="mkNameA">—</div>
               <div class="mk-pct neutral" id="mkPctA">—</div>
@@ -1406,7 +1408,7 @@
               <div class="mk-name" id="mkNameB">—</div>
               <div class="mk-pct neutral" id="mkPctB">—</div>
             </div>
-            <img id="mkLogoB" class="mk-logo" src="" alt="">
+            <span id="mkLogoWrapB" class="mk-logo-wrap"></span>
           </div>
         </div>
       </div>
@@ -2614,7 +2616,7 @@ function renderTeamCoinRows(teamIds, containerId) {
     const entryStr = entry ? formatPrice(entry) : (current ? formatPrice(current) : '—');
     return `<div class="tbp-coin-row">
       <div class="tbp-coin-left">
-        <span class="tbp-coin-emoji">${coin.emoji}</span>
+        ${coinLogoHtml(coin, 'tb-coin-logo')}
         <div>
           <div class="tbp-coin-name">${(coin.symbol || coin.id || '?').toUpperCase()}</div>
           <div class="tbp-coin-entry">${entryStr}</div>
@@ -3045,11 +3047,13 @@ function formatPrice(p) {
 }
 
 // ── Coin logo helper ──────────────────────────────
+const _logoSizes = { 'bp-coin-logo':'44px', 'sel-logo':'26px', 'b-logo':'28px', 'mk-logo':'32px', 'bp-card-logo':'30px', 'tb-coin-logo':'24px', 'bc-coin-logo':'28px' };
 function coinLogoHtml(coin, className) {
+  const sz = _logoSizes[className] || '20px';
   if (coin && coin.image) {
-    return `<img src="${coin.image}" alt="${coin.name}" class="${className}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none;font-size:${className==='bp-coin-logo'?'44px':className==='sel-logo'?'26px':className==='b-logo'?'28px':'18px'}">${coin.emoji||'🪙'}</span>`;
+    return `<img src="${coin.image}" alt="${coin.name || ''}" class="${className}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none;font-size:${sz}">${coin.emoji||'🪙'}</span>`;
   }
-  return `<span style="font-size:${className==='bp-coin-logo'?'44px':className==='sel-logo'?'26px':className==='b-logo'?'28px':'18px'}">${coin ? coin.emoji||'🪙' : '🪙'}</span>`;
+  return `<span style="font-size:${sz}">${coin ? coin.emoji||'🪙' : '🪙'}</span>`;
 }
 
 // ── Main page: pick grids ─────────────────────────
@@ -3191,10 +3195,10 @@ function updateMKHealthBar() {
   const cA = COINS.find(c=>c.id===bp.coinAId);
   const cB = COINS.find(c=>c.id===bp.coinBId);
   if (!cA || !cB) return;
-  const lA = document.getElementById('mkLogoA'), lB = document.getElementById('mkLogoB');
+  const wA = document.getElementById('mkLogoWrapA'), wB = document.getElementById('mkLogoWrapB');
   const nA = document.getElementById('mkNameA'), nB = document.getElementById('mkNameB');
-  if (lA && cA.image && !lA.src.includes(cA.image)) lA.src = cA.image;
-  if (lB && cB.image && !lB.src.includes(cB.image)) lB.src = cB.image;
+  if (wA && wA.dataset.coin !== cA.id) { wA.innerHTML = coinLogoHtml(cA, 'mk-logo'); wA.dataset.coin = cA.id; }
+  if (wB && wB.dataset.coin !== cB.id) { wB.innerHTML = coinLogoHtml(cB, 'mk-logo'); wB.dataset.coin = cB.id; }
   if (nA) nA.textContent = cA.name;
   if (nB) nB.textContent = cB.name;
 
