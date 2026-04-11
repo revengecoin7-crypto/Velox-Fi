@@ -3518,7 +3518,22 @@ function confirmBattleStart() {
   pendingPickCoinId = null;
 }
 
-// ── Active battle persistence ────────────────────────────────────
+// ── Stats bar (real DB data) ─────────────────────────────────────
+async function fetchStatsBar() {
+  try {
+    const r = await fetch('/api/veloxfi/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    const bEl = document.getElementById('sbBattles');
+    const tEl = document.getElementById('sbTokens');
+    const aEl = document.getElementById('sbActive');
+    if (bEl) bEl.textContent = Number(d.battlesToday).toLocaleString();
+    if (tEl) tEl.textContent = Number(d.tokensToday).toLocaleString();
+    if (aEl) aEl.textContent = Number(d.activeNow).toLocaleString();
+  } catch {}
+}
+
+// ── Active battle persistence ─────────────────────────────────────
 let _activeBattle = null; // local copy for banner countdown
 let _habTimer = null;
 
@@ -4226,9 +4241,11 @@ async function init() {
       }
     }
     fetchMemecoins();
+    fetchStatsBar();
     setInterval(fetchMemecoins, 5 * 60_000);
     setInterval(() => { if (activeBattles.length) fetchPrices(); }, 30_000);
     setInterval(updateRefreshLabel, 60_000);
+    setInterval(fetchStatsBar, 30_000);
   }
 }
 init();

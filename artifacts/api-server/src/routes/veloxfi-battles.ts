@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiBattles } from "@workspace/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, gte, sum } from "drizzle-orm";
 
 const router = Router();
 
@@ -124,6 +124,43 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
     });
   } catch (e) {
     console.error("veloxfi/profile GET error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ── Homepage stats bar ───────────────────────────────────────────────────────
+
+router.get("/veloxfi/stats", async (_req, res) => {
+  try {
+    // Start of today in UTC
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+
+    // Battles today + tokens earned today — single query
+    const [todayRow] = await db
+      .select({
+        battlesToday: sql<number>`count(*)::int`,
+        tokensToday:  sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
+      })
+      .from(veloxfiBattles)
+      .where(gte(veloxfiBattles.createdAt, todayStart));
+
+    // Active now — count users with a non-null activeBattle whose endTime hasn't passed
+    const [activeRow] = await db
+      .select({ cnt: sql<number>`count(*)::int` })
+      .from(veloxfiUsers)
+      .where(
+        sql`${veloxfiUsers.activeBattle} IS NOT NULL
+            AND (${veloxfiUsers.activeBattle}::jsonb->>'endTime')::bigint > ${Date.now()}`
+      );
+
+    res.json({
+      battlesToday: todayRow?.battlesToday ?? 0,
+      tokensToday:  todayRow?.tokensToday  ?? 0,
+      activeNow:    activeRow?.cnt         ?? 0,
+    });
+  } catch (e) {
+    console.error("veloxfi/stats GET error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });
