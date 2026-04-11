@@ -731,7 +731,8 @@
 
 .ref-section { background:rgba(37,99,235,.06); border:1px solid rgba(37,99,235,.2); border-radius:16px; padding:22px 24px; margin-bottom:28px; }
 .ref-section-title { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:.18em; color:var(--blue-glow); margin-bottom:16px; }
-.ref-link-row { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+.ref-link-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.ref-reward-hint { font-family:'Rajdhani',sans-serif; font-size:13px; color:#34d399; background:rgba(52,211,153,.07); border:1px solid rgba(52,211,153,.18); border-radius:8px; padding:8px 12px; margin-bottom:14px; line-height:1.5; }
 .ref-link-box { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-family:'Orbitron',monospace; font-size:11px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ref-copy-btn { background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:8px; padding:10px 16px; color:#fff; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:1px; cursor:pointer; white-space:nowrap; transition:opacity .2s; flex-shrink:0; }
 .ref-copy-btn:hover { opacity:.85; }
@@ -1189,7 +1190,7 @@
 <div id="refBanner" style="display:none; padding:10px 20px 0">
   <div class="ref-banner">
     <div class="ref-banner-icon">🎁</div>
-    <div class="ref-banner-text">You were invited by <strong id="refBannerUser"></strong> — sign up to earn <strong>3 bonus $BATTLE tokens!</strong></div>
+    <div class="ref-banner-text">🎁 You were invited by <strong id="refBannerUser"></strong> — create a free account and you both get <strong>3 bonus $BATTLE tokens!</strong></div>
     <button class="ref-banner-close" onclick="dismissRefBanner()" aria-label="Dismiss">×</button>
   </div>
 </div>
@@ -2227,6 +2228,7 @@ async function loadProfile() {
           <div class="ref-link-box" id="refLinkBox">${location.origin}/?ref=${d.username}</div>
           <button class="ref-copy-btn" onclick="copyRefLink('${d.username}')">COPY LINK</button>
         </div>
+        <div class="ref-reward-hint">🎁 Share your link and you both earn <strong>3 bonus $BATTLE tokens</strong> when your friend signs up!</div>
         <div class="ref-stats-row">
           <div class="ref-stat"><div class="ref-stat-val">${d.referralCount || 0}</div><div class="ref-stat-label">FRIENDS REFERRED</div></div>
           <div class="ref-stat"><div class="ref-stat-val gold">${d.referralTokens || 0}</div><div class="ref-stat-label">BONUS TOKENS EARNED</div></div>
