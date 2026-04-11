@@ -2241,6 +2241,15 @@ function goHome() {
   if (tbInterval)      { clearInterval(tbInterval);      tbInterval = null; }
   if (tbPriceInterval) { clearInterval(tbPriceInterval); tbPriceInterval = null; }
   history.replaceState(null, '', window.location.pathname);
+  // Hide hero immediately before the page becomes visible — never flash CTA to logged-in users
+  const _s = currentUser || getSession();
+  if (_s) {
+    document.getElementById('heroSection').style.display     = 'none';
+    document.getElementById('wolfSmallSection').style.display = 'block';
+  } else {
+    document.getElementById('heroSection').style.display     = 'block';
+    document.getElementById('wolfSmallSection').style.display = 'none';
+  }
   _showOnlyPage('mainPage');
   window.scrollTo(0,0);
   // Always re-check DB immediately when returning to the main page
