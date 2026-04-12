@@ -1056,6 +1056,36 @@
 /* Health bar labels update for team mode */
 .mk-team-label { font-family: Orbitron, monospace; font-size: .55rem; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 2px; }
 
+/* ── Atmosphere effects ──────────────────────────── */
+#starfieldCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+#scanlines {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9500;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.04) 3px,
+    rgba(0,0,0,0.04) 4px
+  );
+  animation: scanlineShift 8s linear infinite;
+}
+@keyframes scanlineShift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 4px; }
+}
+.wolf-blink { transition: filter 0.08s ease !important; filter: brightness(0.12) drop-shadow(0 0 12px rgba(37,99,235,0.6)) !important; }
+.wolf-blink-flash { transition: filter 0.32s ease !important; filter: brightness(1.55) drop-shadow(0 0 36px rgba(37,99,235,1)) drop-shadow(0 0 72px rgba(37,99,235,0.4)) !important; }
+
 /* ── Whitepaper download button ─────────────────── */
 .wp-download-btn {
   display: inline-flex; align-items: center; gap: 9px;
@@ -1276,6 +1306,10 @@
 </head>
 <body>
 
+<!-- STARFIELD + SCANLINES -->
+<canvas id="starfieldCanvas" aria-hidden="true"></canvas>
+<div id="scanlines" aria-hidden="true"></div>
+
 <!-- TICKER -->
 <div class="ticker">
   <div class="ticker-track">
@@ -1407,7 +1441,7 @@
 <main>
   <!-- HERO — guests only -->
   <div class="hero" id="heroSection">
-    <img class="wolf-logo" src="/wolf.jpg" alt="VeloxFi Wolf">
+    <img id="wolfMain" class="wolf-logo" src="/wolf.jpg" alt="VeloxFi Wolf">
     <div class="unit-badge">UNIT-1 ONLINE</div>
     <div class="hero-title">MEMECOIN BATTLES.<br>PREDICT THE WINNER.</div>
     <div class="hero-sub">Pick two memecoins, choose a timeframe, and predict which one gains the most. Earn $BATTLE tokens for every correct prediction. 100% free.</div>
@@ -1417,7 +1451,7 @@
 
   <!-- WOLF — logged-in view (small, always centered above stats) -->
   <div id="wolfSmallSection">
-    <img class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi Wolf">
+    <img id="wolfSmall" class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi Wolf">
   </div>
 
   <!-- HOME LIVE BATTLE CARD — replaces game-area while a battle is running -->
@@ -5071,6 +5105,127 @@ async function init() {
   }
 }
 init();
+
+/* ═══════════════════════════════════════════════════
+   ATMOSPHERE EFFECTS
+   ─ Starfield  ·  Wolf eye blink
+═══════════════════════════════════════════════════ */
+
+// ── STARFIELD ────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('starfieldCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const COUNT = 130;
+  let W, H, stars = [], raf;
+
+  const PALETTE = [
+    'rgba(255,255,255,',  // white ×4 (most common)
+    'rgba(255,255,255,',
+    'rgba(255,255,255,',
+    'rgba(255,255,255,',
+    'rgba(147,197,253,',  // soft blue
+    'rgba(147,197,253,',
+    'rgba(192,167,250,',  // soft purple
+  ];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function makeStar(scatter) {
+    return {
+      x: Math.random() * (W || window.innerWidth),
+      y: scatter ? Math.random() * (H || window.innerHeight) : -Math.random() * 10,
+      r: 0.35 + Math.random() * 1.45,
+      vy: 0.055 + Math.random() * 0.21,
+      wAmp: Math.random() * 0.14,
+      wFreq: 0.18 + Math.random() * 0.45,
+      wOff: Math.random() * Math.PI * 2,
+      baseA: 0.12 + Math.random() * 0.52,
+      tAmp: 0.25 + Math.random() * 0.45,
+      tFreq: 0.35 + Math.random() * 1.1,
+      tOff: Math.random() * Math.PI * 2,
+      glow: Math.random() > 0.72,
+      color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
+    };
+  }
+
+  function init() {
+    resize();
+    stars = Array.from({ length: COUNT }, () => makeStar(true));
+  }
+
+  function frame(ts) {
+    raf = requestAnimationFrame(frame);
+    ctx.clearRect(0, 0, W, H);
+    const t = ts * 0.001;
+    for (const s of stars) {
+      const a = s.baseA * (1 - s.tAmp + s.tAmp * Math.sin(t * s.tFreq + s.tOff));
+      ctx.save();
+      if (s.glow) { ctx.shadowBlur = s.r * 5; ctx.shadowColor = s.color + '0.65)'; }
+      ctx.globalAlpha = Math.max(0, a);
+      ctx.fillStyle   = s.color + '1)';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      s.y += s.vy;
+      s.x += s.wAmp * Math.sin(t * s.wFreq + s.wOff);
+      if (s.y > H + 4) { Object.assign(s, makeStar(false)); }
+    }
+  }
+
+  window.addEventListener('resize', resize);
+  // Pause when tab is hidden to save CPU
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { cancelAnimationFrame(raf); }
+    else { raf = requestAnimationFrame(frame); }
+  });
+
+  init();
+  raf = requestAnimationFrame(frame);
+})();
+
+// ── WOLF EYE BLINK ───────────────────────────────
+(function() {
+  function getWolves() {
+    return ['wolfMain', 'wolfSmall']
+      .map(id => document.getElementById(id))
+      .filter(el => el && el.offsetParent !== null); // only visible ones
+  }
+
+  function blink() {
+    const wolves = getWolves();
+    // 1 — dim fast (blink close)
+    wolves.forEach(w => w.classList.add('wolf-blink'));
+    setTimeout(() => {
+      // 2 — flash open with blue pulse
+      wolves.forEach(w => {
+        w.classList.remove('wolf-blink');
+        w.classList.add('wolf-blink-flash');
+      });
+      setTimeout(() => {
+        // 3 — fade back to normal
+        wolves.forEach(w => {
+          w.classList.remove('wolf-blink-flash');
+          w.style.transition = 'filter 0.55s ease';
+          w.style.filter = '';
+          setTimeout(() => { w.style.transition = ''; w.style.filter = ''; }, 600);
+        });
+        schedule();
+      }, 520);
+    }, 110);
+  }
+
+  function schedule() {
+    setTimeout(blink, 3000 + Math.random() * 5000);
+  }
+
+  // Small delay on load so the page settles first
+  setTimeout(schedule, 2500);
+})();
 </script>
 </div><!-- /scroller -->
 
