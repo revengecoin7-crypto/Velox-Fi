@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiClaims } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 
@@ -93,6 +94,8 @@ router.post("/veloxfi/register", async (req, res) => {
           xp:             sql`${veloxfiUsers.xp} + ${REFERRAL_XP}`,
         })
         .where(eq(veloxfiUsers.username, validReferrer));
+      // Track mission progress for referrer (fire-and-forget, tokens already awarded above)
+      updateAndCheckMissions(validReferrer, { referrals: 1 }).catch(() => {});
     }
 
     const regXPInfo = getXPInfo(user.xp ?? 0);

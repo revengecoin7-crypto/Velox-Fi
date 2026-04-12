@@ -150,6 +150,30 @@
   .ach-toast-eyebrow { font-family:'Orbitron',monospace; font-size:8px; font-weight:700; letter-spacing:3px; color:var(--ach-color,var(--text-dim)); margin-bottom:3px; }
   .ach-toast-name { font-family:'Orbitron',monospace; font-size:12px; font-weight:900; color:#fff; margin-bottom:2px; }
   .ach-toast-desc { font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text-dim); }
+  /* MISSION TOASTS */
+  .mission-toast { --ach-color:#f59e0b; --ach-glow:rgba(245,158,11,0.35); }
+  /* DAILY MISSIONS SECTION */
+  .mission-section-title { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin:36px 0 16px; }
+  .missions-info { background:rgba(37,99,235,0.07); border:1px solid rgba(37,99,235,0.18); border-radius:14px; margin-bottom:16px; overflow:hidden; }
+  .missions-info .gamif-toggle { width:100%; background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:14px 18px; color:inherit; }
+  .missions-info .gamif-body { display:none; padding:4px 18px 18px; }
+  .missions-info.open .gamif-body { display:block; }
+  .missions-info.open .gamif-arrow { transform:rotate(180deg); }
+  .mission-cards { display:flex; flex-direction:column; gap:12px; margin-bottom:4px; }
+  .mission-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 18px; }
+  .mission-card.done { border-color:rgba(34,197,94,0.35); background:rgba(34,197,94,0.05); }
+  .mission-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:10px; }
+  .mission-card-left { display:flex; align-items:center; gap:10px; min-width:0; }
+  .mission-card-icon { font-size:1.5rem; flex-shrink:0; }
+  .mission-card-title { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; color:#fff; letter-spacing:0.5px; }
+  .mission-card-sub { font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text-dim); margin-top:1px; }
+  .mission-card-reward { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); border-radius:8px; padding:4px 10px; flex-shrink:0; white-space:nowrap; }
+  .mission-check { font-size:1.5rem; flex-shrink:0; }
+  .mission-bar-wrap { display:flex; align-items:center; gap:10px; }
+  .mission-bar-bg { flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; }
+  .mission-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--blue),var(--purple)); transition:width 0.5s ease; }
+  .mission-card.done .mission-bar-fill { background:linear-gradient(90deg,#22c55e,#16a34a); }
+  .mission-bar-label { font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text-dim); white-space:nowrap; flex-shrink:0; }
   @keyframes achSlideIn { from{opacity:0;transform:translateX(120%) scale(0.8)} to{opacity:1;transform:translateX(0) scale(1)} }
   @keyframes achSlideOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(120%) scale(0.8)} }
 
@@ -1591,6 +1615,12 @@
         <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
         <div class="hiw-desc">Gain XP, unlock achievements and climb the ranks from Rookie Wolf to Legend Wolf.</div>
       </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 05</div>
+        <span class="hiw-icon">📅</span>
+        <div class="hiw-step-title">COMPLETE DAILY MISSIONS</div>
+        <div class="hiw-desc">Earn bonus $BATTLE tokens every day by completing missions. Resets at midnight!</div>
+      </div>
     </div>
   </div>
 
@@ -2311,6 +2341,65 @@ function showAchievementToasts(ids) {
   });
 }
 
+// ── Daily mission definitions (frontend) ──────────
+const MISSION_DEFS_FE = [
+  { id:'m1', icon:'⚔️',  title:'Play 3 Battles',       sub:'Play any 3 battles today',            field:'battlesPlayed', target:3, rewardField:'m1Rewarded', reward:2 },
+  { id:'m2', icon:'💎', title:'Win a 30-Min Battle',   sub:'Win a 30-minute battle today',        field:'thirtyMinWins', target:1, rewardField:'m2Rewarded', reward:3 },
+  { id:'m3', icon:'🛡️', title:'Play a Team Battle',    sub:'Play any team battle today',          field:'teamBattles',   target:1, rewardField:'m3Rewarded', reward:1 },
+  { id:'m4', icon:'🎁', title:'Invite Someone',         sub:'A friend registers with your link',   field:'referrals',     target:1, rewardField:'m4Rewarded', reward:3 },
+];
+
+function buildMissionCardsHtml(missions) {
+  if (!missions) return '';
+  return MISSION_DEFS_FE.map(def => {
+    const progress = Math.min(missions[def.field] || 0, def.target);
+    const done     = missions[def.rewardField] === true;
+    const pct      = Math.round((progress / def.target) * 100);
+    const cardCls  = done ? 'mission-card done' : 'mission-card';
+    return `<div class="${cardCls}">
+      <div class="mission-card-header">
+        <div class="mission-card-left">
+          <span class="mission-card-icon">${def.icon}</span>
+          <div>
+            <div class="mission-card-title">${def.title}</div>
+            <div class="mission-card-sub">${def.sub}</div>
+          </div>
+        </div>
+        ${done ? '<span class="mission-check">✅</span>' : `<span class="mission-card-reward">+${def.reward} $BATTLE</span>`}
+      </div>
+      <div class="mission-bar-wrap">
+        <div class="mission-bar-bg"><div class="mission-bar-fill" style="width:${pct}%"></div></div>
+        <span class="mission-bar-label">${progress}/${def.target}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showMissionToasts(completedMissions) {
+  if (!completedMissions || completedMissions.length === 0) return;
+  const container = document.getElementById('achToastContainer');
+  completedMissions.forEach((m, i) => {
+    const def = MISSION_DEFS_FE.find(d => d.id === m.id);
+    const icon = def?.icon || '📅';
+    setTimeout(() => {
+      const toast = document.createElement('div');
+      toast.className = 'ach-toast mission-toast';
+      toast.innerHTML = `
+        <div class="ach-toast-emoji">${icon}</div>
+        <div class="ach-toast-body">
+          <div class="ach-toast-eyebrow">MISSION COMPLETE</div>
+          <div class="ach-toast-name">${m.name}</div>
+          <div class="ach-toast-desc">+${m.reward} $BATTLE bonus tokens awarded!</div>
+        </div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('ach-toast-out');
+        setTimeout(() => toast.remove(), 450);
+      }, 5500);
+    }, i * 700);
+  });
+}
+
 // ── Browser Notifications ─────────────────────────
 (function _diagNotif() {
   const supported = 'Notification' in window;
@@ -2643,6 +2732,33 @@ async function loadProfile() {
         </table>
       </div>
 
+      <div class="mission-section-title">DAILY MISSIONS</div>
+
+      <div class="missions-info" id="missionsInfo">
+        <button class="gamif-toggle" onclick="document.getElementById('missionsInfo').classList.toggle('open')">
+          <span class="gamif-qmark">?</span>
+          <span class="gamif-toggle-label">HOW DO DAILY MISSIONS WORK?</span>
+          <span class="gamif-arrow">▼</span>
+        </button>
+        <div class="gamif-body">
+          <div class="gamif-rows">
+            <div class="gamif-row"><span class="gamif-row-icon">🕛</span><span class="gamif-row-text">Missions <strong>reset every day at midnight UTC</strong>. A fresh set of 4 missions becomes available every 24 hours.</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">💰</span><span class="gamif-row-text">Completing missions earns <strong>bonus $BATTLE tokens</strong> on top of your normal battle rewards. Tokens are awarded instantly when a mission is completed.</span></div>
+          </div>
+          <div class="gamif-subtitle" style="margin-top:14px">Today's Missions</div>
+          <div class="gamif-rows">
+            <div class="gamif-row"><span class="gamif-row-icon">⚔️</span><span class="gamif-row-text"><strong>Play 3 Battles</strong> — earn +2 $BATTLE bonus tokens</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">💎</span><span class="gamif-row-text"><strong>Win a 30-Min Battle</strong> — earn +3 $BATTLE bonus tokens</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">🛡️</span><span class="gamif-row-text"><strong>Play a Team Battle</strong> — earn +1 $BATTLE bonus token</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">🎁</span><span class="gamif-row-text"><strong>Invite Someone</strong> — earn +3 $BATTLE bonus tokens when a friend registers with your referral link</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-cards">
+        ${buildMissionCardsHtml(d.missions)}
+      </div>
+
       <div class="ach-section-title">ACHIEVEMENTS</div>
 
       <div class="gamif-info" id="gamifInfo">
@@ -2823,6 +2939,11 @@ async function saveBattleHistory(payload) {
         renderNav();
         if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
         showAchievementToasts(d.newAchievements || []);
+        if (d.completedMissions && d.completedMissions.length > 0) {
+          const bonus = d.completedMissions.reduce((s, m) => s + (m.reward || 0), 0);
+          if (currentUser && bonus > 0) { currentUser.tokens += bonus; updateNavBalance(); }
+          showMissionToasts(d.completedMissions);
+        }
       }
     }
   } catch(e) { /* silent — battle still resolves locally */ }
@@ -4191,6 +4312,11 @@ async function resolveFromServer() {
     fetchStatsBar();
     if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
     showAchievementToasts(d.newAchievements || []);
+    if (d.completedMissions && d.completedMissions.length > 0) {
+      const bonus = d.completedMissions.reduce((s, m) => s + (m.reward || 0), 0);
+      if (currentUser && bonus > 0) { currentUser.tokens += bonus; updateNavBalance(); }
+      showMissionToasts(d.completedMissions);
+    }
 
     const winnerName = `${d.isCorrect ? d.pickedWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji : d.actualWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji} ${d.isCorrect ? (d.pickedWinner === d.coinAId ? d.coinAName : d.coinBName) : (d.actualWinner === d.coinAId ? d.coinAName : d.coinBName)}`;
 
@@ -4407,6 +4533,7 @@ async function resolveBattle(battleId) {
     entryPriceA: battle.entryPriceA, entryPriceB: battle.entryPriceB,
     finalPriceA: pA, finalPriceB: pB,
     changeA, changeB,
+    isTeamBattle: true,
   });
   renderActiveBattles();
   setTimeout(()=>{ activeBattles=activeBattles.filter(b=>b.id!==battleId); if(!activeBattles.length) document.getElementById('activeBattlesSection').style.display='none'; renderActiveBattles(); },5000);

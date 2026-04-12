@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiAchievements } from "@workspace/db/schema";
-import { eq, desc, sql, gte } from "drizzle-orm";
+import { veloxfiUsers, veloxfiBattles, veloxfiAchievements, veloxfiMissions } from "@workspace/db/schema";
+import { eq, desc, sql, gte, and } from "drizzle-orm";
 import { getSharedCoin, isSharedCacheUsable } from "../lib/coinCache";
 import { fetchFromBinance } from "../lib/binanceFallback";
 
@@ -49,12 +49,7 @@ function calcBattleXP(result: string, timeframe: number): number {
   return xp;
 }
 
-// ── Achievement definitions ───────────────────────────────────────────────────
-
-const ACHIEVEMENT_IDS = [
-  'first_blood', 'on_a_roll', 'diamond_hands', 'hot_streak', 'sharp_shooter',
-  'top_dog', 'night_owl', 'speed_demon', 'century_club', 'legend',
-] as const;
+// ── Achievement helpers ───────────────────────────────────────────────────────
 
 async function checkAndAwardAchievements(
   username: string,
@@ -85,22 +80,12 @@ async function checkAndAwardAchievements(
   const last3        = allBattles.slice(0, 3);
   const last5        = allBattles.slice(0, 5);
 
-  // first_blood — played first battle
-  maybeAward('first_blood', totalBattles >= 1);
-
-  // on_a_roll — 3 wins in a row
-  maybeAward('on_a_roll', last3.length >= 3 && last3.every(b => b.result === 'win'));
-
-  // diamond_hands — won a 30-min battle
+  maybeAward('first_blood',   totalBattles >= 1);
+  maybeAward('on_a_roll',     last3.length >= 3 && last3.every(b => b.result === 'win'));
   maybeAward('diamond_hands', isCurrentWin && currentTimeframe === 1800);
-
-  // hot_streak — 5 wins in a row
-  maybeAward('hot_streak', last5.length >= 5 && last5.every(b => b.result === 'win'));
-
-  // sharp_shooter — 10 correct predictions
+  maybeAward('hot_streak',    last5.length >= 5 && last5.every(b => b.result === 'win'));
   maybeAward('sharp_shooter', totalWins >= 10);
 
-  // top_dog — rank 1 on leaderboard by tokens
   const [topUser] = await db
     .select({ username: veloxfiUsers.username })
     .from(veloxfiUsers)
@@ -108,26 +93,97 @@ async function checkAndAwardAchievements(
     .limit(1);
   maybeAward('top_dog', topUser?.username === username && currentTokens > 0);
 
-  // night_owl — won a battle between 00:00 and 06:00 UTC
   if (isCurrentWin) {
     const hour = new Date().getUTCHours();
     maybeAward('night_owl', hour >= 0 && hour < 6);
   }
 
-  // speed_demon — 50 battles played
-  maybeAward('speed_demon', totalBattles >= 50);
-
-  // century_club — 100 battles played
+  maybeAward('speed_demon',  totalBattles >= 50);
   maybeAward('century_club', totalBattles >= 100);
-
-  // legend — 500 tokens earned
-  maybeAward('legend', currentTokens >= 500);
+  maybeAward('legend',       currentTokens >= 500);
 
   if (toInsert.length > 0) {
     await db.insert(veloxfiAchievements).values(toInsert).onConflictDoNothing();
   }
 
   return newlyEarned;
+}
+
+// ── Daily mission helpers ─────────────────────────────────────────────────────
+
+function getTodayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+const MISSION_DEFS = [
+  { key: 'm1', field: 'battlesPlayed' as const, rewardField: 'm1Rewarded' as const, target: 3, reward: 2, name: 'Play 3 Battles' },
+  { key: 'm2', field: 'thirtyMinWins' as const, rewardField: 'm2Rewarded' as const, target: 1, reward: 3, name: 'Win a 30-Min Battle' },
+  { key: 'm3', field: 'teamBattles'   as const, rewardField: 'm3Rewarded' as const, target: 1, reward: 1, name: 'Play a Team Battle' },
+  { key: 'm4', field: 'referrals'     as const, rewardField: 'm4Rewarded' as const, target: 1, reward: 3, name: 'Invite Someone' },
+] as const;
+
+type MissionField   = typeof MISSION_DEFS[number]['field'];
+type MissionRField  = typeof MISSION_DEFS[number]['rewardField'];
+
+export async function updateAndCheckMissions(
+  username: string,
+  updates: Partial<Record<MissionField, number>>,
+): Promise<Array<{ id: string; name: string; reward: number }>> {
+  const missionDate = getTodayUTC();
+
+  // Upsert: insert or increment counters
+  await db.insert(veloxfiMissions)
+    .values({
+      username,
+      missionDate,
+      battlesPlayed: updates.battlesPlayed || 0,
+      thirtyMinWins: updates.thirtyMinWins || 0,
+      teamBattles:   updates.teamBattles   || 0,
+      referrals:     updates.referrals     || 0,
+    })
+    .onConflictDoUpdate({
+      target: [veloxfiMissions.username, veloxfiMissions.missionDate],
+      set: {
+        battlesPlayed: sql`${veloxfiMissions.battlesPlayed} + ${updates.battlesPlayed || 0}`,
+        thirtyMinWins: sql`${veloxfiMissions.thirtyMinWins} + ${updates.thirtyMinWins || 0}`,
+        teamBattles:   sql`${veloxfiMissions.teamBattles}   + ${updates.teamBattles   || 0}`,
+        referrals:     sql`${veloxfiMissions.referrals}     + ${updates.referrals     || 0}`,
+      },
+    });
+
+  const [mission] = await db
+    .select()
+    .from(veloxfiMissions)
+    .where(and(eq(veloxfiMissions.username, username), eq(veloxfiMissions.missionDate, missionDate)))
+    .limit(1);
+
+  if (!mission) return [];
+
+  const completed: Array<{ id: string; name: string; reward: number }> = [];
+  const rewardSet: Partial<Record<MissionRField, boolean>> = {};
+  let totalReward = 0;
+
+  for (const def of MISSION_DEFS) {
+    const progress = mission[def.field] as number;
+    const rewarded = mission[def.rewardField] as boolean;
+    if (progress >= def.target && !rewarded) {
+      completed.push({ id: def.key, name: def.name, reward: def.reward });
+      rewardSet[def.rewardField] = true;
+      totalReward += def.reward;
+    }
+  }
+
+  if (completed.length > 0) {
+    await db.update(veloxfiMissions)
+      .set(rewardSet as any)
+      .where(and(eq(veloxfiMissions.username, username), eq(veloxfiMissions.missionDate, missionDate)));
+
+    await db.update(veloxfiUsers)
+      .set({ tokens: sql`${veloxfiUsers.tokens} + ${totalReward}` })
+      .where(eq(veloxfiUsers.username, username));
+  }
+
+  return completed;
 }
 
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -147,12 +203,16 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       coinAId, coinBId, coinAName, coinBName, coinAEmoji, coinBEmoji,
       timeframe, pickedWinner, actualWinner, result, tokensEarned,
       entryPriceA, entryPriceB, finalPriceA, finalPriceB, changeA, changeB,
+      isTeamBattle,
     } = req.body;
 
     if (!coinAId || !coinBId || !result) {
       res.status(400).json({ error: "Missing required battle fields." });
       return;
     }
+
+    const tf = parseInt(timeframe) || 300;
+    const isWin = result === 'win';
 
     await db.insert(veloxfiBattles).values({
       username: user.username,
@@ -161,7 +221,7 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       coinBName: coinBName || coinBId,
       coinAEmoji: coinAEmoji || "",
       coinBEmoji: coinBEmoji || "",
-      timeframe: parseInt(timeframe) || 300,
+      timeframe: tf,
       pickedWinner, actualWinner, result,
       tokensEarned: parseInt(tokensEarned) || 0,
       entryPriceA: parseFloat(entryPriceA) || 0,
@@ -173,14 +233,14 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
     });
 
     // Award XP
-    const xpGain    = calcBattleXP(result, parseInt(timeframe) || 300);
+    const xpGain    = calcBattleXP(result, tf);
     const oldXPInfo = getXPInfo(user.xp ?? 0);
     const newXP     = (user.xp ?? 0) + xpGain;
     const newXPInfo = getXPInfo(newXP);
     const leveledUp = newXPInfo.level > oldXPInfo.level;
     await db.update(veloxfiUsers).set({ xp: newXP }).where(eq(veloxfiUsers.username, user.username));
 
-    // Re-read tokens from DB (client may have updated them before this call)
+    // Re-read tokens (client may have updated them already)
     const [freshUser] = await db
       .select({ tokens: veloxfiUsers.tokens })
       .from(veloxfiUsers)
@@ -188,27 +248,30 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       .limit(1);
     const currentTokens = freshUser?.tokens ?? user.tokens;
 
-    // Fetch all battles for achievement check (ordered newest first, including just-inserted)
+    // All battles for achievement check
     const allBattles = await db
       .select({ result: veloxfiBattles.result, timeframe: veloxfiBattles.timeframe, createdAt: veloxfiBattles.createdAt })
       .from(veloxfiBattles)
       .where(eq(veloxfiBattles.username, user.username))
       .orderBy(desc(veloxfiBattles.createdAt));
 
-    const newAchievements = await checkAndAwardAchievements(
-      user.username,
-      currentTokens,
-      allBattles,
-      result === 'win',
-      parseInt(timeframe) || 300,
-    );
+    // Parallel: achievements + missions
+    const [newAchievements, completedMissions] = await Promise.all([
+      checkAndAwardAchievements(user.username, currentTokens, allBattles, isWin, tf),
+      updateAndCheckMissions(user.username, {
+        battlesPlayed: 1,
+        thirtyMinWins: isWin && tf === 1800 ? 1 : 0,
+        teamBattles:   isTeamBattle ? 1 : 0,
+      }),
+    ]);
 
     res.json({
       ok: true,
       xpGain, newXP, leveledUp,
-      newLevel:        newXPInfo.level,
-      newLevelName:    newXPInfo.levelName,
+      newLevel:         newXPInfo.level,
+      newLevelName:     newXPInfo.levelName,
       newAchievements,
+      completedMissions,
     });
   } catch (e) {
     console.error("veloxfi/battles POST error:", e);
@@ -258,6 +321,32 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       .from(veloxfiAchievements)
       .where(eq(veloxfiAchievements.username, user.username));
 
+    // Today's missions
+    const missionDate = getTodayUTC();
+    const [todayMission] = await db
+      .select()
+      .from(veloxfiMissions)
+      .where(and(eq(veloxfiMissions.username, user.username), eq(veloxfiMissions.missionDate, missionDate)))
+      .limit(1);
+
+    const missions = todayMission
+      ? {
+          date:          todayMission.missionDate,
+          battlesPlayed: todayMission.battlesPlayed,
+          thirtyMinWins: todayMission.thirtyMinWins,
+          teamBattles:   todayMission.teamBattles,
+          referrals:     todayMission.referrals,
+          m1Rewarded:    todayMission.m1Rewarded,
+          m2Rewarded:    todayMission.m2Rewarded,
+          m3Rewarded:    todayMission.m3Rewarded,
+          m4Rewarded:    todayMission.m4Rewarded,
+        }
+      : {
+          date: missionDate,
+          battlesPlayed: 0, thirtyMinWins: 0, teamBattles: 0, referrals: 0,
+          m1Rewarded: false, m2Rewarded: false, m3Rewarded: false, m4Rewarded: false,
+        };
+
     const totalBattles = stats?.totalBattles || 0;
     const totalWins    = stats?.totalWins    || 0;
     const totalLosses  = stats?.totalLosses  || 0;
@@ -286,9 +375,10 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       levelName:      xpInfo.levelName,
       currentLevelXP: xpInfo.currentLevelXP,
       nextLevelXP:    xpInfo.nextLevelXP,
-      stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
+      stats:        { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
       achievements: achievementRows.map(a => ({ id: a.achievementId, earnedAt: a.earnedAt })),
+      missions,
     });
   } catch (e) {
     console.error("veloxfi/profile GET error:", e);
@@ -296,7 +386,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
   }
 });
 
-// ── Homepage stats bar ───────────────────────────────────────────────────────
+// ── Homepage stats bar ────────────────────────────────────────────────────────
 
 router.get("/veloxfi/stats", async (_req, res) => {
   try {
@@ -312,9 +402,7 @@ router.get("/veloxfi/stats", async (_req, res) => {
       .where(gte(veloxfiBattles.createdAt, todayStart));
 
     const [allTimeRow] = await db
-      .select({
-        totalEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
-      })
+      .select({ totalEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int` })
       .from(veloxfiBattles);
 
     const [activeRow] = await db
@@ -337,7 +425,7 @@ router.get("/veloxfi/stats", async (_req, res) => {
   }
 });
 
-// ── Active battle persistence ────────────────────────────────────────────────
+// ── Active battle persistence ─────────────────────────────────────────────────
 
 router.put("/veloxfi/active-battle", requireAuth as any, async (req: any, res) => {
   try {
@@ -369,7 +457,7 @@ router.delete("/veloxfi/active-battle", requireAuth as any, async (req: any, res
   }
 });
 
-// ── Server-side battle auto-resolution ───────────────────────────────────────
+// ── Server-side battle resolution ─────────────────────────────────────────────
 
 const TIMEFRAME_REWARDS: Record<number, number> = { 300: 1, 900: 2, 1800: 3 };
 
@@ -436,6 +524,7 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
     const actualWinner = changeA >= changeB ? ab.coinAId : ab.coinBId;
     const isCorrect    = ab.pickedWinner === actualWinner;
     const reward       = isCorrect ? (TIMEFRAME_REWARDS[ab.timeframe] || 1) : 0;
+    const tf           = parseInt(ab.timeframe) || 300;
 
     await db.insert(veloxfiBattles).values({
       username: freshUser.username,
@@ -444,7 +533,7 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       coinBName: ab.coinBName || ab.coinBId,
       coinAEmoji: ab.coinAEmoji || "",
       coinBEmoji: ab.coinBEmoji || "",
-      timeframe: parseInt(ab.timeframe) || 300,
+      timeframe: tf,
       pickedWinner: ab.pickedWinner,
       actualWinner,
       result: isCorrect ? "win" : "loss",
@@ -457,9 +546,8 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       changeB,
     });
 
-    // Award tokens + XP and clear active battle
     const newTokens  = freshUser.tokens + reward;
-    const xpGain     = calcBattleXP(isCorrect ? 'win' : 'loss', parseInt(ab.timeframe) || 300);
+    const xpGain     = calcBattleXP(isCorrect ? 'win' : 'loss', tf);
     const oldXPInfo  = getXPInfo(freshUser.xp ?? 0);
     const newXP      = (freshUser.xp ?? 0) + xpGain;
     const newXPInfo  = getXPInfo(newXP);
@@ -469,20 +557,19 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       .set({ activeBattle: null, tokens: newTokens, xp: newXP })
       .where(eq(veloxfiUsers.username, freshUser.username));
 
-    // Fetch all battles for achievement check
     const allBattles = await db
       .select({ result: veloxfiBattles.result, timeframe: veloxfiBattles.timeframe, createdAt: veloxfiBattles.createdAt })
       .from(veloxfiBattles)
       .where(eq(veloxfiBattles.username, freshUser.username))
       .orderBy(desc(veloxfiBattles.createdAt));
 
-    const newAchievements = await checkAndAwardAchievements(
-      freshUser.username,
-      newTokens,
-      allBattles,
-      isCorrect,
-      parseInt(ab.timeframe) || 300,
-    );
+    const [newAchievements, completedMissions] = await Promise.all([
+      checkAndAwardAchievements(freshUser.username, newTokens, allBattles, isCorrect, tf),
+      updateAndCheckMissions(freshUser.username, {
+        battlesPlayed: 1,
+        thirtyMinWins: isCorrect && tf === 1800 ? 1 : 0,
+      }),
+    ]);
 
     res.json({
       ok: true,
@@ -502,9 +589,10 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       xpGain,
       newXP,
       leveledUp,
-      newLevel:        newXPInfo.level,
-      newLevelName:    newXPInfo.levelName,
+      newLevel:         newXPInfo.level,
+      newLevelName:     newXPInfo.levelName,
       newAchievements,
+      completedMissions,
     });
   } catch (e) {
     console.error("veloxfi/resolve-battle POST error:", e);
