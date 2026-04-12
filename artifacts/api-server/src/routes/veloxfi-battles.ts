@@ -7,6 +7,48 @@ import { fetchFromBinance } from "../lib/binanceFallback";
 
 const router = Router();
 
+// ── XP / Level helpers ───────────────────────────────────────────────────────
+
+function xpToNext(level: number): number {
+  if (level <= 5)  return 100;
+  if (level <= 10) return 150;
+  if (level <= 20) return 200;
+  if (level <= 35) return 300;
+  return 500;
+}
+
+function getLevelName(level: number): string {
+  if (level <= 5)  return 'Rookie Wolf';
+  if (level <= 10) return 'Battle Wolf';
+  if (level <= 20) return 'Alpha Wolf';
+  if (level <= 35) return 'Cyber Wolf';
+  return 'Legend Wolf';
+}
+
+function getXPInfo(totalXP: number) {
+  const MAX = 50;
+  let level = 1, spent = 0;
+  while (level < MAX) {
+    const needed = xpToNext(level);
+    if (totalXP < spent + needed) break;
+    spent += needed;
+    level++;
+  }
+  return {
+    level,
+    levelName:      getLevelName(level),
+    currentLevelXP: totalXP - spent,
+    nextLevelXP:    level < MAX ? xpToNext(level) : 0,
+    totalXP,
+  };
+}
+
+function calcBattleXP(result: string, timeframe: number): number {
+  let xp = 10; // always for playing
+  if (result === 'win') xp += timeframe === 1800 ? 50 : 25;
+  return xp;
+}
+
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
   if (!auth?.startsWith("Bearer ")) { res.status(401).json({ error: "Unauthorized." }); return; }
@@ -49,7 +91,15 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       changeB: parseFloat(changeB) || 0,
     });
 
-    res.json({ ok: true });
+    // Award XP for battle participation / win
+    const xpGain = calcBattleXP(result, parseInt(timeframe) || 300);
+    const oldXPInfo = getXPInfo(user.xp ?? 0);
+    const newXP     = (user.xp ?? 0) + xpGain;
+    const newXPInfo = getXPInfo(newXP);
+    const leveledUp = newXPInfo.level > oldXPInfo.level;
+    await db.update(veloxfiUsers).set({ xp: newXP }).where(eq(veloxfiUsers.username, user.username));
+
+    res.json({ ok: true, xpGain, newXP, leveledUp, newLevel: newXPInfo.level, newLevelName: newXPInfo.levelName });
   } catch (e) {
     console.error("veloxfi/battles POST error:", e);
     res.status(500).json({ error: "Server error." });
@@ -106,6 +156,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       try { activeBattle = JSON.parse(user.activeBattle); } catch {}
     }
 
+    const xpInfo = getXPInfo(user.xp ?? 0);
     res.json({
       username:       user.username,
       email:          user.email,
@@ -117,6 +168,11 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       claimRequestedAt:   user.claimRequestedAt   ?? null,
       claimedAt:          user.claimedAt           ?? null,
       activeBattle,
+      xp:             user.xp ?? 0,
+      level:          xpInfo.level,
+      levelName:      xpInfo.levelName,
+      currentLevelXP: xpInfo.currentLevelXP,
+      nextLevelXP:    xpInfo.nextLevelXP,
       stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
     });
@@ -299,10 +355,16 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       changeB,
     });
 
-    // Award tokens if correct and clear active battle atomically
-    const newTokens = freshUser.tokens + reward;
+    // Award tokens + XP and clear active battle atomically
+    const newTokens  = freshUser.tokens + reward;
+    const xpGain     = calcBattleXP(isCorrect ? 'win' : 'loss', parseInt(ab.timeframe) || 300);
+    const oldXPInfo  = getXPInfo(freshUser.xp ?? 0);
+    const newXP      = (freshUser.xp ?? 0) + xpGain;
+    const newXPInfo  = getXPInfo(newXP);
+    const leveledUp  = newXPInfo.level > oldXPInfo.level;
+
     await db.update(veloxfiUsers)
-      .set({ activeBattle: null, tokens: newTokens })
+      .set({ activeBattle: null, tokens: newTokens, xp: newXP })
       .where(eq(veloxfiUsers.username, freshUser.username));
 
     res.json({
@@ -320,6 +382,11 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       reward,
       newTokens,
       timeframe: ab.timeframe,
+      xpGain,
+      newXP,
+      leveledUp,
+      newLevel:     newXPInfo.level,
+      newLevelName: newXPInfo.levelName,
     });
   } catch (e) {
     console.error("veloxfi/resolve-battle POST error:", e);

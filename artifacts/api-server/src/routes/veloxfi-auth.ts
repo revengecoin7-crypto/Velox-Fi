@@ -18,6 +18,34 @@ async function requireAuth(req: Request & { veloxfiUser?: typeof veloxfiUsers.$i
 }
 
 const REFERRAL_BONUS = 3;
+const REFERRAL_XP    = 5;
+
+// ── XP / Level helpers (mirrored from veloxfi-battles.ts) ────────────────────
+function xpToNext(level: number): number {
+  if (level <= 5)  return 100;
+  if (level <= 10) return 150;
+  if (level <= 20) return 200;
+  if (level <= 35) return 300;
+  return 500;
+}
+function getLevelName(level: number): string {
+  if (level <= 5)  return 'Rookie Wolf';
+  if (level <= 10) return 'Battle Wolf';
+  if (level <= 20) return 'Alpha Wolf';
+  if (level <= 35) return 'Cyber Wolf';
+  return 'Legend Wolf';
+}
+function getXPInfo(totalXP: number) {
+  const MAX = 50;
+  let level = 1, spent = 0;
+  while (level < MAX) {
+    const needed = xpToNext(level);
+    if (totalXP < spent + needed) break;
+    spent += needed;
+    level++;
+  }
+  return { level, levelName: getLevelName(level), currentLevelXP: totalXP - spent, nextLevelXP: level < MAX ? xpToNext(level) : 0, totalXP };
+}
 
 router.post("/veloxfi/register", async (req, res) => {
   try {
@@ -62,13 +90,16 @@ router.post("/veloxfi/register", async (req, res) => {
           tokens:         sql`${veloxfiUsers.tokens} + ${REFERRAL_BONUS}`,
           referralCount:  sql`${veloxfiUsers.referralCount} + 1`,
           referralTokens: sql`${veloxfiUsers.referralTokens} + ${REFERRAL_BONUS}`,
+          xp:             sql`${veloxfiUsers.xp} + ${REFERRAL_XP}`,
         })
         .where(eq(veloxfiUsers.username, validReferrer));
     }
 
+    const regXPInfo = getXPInfo(user.xp ?? 0);
     res.json({
       username: user.username, tokens: user.tokens, email: user.email, token,
       referralBonus: validReferrer ? REFERRAL_BONUS : 0,
+      xp: user.xp ?? 0, level: regXPInfo.level, levelName: regXPInfo.levelName,
     });
   } catch (e) {
     console.error("register error:", e);
@@ -89,7 +120,8 @@ router.post("/veloxfi/login", async (req, res) => {
 
     const token = randomUUID();
     await db.update(veloxfiUsers).set({ sessionToken: token }).where(eq(veloxfiUsers.username, username));
-    res.json({ username: user.username, tokens: user.tokens, email: user.email, token });
+    const loginXPInfo = getXPInfo(user.xp ?? 0);
+    res.json({ username: user.username, tokens: user.tokens, email: user.email, token, xp: user.xp ?? 0, level: loginXPInfo.level, levelName: loginXPInfo.levelName });
   } catch (e) {
     res.status(500).json({ error: "Server error. Please try again." });
   }
@@ -171,7 +203,7 @@ router.put("/veloxfi/profile/wallet", requireAuth as any, async (req: any, res) 
 router.get("/veloxfi/leaderboard", async (_req, res) => {
   try {
     const users = await db
-      .select({ username: veloxfiUsers.username, tokens: veloxfiUsers.tokens })
+      .select({ username: veloxfiUsers.username, tokens: veloxfiUsers.tokens, xp: veloxfiUsers.xp })
       .from(veloxfiUsers)
       .orderBy(veloxfiUsers.tokens)
       .limit(10);

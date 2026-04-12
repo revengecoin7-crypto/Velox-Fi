@@ -95,6 +95,39 @@
     .tsb-nums { gap:4px; }
   }
 
+  /* LEVEL BADGE */
+  .lvl-badge { display:inline-flex; align-items:center; gap:3px; border-radius:20px; padding:2px 8px; font-family:'Orbitron',monospace; font-weight:700; letter-spacing:0.5px; vertical-align:middle; white-space:nowrap; line-height:1; border:1px solid; }
+  .lvl-badge.sm  { font-size:8px;  padding:2px 7px; }
+  .lvl-badge.med { font-size:10px; padding:3px 10px; }
+  .lvl-badge.lg  { font-size:13px; padding:5px 14px; }
+  .lvl-badge.rookie { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
+  .lvl-badge.battle { color:#60a5fa; border-color:rgba(96,165,250,0.35); background:rgba(96,165,250,0.08); }
+  .lvl-badge.alpha  { color:#a78bfa; border-color:rgba(167,139,250,0.35); background:rgba(167,139,250,0.08); }
+  .lvl-badge.cyber  { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
+  .lvl-badge.legend { color:#fbbf24; border-color:rgba(251,191,36,0.45); background:rgba(251,191,36,0.1); text-shadow:0 0 8px rgba(251,191,36,0.3); }
+
+  /* XP PROGRESS BAR (profile) */
+  .prof-xp-card { background:rgba(245,158,11,0.04); border:1px solid rgba(245,158,11,0.18); border-radius:12px; padding:16px 20px 14px; margin-bottom:24px; }
+  .prof-xp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; flex-wrap:wrap; }
+  .prof-xp-right { font-family:'Rajdhani',sans-serif; font-size:10px; color:rgba(245,158,11,0.45); letter-spacing:1.5px; text-transform:uppercase; }
+  .prof-xp-bar-bg { background:rgba(245,158,11,0.1); border-radius:99px; height:6px; overflow:hidden; margin-bottom:6px; }
+  .prof-xp-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#b45309,#f59e0b,#fbbf24); transition:width 0.7s ease; min-width:3px; }
+  .prof-xp-labels { display:flex; justify-content:space-between; font-family:'Rajdhani',sans-serif; font-size:10px; color:rgba(245,158,11,0.4); letter-spacing:1px; }
+
+  /* LEVEL-UP OVERLAY */
+  #levelUpOverlay { position:fixed; inset:0; z-index:9100; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.88); cursor:pointer; }
+  #levelUpOverlay.show { display:flex; }
+  .lup-flash { position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(251,191,36,0.22) 0%,transparent 68%); animation:lupFlash 1s ease-out both; pointer-events:none; }
+  .lup-card { text-align:center; position:relative; z-index:1; animation:lupPop 0.55s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .lup-stars { font-size:52px; margin-bottom:6px; display:block; animation:lupBounce 0.6s 0.3s ease-out both; }
+  .lup-eyebrow { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:5px; color:#f59e0b; margin-bottom:10px; }
+  .lup-level { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; color:#fff; text-shadow:0 0 40px rgba(251,191,36,0.5),0 0 80px rgba(251,191,36,0.2); line-height:1; margin-bottom:4px; }
+  .lup-name  { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; letter-spacing:3px; color:#fbbf24; margin-bottom:28px; }
+  .lup-dismiss { font-family:'Rajdhani',sans-serif; font-size:12px; color:rgba(255,255,255,0.25); letter-spacing:2px; text-transform:uppercase; }
+  @keyframes lupPop     { from { opacity:0; transform:scale(0.4) translateY(40px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  @keyframes lupFlash   { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
+  @keyframes lupBounce  { from { transform:scale(0) rotate(-15deg); } 70%{transform:scale(1.15) rotate(5deg);} to{transform:scale(1) rotate(0);} }
+
   /* SOCIAL FOOTER */
   .social-footer { text-align:center; padding:32px 20px 48px; border-top:1px solid var(--border); margin-top:8px; }
   .social-footer-title { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:3px; color:var(--text-dim); margin-bottom:18px; }
@@ -2130,6 +2163,56 @@ function getSession()             { try { return JSON.parse(localStorage.getItem
 function setSession(username,tok) { localStorage.setItem('vx_session', JSON.stringify({username,tok})); }
 function clearSession()           { localStorage.removeItem('vx_session'); }
 
+// ── XP / Level system ──────────────────────────────────────────────────────
+function _xpToNext(lvl) {
+  if (lvl <= 5)  return 100;
+  if (lvl <= 10) return 150;
+  if (lvl <= 20) return 200;
+  if (lvl <= 35) return 300;
+  return 500;
+}
+function _lvlName(lvl) {
+  if (lvl <= 5)  return 'Rookie Wolf';
+  if (lvl <= 10) return 'Battle Wolf';
+  if (lvl <= 20) return 'Alpha Wolf';
+  if (lvl <= 35) return 'Cyber Wolf';
+  return 'Legend Wolf';
+}
+function getXPInfo(totalXP) {
+  const MAX = 50;
+  let level = 1, spent = 0;
+  while (level < MAX) {
+    const needed = _xpToNext(level);
+    if ((totalXP ?? 0) < spent + needed) break;
+    spent += needed;
+    level++;
+  }
+  const xp = totalXP ?? 0;
+  return { level, levelName: _lvlName(level), currentLevelXP: xp - spent, nextLevelXP: level < MAX ? _xpToNext(level) : 0, totalXP: xp };
+}
+function _lvlTier(name) {
+  if (name === 'Rookie Wolf') return 'rookie';
+  if (name === 'Battle Wolf') return 'battle';
+  if (name === 'Alpha Wolf')  return 'alpha';
+  if (name === 'Cyber Wolf')  return 'cyber';
+  return 'legend';
+}
+function getLevelBadgeHTML(xp, size) {
+  const { level, levelName } = getXPInfo(xp);
+  const tier = _lvlTier(levelName);
+  return `<span class="lvl-badge ${tier} ${size||'sm'}">LV${level} ${levelName}</span>`;
+}
+function showLevelUpAnimation(newLevel, levelName) {
+  const overlay = document.getElementById('levelUpOverlay');
+  document.getElementById('lupLevel').textContent = `LEVEL ${newLevel}`;
+  document.getElementById('lupName').textContent  = (levelName||'').toUpperCase();
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 5000);
+}
+function closeLevelUp() {
+  document.getElementById('levelUpOverlay').classList.remove('show');
+}
+
 // ── Browser Notifications ─────────────────────────
 (function _diagNotif() {
   const supported = 'Notification' in window;
@@ -2369,11 +2452,15 @@ async function loadProfile() {
           </tr>`;
         }).join('');
 
+    const xpInfo = getXPInfo(d.xp ?? 0);
+    const xpPct  = xpInfo.nextLevelXP > 0 ? Math.min((xpInfo.currentLevelXP / xpInfo.nextLevelXP) * 100, 100) : 100;
+    const lvlBadge = getLevelBadgeHTML(d.xp ?? 0, 'med');
+
     el.innerHTML = `
       <div class="prof-header">
         <div class="prof-avatar">${d.username.charAt(0).toUpperCase()}</div>
         <div class="prof-info">
-          <div class="prof-username">${d.username.toUpperCase()}</div>
+          <div class="prof-username" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${d.username.toUpperCase()} ${lvlBadge}</div>
           <div class="prof-email">${d.email}</div>
           ${joined ? `<div class="prof-member">Member since ${joined}</div>` : ''}
         </div>
@@ -2382,6 +2469,20 @@ async function loadProfile() {
           <div class="prof-balance-label">$BATTLE TOKENS</div>
           ${d.tokens > 0 && d.walletAddress ? `<button class="prof-claim-btn gold" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM $BATTLE</button>` : ''}
           ${d.tokens > 0 && !d.walletAddress ? `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>` : ''}
+        </div>
+      </div>
+
+      <div class="prof-xp-card">
+        <div class="prof-xp-header">
+          <span>${lvlBadge.replace('med','lg')}</span>
+          <span class="prof-xp-right">${xpInfo.totalXP.toLocaleString()} Total XP${xpInfo.level < 50 ? ` · ${xpInfo.currentLevelXP}/${xpInfo.nextLevelXP} to LV${xpInfo.level+1}` : ' · MAX LEVEL'}</span>
+        </div>
+        <div class="prof-xp-bar-bg">
+          <div class="prof-xp-bar-fill" style="width:${xpPct.toFixed(2)}%"></div>
+        </div>
+        <div class="prof-xp-labels">
+          <span>LV${xpInfo.level}</span>
+          ${xpInfo.level < 50 ? `<span>LV${xpInfo.level+1}</span>` : '<span>LEGEND</span>'}
         </div>
       </div>
 
@@ -2554,11 +2655,22 @@ async function saveBattleHistory(payload) {
   const session = getSession();
   if (!session?.tok || !currentUser) return;
   try {
-    await fetch('/api/veloxfi/battles', {
+    const res = await fetch('/api/veloxfi/battles', {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.tok}` },
       body: JSON.stringify(payload),
     });
+    if (res.ok) {
+      const d = await res.json();
+      if (typeof d.newXP === 'number') {
+        currentUser.xp = d.newXP;
+        const info = getXPInfo(d.newXP);
+        currentUser.level     = info.level;
+        currentUser.levelName = info.levelName;
+        renderNav();
+        if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
+      }
+    }
   } catch(e) { /* silent — battle still resolves locally */ }
 }
 
@@ -3044,7 +3156,7 @@ async function handleLogin() {
 }
 
 function afterLogin(data) {
-  currentUser = { username: data.username, tokens: data.tokens, email: data.email };
+  currentUser = { username: data.username, tokens: data.tokens, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
   setSession(data.username, data.token);
   renderNav();
   showToast(`⚡ Welcome back, ${data.username.toUpperCase()}!`,'info');
@@ -3084,10 +3196,11 @@ function renderNav() {
   const el = document.getElementById('navRight');
   const mob = document.getElementById('mobileMenuContent');
   if (currentUser) {
+    const badge = getLevelBadgeHTML(currentUser.xp ?? 0, 'sm');
     el.innerHTML=`<div class="battle-balance">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</div>
-    <button class="btn-nav-profile" onclick="goProfile()">${currentUser.username.toUpperCase()}</button>
+    <button class="btn-nav-profile" onclick="goProfile()" style="display:inline-flex;align-items:center;gap:6px;">${badge} ${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()}</button>
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()} ${badge}</button>
     <button class="mob-menu-btn mob-logout" onclick="handleLogout();closeMobileMenu()">LOGOUT</button>`;
   } else {
     el.innerHTML=`<button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
@@ -3909,13 +4022,20 @@ async function resolveFromServer() {
     }
     const d = await r.json();
 
-    // Update local token balance
+    // Update local token + XP balance
     if (currentUser && typeof d.newTokens === 'number') {
       currentUser.tokens = d.newTokens;
-      updateNavBalance();
+      if (typeof d.newXP === 'number') {
+        currentUser.xp = d.newXP;
+        const info = getXPInfo(d.newXP);
+        currentUser.level     = info.level;
+        currentUser.levelName = info.levelName;
+      }
+      renderNav();
     }
     renderLeaderboard();
     fetchStatsBar();
+    if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
 
     const winnerName = `${d.isCorrect ? d.pickedWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji : d.actualWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji} ${d.isCorrect ? (d.pickedWinner === d.coinAId ? d.coinAName : d.coinBName) : (d.actualWinner === d.coinAId ? d.coinAName : d.coinBName)}`;
 
@@ -4178,7 +4298,7 @@ async function renderLeaderboard() {
     tbody.innerHTML=sorted.map((user,i)=>`
       <tr class="lb-row" style="${currentUser&&user.username===currentUser.username?'background:rgba(37,99,235,0.08);':''}">
         <td class="lb-rank ${rc[i]||''}">${medals[i]||'#'+(i+1)}</td>
-        <td class="lb-user">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''}</td>
+        <td class="lb-user" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''} ${getLevelBadgeHTML(user.xp??0,'sm')}</td>
         <td class="lb-tokens">⚔️ ${user.tokens} $BATTLE</td>
       </tr>`).join('');
   } catch {
@@ -4516,7 +4636,7 @@ async function init() {
       const res = await fetch(`/api/veloxfi/profile?_t=${Date.now()}`, { headers:{'Authorization':`Bearer ${session.tok}`}, cache:'no-store' });
       if (res.ok) {
         const data = await res.json();
-        currentUser = { username: data.username, tokens: data.tokens, email: data.email };
+        currentUser = { username: data.username, tokens: data.tokens, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
         renderNav();
         document.getElementById('refBanner').style.display = 'none';
         // Surface any active battle found in the DB during this same fetch
@@ -4560,5 +4680,18 @@ async function init() {
 init();
 </script>
 </div><!-- /scroller -->
+
+<!-- LEVEL UP OVERLAY (outside scroller so it covers everything) -->
+<div id="levelUpOverlay" onclick="closeLevelUp()">
+  <div class="lup-flash"></div>
+  <div class="lup-card">
+    <span class="lup-stars">⭐</span>
+    <div class="lup-eyebrow">LEVEL UP!</div>
+    <div class="lup-level" id="lupLevel">LEVEL 2</div>
+    <div class="lup-name"  id="lupName">BATTLE WOLF</div>
+    <div class="lup-dismiss">TAP ANYWHERE TO CONTINUE</div>
+  </div>
+</div>
+
 </body>
 </html>
