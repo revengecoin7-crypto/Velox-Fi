@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles } from "@workspace/db/schema";
-import { eq, desc, sql, gte, sum } from "drizzle-orm";
+import { veloxfiUsers, veloxfiBattles, veloxfiAchievements } from "@workspace/db/schema";
+import { eq, desc, sql, gte } from "drizzle-orm";
 import { getSharedCoin, isSharedCacheUsable } from "../lib/coinCache";
 import { fetchFromBinance } from "../lib/binanceFallback";
 
@@ -44,9 +44,90 @@ function getXPInfo(totalXP: number) {
 }
 
 function calcBattleXP(result: string, timeframe: number): number {
-  let xp = 10; // always for playing
+  let xp = 10;
   if (result === 'win') xp += timeframe === 1800 ? 50 : 25;
   return xp;
+}
+
+// ── Achievement definitions ───────────────────────────────────────────────────
+
+const ACHIEVEMENT_IDS = [
+  'first_blood', 'on_a_roll', 'diamond_hands', 'hot_streak', 'sharp_shooter',
+  'top_dog', 'night_owl', 'speed_demon', 'century_club', 'legend',
+] as const;
+
+async function checkAndAwardAchievements(
+  username: string,
+  currentTokens: number,
+  allBattles: Array<{ result: string; timeframe: number; createdAt: Date }>,
+  isCurrentWin: boolean,
+  currentTimeframe: number,
+): Promise<string[]> {
+  const earnedRows = await db
+    .select({ achievementId: veloxfiAchievements.achievementId })
+    .from(veloxfiAchievements)
+    .where(eq(veloxfiAchievements.username, username));
+  const earnedSet = new Set(earnedRows.map(r => r.achievementId));
+
+  const newlyEarned: string[] = [];
+  const toInsert: Array<{ username: string; achievementId: string }> = [];
+
+  function maybeAward(id: string, condition: boolean) {
+    if (!earnedSet.has(id) && condition) {
+      newlyEarned.push(id);
+      toInsert.push({ username, achievementId: id });
+      earnedSet.add(id);
+    }
+  }
+
+  const totalBattles = allBattles.length;
+  const totalWins    = allBattles.filter(b => b.result === 'win').length;
+  const last3        = allBattles.slice(0, 3);
+  const last5        = allBattles.slice(0, 5);
+
+  // first_blood — played first battle
+  maybeAward('first_blood', totalBattles >= 1);
+
+  // on_a_roll — 3 wins in a row
+  maybeAward('on_a_roll', last3.length >= 3 && last3.every(b => b.result === 'win'));
+
+  // diamond_hands — won a 30-min battle
+  maybeAward('diamond_hands', isCurrentWin && currentTimeframe === 1800);
+
+  // hot_streak — 5 wins in a row
+  maybeAward('hot_streak', last5.length >= 5 && last5.every(b => b.result === 'win'));
+
+  // sharp_shooter — 10 correct predictions
+  maybeAward('sharp_shooter', totalWins >= 10);
+
+  // top_dog — rank 1 on leaderboard by tokens
+  const [topUser] = await db
+    .select({ username: veloxfiUsers.username })
+    .from(veloxfiUsers)
+    .orderBy(desc(veloxfiUsers.tokens))
+    .limit(1);
+  maybeAward('top_dog', topUser?.username === username && currentTokens > 0);
+
+  // night_owl — won a battle between 00:00 and 06:00 UTC
+  if (isCurrentWin) {
+    const hour = new Date().getUTCHours();
+    maybeAward('night_owl', hour >= 0 && hour < 6);
+  }
+
+  // speed_demon — 50 battles played
+  maybeAward('speed_demon', totalBattles >= 50);
+
+  // century_club — 100 battles played
+  maybeAward('century_club', totalBattles >= 100);
+
+  // legend — 500 tokens earned
+  maybeAward('legend', currentTokens >= 500);
+
+  if (toInsert.length > 0) {
+    await db.insert(veloxfiAchievements).values(toInsert).onConflictDoNothing();
+  }
+
+  return newlyEarned;
 }
 
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -91,15 +172,44 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       changeB: parseFloat(changeB) || 0,
     });
 
-    // Award XP for battle participation / win
-    const xpGain = calcBattleXP(result, parseInt(timeframe) || 300);
+    // Award XP
+    const xpGain    = calcBattleXP(result, parseInt(timeframe) || 300);
     const oldXPInfo = getXPInfo(user.xp ?? 0);
     const newXP     = (user.xp ?? 0) + xpGain;
     const newXPInfo = getXPInfo(newXP);
     const leveledUp = newXPInfo.level > oldXPInfo.level;
     await db.update(veloxfiUsers).set({ xp: newXP }).where(eq(veloxfiUsers.username, user.username));
 
-    res.json({ ok: true, xpGain, newXP, leveledUp, newLevel: newXPInfo.level, newLevelName: newXPInfo.levelName });
+    // Re-read tokens from DB (client may have updated them before this call)
+    const [freshUser] = await db
+      .select({ tokens: veloxfiUsers.tokens })
+      .from(veloxfiUsers)
+      .where(eq(veloxfiUsers.username, user.username))
+      .limit(1);
+    const currentTokens = freshUser?.tokens ?? user.tokens;
+
+    // Fetch all battles for achievement check (ordered newest first, including just-inserted)
+    const allBattles = await db
+      .select({ result: veloxfiBattles.result, timeframe: veloxfiBattles.timeframe, createdAt: veloxfiBattles.createdAt })
+      .from(veloxfiBattles)
+      .where(eq(veloxfiBattles.username, user.username))
+      .orderBy(desc(veloxfiBattles.createdAt));
+
+    const newAchievements = await checkAndAwardAchievements(
+      user.username,
+      currentTokens,
+      allBattles,
+      result === 'win',
+      parseInt(timeframe) || 300,
+    );
+
+    res.json({
+      ok: true,
+      xpGain, newXP, leveledUp,
+      newLevel:        newXPInfo.level,
+      newLevelName:    newXPInfo.levelName,
+      newAchievements,
+    });
   } catch (e) {
     console.error("veloxfi/battles POST error:", e);
     res.status(500).json({ error: "Server error." });
@@ -143,14 +253,17 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       .orderBy(desc(veloxfiBattles.createdAt))
       .limit(20);
 
+    const achievementRows = await db
+      .select({ achievementId: veloxfiAchievements.achievementId, earnedAt: veloxfiAchievements.earnedAt })
+      .from(veloxfiAchievements)
+      .where(eq(veloxfiAchievements.username, user.username));
+
     const totalBattles = stats?.totalBattles || 0;
     const totalWins    = stats?.totalWins    || 0;
     const totalLosses  = stats?.totalLosses  || 0;
     const totalTokens  = stats?.totalTokens  || 0;
     const winPct       = totalBattles > 0 ? Math.round((totalWins / totalBattles) * 100) : 0;
 
-    // Parse activeBattle JSON safely — return it even if expired so the
-    // client's resolveFromServer() can handle it (save history, award tokens).
     let activeBattle: object | null = null;
     if (user.activeBattle) {
       try { activeBattle = JSON.parse(user.activeBattle); } catch {}
@@ -175,6 +288,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       nextLevelXP:    xpInfo.nextLevelXP,
       stats: { totalBattles, totalWins, totalLosses, winPct, totalTokens },
       battles,
+      achievements: achievementRows.map(a => ({ id: a.achievementId, earnedAt: a.earnedAt })),
     });
   } catch (e) {
     console.error("veloxfi/profile GET error:", e);
@@ -186,11 +300,9 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
 
 router.get("/veloxfi/stats", async (_req, res) => {
   try {
-    // Start of today in UTC
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
 
-    // Battles today + tokens earned today — single query
     const [todayRow] = await db
       .select({
         battlesToday: sql<number>`count(*)::int`,
@@ -199,14 +311,12 @@ router.get("/veloxfi/stats", async (_req, res) => {
       .from(veloxfiBattles)
       .where(gte(veloxfiBattles.createdAt, todayStart));
 
-    // All-time total tokens earned across all players
     const [allTimeRow] = await db
       .select({
         totalEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
       })
       .from(veloxfiBattles);
 
-    // Active now — count users with a non-null activeBattle whose endTime hasn't passed
     const [activeRow] = await db
       .select({ cnt: sql<number>`count(*)::int` })
       .from(veloxfiUsers)
@@ -260,8 +370,6 @@ router.delete("/veloxfi/active-battle", requireAuth as any, async (req: any, res
 });
 
 // ── Server-side battle auto-resolution ───────────────────────────────────────
-// Called when a battle's endTime has passed. Fetches latest prices, determines
-// winner, saves to battle history, awards tokens, clears active battle from DB.
 
 const TIMEFRAME_REWARDS: Record<number, number> = { 300: 1, 900: 2, 1800: 3 };
 
@@ -270,7 +378,6 @@ async function fetchPriceForCoins(coinAId: string, coinBId: string): Promise<{ p
   let pA: number | null = null;
   let pB: number | null = null;
 
-  // Try shared in-memory cache first (cheapest)
   if (isSharedCacheUsable()) {
     const cA = getSharedCoin(coinAId);
     const cB = getSharedCoin(coinBId);
@@ -279,7 +386,6 @@ async function fetchPriceForCoins(coinAId: string, coinBId: string): Promise<{ p
     if (pA && pB) return { pA, pB };
   }
 
-  // Try CoinGecko
   try {
     const cgUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${encodeURIComponent(ids.join(","))}&order=market_cap_desc&per_page=10&page=1&sparkline=false`;
     const r = await fetch(cgUrl, { signal: AbortSignal.timeout(8000) });
@@ -293,7 +399,6 @@ async function fetchPriceForCoins(coinAId: string, coinBId: string): Promise<{ p
     }
   } catch {}
 
-  // Binance fallback
   try {
     const binance = await fetchFromBinance(ids);
     if (binance) {
@@ -309,7 +414,6 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
   try {
     const user = req.veloxfiUser;
 
-    // Re-read user from DB to get fresh activeBattle
     const [freshUser] = await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.username, user.username)).limit(1);
     if (!freshUser?.activeBattle) {
       res.status(404).json({ error: "No active battle found." });
@@ -323,18 +427,16 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       return;
     }
 
-    // Fetch final prices (fall back to entry prices if unavailable)
     const { pA: rawPA, pB: rawPB } = await fetchPriceForCoins(ab.coinAId, ab.coinBId);
     const finalPriceA = rawPA ?? ab.entryPriceA;
     const finalPriceB = rawPB ?? ab.entryPriceB;
 
-    const changeA = ab.entryPriceA ? (finalPriceA - ab.entryPriceA) / ab.entryPriceA * 100 : 0;
-    const changeB = ab.entryPriceB ? (finalPriceB - ab.entryPriceB) / ab.entryPriceB * 100 : 0;
+    const changeA      = ab.entryPriceA ? (finalPriceA - ab.entryPriceA) / ab.entryPriceA * 100 : 0;
+    const changeB      = ab.entryPriceB ? (finalPriceB - ab.entryPriceB) / ab.entryPriceB * 100 : 0;
     const actualWinner = changeA >= changeB ? ab.coinAId : ab.coinBId;
-    const isCorrect = ab.pickedWinner === actualWinner;
-    const reward = isCorrect ? (TIMEFRAME_REWARDS[ab.timeframe] || 1) : 0;
+    const isCorrect    = ab.pickedWinner === actualWinner;
+    const reward       = isCorrect ? (TIMEFRAME_REWARDS[ab.timeframe] || 1) : 0;
 
-    // Save to battle history
     await db.insert(veloxfiBattles).values({
       username: freshUser.username,
       coinAId: ab.coinAId, coinBId: ab.coinBId,
@@ -355,7 +457,7 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       changeB,
     });
 
-    // Award tokens + XP and clear active battle atomically
+    // Award tokens + XP and clear active battle
     const newTokens  = freshUser.tokens + reward;
     const xpGain     = calcBattleXP(isCorrect ? 'win' : 'loss', parseInt(ab.timeframe) || 300);
     const oldXPInfo  = getXPInfo(freshUser.xp ?? 0);
@@ -366,6 +468,21 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
     await db.update(veloxfiUsers)
       .set({ activeBattle: null, tokens: newTokens, xp: newXP })
       .where(eq(veloxfiUsers.username, freshUser.username));
+
+    // Fetch all battles for achievement check
+    const allBattles = await db
+      .select({ result: veloxfiBattles.result, timeframe: veloxfiBattles.timeframe, createdAt: veloxfiBattles.createdAt })
+      .from(veloxfiBattles)
+      .where(eq(veloxfiBattles.username, freshUser.username))
+      .orderBy(desc(veloxfiBattles.createdAt));
+
+    const newAchievements = await checkAndAwardAchievements(
+      freshUser.username,
+      newTokens,
+      allBattles,
+      isCorrect,
+      parseInt(ab.timeframe) || 300,
+    );
 
     res.json({
       ok: true,
@@ -385,8 +502,9 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       xpGain,
       newXP,
       leveledUp,
-      newLevel:     newXPInfo.level,
-      newLevelName: newXPInfo.levelName,
+      newLevel:        newXPInfo.level,
+      newLevelName:    newXPInfo.levelName,
+      newAchievements,
     });
   } catch (e) {
     console.error("veloxfi/resolve-battle POST error:", e);

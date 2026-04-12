@@ -7,3 +7,4 @@ export * from "./site-stats";
 export * from "./veloxfi-users";
 export * from "./veloxfi-battles";
 export * from "./veloxfi-claims";
+export * from "./veloxfi-achievements";

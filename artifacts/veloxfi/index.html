@@ -128,6 +128,31 @@
   @keyframes lupFlash   { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
   @keyframes lupBounce  { from { transform:scale(0) rotate(-15deg); } 70%{transform:scale(1.15) rotate(5deg);} to{transform:scale(1) rotate(0);} }
 
+  /* ACHIEVEMENT GRID */
+  .ach-section-title { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin:36px 0 16px; }
+  .ach-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:12px; margin-bottom:8px; }
+  .ach-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:18px 14px 14px; text-align:center; transition:box-shadow 0.2s,border-color 0.2s; }
+  .ach-card:not(.locked) { border-color:var(--ach-color,#2563eb); box-shadow:0 0 20px var(--ach-glow,transparent); }
+  .ach-card.locked { opacity:0.3; filter:grayscale(1); }
+  .ach-emoji { font-size:2rem; line-height:1; margin-bottom:8px; display:block; }
+  .ach-name { font-family:'Orbitron',monospace; font-size:0.6rem; font-weight:700; letter-spacing:0.06em; color:var(--ach-color,var(--text-dim)); margin-bottom:5px; }
+  .ach-card.locked .ach-name { color:var(--text-dim); }
+  .ach-desc { font-family:'Rajdhani',sans-serif; font-size:0.8rem; color:var(--text-dim); line-height:1.35; }
+  .ach-date { font-family:'Rajdhani',sans-serif; font-size:0.68rem; color:var(--ach-color,var(--text-dim)); margin-top:6px; opacity:0.75; }
+  @media(max-width:640px){ .ach-grid { grid-template-columns:repeat(2,1fr); } }
+
+  /* ACHIEVEMENT TOAST */
+  #achToastContainer { position:fixed; bottom:80px; right:20px; z-index:9200; display:flex; flex-direction:column; gap:10px; align-items:flex-end; pointer-events:none; }
+  .ach-toast { display:flex; align-items:center; gap:12px; background:rgba(13,20,40,0.97); border:1px solid var(--ach-color,#2563eb); border-radius:14px; padding:14px 18px; min-width:260px; max-width:320px; box-shadow:0 8px 32px var(--ach-glow,rgba(0,0,0,0.5)),0 0 0 1px rgba(255,255,255,0.04); animation:achSlideIn 0.42s cubic-bezier(0.34,1.56,0.64,1) both; backdrop-filter:blur(16px); }
+  .ach-toast.ach-toast-out { animation:achSlideOut 0.4s ease forwards; }
+  .ach-toast-emoji { font-size:2rem; flex-shrink:0; line-height:1; filter:drop-shadow(0 0 8px var(--ach-glow,transparent)); }
+  .ach-toast-body { flex:1; min-width:0; }
+  .ach-toast-eyebrow { font-family:'Orbitron',monospace; font-size:8px; font-weight:700; letter-spacing:3px; color:var(--ach-color,var(--text-dim)); margin-bottom:3px; }
+  .ach-toast-name { font-family:'Orbitron',monospace; font-size:12px; font-weight:900; color:#fff; margin-bottom:2px; }
+  .ach-toast-desc { font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text-dim); }
+  @keyframes achSlideIn { from{opacity:0;transform:translateX(120%) scale(0.8)} to{opacity:1;transform:translateX(0) scale(1)} }
+  @keyframes achSlideOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(120%) scale(0.8)} }
+
   /* SOCIAL FOOTER */
   .social-footer { text-align:center; padding:32px 20px 48px; border-top:1px solid var(--border); margin-top:8px; }
   .social-footer-title { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:3px; color:var(--text-dim); margin-bottom:18px; }
@@ -2213,6 +2238,47 @@ function closeLevelUp() {
   document.getElementById('levelUpOverlay').classList.remove('show');
 }
 
+// ── Achievement definitions ────────────────────────
+const ACHIEVEMENTS = [
+  { id:'first_blood',   emoji:'🐺', name:'First Blood',    desc:'Play your first battle',            color:'#ef4444', glow:'rgba(239,68,68,0.28)' },
+  { id:'on_a_roll',     emoji:'⚔️',  name:'On a Roll',      desc:'Win 3 battles in a row',            color:'#f97316', glow:'rgba(249,115,22,0.28)' },
+  { id:'diamond_hands', emoji:'💎', name:'Diamond Hands',  desc:'Win a 30-minute battle',            color:'#06b6d4', glow:'rgba(6,182,212,0.28)' },
+  { id:'hot_streak',    emoji:'🔥', name:'Hot Streak',     desc:'Win 5 battles in a row',            color:'#f97316', glow:'rgba(249,115,22,0.28)' },
+  { id:'sharp_shooter', emoji:'🎯', name:'Sharp Shooter',  desc:'Make 10 correct predictions',       color:'#84cc16', glow:'rgba(132,204,22,0.28)' },
+  { id:'top_dog',       emoji:'👑', name:'Top Dog',        desc:'Reach #1 on the leaderboard',       color:'#fbbf24', glow:'rgba(251,191,36,0.32)' },
+  { id:'night_owl',     emoji:'🌙', name:'Night Owl',      desc:'Win a battle between 00:00–06:00',  color:'#818cf8', glow:'rgba(129,140,248,0.28)' },
+  { id:'speed_demon',   emoji:'⚡', name:'Speed Demon',    desc:'Play 50 battles',                   color:'#facc15', glow:'rgba(250,204,21,0.28)' },
+  { id:'century_club',  emoji:'🏆', name:'Century Club',   desc:'Play 100 battles',                  color:'#d97706', glow:'rgba(217,119,6,0.28)' },
+  { id:'legend',        emoji:'🐉', name:'Legend',         desc:'Earn 500 $BATTLE tokens',           color:'#7c3aed', glow:'rgba(124,58,237,0.32)' },
+];
+
+function showAchievementToasts(ids) {
+  if (!ids || ids.length === 0) return;
+  const container = document.getElementById('achToastContainer');
+  ids.forEach((id, i) => {
+    const def = ACHIEVEMENTS.find(a => a.id === id);
+    if (!def) return;
+    setTimeout(() => {
+      const toast = document.createElement('div');
+      toast.className = 'ach-toast';
+      toast.style.setProperty('--ach-color', def.color);
+      toast.style.setProperty('--ach-glow', def.glow);
+      toast.innerHTML = `
+        <div class="ach-toast-emoji">${def.emoji}</div>
+        <div class="ach-toast-body">
+          <div class="ach-toast-eyebrow">ACHIEVEMENT UNLOCKED</div>
+          <div class="ach-toast-name">${def.name}</div>
+          <div class="ach-toast-desc">${def.desc}</div>
+        </div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('ach-toast-out');
+        setTimeout(() => toast.remove(), 450);
+      }, 5000);
+    }, i * 650);
+  });
+}
+
 // ── Browser Notifications ─────────────────────────
 (function _diagNotif() {
   const supported = 'Notification' in window;
@@ -2543,6 +2609,25 @@ async function loadProfile() {
           </tr></thead>
           <tbody>${histRows}</tbody>
         </table>
+      </div>
+
+      <div class="ach-section-title">ACHIEVEMENTS</div>
+      <div class="ach-grid">
+        ${ACHIEVEMENTS.map(def => {
+          const earned = (d.achievements || []).find(a => a.id === def.id);
+          const dateStr = earned
+            ? new Date(earned.earnedAt).toLocaleDateString('en', { month:'short', day:'numeric', year:'numeric' })
+            : '';
+          const inlineStyle = earned
+            ? `style="--ach-color:${def.color};--ach-glow:${def.glow}"`
+            : '';
+          return `<div class="ach-card${earned ? '' : ' locked'}" ${inlineStyle}>
+            <span class="ach-emoji">${earned ? def.emoji : '🔒'}</span>
+            <div class="ach-name">${def.name}</div>
+            <div class="ach-desc">${def.desc}</div>
+            ${earned ? `<div class="ach-date">Earned ${dateStr}</div>` : ''}
+          </div>`;
+        }).join('')}
       </div>`;
   } catch(e) {
     el.innerHTML = '<div class="prof-loading">Failed to load profile. Try again.</div>';
@@ -2669,6 +2754,7 @@ async function saveBattleHistory(payload) {
         currentUser.levelName = info.levelName;
         renderNav();
         if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
+        showAchievementToasts(d.newAchievements || []);
       }
     }
   } catch(e) { /* silent — battle still resolves locally */ }
@@ -4036,6 +4122,7 @@ async function resolveFromServer() {
     renderLeaderboard();
     fetchStatsBar();
     if (d.leveledUp) showLevelUpAnimation(d.newLevel, d.newLevelName);
+    showAchievementToasts(d.newAchievements || []);
 
     const winnerName = `${d.isCorrect ? d.pickedWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji : d.actualWinner === d.coinAId ? d.coinAEmoji : d.coinBEmoji} ${d.isCorrect ? (d.pickedWinner === d.coinAId ? d.coinAName : d.coinBName) : (d.actualWinner === d.coinAId ? d.coinAName : d.coinBName)}`;
 
@@ -4680,6 +4767,9 @@ async function init() {
 init();
 </script>
 </div><!-- /scroller -->
+
+<!-- ACHIEVEMENT TOAST CONTAINER -->
+<div id="achToastContainer"></div>
 
 <!-- LEVEL UP OVERLAY (outside scroller so it covers everything) -->
 <div id="levelUpOverlay" onclick="closeLevelUp()">
