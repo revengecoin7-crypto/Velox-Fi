@@ -174,6 +174,21 @@
   .mission-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--blue),var(--purple)); transition:width 0.5s ease; }
   .mission-card.done .mission-bar-fill { background:linear-gradient(90deg,#22c55e,#16a34a); }
   .mission-bar-label { font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text-dim); white-space:nowrap; flex-shrink:0; }
+  /* CONTRACT ADDRESS BANNER */
+  .ca-banner { margin:0 auto 20px; max-width:820px; background:linear-gradient(135deg,rgba(251,191,36,0.07) 0%,rgba(245,158,11,0.04) 100%); border:1px solid rgba(251,191,36,0.5); border-radius:16px; padding:18px 22px; box-shadow:0 0 28px rgba(251,191,36,0.12),0 0 8px rgba(251,191,36,0.06); }
+  .ca-banner-live { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:2px; color:#f59e0b; margin-bottom:10px; text-shadow:0 0 12px rgba(245,158,11,0.5); }
+  .ca-banner-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .ca-banner-addr { font-family:'Rajdhani',sans-serif; font-size:13px; color:#fff; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 14px; letter-spacing:0.5px; word-break:break-all; flex:1; min-width:0; }
+  .ca-copy-btn { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:1px; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.4); color:#f59e0b; border-radius:8px; padding:9px 14px; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s,border-color 0.2s; }
+  .ca-copy-btn:hover { background:rgba(251,191,36,0.22); border-color:rgba(251,191,36,0.7); }
+  .ca-pumpfun-btn { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:1px; background:linear-gradient(135deg,#16a34a,#15803d); border:1px solid rgba(74,222,128,0.35); color:#fff; border-radius:8px; padding:9px 14px; text-decoration:none; white-space:nowrap; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; transition:opacity 0.2s; }
+  .ca-pumpfun-btn:hover { opacity:0.85; }
+  /* Whitepaper CA row */
+  .wp-ca-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 4px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 16px; }
+  .wp-ca-label { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:2px; color:#f59e0b; white-space:nowrap; }
+  .wp-ca-addr { font-family:'Rajdhani',sans-serif; font-size:12px; color:#fff; word-break:break-all; flex:1; min-width:0; }
+  .wp-ca-copy { font-family:'Orbitron',monospace; font-size:8px; font-weight:700; letter-spacing:1px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.35); color:#f59e0b; border-radius:6px; padding:6px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
+  .wp-ca-copy:hover { background:rgba(251,191,36,0.22); }
   @keyframes achSlideIn { from{opacity:0;transform:translateX(120%) scale(0.8)} to{opacity:1;transform:translateX(0) scale(1)} }
   @keyframes achSlideOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(120%) scale(0.8)} }
 
@@ -1478,6 +1493,19 @@
     </div>
   </div>
 
+  <!-- CONTRACT ADDRESS BANNER -->
+  <div class="ca-banner">
+    <div class="ca-banner-live">🚀 $BATTLE IS NOW LIVE ON PUMP.FUN!</div>
+    <div class="ca-banner-row">
+      <span class="ca-banner-addr" id="caBannerAddr">3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</span>
+      <button class="ca-copy-btn" id="caCopyBtn" onclick="copyCa()">📋 COPY CA</button>
+      <a class="ca-pumpfun-btn" href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        BUY ON PUMP.FUN
+      </a>
+    </div>
+  </div>
+
   <div class="game-area">
 
     <!-- MODE TABS -->
@@ -1898,6 +1926,12 @@
       <div class="cp-section-title">$BATTLE TOKEN</div>
       <div class="cp-body">
         <p><strong>Total Supply: 1,000,000,000 $BATTLE</strong> — launched on <strong>pump.fun</strong> on Solana. Fixed supply. No minting after launch.</p>
+        <div class="wp-ca-row">
+          <span class="wp-ca-label">CONTRACT</span>
+          <span class="wp-ca-addr">3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</span>
+          <button class="wp-ca-copy" onclick="copyCa(this)">📋 COPY</button>
+          <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump" target="_blank" rel="noopener" style="font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:1px;color:#4ade80;text-decoration:none;flex-shrink:0;white-space:nowrap;">🚀 PUMP.FUN ↗</a>
+        </div>
       </div>
       <div class="tknm-grid">
         <div class="tknm-item">
@@ -4693,6 +4727,18 @@ function copyRefLink(username) {
     const box = document.getElementById('refLinkBox');
     if (box) { const sel = window.getSelection(); const r = document.createRange(); r.selectNode(box); sel.removeAllRanges(); sel.addRange(r); }
     showToast('🔗 Link selected — press Ctrl+C to copy', 'info');
+  });
+}
+
+function copyCa(btn) {
+  const CA = '3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump';
+  navigator.clipboard.writeText(CA).then(() => {
+    const mainBtn = document.getElementById('caCopyBtn');
+    if (mainBtn) { mainBtn.textContent = '✅ COPIED!'; setTimeout(() => { mainBtn.textContent = '📋 COPY CA'; }, 2000); }
+    if (btn && btn !== mainBtn) { btn.textContent = '✅ COPIED!'; setTimeout(() => { btn.textContent = '📋 COPY'; }, 2000); }
+    showToast('✅ Contract address copied!', 'success');
+  }).catch(() => {
+    showToast('Contract: ' + CA, 'info');
   });
 }
 
