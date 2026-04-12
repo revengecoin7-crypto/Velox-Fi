@@ -1,11 +1,41 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiAchievements, veloxfiMissions } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiBattles, veloxfiAchievements, veloxfiMissions, veloxfiActivity } from "@workspace/db/schema";
 import { eq, desc, sql, gte, and } from "drizzle-orm";
 import { getSharedCoin, isSharedCacheUsable } from "../lib/coinCache";
 import { fetchFromBinance } from "../lib/binanceFallback";
 
 const router = Router();
+
+// ── Activity feed helpers ─────────────────────────────────────────────────────
+
+const ACHIEVEMENT_NAMES: Record<string, string> = {
+  first_blood:   'First Blood',
+  on_a_roll:     'On a Roll',
+  diamond_hands: 'Diamond Hands',
+  hot_streak:    'Hot Streak',
+  sharp_shooter: 'Sharp Shooter',
+  top_dog:       'Top Dog',
+  night_owl:     'Night Owl',
+  speed_demon:   'Speed Demon',
+  century_club:  'Century Club',
+  legend:        'Legend',
+};
+
+function tfLabel(tf: number): string {
+  if (tf === 300)  return '5-min';
+  if (tf === 900)  return '15-min';
+  if (tf === 1800) return '30-min';
+  return `${Math.round(tf / 60)}-min`;
+}
+
+async function logActivity(type: string, username: string, message: string): Promise<void> {
+  try {
+    await db.insert(veloxfiActivity).values({ type, username, message });
+  } catch (e) {
+    console.error('logActivity error:', e);
+  }
+}
 
 // ── XP / Level helpers ───────────────────────────────────────────────────────
 
@@ -265,6 +295,27 @@ router.post("/veloxfi/battles", requireAuth as any, async (req: any, res) => {
       }),
     ]);
 
+    // Log activity events (fire-and-forget)
+    const aEmoji = req.body.coinAEmoji || '';
+    const bEmoji = req.body.coinBEmoji || '';
+    const aName  = req.body.coinAName  || coinAId;
+    const bName  = req.body.coinBName  || coinBId;
+    const actLogs: Promise<void>[] = [];
+    if (isWin) {
+      actLogs.push(logActivity('battle_win', user.username,
+        `🏆 ${user.username} won ${aEmoji}${aName} vs ${bEmoji}${bName} — earned ${parseInt(tokensEarned) || 0} $BATTLE`));
+    }
+    if (leveledUp) {
+      actLogs.push(logActivity('level_up', user.username,
+        `⬆️ ${user.username} reached ${newXPInfo.levelName}`));
+    }
+    for (const achId of newAchievements) {
+      const achName = ACHIEVEMENT_NAMES[achId] || achId;
+      actLogs.push(logActivity('achievement', user.username,
+        `🎯 ${user.username} unlocked ${achName}`));
+    }
+    await Promise.all(actLogs);
+
     res.json({
       ok: true,
       xpGain, newXP, leveledUp,
@@ -437,6 +488,15 @@ router.put("/veloxfi/active-battle", requireAuth as any, async (req: any, res) =
     await db.update(veloxfiUsers)
       .set({ activeBattle: JSON.stringify(battleData) })
       .where(eq(veloxfiUsers.username, user.username));
+
+    const aEmoji = battleData.coinAEmoji || '';
+    const bEmoji = battleData.coinBEmoji || '';
+    const aName  = battleData.coinAName  || battleData.coinAId;
+    const bName  = battleData.coinBName  || battleData.coinBId;
+    const tf     = tfLabel(parseInt(battleData.timeframe) || 300);
+    logActivity('battle_start', user.username,
+      `⚔️ ${user.username} just started ${aEmoji}${aName} vs ${bEmoji}${bName} — ${tf} battle`);
+
     res.json({ ok: true });
   } catch (e) {
     console.error("veloxfi/active-battle PUT error:", e);
@@ -571,6 +631,27 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
       }),
     ]);
 
+    // Log activity events (fire-and-forget)
+    const aeEmoji = ab.coinAEmoji || '';
+    const beEmoji = ab.coinBEmoji || '';
+    const aeName  = ab.coinAName  || ab.coinAId;
+    const beName  = ab.coinBName  || ab.coinBId;
+    const resolveActs: Promise<void>[] = [];
+    if (isCorrect) {
+      resolveActs.push(logActivity('battle_win', freshUser.username,
+        `🏆 ${freshUser.username} won ${aeEmoji}${aeName} vs ${beEmoji}${beName} — earned ${reward} $BATTLE`));
+    }
+    if (leveledUp) {
+      resolveActs.push(logActivity('level_up', freshUser.username,
+        `⬆️ ${freshUser.username} reached ${newXPInfo.levelName}`));
+    }
+    for (const achId of newAchievements) {
+      const achName = ACHIEVEMENT_NAMES[achId] || achId;
+      resolveActs.push(logActivity('achievement', freshUser.username,
+        `🎯 ${freshUser.username} unlocked ${achName}`));
+    }
+    await Promise.all(resolveActs);
+
     res.json({
       ok: true,
       isCorrect,
@@ -596,6 +677,22 @@ router.post("/veloxfi/resolve-battle", requireAuth as any, async (req: any, res)
     });
   } catch (e) {
     console.error("veloxfi/resolve-battle POST error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ── Activity feed (public) ────────────────────────────────────────────────────
+
+router.get("/veloxfi/activity-feed", async (_req, res) => {
+  try {
+    const activities = await db
+      .select()
+      .from(veloxfiActivity)
+      .orderBy(desc(veloxfiActivity.id))
+      .limit(20);
+    res.json(activities);
+  } catch (e) {
+    console.error("veloxfi/activity-feed GET error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });
