@@ -2677,6 +2677,12 @@ async function loadProfile() {
     const xpPct  = xpInfo.nextLevelXP > 0 ? Math.min((xpInfo.currentLevelXP / xpInfo.nextLevelXP) * 100, 100) : 100;
     const lvlBadge = getLevelBadgeHTML(d.xp ?? 0, 'med');
 
+    const missions = d.missions || {
+      date: new Date().toISOString().slice(0,10),
+      battlesPlayed: 0, thirtyMinWins: 0, teamBattles: 0, referrals: 0,
+      m1Rewarded: false, m2Rewarded: false, m3Rewarded: false, m4Rewarded: false,
+    };
+
     el.innerHTML = `
       <div class="prof-header">
         <div class="prof-avatar">${d.username.charAt(0).toUpperCase()}</div>
@@ -2739,7 +2745,7 @@ async function loadProfile() {
 
       <div class="prof-wallet-section">
         <div class="prof-wallet-title">💎 CLAIM $BATTLE TOKENS</div>
-        <div class="prof-wallet-desc">When $BATTLE launches on Solana, your earned tokens will be airdropped to this address. Paste your Solana wallet address below to register your claim.</div>
+        <div class="prof-wallet-desc">$BATTLE is now LIVE on Solana! Paste your Solana wallet address below to register for the airdrop. Claims are processed within 24 hours on weekdays.</div>
         <div class="prof-wallet-row">
           <input type="text" class="prof-wallet-input" id="walletInput" placeholder="Solana wallet address (e.g. 7xKj…9mNp)" value="${d.walletAddress || ''}" spellcheck="false" autocomplete="off">
           <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
@@ -2790,7 +2796,7 @@ async function loadProfile() {
       </div>
 
       <div class="mission-cards">
-        ${buildMissionCardsHtml(d.missions)}
+        ${buildMissionCardsHtml(missions)}
       </div>
 
       <div class="ach-section-title">ACHIEVEMENTS</div>
