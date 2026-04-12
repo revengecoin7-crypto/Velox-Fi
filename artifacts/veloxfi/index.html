@@ -645,6 +645,8 @@
 .cp-section { margin-bottom: 48px; }
 .cp-section-title { font-family: Orbitron, monospace; font-size: .85rem; font-weight: 700; letter-spacing: .1em; color: var(--blue-glow); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
 .cp-section-title::before { content:''; display:inline-block; width:3px; height:18px; background:var(--blue); border-radius:2px; }
+.cp-subsection-title { font-family: Orbitron, monospace; font-size: .72rem; font-weight: 700; letter-spacing: .12em; color: var(--purple-glow); margin: 28px 0 12px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.cp-subsection-title::before { content:''; display:inline-block; width:2px; height:14px; background:var(--purple); border-radius:2px; }
 .cp-body  { font-family: Rajdhani, sans-serif; font-size: 1.05rem; color: #94a3b8; line-height: 1.75; }
 .cp-body p { margin-bottom: 12px; }
 .cp-body strong { color: var(--text); font-weight: 600; }
@@ -1125,6 +1127,15 @@
     border-left-color: #2563eb !important;
     background: none !important;
     font-size: 11pt !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cp-subsection-title {
+    color: #7c3aed !important;
+    background: none !important;
+    font-size: 9pt !important;
+    margin: 16pt 0 8pt !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1919,6 +1930,47 @@
       </table>
       <div class="cp-body" style="margin-top:14px">
         <p>Tokens are credited to your account instantly on a correct prediction. Your total is stored server-side and claimable on-chain — the $BATTLE token is now <strong>live on pump.fun</strong>. Register your Solana wallet address on your profile page to claim your airdrop.</p>
+      </div>
+
+      <div class="cp-subsection-title">BONUS WAYS TO EARN $BATTLE</div>
+      <div class="cp-body">
+        <p>Beyond winning battles, VeloxFi rewards engaged players with multiple bonus earning paths — stacking your $BATTLE balance faster the more you explore the platform.</p>
+      </div>
+
+      <div class="cp-card">
+        <div class="cp-card-title">📅 DAILY MISSIONS — UP TO +9 $BATTLE / DAY</div>
+        <div class="cp-card-body">A fresh set of four missions resets every day at midnight UTC. Complete them to earn bonus tokens on top of your battle winnings:
+          <ul style="margin:10px 0 0 16px;line-height:2;color:#94a3b8;">
+            <li><strong style="color:#e2e8f0;">Play 3 Battles</strong> — +2 $BATTLE</li>
+            <li><strong style="color:#e2e8f0;">Win a 30-Minute Battle</strong> — +3 $BATTLE</li>
+            <li><strong style="color:#e2e8f0;">Play a Team Battle</strong> — +1 $BATTLE</li>
+            <li><strong style="color:#e2e8f0;">Invite a Friend</strong> — +3 $BATTLE</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cp-card">
+        <div class="cp-card-title">🎁 REFERRAL BONUS — +3 $BATTLE PER REFERRAL</div>
+        <div class="cp-card-body">Share your unique referral link from your profile page. When a friend registers using your link, <strong>you both receive 3 bonus $BATTLE tokens</strong> — instantly credited to both accounts. There is no cap on the number of friends you can invite, making referrals one of the highest-yield earning strategies on the platform.</div>
+      </div>
+
+      <div class="cp-card">
+        <div class="cp-card-title">⚡ XP &amp; LEVEL SYSTEM — EARN XP EVERY BATTLE</div>
+        <div class="cp-card-body">Every battle earns XP regardless of outcome. Wins and longer timeframes reward more XP. Progress through eight levels — from <strong>Rookie Wolf</strong> through <strong>Veteran Wolf</strong>, <strong>Elite Wolf</strong>, <strong>Master Wolf</strong>, all the way to <strong>Legend Wolf</strong> — with each rank reflecting your dedication and skill on the platform. Your level badge is displayed publicly on the leaderboard.</div>
+      </div>
+
+      <div class="cp-card">
+        <div class="cp-card-title">🏆 ACHIEVEMENTS — UNLOCK FOR BONUS REWARDS</div>
+        <div class="cp-card-body">VeloxFi tracks your battle milestones and awards achievement badges automatically. Highlights include:
+          <ul style="margin:10px 0 0 16px;line-height:2;color:#94a3b8;">
+            <li><strong style="color:#e2e8f0;">First Blood</strong> — Win your very first battle</li>
+            <li><strong style="color:#e2e8f0;">Hot Streak</strong> — Win 3 battles in a row</li>
+            <li><strong style="color:#e2e8f0;">Diamond Hands</strong> — Win a 30-minute battle</li>
+            <li><strong style="color:#e2e8f0;">Team Player</strong> — Complete a team battle</li>
+            <li><strong style="color:#e2e8f0;">Battle Veteran</strong> — Play 50 total battles</li>
+            <li><strong style="color:#e2e8f0;">…and many more</strong> — discover them all in your profile</li>
+          </ul>
+        </div>
       </div>
     </div>
 
