@@ -153,6 +153,31 @@
   @keyframes achSlideIn { from{opacity:0;transform:translateX(120%) scale(0.8)} to{opacity:1;transform:translateX(0) scale(1)} }
   @keyframes achSlideOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(120%) scale(0.8)} }
 
+  /* GAMIFICATION INFO COLLAPSIBLE */
+  .gamif-info { background:rgba(37,99,235,0.04); border:1px solid rgba(37,99,235,0.2); border-radius:14px; margin-bottom:20px; overflow:hidden; }
+  .gamif-toggle { width:100%; display:flex; align-items:center; gap:12px; padding:16px 20px; background:none; border:none; cursor:pointer; text-align:left; }
+  .gamif-toggle:hover { background:rgba(255,255,255,0.02); }
+  .gamif-qmark { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--purple)); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:11px; font-weight:900; color:#fff; flex-shrink:0; }
+  .gamif-toggle-label { flex:1; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:var(--text); }
+  .gamif-arrow { font-size:10px; color:var(--text-dim); transition:transform 0.25s; }
+  .gamif-info.open .gamif-arrow { transform:rotate(180deg); }
+  .gamif-body { display:none; padding:0 20px 20px; }
+  .gamif-info.open .gamif-body { display:block; }
+  .gamif-subtitle { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:2.5px; color:var(--blue-glow); text-transform:uppercase; margin:16px 0 10px; }
+  .gamif-rows { display:flex; flex-direction:column; gap:7px; }
+  .gamif-row { display:flex; align-items:baseline; gap:10px; font-family:'Rajdhani',sans-serif; font-size:14px; }
+  .gamif-row-icon { font-size:15px; flex-shrink:0; width:22px; text-align:center; }
+  .gamif-row-text { color:var(--text-dim); line-height:1.4; }
+  .gamif-row-text strong { color:var(--text); }
+  .gamif-lvl-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; }
+  .gamif-lvl-row { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 12px; }
+  .gamif-lvl-range { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; color:var(--text-dim); min-width:60px; }
+  .gamif-ach-grid { display:flex; flex-direction:column; gap:7px; }
+  .gamif-ach-row { display:flex; align-items:baseline; gap:10px; font-family:'Rajdhani',sans-serif; font-size:14px; }
+  .gamif-ach-emoji { font-size:15px; flex-shrink:0; width:22px; text-align:center; }
+  .gamif-ach-name { font-weight:700; color:var(--text); min-width:130px; }
+  .gamif-ach-req { color:var(--text-dim); }
+
   /* SOCIAL FOOTER */
   .social-footer { text-align:center; padding:32px 20px 48px; border-top:1px solid var(--border); margin-top:8px; }
   .social-footer-title { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:3px; color:var(--text-dim); margin-bottom:18px; }
@@ -189,6 +214,7 @@
   .hiw-step:nth-child(1)::before { background:linear-gradient(90deg,var(--blue),rgba(37,99,235,0.2)); }
   .hiw-step:nth-child(2)::before { background:linear-gradient(90deg,var(--blue),var(--purple)); }
   .hiw-step:nth-child(3)::before { background:linear-gradient(90deg,rgba(124,58,237,0.2),var(--purple)); }
+  .hiw-step:nth-child(4)::before { background:linear-gradient(90deg,var(--purple),var(--gold)); }
   .hiw-step:hover { border-color:rgba(37,99,235,0.3); transform:translateY(-3px); }
   .hiw-num { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:var(--text-dim); margin-bottom:14px; }
   .hiw-icon { font-size:32px; margin-bottom:14px; display:block; line-height:1; }
@@ -1559,6 +1585,12 @@
         <div class="hiw-step-title">EARN $BATTLE TOKENS</div>
         <div class="hiw-desc">Correct predictions earn you 1, 2, or 3 $BATTLE tokens depending on your chosen timeframe.</div>
       </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 04</div>
+        <span class="hiw-icon">🏆</span>
+        <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
+        <div class="hiw-desc">Gain XP, unlock achievements and climb the ranks from Rookie Wolf to Legend Wolf.</div>
+      </div>
     </div>
   </div>
 
@@ -2612,6 +2644,42 @@ async function loadProfile() {
       </div>
 
       <div class="ach-section-title">ACHIEVEMENTS</div>
+
+      <div class="gamif-info" id="gamifInfo">
+        <button class="gamif-toggle" onclick="document.getElementById('gamifInfo').classList.toggle('open')">
+          <span class="gamif-qmark">?</span>
+          <span class="gamif-toggle-label">HOW DO XP &amp; LEVELS WORK?</span>
+          <span class="gamif-arrow">▼</span>
+        </button>
+        <div class="gamif-body">
+          <div class="gamif-subtitle">How XP is Earned</div>
+          <div class="gamif-rows">
+            <div class="gamif-row"><span class="gamif-row-icon">⚔️</span><span class="gamif-row-text"><strong>+10 XP</strong> for every battle played</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">🎯</span><span class="gamif-row-text"><strong>+25 XP</strong> for winning a 5-min or 15-min battle (total 35 XP)</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">💎</span><span class="gamif-row-text"><strong>+50 XP</strong> for winning a 30-min battle (total 60 XP — hardest timeframe)</span></div>
+            <div class="gamif-row"><span class="gamif-row-icon">🎁</span><span class="gamif-row-text"><strong>+5 XP</strong> awarded to you when a friend registers with your referral link</span></div>
+          </div>
+
+          <div class="gamif-subtitle">Level Tiers (Levels 1–50)</div>
+          <div class="gamif-lvl-grid">
+            <div class="gamif-lvl-row"><span class="lvl-badge rookie sm">LV1–5</span><span class="gamif-row-text" style="color:var(--text-dim)">Rookie Wolf &mdash; 100 XP/level</span></div>
+            <div class="gamif-lvl-row"><span class="lvl-badge battle sm">LV6–10</span><span class="gamif-row-text" style="color:var(--text-dim)">Battle Wolf &mdash; 150 XP/level</span></div>
+            <div class="gamif-lvl-row"><span class="lvl-badge alpha sm">LV11–20</span><span class="gamif-row-text" style="color:var(--text-dim)">Alpha Wolf &mdash; 200 XP/level</span></div>
+            <div class="gamif-lvl-row"><span class="lvl-badge cyber sm">LV21–35</span><span class="gamif-row-text" style="color:var(--text-dim)">Cyber Wolf &mdash; 300 XP/level</span></div>
+            <div class="gamif-lvl-row"><span class="lvl-badge legend sm">LV36–50</span><span class="gamif-row-text" style="color:var(--text-dim)">Legend Wolf &mdash; 500 XP/level</span></div>
+          </div>
+
+          <div class="gamif-subtitle">All Achievements</div>
+          <div class="gamif-ach-grid">
+            ${ACHIEVEMENTS.map(a => `<div class="gamif-ach-row">
+              <span class="gamif-ach-emoji">${a.emoji}</span>
+              <span class="gamif-ach-name">${a.name}</span>
+              <span class="gamif-ach-req">${a.desc}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
       <div class="ach-grid">
         ${ACHIEVEMENTS.map(def => {
           const earned = (d.achievements || []).find(a => a.id === def.id);
