@@ -90,7 +90,6 @@ export default function FAQ() {
             {[
               { label: "✈️ Telegram", href: "https://t.me/VeloxFiOfficial", color: "#34d399", bg: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.3)" },
               { label: "⊹ Discord",  href: "https://discord.gg/u2UhxuTd",  color: "#a78bfa", bg: "rgba(124,58,237,0.12)", border: "rgba(124,58,237,0.3)" },
-              { label: "𝕏 @VeloxFi", href: "https://x.com/VeloxFi",          color: "#60a5fa", bg: "rgba(37,99,235,0.12)",  border: "rgba(37,99,235,0.3)"  },
             ].map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-orbitron font-black text-sm tracking-wider transition-all hover:scale-105"

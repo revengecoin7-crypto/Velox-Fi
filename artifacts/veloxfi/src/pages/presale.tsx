@@ -467,7 +467,6 @@ export default function Presale() {
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
           <span className="text-gray-600 text-xs font-orbitron tracking-widest">FOLLOW FOR UPDATES</span>
           {[
-            { label: "𝕏  @VeloxFi", href: "https://x.com/VeloxFi",          color: "#60a5fa" },
             { label: "Discord",      href: "https://discord.gg/u2UhxuTd",     color: "#a78bfa" },
             { label: "Telegram",     href: "https://t.me/VeloxFiOfficial",    color: "#34d399" },
           ].map(({ label, href, color }) => (
