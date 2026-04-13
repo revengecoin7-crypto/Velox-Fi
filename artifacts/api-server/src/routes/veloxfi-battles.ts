@@ -453,8 +453,8 @@ router.get("/veloxfi/stats", async (_req, res) => {
       .where(gte(veloxfiBattles.createdAt, todayStart));
 
     const [allTimeRow] = await db
-      .select({ totalEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int` })
-      .from(veloxfiBattles);
+      .select({ totalEarned: sql<number>`coalesce(sum(${veloxfiUsers.tokens}),0)::int` })
+      .from(veloxfiUsers);
 
     const [activeRow] = await db
       .select({ cnt: sql<number>`count(*)::int` })
