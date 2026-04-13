@@ -2741,30 +2741,75 @@ function isTeamBattlePage() { const p = getTeamBattleParams(); return p.mode==='
 function initRouter() {
   const hash = window.location.hash;
   if (isTeamBattlePage()) {
+    setPageMeta('teamBattle');
     const {myTeam, oppTeam, time} = getTeamBattleParams();
     _showOnlyPage('teamBattlePage');
     initTeamBattlePage(myTeam, oppTeam, time);
   } else if (isBattlePage()) {
+    setPageMeta('battle');
     const {coinAId, coinBId, time} = getBattleParams();
     _showOnlyPage('battlePage');
     initBattlePage(coinAId, coinBId, time);
   } else if (hash === '#whitepaper') {
+    setPageMeta('whitepaper');
     _showOnlyPage('whitepaperPage');
     window.scrollTo(0,0);
   } else if (hash === '#faq') {
+    setPageMeta('faq');
     _showOnlyPage('faqPage');
     window.scrollTo(0,0);
   } else if (hash === '#profile') {
     if (!currentUser) { window.location.hash = ''; return; }
+    setPageMeta('profile');
     _showOnlyPage('profilePage');
     loadProfile();
     window.scrollTo(0,0);
   }
 }
 
+// ── Dynamic page meta (title + description + OG) ─────────────────────────────
+const PAGE_META = {
+  home: {
+    title: 'VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens',
+    desc:  'Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.',
+  },
+  battle: {
+    title: 'Live Memecoin Battle | Predict & Earn Free $BATTLE Tokens — VeloxFi',
+    desc:  'Watch live memecoin battles in real time. Predict the winner and earn free $BATTLE tokens on Solana. No wallet needed.',
+  },
+  whitepaper: {
+    title: 'VeloxFi Whitepaper | $BATTLE Token on Solana — Free Memecoin Prediction Platform',
+    desc:  'Read the official VeloxFi whitepaper. Learn about the $BATTLE token, tokenomics, roadmap and how to earn free crypto by predicting memecoin battles.',
+  },
+  faq: {
+    title: 'FAQ — VeloxFi Free Memecoin Battle Game | Earn $BATTLE Tokens',
+    desc:  'Frequently asked questions about VeloxFi. Learn how to earn free $BATTLE tokens, how battles work, and how to claim your Solana tokens.',
+  },
+  profile: {
+    title: 'My Profile — VeloxFi | Free Memecoin Battle Game',
+    desc:  'View your battle history, $BATTLE token balance, achievements and daily missions on the VeloxFi free memecoin prediction platform.',
+  },
+  teamBattle: {
+    title: 'Team Memecoin Battle | VeloxFi — Free Crypto Prediction Game',
+    desc:  'Compete in team memecoin battles on VeloxFi. Predict which team\'s coin wins and earn free $BATTLE tokens on Solana.',
+  },
+};
+
+function setPageMeta(key) {
+  const m = PAGE_META[key] || PAGE_META.home;
+  document.title = m.title;
+  const descEl = document.querySelector('meta[name="description"]');
+  if (descEl) descEl.setAttribute('content', m.desc);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute('content', m.title);
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute('content', m.desc);
+}
+
 function goHome() {
   if (tbInterval)      { clearInterval(tbInterval);      tbInterval = null; }
   if (tbPriceInterval) { clearInterval(tbPriceInterval); tbPriceInterval = null; }
+  setPageMeta('home');
   history.replaceState(null, '', window.location.pathname);
   // Hide hero immediately before the page becomes visible — never flash CTA to logged-in users
   const _s = currentUser || getSession();
@@ -2783,12 +2828,14 @@ function goHome() {
 }
 
 function goWhitepaper() {
+  setPageMeta('whitepaper');
   window.location.hash = 'whitepaper';
   _showOnlyPage('whitepaperPage');
   window.scrollTo(0,0);
 }
 
 function goFaq() {
+  setPageMeta('faq');
   window.location.hash = 'faq';
   _showOnlyPage('faqPage');
   window.scrollTo(0,0);
@@ -2796,6 +2843,7 @@ function goFaq() {
 
 function goProfile() {
   if (!currentUser) { openModal('login'); return; }
+  setPageMeta('profile');
   window.location.hash = 'profile';
   _showOnlyPage('profilePage');
   loadProfile();
