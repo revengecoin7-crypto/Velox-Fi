@@ -15,21 +15,38 @@
 <meta property="og:image" content="/wolf.jpg">
 <meta property="og:url" content="https://veloxfi.io">
 <meta property="og:site_name" content="VeloxFi">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="VeloxFi cyberpunk wolf mascot — free memecoin battle prediction game">
+<link rel="canonical" href="https://veloxfi.io" id="canonicalTag">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "VeloxFi — Free Memecoin Battle Prediction Game",
+  "name": "VeloxFi",
+  "alternateName": "VeloxFi — Free Memecoin Battle Prediction Game",
   "url": "https://veloxfi.io",
-  "description": "The free memecoin battle prediction platform on Solana. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed.",
-  "applicationCategory": "GameApplication",
-  "operatingSystem": "Web",
+  "description": "The free memecoin battle prediction platform on Solana. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. No investment required.",
+  "applicationCategory": "Game",
+  "operatingSystem": "Web Browser",
+  "image": "https://veloxfi.io/wolf.jpg",
+  "screenshot": "https://veloxfi.io/opengraph.jpg",
+  "inLanguage": "en",
   "offers": {
     "@type": "Offer",
     "price": "0",
-    "priceCurrency": "USD"
+    "priceCurrency": "USD",
+    "description": "Free to play — no wallet or investment required"
   },
-  "keywords": "free memecoin, memecoin battle, crypto prediction game, earn free crypto, Solana game"
+  "featureList": [
+    "Free memecoin battle prediction game",
+    "Earn $BATTLE tokens on Solana",
+    "No wallet needed",
+    "Live crypto price data",
+    "Daily missions and achievements",
+    "Memecoin tournament leaderboard"
+  ],
+  "keywords": "free memecoin, memecoin battle, crypto prediction game, earn free crypto, Solana game, BATTLE token, predict memecoins"
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1496,7 +1513,7 @@
 <main>
   <!-- HERO — guests only -->
   <div class="hero" id="heroSection">
-    <img id="wolfMain" class="wolf-logo" src="/wolf.jpg" alt="VeloxFi — Free Memecoin Battle Prediction Game on Solana">
+    <img id="wolfMain" class="wolf-logo" src="/wolf.jpg" alt="VeloxFi cyberpunk wolf mascot — free memecoin battle prediction game">
     <div class="unit-badge">UNIT-1 ONLINE</div>
     <div class="hero-title">MEMECOIN BATTLES.<br>PREDICT THE WINNER.</div>
     <div class="hero-sub">The free memecoin battle prediction game on Solana. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed — 100% free to play.</div>
@@ -1506,7 +1523,7 @@
 
   <!-- WOLF — logged-in view (small, always centered above stats) -->
   <div id="wolfSmallSection">
-    <img id="wolfSmall" class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi Memecoin Battle Game">
+    <img id="wolfSmall" class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi cyberpunk wolf mascot — free memecoin battle prediction game">
   </div>
 
   <!-- HOME LIVE BATTLE CARD — replaces game-area while a battle is running -->
@@ -2770,40 +2787,54 @@ function initRouter() {
 // ── Dynamic page meta (title + description + OG) ─────────────────────────────
 const PAGE_META = {
   home: {
-    title: 'VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens',
-    desc:  'Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.',
+    title:     'VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens',
+    desc:      'Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.',
+    canonical: 'https://veloxfi.io/',
   },
   battle: {
-    title: 'Live Memecoin Battle | Predict & Earn Free $BATTLE Tokens — VeloxFi',
-    desc:  'Watch live memecoin battles in real time. Predict the winner and earn free $BATTLE tokens on Solana. No wallet needed.',
+    title:     'Live Memecoin Battle | Predict & Earn Free $BATTLE Tokens — VeloxFi',
+    desc:      'Watch live memecoin battles in real time. Predict the winner and earn free $BATTLE tokens on Solana. No wallet needed.',
+    canonical: 'https://veloxfi.io/#battle',
   },
   whitepaper: {
-    title: 'VeloxFi Whitepaper | $BATTLE Token on Solana — Free Memecoin Prediction Platform',
-    desc:  'Read the official VeloxFi whitepaper. Learn about the $BATTLE token, tokenomics, roadmap and how to earn free crypto by predicting memecoin battles.',
+    title:     'VeloxFi Whitepaper | $BATTLE Token on Solana — Free Memecoin Prediction Platform',
+    desc:      'Read the official VeloxFi whitepaper. Learn about the $BATTLE token, tokenomics, roadmap and how to earn free crypto by predicting memecoin battles.',
+    canonical: 'https://veloxfi.io/#whitepaper',
   },
   faq: {
-    title: 'FAQ — VeloxFi Free Memecoin Battle Game | Earn $BATTLE Tokens',
-    desc:  'Frequently asked questions about VeloxFi. Learn how to earn free $BATTLE tokens, how battles work, and how to claim your Solana tokens.',
+    title:     'FAQ — VeloxFi Free Memecoin Battle Game | Earn $BATTLE Tokens',
+    desc:      'Frequently asked questions about VeloxFi. Learn how to earn free $BATTLE tokens, how battles work, and how to claim your Solana tokens.',
+    canonical: 'https://veloxfi.io/#faq',
   },
   profile: {
-    title: 'My Profile — VeloxFi | Free Memecoin Battle Game',
-    desc:  'View your battle history, $BATTLE token balance, achievements and daily missions on the VeloxFi free memecoin prediction platform.',
+    title:     'My Profile — VeloxFi | Free Memecoin Battle Game',
+    desc:      'View your battle history, $BATTLE token balance, achievements and daily missions on the VeloxFi free memecoin prediction platform.',
+    canonical: 'https://veloxfi.io/#profile',
   },
   teamBattle: {
-    title: 'Team Memecoin Battle | VeloxFi — Free Crypto Prediction Game',
-    desc:  'Compete in team memecoin battles on VeloxFi. Predict which team\'s coin wins and earn free $BATTLE tokens on Solana.',
+    title:     'Team Memecoin Battle | VeloxFi — Free Crypto Prediction Game',
+    desc:      'Compete in team memecoin battles on VeloxFi. Predict which team\'s coin wins and earn free $BATTLE tokens on Solana.',
+    canonical: 'https://veloxfi.io/#team-battle',
   },
 };
 
 function setPageMeta(key) {
   const m = PAGE_META[key] || PAGE_META.home;
+  // Title
   document.title = m.title;
+  // Meta description
   const descEl = document.querySelector('meta[name="description"]');
   if (descEl) descEl.setAttribute('content', m.desc);
+  // Open Graph
   const ogTitle = document.querySelector('meta[property="og:title"]');
   if (ogTitle) ogTitle.setAttribute('content', m.title);
   const ogDesc = document.querySelector('meta[property="og:description"]');
   if (ogDesc) ogDesc.setAttribute('content', m.desc);
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl) ogUrl.setAttribute('content', m.canonical);
+  // Canonical link
+  const canonEl = document.getElementById('canonicalTag');
+  if (canonEl) canonEl.setAttribute('href', m.canonical);
 }
 
 function goHome() {
