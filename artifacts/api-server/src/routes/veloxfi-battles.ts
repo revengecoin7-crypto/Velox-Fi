@@ -434,6 +434,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       rocketMiner:  todayByGame['rocket-miner']  || 0,
       snake:        todayByGame['crypto-snake']   || 0,
       battleTetris: todayByGame['battle-tetris']  || 0,
+      wolfRun:      todayByGame['wolf-run']       || 0,
     };
 
     const totalBattles = stats?.totalBattles || 0;

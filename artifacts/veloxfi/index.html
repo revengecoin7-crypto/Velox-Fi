@@ -1452,6 +1452,53 @@
 .bt-touch-btn.soft { background:rgba(37,99,235,.15); border-color:rgba(37,99,235,.35); }
 .bt-touch-btn.soft:active { background:rgba(37,99,235,.35); }
 
+/* ── Wolf Run Game Page ─────────────────────────── */
+#wolfRunPage { height:calc(100vh - 93px); display:flex; flex-direction:column; background:#030712; overflow:hidden; }
+.wr-topbar { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(5,8,15,.9); border-bottom:1px solid rgba(124,58,237,.25); flex-shrink:0; }
+.wr-back-btn { background:none; border:1px solid rgba(124,58,237,.45); color:#a78bfa; padding:7px 14px; border-radius:7px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:700; letter-spacing:.06em; transition:.2s; }
+.wr-back-btn:hover { background:rgba(124,58,237,.2); border-color:#7c3aed; }
+.wr-page-title { font-family:'Orbitron',sans-serif; font-size:.95rem; font-weight:700; color:#a78bfa; letter-spacing:.12em; }
+.wr-hud { display:flex; align-items:center; justify-content:space-between; padding:7px 20px; background:rgba(5,8,15,.8); border-bottom:1px solid rgba(124,58,237,.15); flex-shrink:0; }
+.wr-hud-lives { font-size:.95rem; letter-spacing:2px; min-width:80px; }
+.wr-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:700; color:#22d3ee; letter-spacing:.06em; }
+.wr-hud-wolf { display:flex; align-items:center; gap:5px; font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700; color:#a78bfa; min-width:80px; justify-content:flex-end; }
+.wr-wolf-icon { font-size:1rem; } .wr-wolf-label { font-size:.6rem; color:#7c3aed; margin-left:2px; }
+.wr-canvas-outer { flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:6px 8px; }
+#wolfRunCanvas { display:block; width:720px; max-width:100%; aspect-ratio:720/260; max-height:calc(100vh - 215px); border:1px solid rgba(124,58,237,.35); border-radius:8px; background:#030712; box-shadow:0 0 40px rgba(124,58,237,.12); }
+.wr-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,7,18,.88); border-radius:8px; z-index:5; }
+.wr-overlay-content { background:rgba(8,12,28,.98); border:1px solid rgba(124,58,237,.4); border-radius:16px; padding:24px 28px; max-width:420px; width:92%; text-align:center; box-shadow:0 0 50px rgba(124,58,237,.22); max-height:92%; overflow-y:auto; }
+.wr-overlay-icon { font-size:2.8rem; margin-bottom:6px; }
+.wr-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:700; color:#a78bfa; margin:0 0 5px; letter-spacing:.1em; }
+.wr-overlay-sub { color:#64748b; font-family:'Rajdhani',sans-serif; font-size:1rem; margin:0 0 14px; }
+.wr-rules { display:flex; gap:10px; justify-content:center; margin:10px 0; flex-wrap:wrap; }
+.wr-rule { display:flex; align-items:center; gap:6px; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.22); border-radius:8px; padding:6px 12px; font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#c4b5fd; }
+.wr-howto { background:rgba(5,8,15,.7); border:1px solid rgba(124,58,237,.18); border-radius:10px; padding:12px 14px; margin:12px 0 18px; text-align:left; }
+.wr-howto-title { font-family:'Orbitron',sans-serif; font-size:.62rem; color:#7c3aed; letter-spacing:.12em; margin-bottom:9px; }
+.wr-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.wr-howto-row { display:flex; align-items:flex-start; gap:10px; font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#94a3b8; line-height:1.35; }
+.wr-howto-icon { font-size:1rem; width:20px; text-align:center; flex-shrink:0; margin-top:1px; }
+.wr-howto-key { background:rgba(124,58,237,.25); border:1px solid rgba(124,58,237,.4); border-radius:4px; padding:1px 6px; font-family:'Orbitron',sans-serif; font-size:.6rem; color:#c4b5fd; white-space:nowrap; }
+.wr-play-btn { background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; color:#fff; font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:.12em; padding:14px 36px; border-radius:10px; cursor:pointer; transition:.2s; width:100%; }
+.wr-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,58,237,.5); }
+.wr-result-wolf-display { background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.25); border-radius:12px; padding:14px 24px; margin:14px 0; }
+.wr-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:700; color:#a78bfa; line-height:1; }
+.wr-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.8rem; color:#64748b; letter-spacing:.12em; margin-top:3px; }
+.wr-claim-btn { background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none; color:#fff; font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.1em; padding:13px 32px; border-radius:10px; cursor:pointer; transition:.2s; width:100%; margin-bottom:10px; }
+.wr-claim-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 22px rgba(124,58,237,.5); }
+.wr-claim-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.wr-guest-msg { font-family:'Rajdhani',sans-serif; color:#64748b; font-size:.95rem; margin:0 0 10px; }
+.wr-result-actions { display:flex; gap:10px; margin-top:10px; }
+.wr-again-btn,.wr-games-btn { flex:1; padding:10px; border-radius:8px; font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.06em; cursor:pointer; transition:.2s; }
+.wr-again-btn { background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.45); color:#a78bfa; }
+.wr-again-btn:hover { background:rgba(124,58,237,.32); }
+.wr-games-btn { background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.38); color:#60a5fa; }
+.wr-games-btn:hover { background:rgba(37,99,235,.26); }
+.wr-mobile-jump { display:none; align-items:center; justify-content:center; padding:10px 16px 14px; background:rgba(5,8,15,.92); border-top:1px solid rgba(124,58,237,.2); flex-shrink:0; }
+.wr-jump-btn { background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(124,58,237,.25)); border:2px solid rgba(167,139,250,.5); color:#a78bfa; font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:.12em; padding:18px 72px; border-radius:14px; cursor:pointer; transition:.15s; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
+.wr-jump-btn:active { background:rgba(124,58,237,.62); transform:scale(.96); }
+@media(pointer:coarse),(max-width:700px) { .wr-mobile-jump { display:flex; } }
+@media(max-width:520px) { .wr-overlay-content { padding:18px 16px; } .wr-overlay-title { font-size:1.2rem; } .wr-result-wolf-num { font-size:2.4rem; } .wr-jump-btn { padding:16px 50px; } }
+
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
   /* ── Tell the browser to honour background colours ── */
@@ -2095,12 +2142,13 @@
         <button class="pe-play-btn" onclick="goBattleTetris()">▶ PLAY</button>
       </div>
 
-      <div class="pe-card soon">
-        <div class="pe-cs-badge">COMING SOON</div>
+      <div class="pe-card" onclick="goWolfRun()">
+        <div class="pe-live-badge">LIVE</div>
         <div class="pe-card-icon">🐺</div>
         <div class="pe-card-name">WOLF RUN</div>
         <div class="pe-card-desc">Run and collect coins as the VeloxFi wolf</div>
         <div class="pe-card-earn">1 WOLF / coin</div>
+        <button class="pe-play-btn" onclick="goWolfRun()">▶ PLAY</button>
       </div>
 
     </div>
@@ -2335,12 +2383,12 @@
       </div>
 
       <!-- Wolf Run -->
-      <div class="ghub-card soon">
-        <div class="ghub-soon-badge">COMING SOON</div>
+      <div class="ghub-card ready" onclick="goWolfRun()">
+        <div class="ghub-play-badge">PLAY NOW</div>
         <div class="ghub-card-icon">🐺</div>
         <div class="ghub-card-name">WOLF RUN</div>
         <div class="ghub-card-desc">Endless runner — dodge obstacles and collect WOLF</div>
-        <div class="ghub-card-earn">Earn WOLF per run</div>
+        <div class="ghub-card-earn">Up to 120 WOLF / session</div>
       </div>
 
     </div>
@@ -3573,6 +3621,87 @@
   </div>
 </div><!-- /battleTetrisPage -->
 
+<!-- WOLF RUN PAGE -->
+<div id="wolfRunPage" style="display:none">
+  <div class="wr-topbar">
+    <button class="wr-back-btn" onclick="wrStopGame();goGames()">← GAMES</button>
+    <div class="wr-page-title">🐺 WOLF RUN</div>
+    <div style="width:100px"></div>
+  </div>
+  <div class="wr-hud">
+    <div class="wr-hud-lives" id="wrHudLives">❤️❤️❤️</div>
+    <div class="wr-hud-timer" id="wrHudTimer">2:00</div>
+    <div class="wr-hud-wolf">
+      <span class="wr-wolf-icon">🐺</span>
+      <span id="wrHudWolf">0</span>
+      <span class="wr-wolf-label">WOLF</span>
+    </div>
+  </div>
+  <div class="wr-canvas-outer">
+    <canvas id="wolfRunCanvas"></canvas>
+    <!-- Start Screen -->
+    <div id="wrStartScreen" class="wr-overlay">
+      <div class="wr-overlay-content">
+        <div class="wr-overlay-icon">🐺</div>
+        <h2 class="wr-overlay-title">WOLF RUN</h2>
+        <p class="wr-overlay-sub">Run, jump and collect $BATTLE coins as the VeloxFi wolf!</p>
+        <div class="wr-rules">
+          <div class="wr-rule"><span>⏱</span><span>2 min game</span></div>
+          <div class="wr-rule"><span>❤️</span><span>3 lives</span></div>
+          <div class="wr-rule"><span>🪙</span><span>1 WOLF / coin</span></div>
+        </div>
+        <div class="wr-howto">
+          <div class="wr-howto-title">HOW TO PLAY</div>
+          <div class="wr-howto-rows">
+            <div class="wr-howto-row">
+              <span class="wr-howto-icon">⌨️</span>
+              <span><span class="wr-howto-key">SPACE</span> or <span class="wr-howto-key">↑</span> — jump over obstacles</span>
+            </div>
+            <div class="wr-howto-row">
+              <span class="wr-howto-icon">🪙</span>
+              <span>Run through <span class="wr-howto-key">gold ⚔ coins</span> floating above ground to collect WOLF</span>
+            </div>
+            <div class="wr-howto-row">
+              <span class="wr-howto-icon">🪨</span>
+              <span>Avoid <span class="wr-howto-key">rocks</span> and <span class="wr-howto-key">blue barriers</span> — hitting one costs a life</span>
+            </div>
+            <div class="wr-howto-row">
+              <span class="wr-howto-icon">📱</span>
+              <span>Tap anywhere on the canvas or use the <span class="wr-howto-key">▲ JUMP</span> button below on mobile</span>
+            </div>
+          </div>
+        </div>
+        <button class="wr-play-btn" onclick="wrStartGame()">▶ PLAY NOW</button>
+      </div>
+    </div>
+    <!-- Result Screen -->
+    <div id="wrResultScreen" class="wr-overlay" style="display:none">
+      <div class="wr-overlay-content">
+        <h2 class="wr-overlay-title" id="wrResultTitle">TIME'S UP!</h2>
+        <div class="wr-result-wolf-display">
+          <div class="wr-result-wolf-num" id="wrResultWolf">0</div>
+          <div class="wr-result-wolf-lbl">WOLF EARNED</div>
+        </div>
+        <div id="wrClaimSection" style="display:none">
+          <button class="wr-claim-btn" id="wrClaimBtn" onclick="wrClaimWolf()">🐺 CLAIM WOLF</button>
+        </div>
+        <div id="wrGuestSection" style="display:none">
+          <p class="wr-guest-msg">Create a free account to save your WOLF!</p>
+          <button class="wr-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+        </div>
+        <div class="wr-result-actions">
+          <button class="wr-again-btn" onclick="wrRestartGame()">↺ PLAY AGAIN</button>
+          <button class="wr-games-btn" onclick="wrStopGame();goGames()">GAMES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile jump button -->
+  <div class="wr-mobile-jump" id="wrMobileJump">
+    <button class="wr-jump-btn" id="wrJumpBtn">▲ JUMP</button>
+  </div>
+</div><!-- /wolfRunPage -->
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -3733,6 +3862,7 @@ const MISSION_DEFS_FE = [
   { id:'m2', icon:'🚀', title:'Play Rocket Miner',  sub:'Play one Rocket Miner game today',      field:'rocketMinerPlayed', target:1, rewardField:'m2Rewarded', reward:5  },
   { id:'m3', icon:'🐍', title:'Play Crypto Snake',  sub:'Play one Crypto Snake game today',      field:'snakePlayed',       target:1, rewardField:'m3Rewarded', reward:5  },
   { id:'m6', icon:'🧱', title:'Play Battle Tetris', sub:'Play one Battle Tetris game today',     field:'battleTetrisPlayed',target:1, rewardField:'m6Rewarded', reward:5  },
+  { id:'m7', icon:'🐺', title:'Play Wolf Run',      sub:'Play one Wolf Run game today',          field:'wolfRunPlayed',     target:1, rewardField:'m7Rewarded', reward:5  },
   { id:'m4', icon:'⚔️', title:'Play a Battle',      sub:'Start any battle today',               field:'battlesPlayed',     target:1, rewardField:'m4Rewarded', reward:5  },
   { id:'m5', icon:'🎯', title:'Win a Battle',        sub:'Win any battle today',                  field:'battlesWon',        target:1, rewardField:'m5Rewarded', reward:20 },
 ];
@@ -3914,7 +4044,7 @@ function _clearProfWolfTimer() { if (_profWolfTimer) { clearInterval(_profWolfTi
 function _showOnlyPage(id) {
   if (id !== 'profilePage') _clearProfWolfTimer();
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage','wolfRunPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -3996,6 +4126,11 @@ function initRouter() {
     _showOnlyPage('battleTetrisPage');
     window.scrollTo(0,0);
     btInit();
+  } else if (path === '/games/wolf-run') {
+    setPageMeta('wolfRun');
+    _showOnlyPage('wolfRunPage');
+    window.scrollTo(0,0);
+    wrInit();
   } else if (path === '/games') {
     setPageMeta('games');
     _showOnlyPage('gamesHubPage');
@@ -4113,6 +4248,11 @@ const PAGE_META = {
     title:     'Battle Tetris — Stack Blocks, Earn WOLF | VeloxFi',
     desc:      'Play Battle Tetris on VeloxFi. Stack crypto-colored blocks, clear lines and earn WOLF tokens. Classic Tetris with a cyberpunk twist — free to play.',
     canonical: 'https://veloxfi.io/games/battle-tetris',
+  },
+  wolfRun: {
+    title:     'Wolf Run — Endless Runner, Earn WOLF | VeloxFi',
+    desc:      'Play Wolf Run on VeloxFi. Run as the VeloxFi wolf, dodge obstacles and collect $BATTLE coins to earn WOLF tokens. Free endless runner game on Solana.',
+    canonical: 'https://veloxfi.io/games/wolf-run',
   },
 };
 
@@ -5195,6 +5335,14 @@ function goBattleTetris() {
   btInit();
 }
 
+function goWolfRun() {
+  setPageMeta('wolfRun');
+  history.pushState(null, '', '/games/wolf-run');
+  _showOnlyPage('wolfRunPage');
+  window.scrollTo(0, 0);
+  wrInit();
+}
+
 function btInit() {
   btCanvas = document.getElementById('battleTetrisCanvas');
   if (!btCanvas) return;
@@ -5581,6 +5729,448 @@ async function btClaimWolf() {
 }
 // ── End Battle Tetris ──────────────────────────────
 
+// ── Wolf Run ────────────────────────────────────────────────────────────────
+const WR_W = 720, WR_H = 260;
+const WR_GROUND_Y = 215;   // y of ground surface
+const WR_WOLF_X   = 90;    // fixed x position
+const WR_WOLF_W   = 70;    // wolf sprite width
+const WR_WOLF_H   = 52;    // wolf sprite height
+const WR_GRAVITY  = 0.58;  // px per frame²
+const WR_JUMP_VY  = -13.4; // initial jump velocity (px/frame)
+const WR_DURATION = 120;   // game duration in seconds
+const WR_MAX_WOLF = 120;   // max WOLF per session
+
+let wrCanvas, wrCtx;
+let wrWolfY   = 0;       // wolf top-left y in canvas coords
+let wrWolfVY  = 0;       // vertical velocity
+let wrOnGround = true;
+let wrLives   = 3;
+let wrWolfEarned = 0;
+let wrTimeLeft = WR_DURATION;
+let wrFrame   = 0;
+let wrSpeed   = 3.5;
+let wrGameRunning = false;
+let wrClaimed = false;
+let wrInvincFrames = 0;
+let wrObstacles = [], wrCoins = [], wrParticles = [];
+let wrFarOffset = 0, wrNearOffset = 0, wrBgOffset = 0;
+let WR_STARS = [], WR_BFAR = [], WR_BNEAR = [];
+let WR_BFAR_W = 0, WR_BNEAR_W = 0;
+let wrObstTimer = 0, wrCoinTimer = 0;
+let wrTimerInt = null, wrAnimId = null, wrLastTs = 0;
+let wrKeyHandler = null, wrTouchHandler = null;
+
+function wrGenBackground() {
+  WR_STARS = [];
+  for (let i = 0; i < 90; i++) {
+    WR_STARS.push({ x: Math.random() * WR_W, y: Math.random() * WR_GROUND_Y * 0.9, r: Math.random() < 0.12 ? 1.5 : 0.7, a: 0.3 + Math.random() * 0.7 });
+  }
+  WR_BFAR = []; let bx = 0;
+  while (bx < WR_W * 3) {
+    const bw = 22 + Math.floor(Math.random() * 52), bh = 30 + Math.floor(Math.random() * 85);
+    const wins = [];
+    for (let wy = bh - 8; wy > 6; wy -= 10) for (let wx = 4; wx < bw - 4; wx += 8) if (Math.random() > 0.52) wins.push({ x: wx, y: wy });
+    WR_BFAR.push({ x: bx, w: bw, h: bh, wins }); bx += bw + 3 + Math.floor(Math.random() * 10);
+  }
+  WR_BFAR_W = bx;
+  WR_BNEAR = []; bx = 0;
+  while (bx < WR_W * 3) {
+    const bw = 38 + Math.floor(Math.random() * 78), bh = 65 + Math.floor(Math.random() * 110);
+    const wins = [];
+    for (let wy = bh - 10; wy > 10; wy -= 12) for (let wx = 5; wx < bw - 5; wx += 10) if (Math.random() > 0.48) wins.push({ x: wx, y: wy });
+    WR_BNEAR.push({ x: bx, w: bw, h: bh, wins }); bx += bw + 2 + Math.floor(Math.random() * 6);
+  }
+  WR_BNEAR_W = bx;
+}
+
+function wrDrawBldgLayer(ctx, blds, totalW, off, gY, bc, wc) {
+  const o = ((off % totalW) + totalW) % totalW;
+  blds.forEach(b => {
+    for (let rep = -1; rep <= 1; rep++) {
+      const bx = b.x - o + rep * totalW;
+      if (bx + b.w < 0 || bx > WR_W) continue;
+      ctx.fillStyle = bc; ctx.fillRect(bx, gY - b.h, b.w, b.h);
+      ctx.fillStyle = wc; b.wins.forEach(w => ctx.fillRect(bx + w.x, gY - b.h + w.y, 4, 5));
+    }
+  });
+}
+
+function wrDrawBackground(ctx) {
+  const gY = WR_GROUND_Y;
+  // Sky
+  const sky = ctx.createLinearGradient(0, 0, 0, gY);
+  sky.addColorStop(0, '#010411'); sky.addColorStop(0.55, '#040c25'); sky.addColorStop(1, '#091732');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, WR_W, gY);
+  // Stars
+  WR_STARS.forEach(s => { ctx.fillStyle = `rgba(255,255,255,${s.a})`; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill(); });
+  // Horizon glow
+  const hglow = ctx.createLinearGradient(0, gY - 35, 0, gY + 5);
+  hglow.addColorStop(0, 'rgba(124,58,237,0.22)'); hglow.addColorStop(1, 'rgba(124,58,237,0)');
+  ctx.fillStyle = hglow; ctx.fillRect(0, gY - 35, WR_W, 40);
+  // Far buildings
+  wrDrawBldgLayer(ctx, WR_BFAR, WR_BFAR_W, wrFarOffset, gY, '#070e20', 'rgba(167,139,250,0.4)');
+  // Near buildings
+  wrDrawBldgLayer(ctx, WR_BNEAR, WR_BNEAR_W, wrNearOffset, gY, '#040910', 'rgba(96,165,250,0.22)');
+  // Ground
+  const gr = ctx.createLinearGradient(0, gY, 0, WR_H);
+  gr.addColorStop(0, '#0c1a34'); gr.addColorStop(1, '#040910');
+  ctx.fillStyle = gr; ctx.fillRect(0, gY, WR_W, WR_H - gY);
+  // Ground neon line
+  ctx.save(); ctx.strokeStyle = 'rgba(124,58,237,0.75)'; ctx.lineWidth = 2;
+  ctx.shadowColor = 'rgba(124,58,237,0.6)'; ctx.shadowBlur = 7;
+  ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(WR_W, gY); ctx.stroke();
+  ctx.shadowBlur = 0; ctx.restore();
+  // Scrolling ground grid lines
+  ctx.save(); ctx.strokeStyle = 'rgba(124,58,237,0.1)'; ctx.lineWidth = 1;
+  const goff = ((wrBgOffset * 0.6) % 55 + 55) % 55;
+  for (let x = -goff; x < WR_W + 55; x += 55) {
+    ctx.beginPath(); ctx.moveTo(x, gY); ctx.lineTo(x + (WR_W * 0.5 - x) * 0.5 + x * 0.5, WR_H); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function wrRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+  else { ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); }
+  ctx.closePath();
+}
+
+function wrDrawWolf(ctx) {
+  if (wrInvincFrames > 0 && wrFrame % 8 < 4) return;
+  const x = WR_WOLF_X, y = wrWolfY, h = WR_WOLF_H, gY = WR_GROUND_Y;
+  const jumping = !wrOnGround;
+  ctx.save();
+  // Shadow
+  if (wrOnGround) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(x + h*0.7, gY + 4, h*0.44, 5, 0, 0, Math.PI*2); ctx.fill(); }
+  // Tail
+  const tw = jumping ? 0 : Math.sin(wrFrame * 0.22) * 11;
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x + 9, y + h*0.48); ctx.quadraticCurveTo(x - 10, y + h*0.28 + tw, x + 2, y + h*0.74 + tw*0.38); ctx.stroke();
+  // Body
+  const bg = ctx.createLinearGradient(x+6, y+h*0.3, x+6, y+h*0.88);
+  bg.addColorStop(0, '#7c3aed'); bg.addColorStop(1, '#4c1d95');
+  ctx.fillStyle = bg; wrRoundRect(ctx, x+8, y+h*0.3, h*0.72, h*0.5, 9); ctx.fill();
+  // Chest highlight
+  ctx.fillStyle = 'rgba(196,181,253,0.13)'; wrRoundRect(ctx, x+8, y+h*0.3, h*0.72, h*0.22, 9); ctx.fill();
+  // Neck
+  ctx.fillStyle = '#6d28d9'; ctx.beginPath(); ctx.ellipse(x+h*0.72, y+h*0.36, 9, 12, -0.12, 0, Math.PI*2); ctx.fill();
+  // Head
+  const hg = ctx.createRadialGradient(x+h*0.8, y+h*0.22, 2, x+h*0.8, y+h*0.22, 17);
+  hg.addColorStop(0, '#8b5cf6'); hg.addColorStop(1, '#5b21b6');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.ellipse(x+h*0.8, y+h*0.22, 17, 14, -0.1, 0, Math.PI*2); ctx.fill();
+  // Snout
+  ctx.fillStyle = '#4c1d95'; ctx.beginPath(); ctx.ellipse(x+h*0.97, y+h*0.28, 9, 7, 0.14, 0, Math.PI*2); ctx.fill();
+  // Nose
+  ctx.fillStyle = '#c4b5fd'; ctx.beginPath(); ctx.ellipse(x+h*1.03, y+h*0.25, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  // Ears
+  ctx.fillStyle = '#5b21b6'; ctx.beginPath(); ctx.moveTo(x+h*0.63,y+h*0.1); ctx.lineTo(x+h*0.68,y-h*0.04); ctx.lineTo(x+h*0.74,y+h*0.12); ctx.fill();
+  ctx.fillStyle = '#7c3aed'; ctx.beginPath(); ctx.moveTo(x+h*0.73,y+h*0.08); ctx.lineTo(x+h*0.8,y-h*0.07); ctx.lineTo(x+h*0.87,y+h*0.08); ctx.fill();
+  ctx.fillStyle = '#a78bfa'; ctx.beginPath(); ctx.moveTo(x+h*0.745,y+h*0.09); ctx.lineTo(x+h*0.8,y-h*0.02); ctx.lineTo(x+h*0.855,y+h*0.09); ctx.fill();
+  // Eye
+  ctx.fillStyle = '#22d3ee'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 11;
+  ctx.beginPath(); ctx.arc(x+h*0.9, y+h*0.2, 3.5, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.fillStyle = '#164e63'; ctx.beginPath(); ctx.arc(x+h*0.91, y+h*0.21, 1.8, 0, Math.PI*2); ctx.fill();
+  // Legs
+  const lp = Math.sin(wrFrame * (jumping ? 0 : 0.32));
+  const la = jumping ? 7 : h * 0.2;
+  const ljump = jumping ? -9 : 0;
+  ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.strokeStyle = '#5b21b6';
+  ctx.beginPath(); ctx.moveTo(x+17, y+h*0.74); ctx.lineTo(x+17+la*lp*0.7+(jumping?-4:0), y+h+ljump); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+25, y+h*0.74); ctx.lineTo(x+25-la*lp*0.7+(jumping?4:0), y+h+ljump-2); ctx.stroke();
+  ctx.strokeStyle = '#7c3aed';
+  ctx.beginPath(); ctx.moveTo(x+h*0.5, y+h*0.72); ctx.lineTo(x+h*0.5+la*lp*0.8+(jumping?5:0), y+h+ljump); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+h*0.58, y+h*0.72); ctx.lineTo(x+h*0.58-la*lp*0.8+(jumping?-5:0), y+h+ljump-2); ctx.stroke();
+  // Speed streaks at high speed
+  if (wrSpeed > 5.5) {
+    const sa = Math.min((wrSpeed - 5.5) / 4, 0.45);
+    ctx.strokeStyle = `rgba(124,58,237,${sa})`; ctx.lineWidth = 1.8;
+    [0.38, 0.52, 0.65].forEach((t, i) => {
+      const sl = 14 + i * 9;
+      ctx.beginPath(); ctx.moveTo(x - sl - 4, y+h*t); ctx.lineTo(x - 4, y+h*t); ctx.stroke();
+    });
+  }
+  ctx.restore();
+}
+
+function wrDrawObstacle(ctx, o) {
+  const gY = WR_GROUND_Y; ctx.save();
+  if (o.kind === 'rock') {
+    const rg = ctx.createLinearGradient(o.x, gY - o.h, o.x, gY);
+    rg.addColorStop(0, '#374151'); rg.addColorStop(1, '#1f2937');
+    ctx.fillStyle = rg; wrRoundRect(ctx, o.x, gY - o.h, o.w, o.h, [10, 10, 0, 0]); ctx.fill();
+    ctx.strokeStyle = 'rgba(107,114,128,0.5)'; ctx.lineWidth = 1.5; wrRoundRect(ctx, o.x, gY - o.h, o.w, o.h, [10, 10, 0, 0]); ctx.stroke();
+    ctx.strokeStyle = 'rgba(156,163,175,0.28)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(o.x+o.w*0.28,gY-o.h*0.82); ctx.lineTo(o.x+o.w*0.5,gY-o.h*0.38); ctx.lineTo(o.x+o.w*0.72,gY-o.h*0.62); ctx.stroke();
+  } else {
+    const bg2 = ctx.createLinearGradient(o.x, gY - o.h, o.x, gY);
+    bg2.addColorStop(0, '#1d4ed8'); bg2.addColorStop(1, '#1e3a8a');
+    ctx.fillStyle = bg2; ctx.fillRect(o.x, gY - o.h, o.w, o.h);
+    ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2; ctx.shadowColor = '#60a5fa'; ctx.shadowBlur = 9;
+    ctx.strokeRect(o.x, gY - o.h, o.w, o.h); ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(96,165,250,0.45)'; ctx.lineWidth = 1.2;
+    for (let hy = gY - o.h + 10; hy < gY; hy += 12) { ctx.beginPath(); ctx.moveTo(o.x+2, hy); ctx.lineTo(o.x+o.w-2, hy); ctx.stroke(); }
+  }
+  ctx.restore();
+}
+
+function wrDrawCoin(ctx, c) {
+  ctx.save();
+  const pulse = 0.82 + Math.sin(wrFrame * 0.14 + c.phase) * 0.18;
+  ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 12 + Math.sin(wrFrame * 0.14 + c.phase) * 4;
+  const cg = ctx.createRadialGradient(c.x - 3, c.y - 3, 2, c.x, c.y, c.r);
+  cg.addColorStop(0, '#fcd34d'); cg.addColorStop(0.55, '#f59e0b'); cg.addColorStop(1, '#b45309');
+  ctx.fillStyle = cg; ctx.globalAlpha = pulse;
+  ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0; ctx.fillStyle = '#7c2d12';
+  ctx.font = `bold ${Math.round(c.r * 1.15)}px Rajdhani,sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('⚔', c.x, c.y + 1);
+  ctx.restore();
+}
+
+function wrDrawParticles(ctx) {
+  wrParticles = wrParticles.filter(p => p.life > 0);
+  wrParticles.forEach(p => {
+    ctx.save(); ctx.globalAlpha = p.life / p.maxLife;
+    ctx.fillStyle = p.color; ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    p.x += p.vx; p.y += p.vy; p.vy += 0.18; p.life--;
+    ctx.restore();
+  });
+}
+
+function wrSpawnParticles(x, y, color) {
+  for (let i = 0; i < 8; i++) {
+    const ang = (Math.PI * 2 / 8) * i;
+    wrParticles.push({ x, y, vx: Math.cos(ang)*(1.5+Math.random()*2), vy: Math.sin(ang)*(1.5+Math.random()*2)-1.2, r: 2.2+Math.random()*2, color, life: 24+Math.random()*14, maxLife: 38 });
+  }
+}
+
+function wrGetHitbox() {
+  return { x: WR_WOLF_X + 22, y: wrWolfY + 10, w: WR_WOLF_W - 33, h: WR_WOLF_H - 14 };
+}
+
+function wrCheckCollisions() {
+  if (wrInvincFrames > 0) return;
+  const hb = wrGetHitbox(), gY = WR_GROUND_Y;
+  for (const o of wrObstacles) {
+    if (hb.x < o.x + o.w && hb.x + hb.w > o.x && hb.y + hb.h > gY - o.h && hb.y < gY) { wrHit(); return; }
+  }
+  const wolfCX = WR_WOLF_X + WR_WOLF_W * 0.5, wolfCY = wrWolfY + WR_WOLF_H * 0.5;
+  for (let i = wrCoins.length - 1; i >= 0; i--) {
+    const c = wrCoins[i];
+    if (Math.hypot(c.x - wolfCX, c.y - wolfCY) < c.r + WR_WOLF_W * 0.34) {
+      wrCoins.splice(i, 1);
+      if (wrWolfEarned < WR_MAX_WOLF) { wrWolfEarned++; wrSpawnParticles(c.x, c.y, '#fbbf24'); wrUpdateWrHud(); }
+    }
+  }
+}
+
+function wrHit() {
+  wrLives--; wrInvincFrames = 90;
+  wrSpawnParticles(WR_WOLF_X + WR_WOLF_W * 0.5, wrWolfY + WR_WOLF_H * 0.5, '#ef4444');
+  wrUpdateWrHud();
+  if (wrLives <= 0) wrEndGame('lives');
+}
+
+function wrUpdateWrHud() {
+  const livEl = document.getElementById('wrHudLives');
+  const wlfEl = document.getElementById('wrHudWolf');
+  if (livEl) livEl.textContent = '❤️'.repeat(Math.max(0,wrLives)) + '🖤'.repeat(Math.max(0,3-wrLives));
+  if (wlfEl) wlfEl.textContent = wrWolfEarned;
+}
+
+function wrTickTimer() {
+  if (!wrGameRunning) return;
+  wrTimeLeft--;
+  const el = document.getElementById('wrHudTimer');
+  if (el) {
+    const m = Math.floor(wrTimeLeft / 60), s = wrTimeLeft % 60;
+    el.textContent = m + ':' + String(s).padStart(2,'0');
+    el.style.color = wrTimeLeft <= 30 ? '#ef4444' : '#22d3ee';
+  }
+  if (wrTimeLeft <= 0) wrEndGame('time');
+}
+
+function wrSpawnObstacle() {
+  const elapsed = WR_DURATION - wrTimeLeft;
+  const pool = elapsed < 30 ? ['rock','rock','barrier'] : elapsed < 70 ? ['rock','barrier','barrier'] : ['rock','barrier','tall'];
+  const kind = pool[Math.floor(Math.random() * pool.length)];
+  let w, h;
+  if (kind === 'rock') { w = 38; h = 30; } else if (kind === 'barrier') { w = 20; h = 58; } else { w = 22; h = 82; }
+  wrObstacles.push({ x: WR_W + 10, w, h, kind: kind === 'rock' ? 'rock' : 'barrier' });
+}
+
+function wrSpawnCoin() {
+  const heights = [22, 50, 82];
+  const h = heights[Math.floor(Math.random() * heights.length)];
+  wrCoins.push({ x: WR_W + 10, y: WR_GROUND_Y - h, r: 13, phase: Math.random() * Math.PI * 2 });
+}
+
+function wrGameLoop(ts) {
+  if (!wrGameRunning) return;
+  wrAnimId = requestAnimationFrame(wrGameLoop);
+  const dt = Math.min(wrLastTs ? (ts - wrLastTs) / 16.667 : 1, 3);
+  wrLastTs = ts; wrFrame++;
+  // Speed ramp
+  const elapsed = WR_DURATION - wrTimeLeft;
+  wrSpeed = 3.5 + Math.floor(elapsed / 22) * 0.38;
+  // Wolf physics
+  wrWolfVY += WR_GRAVITY * dt; wrWolfY += wrWolfVY * dt;
+  const groundTopY = WR_GROUND_Y - WR_WOLF_H;
+  if (wrWolfY >= groundTopY) { wrWolfY = groundTopY; wrWolfVY = 0; wrOnGround = true; }
+  if (wrInvincFrames > 0) wrInvincFrames--;
+  // Scroll
+  wrFarOffset  += wrSpeed * 0.24 * dt;
+  wrNearOffset += wrSpeed * 0.56 * dt;
+  wrBgOffset   += wrSpeed * dt;
+  // Spawn
+  wrObstTimer -= dt;
+  if (wrObstTimer <= 0) {
+    wrSpawnObstacle();
+    const minG = Math.max(52, 100 - elapsed * 0.32), maxG = Math.max(85, 160 - elapsed * 0.42);
+    wrObstTimer = minG + Math.random() * (maxG - minG);
+  }
+  wrCoinTimer -= dt;
+  if (wrCoinTimer <= 0) { wrSpawnCoin(); wrCoinTimer = 38 + Math.random() * 52; }
+  // Move
+  wrObstacles.forEach(o => { o.x -= wrSpeed * dt; }); wrObstacles = wrObstacles.filter(o => o.x + o.w > -10);
+  wrCoins.forEach(c => { c.x -= wrSpeed * dt; }); wrCoins = wrCoins.filter(c => c.x > -20);
+  // Collisions
+  wrCheckCollisions();
+  // Draw
+  const ctx = wrCtx;
+  ctx.clearRect(0, 0, WR_W, WR_H);
+  wrDrawBackground(ctx);
+  wrObstacles.forEach(o => wrDrawObstacle(ctx, o));
+  wrCoins.forEach(c => wrDrawCoin(ctx, c));
+  wrDrawWolf(ctx);
+  wrDrawParticles(ctx);
+}
+
+function wrJump() {
+  if (!wrGameRunning) return;
+  if (wrOnGround) { wrWolfVY = WR_JUMP_VY; wrOnGround = false; }
+}
+
+function wrEndGame(reason) {
+  wrGameRunning = false;
+  if (wrAnimId) { cancelAnimationFrame(wrAnimId); wrAnimId = null; }
+  if (wrTimerInt) { clearInterval(wrTimerInt); wrTimerInt = null; }
+  const screen = document.getElementById('wrResultScreen');
+  const titleEl = document.getElementById('wrResultTitle');
+  const wolfEl  = document.getElementById('wrResultWolf');
+  const claimSec = document.getElementById('wrClaimSection');
+  const guestSec = document.getElementById('wrGuestSection');
+  const claimBtn = document.getElementById('wrClaimBtn');
+  if (titleEl) titleEl.textContent = reason === 'time' ? "⏱ TIME'S UP!" : '💀 GAME OVER';
+  if (wolfEl) wolfEl.textContent = wrWolfEarned;
+  if (claimBtn) { claimBtn.disabled = false; claimBtn.textContent = '🐺 CLAIM WOLF'; }
+  if (currentUser && wrWolfEarned > 0) {
+    if (claimSec) claimSec.style.display = 'block'; if (guestSec) guestSec.style.display = 'none';
+  } else if (!currentUser) {
+    if (claimSec) claimSec.style.display = 'none'; if (guestSec) guestSec.style.display = 'block';
+  } else {
+    if (claimSec) claimSec.style.display = 'none'; if (guestSec) guestSec.style.display = 'none';
+  }
+  if (screen) screen.style.display = 'flex';
+}
+
+async function wrClaimWolf() {
+  if (!currentUser || wrWolfEarned <= 0 || wrClaimed) return;
+  const btn = document.getElementById('wrClaimBtn');
+  const session = getSession();
+  if (!session?.tok) { showToast('Session expired — please log in again.', 'error'); return; }
+  const ENDPOINT = '/api/veloxfi/game/wolf-run/earn';
+  const BODY = JSON.stringify({ wolfEarned: wrWolfEarned });
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (btn) { btn.disabled = true; btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`; }
+    try {
+      const res = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${session.tok}`}, body: BODY });
+      if (res.status === 400) { const d = await res.json().catch(()=>({})); showToast(d.error||'Invalid claim.','error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return; }
+      if (res.status === 401) { showToast('Session expired — please log in again.','error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return; }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.ok) {
+        wrClaimed = true;
+        try {
+          if (currentUser) currentUser.wolf = data.newWolfBalance;
+          if (typeof updateNavBalance === 'function') updateNavBalance();
+          showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        } catch(uiErr) { showToast(`+${data.wolfEarned} WOLF claimed!`, 'success'); if(btn){btn.disabled=true;btn.textContent='✓ CLAIMED!';} }
+        return;
+      }
+      showToast(data.error || 'Claim failed.', 'error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return;
+    } catch(err) {
+      if (wrClaimed) return;
+      if (attempt < MAX_RETRIES) { await new Promise(r => setTimeout(r, attempt * 600)); }
+      else { showToast('Network error after 3 attempts. Try again.', 'error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} }
+    }
+  }
+}
+
+function wrStartGame() {
+  wrWolfY = WR_GROUND_Y - WR_WOLF_H; wrWolfVY = 0; wrOnGround = true;
+  wrLives = 3; wrWolfEarned = 0; wrTimeLeft = WR_DURATION; wrFrame = 0; wrSpeed = 3.5;
+  wrClaimed = false; wrInvincFrames = 0;
+  wrObstacles = []; wrCoins = []; wrParticles = [];
+  wrFarOffset = 0; wrNearOffset = 0; wrBgOffset = 0;
+  wrObstTimer = 75; wrCoinTimer = 28; wrLastTs = 0;
+  const start = document.getElementById('wrStartScreen'), result = document.getElementById('wrResultScreen');
+  if (start) start.style.display = 'none'; if (result) result.style.display = 'none';
+  const timerEl = document.getElementById('wrHudTimer');
+  if (timerEl) { timerEl.textContent = '2:00'; timerEl.style.color = '#22d3ee'; }
+  wrUpdateWrHud();
+  wrGameRunning = true;
+  wrTimerInt = setInterval(wrTickTimer, 1000);
+  wrAnimId = requestAnimationFrame(wrGameLoop);
+}
+
+function wrRestartGame() {
+  wrGameRunning = false;
+  if (wrAnimId) { cancelAnimationFrame(wrAnimId); wrAnimId = null; }
+  if (wrTimerInt) { clearInterval(wrTimerInt); wrTimerInt = null; }
+  wrClaimed = false; wrStartGame();
+}
+
+function wrStopGame() {
+  wrGameRunning = false;
+  if (wrAnimId) { cancelAnimationFrame(wrAnimId); wrAnimId = null; }
+  if (wrTimerInt) { clearInterval(wrTimerInt); wrTimerInt = null; }
+  if (wrKeyHandler) { document.removeEventListener('keydown', wrKeyHandler); wrKeyHandler = null; }
+  if (wrTouchHandler && wrCanvas) { wrCanvas.removeEventListener('touchstart', wrTouchHandler); wrTouchHandler = null; }
+}
+
+function wrInit() {
+  wrCanvas = document.getElementById('wolfRunCanvas');
+  if (!wrCanvas) return;
+  wrCtx = wrCanvas.getContext('2d');
+  wrCanvas.width = WR_W; wrCanvas.height = WR_H;
+  wrGenBackground();
+  const start = document.getElementById('wrStartScreen'), result = document.getElementById('wrResultScreen');
+  if (start) start.style.display = 'flex'; if (result) result.style.display = 'none';
+  // Draw preview frame
+  wrWolfY = WR_GROUND_Y - WR_WOLF_H; wrFrame = 0; wrOnGround = true; wrInvincFrames = 0;
+  wrCtx.clearRect(0, 0, WR_W, WR_H);
+  wrDrawBackground(wrCtx); wrDrawWolf(wrCtx);
+  // Keyboard
+  if (wrKeyHandler) document.removeEventListener('keydown', wrKeyHandler);
+  wrKeyHandler = e => { if (e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW') { e.preventDefault(); wrJump(); } };
+  document.addEventListener('keydown', wrKeyHandler);
+  // Touch on canvas
+  if (wrTouchHandler && wrCanvas) wrCanvas.removeEventListener('touchstart', wrTouchHandler);
+  wrTouchHandler = e => { e.preventDefault(); wrJump(); };
+  wrCanvas.addEventListener('touchstart', wrTouchHandler, { passive: false });
+  // Mobile jump button
+  const jb = document.getElementById('wrJumpBtn');
+  if (jb) { jb.ontouchstart = e => { e.preventDefault(); wrJump(); }; jb.onmousedown = () => wrJump(); }
+}
+// ── End Wolf Run ──────────────────────────────────────────────────────────────
+
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
@@ -5653,6 +6243,7 @@ async function loadProfile() {
       rocketMinerPlayed: gm.rocketMiner    || 0,
       snakePlayed:       gm.snake          || 0,
       battleTetrisPlayed:gm.battleTetris   || 0,
+      wolfRunPlayed:     gm.wolfRun        || 0,
       battlesPlayed:     Math.min(rawMissions.battlesPlayed || 0, 1),
       battlesWon:        battlesWonToday,
     };
@@ -5817,11 +6408,11 @@ async function loadProfile() {
           <div class="dash-game-info"><div class="dash-game-name">BATTLE TETRIS</div><div class="dash-game-sub">${bt.plays>0?bt.plays+' game'+(bt.plays!==1?'s':'')+' played':'No games yet'}</div></div>
           <div class="dash-game-stats"><div class="dash-game-stat-val"${bt.plays>0?'':' style="color:#334155"'}>${bt.plays>0?bt.totalWolf.toLocaleString():'—'}</div><div class="dash-game-stat-label">WOLF</div></div>
         </div>`;})()}
-        <div class="dash-game-row soon">
+        ${(()=>{const wr=d.gameActivity&&d.gameActivity['wolf-run']||{plays:0,totalWolf:0};return`<div class="dash-game-row">
           <div class="dash-game-icon">🐺</div>
-          <div class="dash-game-info"><div class="dash-game-name">WOLF RUN</div><div class="dash-game-sub">Coming soon</div></div>
-          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
-        </div>
+          <div class="dash-game-info"><div class="dash-game-name">WOLF RUN</div><div class="dash-game-sub">${wr.plays>0?wr.plays+' game'+(wr.plays!==1?'s':'')+' played':'No games yet'}</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val"${wr.plays>0?'':' style="color:#334155"'}>${wr.plays>0?wr.totalWolf.toLocaleString():'—'}</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>`;})()}
       </div>
     </div>
   </div>

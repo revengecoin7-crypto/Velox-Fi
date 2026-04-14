@@ -408,4 +408,29 @@ router.post("/veloxfi/game/crypto-snake/earn", requireAuth as any, async (req: a
   }
 });
 
+// ── Wolf Run: save earned WOLF ────────────────────────────────────────────────
+const WOLF_RUN_MAX_WOLF = 120;
+router.post("/veloxfi/game/wolf-run/earn", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const raw = Number(req.body.wolfEarned);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      res.status(400).json({ error: "No WOLF earned." }); return;
+    }
+    const wolfEarned = Math.min(Math.floor(raw), WOLF_RUN_MAX_WOLF);
+    const [updated] = await db.update(veloxfiUsers)
+      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
+      .where(eq(veloxfiUsers.username, user.username))
+      .returning({ wolf: veloxfiUsers.wolf });
+    if (!updated) {
+      res.status(500).json({ error: "Failed to update balance." }); return;
+    }
+    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'wolf-run', wolfEarned });
+    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
+  } catch (e) {
+    console.error("wolf-run/earn error:", e);
+    res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
 export default router;
