@@ -1341,6 +1341,12 @@
 .rmp-games-btn:hover { background:rgba(37,99,235,.18); }
 .rmp-touch-controls { display:none; justify-content:space-between; align-items:stretch; padding:12px 0 0; gap:8px; }
 @media (pointer:coarse),(max-width:700px){ .rmp-touch-controls { display:flex; } }
+@media (pointer:coarse),(max-width:700px){
+  .rmp-wrap { padding:6px 12px 0; }
+  .rmp-topbar { margin-bottom:4px; }
+  .rmp-hud { margin-bottom:4px; }
+  #rocketMinerCanvas { aspect-ratio:480/620; width:auto; height:auto; max-width:calc(100vw - 24px); max-height:calc(100svh - 300px); margin:0 auto; }
+}
 .rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.6rem; font-weight:900; color:#fff; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:0; height:80px; min-height:80px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
 .rmp-touch-btn:active,.rmp-touch-btn.pressed { background:rgba(37,99,235,.45); }
 .rmp-touch-btn.fire { background:rgba(124,58,237,.22); border-color:rgba(124,58,237,.38); font-size:.8rem; letter-spacing:.14em; }
@@ -1394,6 +1400,12 @@
 .cs-games-btn:hover { background:rgba(37,99,235,.18); }
 .cs-touch-controls { display:none; padding:14px 0 0; justify-content:center; }
 @media (pointer:coarse),(max-width:700px){ .cs-touch-controls { display:flex; } }
+@media (pointer:coarse),(max-width:700px){
+  .cs-wrap { padding:6px 8px 0; }
+  .cs-topbar { margin-bottom:4px; }
+  .cs-hud { margin-bottom:4px; }
+  #cryptoSnakeCanvas { width:min(calc(100vw - 16px), calc(100svh - 480px)); margin:0 auto; }
+}
 .cs-dpad { display:flex; flex-direction:column; align-items:center; gap:10px; }
 .cs-dpad-row { display:flex; align-items:center; gap:10px; }
 .cs-dpad-center { width:80px; height:80px; background:rgba(255,255,255,.03); border-radius:14px; }
@@ -5435,6 +5447,7 @@ let btWolfEarned = 0, btLinesCleared = 0, btTimeLeft = BT_DURATION;
 let btFallSpeed = BT_INIT_SPEED, btClaimed = false;
 let btFlashLines = [], btFlashExpiry = 0;
 let btLockPending = false;
+let btTouchBound = false;
 
 function goBattleTetris() {
   setPageMeta('battleTetris');
@@ -5516,7 +5529,7 @@ function btStartGame() {
   btGameState = 'playing';
   btSpawn();
   document.addEventListener('keydown', btOnKeyDown);
-  btBindTouch();
+  if (!btTouchBound) { btBindTouch(); btTouchBound = true; }
   if (btTimerInterval) clearInterval(btTimerInterval);
   btTimerInterval = setInterval(() => {
     if (btGameState !== 'playing') return;
