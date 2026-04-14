@@ -1395,63 +1395,59 @@
 .cs-dpad-btn:active,.cs-dpad-btn.pressed { background:rgba(124,58,237,.45); }
 
 /* ── Battle Tetris Game Page ────────────────────── */
-#battleTetrisPage { min-height:100vh; background:#030712; }
-.bt-wrap { max-width:520px; margin:0 auto; padding:16px 12px 48px; }
-.bt-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#battleTetrisPage { height:calc(100vh - 93px); display:flex; flex-direction:column; background:#030712; overflow:hidden; }
+.bt-topbar { display:flex; align-items:center; justify-content:space-between; padding:10px 20px; border-bottom:1px solid rgba(255,255,255,.06); flex-shrink:0; }
 .bt-back-btn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; color:#60a5fa; background:none; border:1px solid rgba(96,165,250,.3); border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .2s; }
 .bt-back-btn:hover { background:rgba(96,165,250,.1); border-color:#60a5fa; }
 .bt-page-title { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:900; letter-spacing:.15em; color:#fff; }
-.bt-hud { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 16px; margin-bottom:8px; }
-.bt-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; color:#60a5fa; letter-spacing:.05em; min-width:52px; text-align:center; }
-.bt-hud-wolf { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:4px; }
-.bt-wolf-icon { font-size:1rem; }
-.bt-wolf-label { font-size:.65rem; color:#7c3aed; }
-.bt-game-area { display:flex; gap:10px; align-items:flex-start; justify-content:center; }
-.bt-canvas-outer { position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(124,58,237,.3); box-shadow:0 0 40px rgba(124,58,237,.12); flex-shrink:0; }
-#battleTetrisCanvas { display:block; }
-.bt-side-panel { display:flex; flex-direction:column; gap:10px; min-width:88px; }
-.bt-panel-box { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px; }
-.bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; text-align:center; }
-.bt-panel-num { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#a78bfa; text-align:center; }
-.bt-panel-sub { font-family:'Rajdhani',sans-serif; font-size:.7rem; color:#475569; text-align:center; margin-top:2px; }
-#btNextCanvas { display:block; border-radius:6px; }
-.bt-overlay { position:absolute; inset:0; background:rgba(3,7,18,.93); display:flex; align-items:center; justify-content:center; z-index:10; }
-.bt-overlay-icon { font-size:3rem; margin-bottom:10px; }
-.bt-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 8px; }
-.bt-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#64748b; margin:0 0 18px; }
-.bt-rules { display:flex; gap:10px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
-.bt-rule { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; min-width:72px; }
-.bt-rule span:first-child { font-size:1.2rem; }
-.bt-howto { margin:0 0 16px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
-.bt-howto-title { font-family:'Orbitron',sans-serif; font-size:.58rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; }
-.bt-howto-rows { display:flex; flex-direction:column; gap:7px; }
-.bt-howto-row { display:flex; align-items:flex-start; gap:8px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; line-height:1.35; }
-.bt-howto-icon { font-size:.95rem; flex-shrink:0; }
+.bt-game-area { flex:1; display:flex; align-items:center; justify-content:center; gap:14px; padding:14px 20px; overflow:hidden; }
+.bt-canvas-outer { position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(124,58,237,.45); box-shadow:0 0 60px rgba(124,58,237,.18), 0 0 120px rgba(124,58,237,.06); flex-shrink:0; display:flex; align-items:center; }
+#battleTetrisCanvas { display:block; max-height:calc(100vh - 155px); width:auto; }
+.bt-side-panel { display:flex; flex-direction:column; gap:10px; width:120px; flex-shrink:0; align-self:center; }
+.bt-panel-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:12px 10px; text-align:center; }
+.bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.5rem; font-weight:700; letter-spacing:.15em; color:#475569; margin-bottom:8px; }
+.bt-panel-timer { font-family:'Orbitron',sans-serif; font-size:1.9rem; font-weight:900; color:#60a5fa; letter-spacing:.04em; line-height:1; }
+.bt-panel-num { font-family:'Orbitron',sans-serif; font-size:1.8rem; font-weight:900; color:#a78bfa; line-height:1; }
+.bt-panel-wolf { color:#a78bfa; }
+.bt-panel-sub { font-family:'Rajdhani',sans-serif; font-size:.68rem; color:#475569; margin-top:4px; }
+#btNextCanvas { display:block; border-radius:6px; margin:0 auto; }
+.bt-overlay { position:absolute; inset:0; background:rgba(3,7,18,.95); display:flex; align-items:center; justify-content:center; z-index:10; }
+.bt-overlay-content { text-align:center; padding:14px 18px 16px; width:100%; max-height:100%; overflow-y:auto; box-sizing:border-box; }
+.bt-overlay-icon { font-size:2.4rem; margin-bottom:6px; }
+.bt-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 4px; }
+.bt-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.9rem; color:#64748b; margin:0 0 12px; }
+.bt-rules { display:flex; gap:7px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
+.bt-rule { display:flex; flex-direction:column; align-items:center; gap:2px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:7px 10px; font-family:'Rajdhani',sans-serif; font-size:.78rem; color:#94a3b8; min-width:64px; }
+.bt-rule span:first-child { font-size:1rem; }
+.bt-howto { margin:0 0 12px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:10px 12px; }
+.bt-howto-title { font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:7px; }
+.bt-howto-rows { display:flex; flex-direction:column; gap:5px; }
+.bt-howto-row { display:flex; align-items:flex-start; gap:7px; font-family:'Rajdhani',sans-serif; font-size:.78rem; color:#94a3b8; line-height:1.3; }
+.bt-howto-icon { font-size:.85rem; flex-shrink:0; }
 .bt-howto-key { color:#22d3ee; font-weight:600; }
-.bt-overlay-content { text-align:center; padding:24px 20px; max-width:340px; max-height:90vh; overflow-y:auto; width:100%; }
-.bt-play-btn { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.12em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; }
-.bt-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
-.bt-result-wolf-display { margin:18px 0; }
-.bt-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900; color:#a78bfa; line-height:1; }
+.bt-play-btn { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:.13em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:14px; padding:14px 36px; cursor:pointer; transition:all .2s; width:100%; }
+.bt-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 36px rgba(124,58,237,.5); }
+.bt-result-wolf-display { margin:16px 0; }
+.bt-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3.2rem; font-weight:900; color:#a78bfa; line-height:1; }
 .bt-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#64748b; letter-spacing:.1em; margin-top:4px; }
-.bt-claim-btn { font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; margin-bottom:14px; }
+.bt-claim-btn { font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; margin-bottom:12px; }
 .bt-claim-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
 .bt-claim-btn:disabled { opacity:.6; cursor:default; transform:none; }
-.bt-guest-msg { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#94a3b8; margin-bottom:10px; }
+.bt-guest-msg { font-family:'Rajdhani',sans-serif; font-size:.95rem; color:#94a3b8; margin-bottom:10px; }
 .bt-result-actions { display:flex; gap:10px; margin-top:10px; }
-.bt-again-btn,.bt-games-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; border-radius:10px; padding:12px 0; cursor:pointer; transition:all .2s; }
+.bt-again-btn,.bt-games-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.1em; border-radius:10px; padding:12px 0; cursor:pointer; transition:all .2s; }
 .bt-again-btn { color:#a78bfa; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); }
 .bt-again-btn:hover { background:rgba(124,58,237,.2); }
 .bt-games-btn { color:#22d3ee; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25); }
 .bt-games-btn:hover { background:rgba(34,211,238,.15); }
-.bt-touch-controls { display:none; padding:10px 0 0; flex-direction:column; gap:8px; align-items:center; }
+.bt-touch-controls { display:none; flex-shrink:0; padding:10px 16px 12px; gap:8px; flex-direction:column; align-items:center; border-top:1px solid rgba(255,255,255,.05); background:rgba(0,0,0,.18); }
 @media (pointer:coarse),(max-width:700px){ .bt-touch-controls { display:flex; } }
 .bt-touch-row { display:flex; gap:8px; justify-content:center; }
-.bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; padding:0; width:68px; height:56px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; padding:0; width:68px; height:52px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
 .bt-touch-btn:active,.bt-touch-btn.pressed { background:rgba(124,58,237,.45); }
-.bt-touch-btn.rotate { background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.35); font-size:.8rem; letter-spacing:.06em; }
+.bt-touch-btn.rotate { background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.35); font-size:.75rem; letter-spacing:.05em; }
 .bt-touch-btn.rotate:active { background:rgba(34,211,238,.35); }
-.bt-touch-btn.drop { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.3); font-size:.65rem; letter-spacing:.08em; width:100px; }
+.bt-touch-btn.drop { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.3); font-size:.62rem; letter-spacing:.08em; width:100px; }
 .bt-touch-btn.drop:active { background:rgba(239,68,68,.32); }
 .bt-touch-btn.soft { background:rgba(37,99,235,.15); border-color:rgba(37,99,235,.35); }
 .bt-touch-btn.soft:active { background:rgba(37,99,235,.35); }
@@ -3468,105 +3464,111 @@
 
 <!-- BATTLE TETRIS PAGE -->
 <div id="battleTetrisPage" style="display:none">
-  <div class="bt-wrap">
-    <div class="bt-topbar">
-      <button class="bt-back-btn" onclick="btStopGame();goGames()">← GAMES</button>
-      <div class="bt-page-title">🧱 BATTLE TETRIS</div>
-      <div style="width:100px"></div>
-    </div>
-    <div class="bt-hud">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;color:#475569;letter-spacing:.08em">LINES CLEARED</div>
-      <div class="bt-hud-timer" id="btHudTimer">2:00</div>
-      <div class="bt-hud-wolf">
-        <span class="bt-wolf-icon">🐺</span>
-        <span id="btHudWolf">0</span>
-        <span class="bt-wolf-label">WOLF</span>
-      </div>
-    </div>
-    <div class="bt-game-area">
-      <div class="bt-canvas-outer">
-        <canvas id="battleTetrisCanvas" width="240" height="480"></canvas>
-        <!-- Start Screen -->
-        <div id="btStartScreen" class="bt-overlay">
-          <div class="bt-overlay-content">
-            <div class="bt-overlay-icon">🧱</div>
-            <h2 class="bt-overlay-title">BATTLE TETRIS</h2>
-            <p class="bt-overlay-sub">Stack blocks and clear lines to earn WOLF</p>
-            <div class="bt-rules">
-              <div class="bt-rule"><span>⏱</span><span>2 min game</span></div>
-              <div class="bt-rule"><span>📋</span><span>1 WOLF / line</span></div>
-              <div class="bt-rule"><span>🎯</span><span>Tetris = 4 WOLF</span></div>
-            </div>
-            <div class="bt-howto">
-              <div class="bt-howto-title">HOW TO PLAY</div>
-              <div class="bt-howto-rows">
-                <div class="bt-howto-row">
-                  <span class="bt-howto-icon">⌨️</span>
-                  <span><span class="bt-howto-key">← →</span> move &nbsp;·&nbsp; <span class="bt-howto-key">↑</span> rotate &nbsp;·&nbsp; <span class="bt-howto-key">↓</span> soft drop</span>
-                </div>
-                <div class="bt-howto-row">
-                  <span class="bt-howto-icon">🚀</span>
-                  <span><span class="bt-howto-key">SPACE</span> instantly drops the piece to the bottom</span>
-                </div>
-                <div class="bt-howto-row">
-                  <span class="bt-howto-icon">👻</span>
-                  <span>The <span class="bt-howto-key">ghost piece</span> shows where your block will land</span>
-                </div>
-                <div class="bt-howto-row">
-                  <span class="bt-howto-icon">📱</span>
-                  <span>Use the <span class="bt-howto-key">touch buttons</span> below on mobile</span>
-                </div>
+  <!-- Top bar -->
+  <div class="bt-topbar">
+    <button class="bt-back-btn" onclick="btStopGame();goGames()">← GAMES</button>
+    <div class="bt-page-title">🧱 BATTLE TETRIS</div>
+    <div style="width:100px"></div>
+  </div>
+
+  <!-- Game area: board + sidebar -->
+  <div class="bt-game-area">
+    <!-- Canvas + overlays -->
+    <div class="bt-canvas-outer">
+      <canvas id="battleTetrisCanvas" width="300" height="600"></canvas>
+
+      <!-- Start screen overlay (only shown before game starts) -->
+      <div id="btStartScreen" class="bt-overlay">
+        <div class="bt-overlay-content">
+          <div class="bt-overlay-icon">🧱</div>
+          <h2 class="bt-overlay-title">BATTLE TETRIS</h2>
+          <p class="bt-overlay-sub">Stack blocks and clear lines to earn WOLF</p>
+          <div class="bt-rules">
+            <div class="bt-rule"><span>⏱</span><span>2 min game</span></div>
+            <div class="bt-rule"><span>📋</span><span>1 WOLF / line</span></div>
+            <div class="bt-rule"><span>🎯</span><span>Tetris = 4 WOLF</span></div>
+          </div>
+          <div class="bt-howto">
+            <div class="bt-howto-title">HOW TO PLAY</div>
+            <div class="bt-howto-rows">
+              <div class="bt-howto-row">
+                <span class="bt-howto-icon">⌨️</span>
+                <span><span class="bt-howto-key">← →</span> move &nbsp;·&nbsp; <span class="bt-howto-key">↑</span> rotate &nbsp;·&nbsp; <span class="bt-howto-key">↓</span> soft drop</span>
+              </div>
+              <div class="bt-howto-row">
+                <span class="bt-howto-icon">🚀</span>
+                <span><span class="bt-howto-key">SPACE</span> instantly drops the piece to the bottom</span>
+              </div>
+              <div class="bt-howto-row">
+                <span class="bt-howto-icon">👻</span>
+                <span>The <span class="bt-howto-key">ghost piece</span> shows where your block will land</span>
+              </div>
+              <div class="bt-howto-row">
+                <span class="bt-howto-icon">📱</span>
+                <span>Use the <span class="bt-howto-key">touch buttons</span> below on mobile</span>
               </div>
             </div>
-            <button class="bt-play-btn" onclick="btStartGame()">▶ PLAY NOW</button>
           </div>
-        </div>
-        <!-- Result Screen -->
-        <div id="btResultScreen" class="bt-overlay" style="display:none">
-          <div class="bt-overlay-content">
-            <h2 class="bt-overlay-title" id="btResultTitle">TIME'S UP!</h2>
-            <div class="bt-result-wolf-display">
-              <div class="bt-result-wolf-num" id="btResultWolf">0</div>
-              <div class="bt-result-wolf-lbl">WOLF EARNED</div>
-            </div>
-            <div id="btClaimSection" style="display:none">
-              <button class="bt-claim-btn" id="btClaimBtn" onclick="btClaimWolf()">🐺 CLAIM WOLF</button>
-            </div>
-            <div id="btGuestSection" style="display:none">
-              <p class="bt-guest-msg">Create a free account to save your WOLF!</p>
-              <button class="bt-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
-            </div>
-            <div class="bt-result-actions">
-              <button class="bt-again-btn" onclick="btRestartGame()">↺ PLAY AGAIN</button>
-              <button class="bt-games-btn" onclick="btStopGame();goGames()">GAMES</button>
-            </div>
-          </div>
+          <button class="bt-play-btn" onclick="btStartGame()">▶ PLAY NOW</button>
         </div>
       </div>
-      <!-- Side panel: next piece + stats -->
-      <div class="bt-side-panel">
-        <div class="bt-panel-box">
-          <div class="bt-panel-label">NEXT</div>
-          <canvas id="btNextCanvas" width="88" height="72"></canvas>
-        </div>
-        <div class="bt-panel-box">
-          <div class="bt-panel-label">LINES</div>
-          <div class="bt-panel-num" id="btHudLines">0</div>
-          <div class="bt-panel-sub">cleared</div>
+
+      <!-- Result screen overlay -->
+      <div id="btResultScreen" class="bt-overlay" style="display:none">
+        <div class="bt-overlay-content">
+          <h2 class="bt-overlay-title" id="btResultTitle">TIME'S UP!</h2>
+          <div class="bt-result-wolf-display">
+            <div class="bt-result-wolf-num" id="btResultWolf">0</div>
+            <div class="bt-result-wolf-lbl">WOLF EARNED</div>
+          </div>
+          <div id="btClaimSection" style="display:none">
+            <button class="bt-claim-btn" id="btClaimBtn" onclick="btClaimWolf()">🐺 CLAIM WOLF</button>
+          </div>
+          <div id="btGuestSection" style="display:none">
+            <p class="bt-guest-msg">Create a free account to save your WOLF!</p>
+            <button class="bt-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+          </div>
+          <div class="bt-result-actions">
+            <button class="bt-again-btn" onclick="btRestartGame()">↺ PLAY AGAIN</button>
+            <button class="bt-games-btn" onclick="btStopGame();goGames()">GAMES</button>
+          </div>
         </div>
       </div>
     </div>
-    <!-- Mobile touch controls -->
-    <div class="bt-touch-controls">
-      <div class="bt-touch-row">
-        <button class="bt-touch-btn" id="btBtnLeft">◀</button>
-        <button class="bt-touch-btn rotate" id="btBtnRotate">↺ ROT</button>
-        <button class="bt-touch-btn" id="btBtnRight">▶</button>
+
+    <!-- Sidebar: timer / next piece / lines / wolf -->
+    <div class="bt-side-panel">
+      <div class="bt-panel-box">
+        <div class="bt-panel-label">TIME</div>
+        <div class="bt-panel-timer" id="btHudTimer">2:00</div>
       </div>
-      <div class="bt-touch-row">
-        <button class="bt-touch-btn soft" id="btBtnDown">▼</button>
-        <button class="bt-touch-btn drop" id="btBtnDrop">■ DROP</button>
+      <div class="bt-panel-box">
+        <div class="bt-panel-label">NEXT</div>
+        <canvas id="btNextCanvas" width="100" height="80"></canvas>
       </div>
+      <div class="bt-panel-box">
+        <div class="bt-panel-label">LINES</div>
+        <div class="bt-panel-num" id="btHudLines">0</div>
+        <div class="bt-panel-sub">cleared</div>
+      </div>
+      <div class="bt-panel-box">
+        <div class="bt-panel-label">WOLF</div>
+        <div class="bt-panel-num bt-panel-wolf" id="btHudWolf">0</div>
+        <div class="bt-panel-sub">earned</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile touch controls (only shown on touch screens) -->
+  <div class="bt-touch-controls">
+    <div class="bt-touch-row">
+      <button class="bt-touch-btn" id="btBtnLeft">◀</button>
+      <button class="bt-touch-btn rotate" id="btBtnRotate">↺ ROT</button>
+      <button class="bt-touch-btn" id="btBtnRight">▶</button>
+    </div>
+    <div class="bt-touch-row">
+      <button class="bt-touch-btn soft" id="btBtnDown">▼</button>
+      <button class="bt-touch-btn drop" id="btBtnDrop">■ DROP</button>
     </div>
   </div>
 </div><!-- /battleTetrisPage -->
@@ -5159,9 +5161,9 @@ async function csClaimWolf() {
 // ── End Crypto Snake ───────────────────────────────
 
 // ── Battle Tetris Game ─────────────────────────────
-const BT_COLS = 10, BT_ROWS = 20, BT_CELL = 24;
-const BT_W = BT_COLS * BT_CELL; // 240
-const BT_H = BT_ROWS * BT_CELL; // 480
+const BT_COLS = 10, BT_ROWS = 20, BT_CELL = 30;
+const BT_W = BT_COLS * BT_CELL; // 300
+const BT_H = BT_ROWS * BT_CELL; // 600
 const BT_DURATION = 120, BT_MAX_WOLF = 120;
 const BT_INIT_SPEED = 600; // ms between auto-drops
 
@@ -5421,7 +5423,7 @@ function btDrawNextPiece() {
   const ctx = nc.getContext('2d');
   ctx.fillStyle = '#030712';
   ctx.fillRect(0, 0, nc.width, nc.height);
-  const cz = 20;
+  const cz = 22;
   const s = btNext.shape;
   const ox = Math.floor((nc.width  / cz - s[0].length) / 2);
   const oy = Math.floor((nc.height / cz - s.length)    / 2);
