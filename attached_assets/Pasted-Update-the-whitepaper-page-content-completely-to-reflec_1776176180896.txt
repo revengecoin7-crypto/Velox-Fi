@@ -1,0 +1,26 @@
+Update the whitepaper page content completely to reflect the new VeloxFi platform. Replace all existing whitepaper sections with these new ones:
+Section 1 - WHAT IS VELOXFI?
+VeloxFi is a free crypto earning platform built on Solana. Players earn WOLF tokens by mining every 4 hours, playing retro arcade games, and predicting memecoin battles. WOLF tokens convert to $BATTLE — the real Solana token. No wallet needed. No investment required. 100% free to play.
+Section 2 - HOW IT WORKS
+Step 1: Create a free account — no wallet needed
+Step 2: Click MINE to start earning 1 WOLF per minute for 4 hours — up to 240 WOLF per session
+Step 3: Play arcade games — Rocket Miner, Crypto Snake, Battle Tetris, Wolf Run — earn 1 WOLF per action
+Step 4: Play memecoin battle predictions — earn up to 150 WOLF per correct prediction
+Step 5: Convert 5,000 WOLF to 1 $BATTLE token
+Step 6: Claim your $BATTLE tokens via airdrop to your Solana wallet
+Section 3 - WOLF TOKEN
+WOLF is the in-game currency of VeloxFi. It has no monetary value and cannot be traded. It is earned exclusively through gameplay and mining. WOLF can only be used to convert to $BATTLE at a rate of 5,000 WOLF = 1 $BATTLE.
+Section 4 - EARNING WOLF TOKENS
+Show a table with: Mining = 1 WOLF per minute, max 240 per session, every 4 hours. Rocket Miner = 1 WOLF per hit, 2 minute game. Crypto Snake = 1 WOLF per coin eaten, 2 minute game. Battle Tetris = 1 WOLF per line cleared, 2 minute game. Wolf Run = 1 WOLF per coin collected, 2 minute game. Battle Prediction 5min = 50 WOLF. Battle Prediction 15min = 100 WOLF. Battle Prediction 30min = 150 WOLF.
+Section 5 - $BATTLE TOKEN
+Total supply: 1,000,000,000. Launched on pump.fun on Solana. Contract address: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump. Distribution: 60% public sale, 20% platform reserves, 10% community and marketing, 10% dev fund locked 1 year. Fixed supply — no minting after launch.
+Section 6 - CONVERSION SYSTEM
+5,000 WOLF = 1 $BATTLE. Minimum conversion: 5,000 WOLF. Conversions are processed manually by the VeloxFi team within 24 hours on weekdays. Weekend conversions are processed on Monday. Players must register their Solana wallet address on their profile page to receive $BATTLE tokens.
+Section 7 - ROADMAP
+Phase 1 — BUILD: Platform development, mining system, retro games, battle predictions ✅
+Phase 2 — LAUNCH: $BATTLE token live on pump.fun, community building, early player rewards ✅
+Phase 3 — GROW: More games, tournaments, referral system, mobile optimization
+Phase 4 — SCALE: Weekly tournaments with prize pools, sponsored battles, partnerships
+Phase 5 — EXPAND: Multi-chain support, API integrations, VeloxFi DAO governance
+Section 8 - RISK DISCLAIMER
+VeloxFi is a free prediction and gaming platform. No real funds are required or risked to play. WOLF tokens are in-game points with no guaranteed monetary value. $BATTLE tokens earned in-game will be claimable once the token launches. The value of $BATTLE after launch is entirely market determined and not guaranteed. Cryptocurrency markets are highly volatile. VeloxFi is not a financial advisor and nothing on this platform constitutes financial advice. Not available for residents of the United States or other restricted jurisdictions. DYOR.
