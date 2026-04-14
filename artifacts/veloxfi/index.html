@@ -1172,6 +1172,50 @@
 }
 .wp-download-btn:active { transform: translateY(0); }
 
+/* ── Rocket Miner Game Page ─────────────────────── */
+#rocketMinerPage { min-height:100vh; background:#030712; }
+.rmp-wrap { max-width:520px; margin:0 auto; padding:16px 12px 48px; }
+.rmp-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.rmp-back-btn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; color:#60a5fa; background:none; border:1px solid rgba(96,165,250,.3); border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .2s; }
+.rmp-back-btn:hover { background:rgba(96,165,250,.1); border-color:#60a5fa; }
+.rmp-page-title { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:900; letter-spacing:.15em; color:#fff; }
+.rmp-hud { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 16px; margin-bottom:8px; }
+.rmp-hud-lives { font-size:1.05rem; letter-spacing:2px; }
+.rmp-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; color:#60a5fa; letter-spacing:.05em; min-width:52px; text-align:center; }
+.rmp-hud-wolf { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:4px; }
+.rmp-wolf-icon { font-size:1rem; }
+.rmp-wolf-label { font-size:.65rem; color:#7c3aed; }
+.rmp-canvas-outer { position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(37,99,235,.3); box-shadow:0 0 40px rgba(37,99,235,.15); }
+#rocketMinerCanvas { display:block; width:100%; }
+.rmp-overlay { position:absolute; inset:0; background:rgba(3,7,18,.92); display:flex; align-items:center; justify-content:center; z-index:10; }
+.rmp-overlay-content { text-align:center; padding:32px 24px; max-width:340px; }
+.rmp-overlay-icon { font-size:3rem; margin-bottom:10px; }
+.rmp-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 8px; }
+.rmp-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#64748b; margin:0 0 20px; }
+.rmp-rules { display:flex; gap:10px; justify-content:center; margin-bottom:14px; }
+.rmp-rule { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; min-width:72px; }
+.rmp-rule span:first-child { font-size:1.2rem; }
+.rmp-controls-hint { font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#475569; margin:0 0 18px; }
+.rmp-play-btn { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.12em; color:#fff; background:linear-gradient(135deg,#2563eb,#7c3aed); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; }
+.rmp-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(37,99,235,.4); }
+.rmp-result-wolf-display { margin:18px 0; }
+.rmp-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900; color:#a78bfa; line-height:1; }
+.rmp-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#64748b; letter-spacing:.1em; margin-top:4px; }
+.rmp-claim-btn { font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; margin-bottom:14px; }
+.rmp-claim-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
+.rmp-claim-btn:disabled { opacity:.6; cursor:default; transform:none; }
+.rmp-guest-msg { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#94a3b8; margin-bottom:10px; }
+.rmp-result-actions { display:flex; gap:10px; margin-top:10px; }
+.rmp-again-btn,.rmp-games-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; border-radius:10px; padding:12px 0; cursor:pointer; transition:all .2s; }
+.rmp-again-btn { color:#a78bfa; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); }
+.rmp-again-btn:hover { background:rgba(124,58,237,.2); }
+.rmp-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
+.rmp-games-btn:hover { background:rgba(37,99,235,.18); }
+.rmp-touch-controls { display:none; justify-content:space-between; align-items:center; padding:10px 0 0; gap:8px; }
+@media (pointer:coarse),(max-width:600px){ .rmp-touch-controls { display:flex; } }
+.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(37,99,235,.15); border:1px solid rgba(37,99,235,.25); border-radius:12px; padding:18px 0; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; }
+.rmp-touch-btn.fire { background:rgba(124,58,237,.2); border-color:rgba(124,58,237,.35); font-size:.68rem; letter-spacing:.12em; }
+
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
   /* ── Tell the browser to honour background colours ── */
@@ -1403,6 +1447,9 @@
 .pe-card-desc { font-family:'Rajdhani',sans-serif; font-size:.85rem; color:#64748b; line-height:1.35; }
 .pe-card-earn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; color:#a78bfa; letter-spacing:.06em; margin-top:2px; }
 .pe-cs-badge { position:absolute; top:12px; right:12px; font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.08em; background:rgba(100,116,139,.2); color:#64748b; border:1px solid rgba(100,116,139,.25); padding:3px 8px; border-radius:99px; }
+.pe-live-badge { position:absolute; top:12px; right:12px; font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.08em; background:rgba(74,222,128,.15); color:#4ade80; border:1px solid rgba(74,222,128,.35); padding:3px 8px; border-radius:99px; }
+.pe-play-btn { font-family:'Orbitron',sans-serif; font-size:.62rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#2563eb,#7c3aed); border:none; border-radius:8px; padding:7px 18px; cursor:pointer; margin-top:6px; transition:all .18s; width:100%; }
+.pe-play-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,.4); }
 
 /* ── Activity Page ───────────────────────────────────────── */
 #activityPage { min-height:80vh; }
@@ -1766,12 +1813,13 @@
         <div class="pe-card-earn">Earn up to 150 WOLF</div>
       </div>
 
-      <div class="pe-card soon">
-        <div class="pe-cs-badge">COMING SOON</div>
+      <div class="pe-card ready" onclick="goRocketMiner()">
+        <div class="pe-live-badge">LIVE</div>
         <div class="pe-card-icon">🚀</div>
         <div class="pe-card-name">ROCKET MINER</div>
         <div class="pe-card-desc">Shoot falling coins out of the sky</div>
         <div class="pe-card-earn">1 WOLF / hit</div>
+        <button class="pe-play-btn" onclick="goRocketMiner()">▶ PLAY</button>
       </div>
 
       <div class="pe-card soon">
@@ -2925,6 +2973,71 @@
   <button id="battleResultSkip" onclick="hideBattleResultOverlay()">SKIP ›</button>
 </div>
 
+<!-- ROCKET MINER PAGE -->
+<div id="rocketMinerPage" style="display:none">
+  <div class="rmp-wrap">
+    <div class="rmp-topbar">
+      <button class="rmp-back-btn" onclick="rmStopGame();goGames()">← GAMES</button>
+      <div class="rmp-page-title">🚀 ROCKET MINER</div>
+      <div style="width:100px"></div>
+    </div>
+    <div class="rmp-hud">
+      <div class="rmp-hud-lives" id="rmHudLives">❤️❤️❤️</div>
+      <div class="rmp-hud-timer" id="rmHudTimer">2:00</div>
+      <div class="rmp-hud-wolf">
+        <span class="rmp-wolf-icon">🐺</span>
+        <span id="rmHudWolf">0</span>
+        <span class="rmp-wolf-label">WOLF</span>
+      </div>
+    </div>
+    <div class="rmp-canvas-outer">
+      <canvas id="rocketMinerCanvas" width="480" height="620"></canvas>
+      <!-- Start Screen -->
+      <div id="rmStartScreen" class="rmp-overlay">
+        <div class="rmp-overlay-content">
+          <div class="rmp-overlay-icon">🚀</div>
+          <h2 class="rmp-overlay-title">ROCKET MINER</h2>
+          <p class="rmp-overlay-sub">Shoot falling $BATTLE coins to earn WOLF tokens</p>
+          <div class="rmp-rules">
+            <div class="rmp-rule"><span>⏱</span><span>2 min game</span></div>
+            <div class="rmp-rule"><span>❤️</span><span>3 lives</span></div>
+            <div class="rmp-rule"><span>🐺</span><span>1 WOLF / hit</span></div>
+          </div>
+          <p class="rmp-controls-hint">← → / A D to move · SPACE to shoot</p>
+          <button class="rmp-play-btn" onclick="rmStartGame()">▶ PLAY NOW</button>
+        </div>
+      </div>
+      <!-- Result Screen -->
+      <div id="rmResultScreen" class="rmp-overlay" style="display:none">
+        <div class="rmp-overlay-content">
+          <h2 class="rmp-overlay-title" id="rmResultTitle">TIME'S UP!</h2>
+          <div class="rmp-result-wolf-display">
+            <div class="rmp-result-wolf-num" id="rmResultWolf">0</div>
+            <div class="rmp-result-wolf-lbl">WOLF EARNED</div>
+          </div>
+          <div id="rmClaimSection" style="display:none">
+            <button class="rmp-claim-btn" id="rmClaimBtn" onclick="rmClaimWolf()">🐺 CLAIM WOLF</button>
+          </div>
+          <div id="rmGuestSection" style="display:none">
+            <p class="rmp-guest-msg">Create a free account to save your WOLF!</p>
+            <button class="rmp-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+          </div>
+          <div class="rmp-result-actions">
+            <button class="rmp-again-btn" onclick="rmRestartGame()">↺ PLAY AGAIN</button>
+            <button class="rmp-games-btn" onclick="rmStopGame();goGames()">GAMES</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile touch controls -->
+    <div class="rmp-touch-controls">
+      <button class="rmp-touch-btn" id="rmBtnLeft">◀</button>
+      <button class="rmp-touch-btn fire" id="rmBtnFire">FIRE</button>
+      <button class="rmp-touch-btn" id="rmBtnRight">▶</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -3257,7 +3370,7 @@ function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(c
 
 function _showOnlyPage(id) {
   ['mainPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -3324,6 +3437,11 @@ function initRouter() {
     setPageMeta('blogPost5');
     _showOnlyPage('blogPost5');
     window.scrollTo(0,0);
+  } else if (path === '/games/rocket-miner') {
+    setPageMeta('rocketMiner');
+    _showOnlyPage('rocketMinerPage');
+    window.scrollTo(0,0);
+    rmInit();
   } else if (path === '/games') {
     setPageMeta('games');
     _showOnlyPage('gamesPage');
@@ -3422,6 +3540,11 @@ const PAGE_META = {
     title:     'Live Activity Feed | VeloxFi',
     desc:      'See real-time player activity on VeloxFi — battles, wins, level-ups, and achievements from the community.',
     canonical: 'https://veloxfi.io/activity',
+  },
+  rocketMiner: {
+    title:     'Rocket Miner — Shoot Coins, Earn WOLF | VeloxFi',
+    desc:      'Play Rocket Miner on VeloxFi. Shoot falling $BATTLE coins with your spaceship to earn WOLF tokens. 2-minute arcade shooter, completely free to play.',
+    canonical: 'https://veloxfi.io/games/rocket-miner',
   },
 };
 
@@ -3529,6 +3652,409 @@ function goBlogPost(n) {
   history.pushState(null, '', '/blog/post'+n);
   _showOnlyPage('blogPost'+n);
   window.scrollTo(0,0);
+}
+
+// ── Rocket Miner Game ──────────────────────────────────────────────────────────
+const RM_W = 480, RM_H = 620, RM_DURATION = 120;
+
+let rmCanvas, rmCtx, rmGameState = 'idle';
+let rmAnimFrame = null, rmTimerInterval = null, rmFlash = 0;
+let rmPlayer, rmBullets, rmCoins, rmExplosions, rmStars;
+let rmLives, rmWolfEarned, rmTimeLeft, rmKeys;
+let rmLastBulletTime = 0, rmLastCoinSpawn = 0;
+let rmClaimed = false;
+
+function goRocketMiner() {
+  setPageMeta('rocketMiner');
+  history.pushState(null, '', '/games/rocket-miner');
+  _showOnlyPage('rocketMinerPage');
+  window.scrollTo(0, 0);
+  rmInit();
+}
+
+function rmInit() {
+  rmCanvas = document.getElementById('rocketMinerCanvas');
+  rmCtx = rmCanvas.getContext('2d');
+  rmCanvas.width = RM_W;
+  rmCanvas.height = RM_H;
+  rmGameState = 'idle';
+  rmClaimed = false;
+
+  // Generate starfield
+  rmStars = Array.from({length: 80}, () => ({
+    x: Math.random() * RM_W, y: Math.random() * RM_H,
+    r: Math.random() * 1.4 + 0.3, alpha: Math.random() * 0.6 + 0.2,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  // Reset overlays
+  document.getElementById('rmStartScreen').style.display = 'flex';
+  document.getElementById('rmResultScreen').style.display = 'none';
+
+  // Wire touch buttons
+  const btnL = document.getElementById('rmBtnLeft');
+  const btnR = document.getElementById('rmBtnRight');
+  const btnF = document.getElementById('rmBtnFire');
+  if (btnL) {
+    btnL.onpointerdown = () => rmKeys['ArrowLeft'] = true;
+    btnL.onpointerup = btnL.onpointercancel = () => rmKeys['ArrowLeft'] = false;
+  }
+  if (btnR) {
+    btnR.onpointerdown = () => rmKeys['ArrowRight'] = true;
+    btnR.onpointerup = btnR.onpointercancel = () => rmKeys['ArrowRight'] = false;
+  }
+  if (btnF) {
+    btnF.onpointerdown = () => rmKeys[' '] = true;
+    btnF.onpointerup = btnF.onpointercancel = () => rmKeys[' '] = false;
+  }
+
+  // Draw idle background with ship
+  rmKeys = {};
+  rmBullets = []; rmCoins = []; rmExplosions = [];
+  rmLives = 3; rmWolfEarned = 0; rmTimeLeft = RM_DURATION;
+  rmDrawFrame();
+}
+
+function rmStartGame() {
+  document.getElementById('rmStartScreen').style.display = 'none';
+  document.getElementById('rmResultScreen').style.display = 'none';
+  rmGameState = 'playing';
+  rmClaimed = false;
+  rmPlayer = { x: RM_W / 2 - 20, y: RM_H - 90, w: 40, h: 52 };
+  rmBullets = []; rmCoins = []; rmExplosions = [];
+  rmLives = 3; rmWolfEarned = 0; rmTimeLeft = RM_DURATION;
+  rmLastBulletTime = 0; rmLastCoinSpawn = 0;
+  rmUpdateHUD();
+  document.addEventListener('keydown', rmOnKeyDown);
+  document.addEventListener('keyup', rmOnKeyUp);
+  if (rmTimerInterval) clearInterval(rmTimerInterval);
+  rmTimerInterval = setInterval(() => {
+    if (rmGameState !== 'playing') return;
+    rmTimeLeft = Math.max(0, rmTimeLeft - 1);
+    rmUpdateHUD();
+    if (rmTimeLeft <= 0) { clearInterval(rmTimerInterval); rmTimerInterval = null; rmEndGame('time'); }
+  }, 1000);
+  if (rmAnimFrame) cancelAnimationFrame(rmAnimFrame);
+  rmAnimFrame = requestAnimationFrame(rmGameLoop);
+}
+
+function rmOnKeyDown(e) {
+  const k = e.key;
+  if (['ArrowLeft','ArrowRight','a','A','d','D',' '].includes(k)) e.preventDefault();
+  rmKeys[k] = true;
+}
+function rmOnKeyUp(e) { rmKeys[e.key] = false; }
+
+function rmGameLoop(ts) {
+  if (rmGameState !== 'playing') return;
+  rmAnimFrame = requestAnimationFrame(rmGameLoop);
+
+  // Player movement
+  const spd = 5;
+  if (rmKeys['ArrowLeft'] || rmKeys['a'] || rmKeys['A'])
+    rmPlayer.x = Math.max(0, rmPlayer.x - spd);
+  if (rmKeys['ArrowRight'] || rmKeys['d'] || rmKeys['D'])
+    rmPlayer.x = Math.min(RM_W - rmPlayer.w, rmPlayer.x + spd);
+
+  // Auto-fire while space held
+  if (rmKeys[' ']) {
+    if (ts - rmLastBulletTime >= 260) {
+      rmLastBulletTime = ts;
+      rmBullets.push({ x: rmPlayer.x + rmPlayer.w / 2, y: rmPlayer.y + 4 });
+    }
+  }
+
+  // Move bullets
+  rmBullets = rmBullets.filter(b => { b.y -= 11; return b.y > -15; });
+
+  // Spawn coins (rate increases from 2.2s to 1.2s over the 2 minutes)
+  const elapsed = RM_DURATION - rmTimeLeft;
+  const spawnInterval = Math.max(1200, 2200 - elapsed * 8.5);
+  if (ts - rmLastCoinSpawn > spawnInterval && rmCoins.length < 14) {
+    rmLastCoinSpawn = ts;
+    const r = 20 + Math.random() * 6;
+    rmCoins.push({
+      x: r + Math.random() * (RM_W - 2 * r),
+      y: -r, r,
+      speed: 1.4 + Math.random() * 1.6,
+      rot: 0, rotSpeed: (Math.random() - 0.5) * 0.06,
+    });
+  }
+
+  // Move coins; detect bottom hits
+  rmCoins = rmCoins.filter(c => {
+    c.y += c.speed; c.rot += c.rotSpeed;
+    if (c.y > RM_H + c.r) {
+      rmLives--;
+      rmFlash = 18;
+      rmUpdateHUD();
+      if (rmLives <= 0) setTimeout(() => rmEndGame('lives'), 80);
+      return false;
+    }
+    return true;
+  });
+
+  // Collision bullets ↔ coins
+  const deadBullets = new Set(), deadCoins = new Set();
+  rmBullets.forEach((b, bi) => {
+    rmCoins.forEach((c, ci) => {
+      if (deadCoins.has(ci)) return;
+      const dx = b.x - c.x, dy = b.y - c.y;
+      if (Math.sqrt(dx * dx + dy * dy) < c.r + 5) {
+        deadBullets.add(bi); deadCoins.add(ci);
+        rmWolfEarned++;
+        rmUpdateHUD();
+        rmExplosions.push({ x: c.x, y: c.y, frame: 0,
+          pts: Array.from({length: 12}, () => {
+            const a = Math.random() * Math.PI * 2;
+            const s = 2 + Math.random() * 3;
+            return { x: c.x, y: c.y, vx: Math.cos(a)*s, vy: Math.sin(a)*s,
+              alpha: 1, r: 2.5 + Math.random() * 2.5,
+              col: ['#fbbf24','#f59e0b','#a78bfa','#60a5fa','#fff'][Math.floor(Math.random()*5)] };
+          }) });
+      }
+    });
+  });
+  rmBullets = rmBullets.filter((_, i) => !deadBullets.has(i));
+  rmCoins   = rmCoins.filter((_, i) => !deadCoins.has(i));
+
+  // Advance explosions
+  rmExplosions = rmExplosions.filter(e => {
+    e.frame++;
+    e.pts.forEach(p => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.04; p.r *= 0.94; });
+    return e.frame < 30;
+  });
+
+  rmDrawFrame();
+}
+
+function rmDrawFrame() {
+  const ctx = rmCtx;
+  // Background
+  const bg = ctx.createLinearGradient(0, 0, 0, RM_H);
+  bg.addColorStop(0, '#030712'); bg.addColorStop(1, '#050d1c');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, RM_W, RM_H);
+
+  // Red flash on life loss
+  if (rmFlash > 0) {
+    ctx.fillStyle = `rgba(239,68,68,${(rmFlash / 18) * 0.28})`;
+    ctx.fillRect(0, 0, RM_W, RM_H);
+    rmFlash--;
+  }
+
+  // Stars
+  const t = performance.now() / 1000;
+  rmStars.forEach(s => {
+    ctx.globalAlpha = s.alpha * (0.5 + 0.5 * Math.sin(t * 1.3 + s.phase));
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(37,99,235,.06)'; ctx.lineWidth = 1;
+  for (let y = 0; y < RM_H; y += 44) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(RM_W, y); ctx.stroke();
+  }
+  for (let x = 0; x < RM_W; x += 44) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, RM_H); ctx.stroke();
+  }
+
+  // Coins
+  rmCoins.forEach(c => {
+    ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rot);
+    // Glow
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, c.r + 14);
+    g.addColorStop(0, 'rgba(251,191,36,.45)'); g.addColorStop(1, 'rgba(251,191,36,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, c.r + 14, 0, Math.PI * 2); ctx.fill();
+    // Body
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath(); ctx.arc(0, 0, c.r, 0, Math.PI * 2); ctx.fill();
+    // Highlight
+    ctx.fillStyle = '#fde68a';
+    ctx.beginPath(); ctx.arc(-c.r * 0.3, -c.r * 0.3, c.r * 0.38, 0, Math.PI * 2); ctx.fill();
+    // Label
+    ctx.fillStyle = '#92400e';
+    ctx.font = `bold ${Math.round(c.r * 0.82)}px Orbitron,monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('$', 0, 1);
+    ctx.restore();
+  });
+
+  // Bullets
+  rmBullets.forEach(b => {
+    ctx.shadowColor = '#60a5fa'; ctx.shadowBlur = 12;
+    ctx.fillStyle = '#93c5fd';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(b.x - 2, b.y - 14, 4, 14, 3);
+    else ctx.rect(b.x - 2, b.y - 14, 4, 14);
+    ctx.fill(); ctx.shadowBlur = 0;
+  });
+
+  // Explosions
+  rmExplosions.forEach(e => e.pts.forEach(p => {
+    if (p.alpha <= 0) return;
+    ctx.globalAlpha = Math.max(0, p.alpha);
+    ctx.fillStyle = p.col;
+    ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0.2, p.r), 0, Math.PI * 2); ctx.fill();
+  }));
+  ctx.globalAlpha = 1;
+
+  // Player spaceship
+  if (rmGameState === 'playing' || rmGameState === 'idle') {
+    const p = rmGameState === 'idle'
+      ? { x: RM_W / 2 - 20, y: RM_H - 130, w: 40, h: 52 }
+      : rmPlayer;
+    rmDrawShip(ctx, p);
+  }
+
+  // Timer bar at bottom
+  if (rmGameState === 'playing') {
+    const pct = rmTimeLeft / RM_DURATION;
+    const barY = RM_H - 10;
+    ctx.fillStyle = 'rgba(0,0,0,.5)';
+    if (ctx.roundRect) ctx.roundRect(10, barY, RM_W - 20, 6, 3);
+    else ctx.rect(10, barY, RM_W - 20, 6);
+    ctx.fill();
+    ctx.fillStyle = pct > 0.5 ? '#2563eb' : pct > 0.25 ? '#f59e0b' : '#ef4444';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(10, barY, Math.max(0, (RM_W - 20) * pct), 6, 3);
+    else ctx.rect(10, barY, Math.max(0, (RM_W - 20) * pct), 6);
+    ctx.fill();
+  }
+}
+
+function rmDrawShip(ctx, p) {
+  const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+  ctx.save(); ctx.translate(cx, cy);
+  // Engine thruster glow
+  const thrust = ctx.createRadialGradient(0, p.h / 2 + 4, 0, 0, p.h / 2 + 4, 24);
+  thrust.addColorStop(0, 'rgba(167,139,250,.9)');
+  thrust.addColorStop(0.5, 'rgba(124,58,237,.4)');
+  thrust.addColorStop(1, 'rgba(124,58,237,0)');
+  ctx.fillStyle = thrust;
+  ctx.beginPath(); ctx.ellipse(0, p.h / 2 + 4, 14, 20, 0, 0, Math.PI * 2); ctx.fill();
+  // Left wing
+  ctx.fillStyle = '#1d4ed8';
+  ctx.beginPath();
+  ctx.moveTo(-p.w / 2, p.h / 4);
+  ctx.lineTo(-p.w, p.h / 2 + 2);
+  ctx.lineTo(-p.w / 3, p.h / 2 - 10);
+  ctx.closePath(); ctx.fill();
+  // Right wing
+  ctx.beginPath();
+  ctx.moveTo(p.w / 2, p.h / 4);
+  ctx.lineTo(p.w, p.h / 2 + 2);
+  ctx.lineTo(p.w / 3, p.h / 2 - 10);
+  ctx.closePath(); ctx.fill();
+  // Main body
+  const body = ctx.createLinearGradient(0, -p.h / 2, 0, p.h / 2);
+  body.addColorStop(0, '#93c5fd'); body.addColorStop(0.5, '#2563eb'); body.addColorStop(1, '#7c3aed');
+  ctx.fillStyle = body;
+  ctx.beginPath();
+  ctx.moveTo(0, -p.h / 2);
+  ctx.lineTo(-p.w / 2, p.h / 4);
+  ctx.lineTo(-p.w / 4, p.h / 2);
+  ctx.lineTo(p.w / 4, p.h / 2);
+  ctx.lineTo(p.w / 2, p.h / 4);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#93c5fd'; ctx.lineWidth = 1; ctx.stroke();
+  // Cockpit
+  const cock = ctx.createRadialGradient(-3, -p.h / 4, 0, 0, -p.h / 8, 9);
+  cock.addColorStop(0, '#bfdbfe'); cock.addColorStop(1, '#2563eb');
+  ctx.fillStyle = cock;
+  ctx.beginPath(); ctx.ellipse(0, -p.h / 8, 7, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function rmUpdateHUD() {
+  const m = Math.floor(rmTimeLeft / 60), s = rmTimeLeft % 60;
+  const timerEl = document.getElementById('rmHudTimer');
+  if (timerEl) {
+    timerEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
+    timerEl.style.color = rmTimeLeft <= 30 ? '#ef4444' : rmTimeLeft <= 60 ? '#f59e0b' : '#60a5fa';
+  }
+  const wolfEl = document.getElementById('rmHudWolf');
+  if (wolfEl) wolfEl.textContent = rmWolfEarned;
+  const livesEl = document.getElementById('rmHudLives');
+  if (livesEl) livesEl.innerHTML = '❤️'.repeat(Math.max(0, rmLives)) + '🖤'.repeat(Math.max(0, 3 - rmLives));
+}
+
+function rmEndGame(reason) {
+  if (rmGameState === 'over') return;
+  rmGameState = 'over';
+  if (rmTimerInterval) { clearInterval(rmTimerInterval); rmTimerInterval = null; }
+  if (rmAnimFrame) { cancelAnimationFrame(rmAnimFrame); rmAnimFrame = null; }
+  document.removeEventListener('keydown', rmOnKeyDown);
+  document.removeEventListener('keyup', rmOnKeyUp);
+  rmDrawFrame();
+
+  const screen = document.getElementById('rmResultScreen');
+  const titleEl = document.getElementById('rmResultTitle');
+  const wolfEl  = document.getElementById('rmResultWolf');
+  const claimSec = document.getElementById('rmClaimSection');
+  const guestSec = document.getElementById('rmGuestSection');
+  const claimBtn = document.getElementById('rmClaimBtn');
+
+  if (titleEl) titleEl.textContent = reason === 'time' ? "⏱ TIME'S UP!" : '💀 GAME OVER';
+  if (wolfEl)  wolfEl.textContent  = rmWolfEarned;
+  if (claimBtn) { claimBtn.disabled = false; claimBtn.textContent = '🐺 CLAIM WOLF'; }
+
+  if (currentUser && rmWolfEarned > 0) {
+    if (claimSec) claimSec.style.display = 'block';
+    if (guestSec) guestSec.style.display = 'none';
+  } else if (!currentUser) {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'block';
+  } else {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'none';
+  }
+  if (screen) screen.style.display = 'flex';
+}
+
+async function rmClaimWolf() {
+  if (!currentUser || rmWolfEarned <= 0 || rmClaimed) return;
+  const btn = document.getElementById('rmClaimBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'CLAIMING…'; }
+  try {
+    const session = getSession();
+    const res = await fetch('/api/veloxfi/game/rocket-miner/earn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
+      body: JSON.stringify({ wolfEarned: rmWolfEarned }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      rmClaimed = true;
+      if (currentUser) currentUser.wolf = data.newWolfBalance;
+      updateNavWolfChip && updateNavWolfChip();
+      showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+      if (btn) btn.textContent = '✓ CLAIMED!';
+    } else {
+      showToast(data.error || 'Claim failed.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+    }
+  } catch {
+    showToast('Network error. Try again.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+  }
+}
+
+function rmRestartGame() {
+  document.getElementById('rmResultScreen').style.display = 'none';
+  document.getElementById('rmStartScreen').style.display = 'flex';
+  rmGameState = 'idle';
+  rmClaimed = false;
+}
+
+function rmStopGame() {
+  if (rmTimerInterval) { clearInterval(rmTimerInterval); rmTimerInterval = null; }
+  if (rmAnimFrame) { cancelAnimationFrame(rmAnimFrame); rmAnimFrame = null; }
+  document.removeEventListener('keydown', rmOnKeyDown);
+  document.removeEventListener('keyup', rmOnKeyUp);
+  rmGameState = 'idle';
 }
 
 function toggleFaq(item) {
