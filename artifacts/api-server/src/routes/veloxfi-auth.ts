@@ -344,6 +344,30 @@ router.post("/veloxfi/game/rocket-miner/earn", requireAuth as any, async (req: a
   }
 });
 
+// ── Battle Tetris: save earned WOLF ──────────────────────────────────────────
+const BATTLE_TETRIS_MAX_WOLF = 120; // 1 WOLF/line, cap 120 per session
+router.post("/veloxfi/game/battle-tetris/earn", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const raw = Number(req.body.wolfEarned);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      res.status(400).json({ error: "No WOLF earned." }); return;
+    }
+    const wolfEarned = Math.min(Math.floor(raw), BATTLE_TETRIS_MAX_WOLF);
+    const [updated] = await db.update(veloxfiUsers)
+      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
+      .where(eq(veloxfiUsers.username, user.username))
+      .returning({ wolf: veloxfiUsers.wolf });
+    if (!updated) {
+      res.status(500).json({ error: "Failed to update balance." }); return;
+    }
+    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
+  } catch (e) {
+    console.error("battle-tetris/earn error:", e);
+    res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
 // ── Crypto Snake: save earned WOLF ───────────────────────────────────────────
 router.post("/veloxfi/game/crypto-snake/earn", requireAuth as any, async (req: any, res) => {
   try {

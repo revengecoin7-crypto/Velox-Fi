@@ -1394,6 +1394,68 @@
 .cs-dpad-btn { width:64px; height:64px; font-size:1.5rem; font-family:'Orbitron',sans-serif; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
 .cs-dpad-btn:active,.cs-dpad-btn.pressed { background:rgba(124,58,237,.45); }
 
+/* ── Battle Tetris Game Page ────────────────────── */
+#battleTetrisPage { min-height:100vh; background:#030712; }
+.bt-wrap { max-width:520px; margin:0 auto; padding:16px 12px 48px; }
+.bt-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.bt-back-btn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; color:#60a5fa; background:none; border:1px solid rgba(96,165,250,.3); border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .2s; }
+.bt-back-btn:hover { background:rgba(96,165,250,.1); border-color:#60a5fa; }
+.bt-page-title { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:900; letter-spacing:.15em; color:#fff; }
+.bt-hud { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 16px; margin-bottom:8px; }
+.bt-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; color:#60a5fa; letter-spacing:.05em; min-width:52px; text-align:center; }
+.bt-hud-wolf { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:4px; }
+.bt-wolf-icon { font-size:1rem; }
+.bt-wolf-label { font-size:.65rem; color:#7c3aed; }
+.bt-game-area { display:flex; gap:10px; align-items:flex-start; justify-content:center; }
+.bt-canvas-outer { position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(124,58,237,.3); box-shadow:0 0 40px rgba(124,58,237,.12); flex-shrink:0; }
+#battleTetrisCanvas { display:block; }
+.bt-side-panel { display:flex; flex-direction:column; gap:10px; min-width:88px; }
+.bt-panel-box { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px; }
+.bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; text-align:center; }
+.bt-panel-num { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#a78bfa; text-align:center; }
+.bt-panel-sub { font-family:'Rajdhani',sans-serif; font-size:.7rem; color:#475569; text-align:center; margin-top:2px; }
+#btNextCanvas { display:block; border-radius:6px; }
+.bt-overlay { position:absolute; inset:0; background:rgba(3,7,18,.93); display:flex; align-items:center; justify-content:center; z-index:10; }
+.bt-overlay-icon { font-size:3rem; margin-bottom:10px; }
+.bt-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 8px; }
+.bt-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#64748b; margin:0 0 18px; }
+.bt-rules { display:flex; gap:10px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+.bt-rule { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; min-width:72px; }
+.bt-rule span:first-child { font-size:1.2rem; }
+.bt-howto { margin:0 0 16px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
+.bt-howto-title { font-family:'Orbitron',sans-serif; font-size:.58rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; }
+.bt-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.bt-howto-row { display:flex; align-items:flex-start; gap:8px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; line-height:1.35; }
+.bt-howto-icon { font-size:.95rem; flex-shrink:0; }
+.bt-howto-key { color:#22d3ee; font-weight:600; }
+.bt-overlay-content { text-align:center; padding:24px 20px; max-width:340px; max-height:90vh; overflow-y:auto; width:100%; }
+.bt-play-btn { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.12em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; }
+.bt-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
+.bt-result-wolf-display { margin:18px 0; }
+.bt-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900; color:#a78bfa; line-height:1; }
+.bt-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#64748b; letter-spacing:.1em; margin-top:4px; }
+.bt-claim-btn { font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#7c3aed,#22d3ee); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; margin-bottom:14px; }
+.bt-claim-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
+.bt-claim-btn:disabled { opacity:.6; cursor:default; transform:none; }
+.bt-guest-msg { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#94a3b8; margin-bottom:10px; }
+.bt-result-actions { display:flex; gap:10px; margin-top:10px; }
+.bt-again-btn,.bt-games-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; border-radius:10px; padding:12px 0; cursor:pointer; transition:all .2s; }
+.bt-again-btn { color:#a78bfa; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); }
+.bt-again-btn:hover { background:rgba(124,58,237,.2); }
+.bt-games-btn { color:#22d3ee; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25); }
+.bt-games-btn:hover { background:rgba(34,211,238,.15); }
+.bt-touch-controls { display:none; padding:10px 0 0; flex-direction:column; gap:8px; align-items:center; }
+@media (pointer:coarse),(max-width:700px){ .bt-touch-controls { display:flex; } }
+.bt-touch-row { display:flex; gap:8px; justify-content:center; }
+.bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; padding:0; width:68px; height:56px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.bt-touch-btn:active,.bt-touch-btn.pressed { background:rgba(124,58,237,.45); }
+.bt-touch-btn.rotate { background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.35); font-size:.8rem; letter-spacing:.06em; }
+.bt-touch-btn.rotate:active { background:rgba(34,211,238,.35); }
+.bt-touch-btn.drop { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.3); font-size:.65rem; letter-spacing:.08em; width:100px; }
+.bt-touch-btn.drop:active { background:rgba(239,68,68,.32); }
+.bt-touch-btn.soft { background:rgba(37,99,235,.15); border-color:rgba(37,99,235,.35); }
+.bt-touch-btn.soft:active { background:rgba(37,99,235,.35); }
+
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
   /* ── Tell the browser to honour background colours ── */
@@ -2028,12 +2090,13 @@
         <button class="pe-play-btn" onclick="goCryptoSnake()">▶ PLAY</button>
       </div>
 
-      <div class="pe-card soon">
-        <div class="pe-cs-badge">COMING SOON</div>
-        <div class="pe-card-icon">🎮</div>
+      <div class="pe-card ready" onclick="goBattleTetris()">
+        <div class="pe-live-badge">LIVE</div>
+        <div class="pe-card-icon">🧱</div>
         <div class="pe-card-name">BATTLE TETRIS</div>
-        <div class="pe-card-desc">Complete lines with crypto-themed blocks</div>
+        <div class="pe-card-desc">Stack blocks and clear lines to earn WOLF</div>
         <div class="pe-card-earn">1 WOLF / line</div>
+        <button class="pe-play-btn" onclick="goBattleTetris()">▶ PLAY</button>
       </div>
 
       <div class="pe-card soon">
@@ -2267,12 +2330,12 @@
       </div>
 
       <!-- Battle Tetris -->
-      <div class="ghub-card soon">
-        <div class="ghub-soon-badge">COMING SOON</div>
+      <div class="ghub-card ready" onclick="goBattleTetris()">
+        <div class="ghub-play-badge">PLAY NOW</div>
         <div class="ghub-card-icon">🧱</div>
         <div class="ghub-card-name">BATTLE TETRIS</div>
         <div class="ghub-card-desc">Stack crypto blocks and clear lines for WOLF</div>
-        <div class="ghub-card-earn">Earn WOLF per clear</div>
+        <div class="ghub-card-earn">Up to 120 WOLF / session</div>
       </div>
 
       <!-- Wolf Run -->
@@ -3403,6 +3466,111 @@
   </div>
 </div><!-- /cryptoSnakePage -->
 
+<!-- BATTLE TETRIS PAGE -->
+<div id="battleTetrisPage" style="display:none">
+  <div class="bt-wrap">
+    <div class="bt-topbar">
+      <button class="bt-back-btn" onclick="btStopGame();goGames()">← GAMES</button>
+      <div class="bt-page-title">🧱 BATTLE TETRIS</div>
+      <div style="width:100px"></div>
+    </div>
+    <div class="bt-hud">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;color:#475569;letter-spacing:.08em">LINES CLEARED</div>
+      <div class="bt-hud-timer" id="btHudTimer">2:00</div>
+      <div class="bt-hud-wolf">
+        <span class="bt-wolf-icon">🐺</span>
+        <span id="btHudWolf">0</span>
+        <span class="bt-wolf-label">WOLF</span>
+      </div>
+    </div>
+    <div class="bt-game-area">
+      <div class="bt-canvas-outer">
+        <canvas id="battleTetrisCanvas" width="240" height="480"></canvas>
+        <!-- Start Screen -->
+        <div id="btStartScreen" class="bt-overlay">
+          <div class="bt-overlay-content">
+            <div class="bt-overlay-icon">🧱</div>
+            <h2 class="bt-overlay-title">BATTLE TETRIS</h2>
+            <p class="bt-overlay-sub">Stack blocks and clear lines to earn WOLF</p>
+            <div class="bt-rules">
+              <div class="bt-rule"><span>⏱</span><span>2 min game</span></div>
+              <div class="bt-rule"><span>📋</span><span>1 WOLF / line</span></div>
+              <div class="bt-rule"><span>🎯</span><span>Tetris = 4 WOLF</span></div>
+            </div>
+            <div class="bt-howto">
+              <div class="bt-howto-title">HOW TO PLAY</div>
+              <div class="bt-howto-rows">
+                <div class="bt-howto-row">
+                  <span class="bt-howto-icon">⌨️</span>
+                  <span><span class="bt-howto-key">← →</span> move &nbsp;·&nbsp; <span class="bt-howto-key">↑</span> rotate &nbsp;·&nbsp; <span class="bt-howto-key">↓</span> soft drop</span>
+                </div>
+                <div class="bt-howto-row">
+                  <span class="bt-howto-icon">🚀</span>
+                  <span><span class="bt-howto-key">SPACE</span> instantly drops the piece to the bottom</span>
+                </div>
+                <div class="bt-howto-row">
+                  <span class="bt-howto-icon">👻</span>
+                  <span>The <span class="bt-howto-key">ghost piece</span> shows where your block will land</span>
+                </div>
+                <div class="bt-howto-row">
+                  <span class="bt-howto-icon">📱</span>
+                  <span>Use the <span class="bt-howto-key">touch buttons</span> below on mobile</span>
+                </div>
+              </div>
+            </div>
+            <button class="bt-play-btn" onclick="btStartGame()">▶ PLAY NOW</button>
+          </div>
+        </div>
+        <!-- Result Screen -->
+        <div id="btResultScreen" class="bt-overlay" style="display:none">
+          <div class="bt-overlay-content">
+            <h2 class="bt-overlay-title" id="btResultTitle">TIME'S UP!</h2>
+            <div class="bt-result-wolf-display">
+              <div class="bt-result-wolf-num" id="btResultWolf">0</div>
+              <div class="bt-result-wolf-lbl">WOLF EARNED</div>
+            </div>
+            <div id="btClaimSection" style="display:none">
+              <button class="bt-claim-btn" id="btClaimBtn" onclick="btClaimWolf()">🐺 CLAIM WOLF</button>
+            </div>
+            <div id="btGuestSection" style="display:none">
+              <p class="bt-guest-msg">Create a free account to save your WOLF!</p>
+              <button class="bt-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+            </div>
+            <div class="bt-result-actions">
+              <button class="bt-again-btn" onclick="btRestartGame()">↺ PLAY AGAIN</button>
+              <button class="bt-games-btn" onclick="btStopGame();goGames()">GAMES</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Side panel: next piece + stats -->
+      <div class="bt-side-panel">
+        <div class="bt-panel-box">
+          <div class="bt-panel-label">NEXT</div>
+          <canvas id="btNextCanvas" width="88" height="72"></canvas>
+        </div>
+        <div class="bt-panel-box">
+          <div class="bt-panel-label">LINES</div>
+          <div class="bt-panel-num" id="btHudLines">0</div>
+          <div class="bt-panel-sub">cleared</div>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile touch controls -->
+    <div class="bt-touch-controls">
+      <div class="bt-touch-row">
+        <button class="bt-touch-btn" id="btBtnLeft">◀</button>
+        <button class="bt-touch-btn rotate" id="btBtnRotate">↺ ROT</button>
+        <button class="bt-touch-btn" id="btBtnRight">▶</button>
+      </div>
+      <div class="bt-touch-row">
+        <button class="bt-touch-btn soft" id="btBtnDown">▼</button>
+        <button class="bt-touch-btn drop" id="btBtnDrop">■ DROP</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /battleTetrisPage -->
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -3739,7 +3907,7 @@ function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(c
 
 function _showOnlyPage(id) {
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -3816,6 +3984,11 @@ function initRouter() {
     _showOnlyPage('cryptoSnakePage');
     window.scrollTo(0,0);
     csInit();
+  } else if (path === '/games/battle-tetris') {
+    setPageMeta('battleTetris');
+    _showOnlyPage('battleTetrisPage');
+    window.scrollTo(0,0);
+    btInit();
   } else if (path === '/games') {
     setPageMeta('games');
     _showOnlyPage('gamesHubPage');
@@ -3928,6 +4101,11 @@ const PAGE_META = {
     title:     'Crypto Snake — Eat $BATTLE Coins, Earn WOLF | VeloxFi',
     desc:      'Play Crypto Snake on VeloxFi. Guide your snake to eat $BATTLE coins and earn WOLF tokens. Classic arcade snake with a crypto twist — free to play.',
     canonical: 'https://veloxfi.io/games/crypto-snake',
+  },
+  battleTetris: {
+    title:     'Battle Tetris — Stack Blocks, Earn WOLF | VeloxFi',
+    desc:      'Play Battle Tetris on VeloxFi. Stack crypto-colored blocks, clear lines and earn WOLF tokens. Classic Tetris with a cyberpunk twist — free to play.',
+    canonical: 'https://veloxfi.io/games/battle-tetris',
   },
 };
 
@@ -4975,6 +5153,426 @@ async function csClaimWolf() {
   }
 }
 // ── End Crypto Snake ───────────────────────────────
+
+// ── Battle Tetris Game ─────────────────────────────
+const BT_COLS = 10, BT_ROWS = 20, BT_CELL = 24;
+const BT_W = BT_COLS * BT_CELL; // 240
+const BT_H = BT_ROWS * BT_CELL; // 480
+const BT_DURATION = 120, BT_MAX_WOLF = 120;
+const BT_INIT_SPEED = 600; // ms between auto-drops
+
+// Tetromino definitions: shape, fill color, glow color
+const BT_PIECES = [
+  { shape:[[1,1,1,1]],             color:'#22d3ee', glow:'rgba(34,211,238,.5)'  }, // I — cyan
+  { shape:[[1,1],[1,1]],           color:'#a78bfa', glow:'rgba(167,139,250,.5)' }, // O — light purple
+  { shape:[[0,1,0],[1,1,1]],       color:'#7c3aed', glow:'rgba(124,58,237,.5)'  }, // T — purple
+  { shape:[[0,1,1],[1,1,0]],       color:'#60a5fa', glow:'rgba(96,165,250,.5)'  }, // S — blue
+  { shape:[[1,1,0],[0,1,1]],       color:'#2563eb', glow:'rgba(37,99,235,.5)'   }, // Z — dark blue
+  { shape:[[1,0,0],[1,1,1]],       color:'#818cf8', glow:'rgba(129,140,248,.5)' }, // J — indigo
+  { shape:[[0,0,1],[1,1,1]],       color:'#8b5cf6', glow:'rgba(139,92,246,.5)'  }, // L — violet
+];
+
+let btCanvas, btCtx, btGameState = 'idle';
+let btAnimFrame = null, btFallInterval = null, btTimerInterval = null;
+let btBoard, btCurrent, btNext;
+let btWolfEarned = 0, btLinesCleared = 0, btTimeLeft = BT_DURATION;
+let btFallSpeed = BT_INIT_SPEED, btClaimed = false;
+let btFlashLines = [], btFlashExpiry = 0;
+let btLockPending = false;
+
+function goBattleTetris() {
+  setPageMeta('battleTetris');
+  history.pushState(null, '', '/games/battle-tetris');
+  _showOnlyPage('battleTetrisPage');
+  window.scrollTo(0, 0);
+  btInit();
+}
+
+function btInit() {
+  btCanvas = document.getElementById('battleTetrisCanvas');
+  if (!btCanvas) return;
+  btCtx = btCanvas.getContext('2d');
+  btCanvas.width = BT_W;
+  btCanvas.height = BT_H;
+  btGameState = 'idle';
+  btClaimed = false;
+  btBoard = Array.from({length: BT_ROWS}, () => Array(BT_COLS).fill(null));
+  btWolfEarned = 0; btLinesCleared = 0; btTimeLeft = BT_DURATION;
+  btFallSpeed = BT_INIT_SPEED; btFlashLines = []; btFlashExpiry = 0; btLockPending = false;
+  btNext = btMakePiece();
+  btCurrent = null;
+  document.getElementById('btStartScreen').style.display = 'flex';
+  document.getElementById('btResultScreen').style.display = 'none';
+  btUpdateHUD();
+  btDrawNextPiece();
+  btDrawFrame();
+}
+
+function btMakePiece() {
+  const t = BT_PIECES[Math.floor(Math.random() * BT_PIECES.length)];
+  return {
+    shape: t.shape.map(r => [...r]),
+    color: t.color, glow: t.glow,
+    x: Math.floor((BT_COLS - t.shape[0].length) / 2), y: 0,
+  };
+}
+
+function btSpawn() {
+  btCurrent = { ...btNext, x: Math.floor((BT_COLS - btNext.shape[0].length) / 2), y: 0 };
+  btNext = btMakePiece();
+  btDrawNextPiece();
+  if (btCollides(btCurrent, 0, 0)) { btEndGame('top'); return false; }
+  return true;
+}
+
+function btCollides(piece, dx, dy, shape) {
+  const s = shape || piece.shape;
+  for (let r = 0; r < s.length; r++) {
+    for (let c = 0; c < s[r].length; c++) {
+      if (!s[r][c]) continue;
+      const nx = piece.x + c + dx, ny = piece.y + r + dy;
+      if (nx < 0 || nx >= BT_COLS || ny >= BT_ROWS) return true;
+      if (ny >= 0 && btBoard[ny][nx]) return true;
+    }
+  }
+  return false;
+}
+
+function btStartGame() {
+  document.getElementById('btStartScreen').style.display = 'none';
+  document.getElementById('btResultScreen').style.display = 'none';
+  btBoard = Array.from({length: BT_ROWS}, () => Array(BT_COLS).fill(null));
+  btWolfEarned = 0; btLinesCleared = 0; btTimeLeft = BT_DURATION;
+  btFallSpeed = BT_INIT_SPEED; btFlashLines = []; btFlashExpiry = 0; btLockPending = false;
+  btClaimed = false;
+  btNext = btMakePiece();
+  btUpdateHUD();
+  btGameState = 'playing';
+  btSpawn();
+  document.addEventListener('keydown', btOnKeyDown);
+  btBindTouch();
+  if (btTimerInterval) clearInterval(btTimerInterval);
+  btTimerInterval = setInterval(() => {
+    if (btGameState !== 'playing') return;
+    btTimeLeft--;
+    if (btTimeLeft % 30 === 0 && btTimeLeft > 0) {
+      btFallSpeed = Math.max(80, btFallSpeed - 80);
+      btResetFall();
+    }
+    btUpdateHUD();
+    if (btTimeLeft <= 0) btEndGame('time');
+  }, 1000);
+  btResetFall();
+  btAnimFrame = requestAnimationFrame(btRenderLoop);
+}
+
+function btRenderLoop() {
+  if (btGameState !== 'playing') return;
+  btDrawFrame();
+  btAnimFrame = requestAnimationFrame(btRenderLoop);
+}
+
+function btResetFall() {
+  if (btFallInterval) clearInterval(btFallInterval);
+  if (btGameState !== 'playing') return;
+  btFallInterval = setInterval(() => {
+    if (btGameState !== 'playing' || btLockPending) return;
+    if (!btMove(0, 1)) btLock();
+  }, btFallSpeed);
+}
+
+function btMove(dx, dy) {
+  if (!btCurrent || btGameState !== 'playing') return false;
+  if (!btCollides(btCurrent, dx, dy)) { btCurrent.x += dx; btCurrent.y += dy; return true; }
+  return false;
+}
+
+function btRotate() {
+  if (!btCurrent || btGameState !== 'playing') return;
+  const s = btCurrent.shape;
+  const rotated = s[0].map((_, i) => s.map(row => row[i]).reverse());
+  for (const kick of [0, -1, 1, -2, 2]) {
+    if (!btCollides(btCurrent, kick, 0, rotated)) {
+      btCurrent.shape = rotated;
+      btCurrent.x += kick;
+      return;
+    }
+  }
+}
+
+function btHardDrop() {
+  if (!btCurrent || btGameState !== 'playing') return;
+  while (btMove(0, 1)) {}
+  btLock();
+}
+
+function btGhostY() {
+  if (!btCurrent) return 0;
+  let gy = btCurrent.y;
+  while (!btCollides(btCurrent, 0, gy - btCurrent.y + 1)) gy++;
+  return gy;
+}
+
+function btLock() {
+  if (!btCurrent || btGameState !== 'playing' || btLockPending) return;
+  btLockPending = true;
+  const { shape, color, x, y } = btCurrent;
+  shape.forEach((row, r) => row.forEach((v, c) => {
+    if (v && y + r >= 0) btBoard[y + r][x + c] = color;
+  }));
+  btCurrent = null;
+
+  // Find completed lines
+  const full = [];
+  for (let r = BT_ROWS - 1; r >= 0; r--) {
+    if (btBoard[r].every(c => c !== null)) full.push(r);
+  }
+
+  if (full.length > 0) {
+    btFlashLines = full;
+    btFlashExpiry = performance.now() + 220;
+    setTimeout(() => {
+      if (btGameState === 'over') { btLockPending = false; return; }
+      full.sort((a, b) => b - a).forEach(r => {
+        btBoard.splice(r, 1);
+        btBoard.unshift(Array(BT_COLS).fill(null));
+      });
+      btFlashLines = [];
+      btLinesCleared += full.length;
+      btWolfEarned = Math.min(btWolfEarned + full.length, BT_MAX_WOLF);
+      btUpdateHUD();
+      btLockPending = false;
+      if (btGameState === 'playing') btSpawn();
+    }, 230);
+  } else {
+    btLockPending = false;
+    btSpawn();
+  }
+}
+
+function btDrawFrame() {
+  if (!btCtx) return;
+  const ctx = btCtx;
+  const now = performance.now();
+
+  ctx.fillStyle = '#030712';
+  ctx.fillRect(0, 0, BT_W, BT_H);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 0.5;
+  for (let c = 1; c < BT_COLS; c++) { ctx.beginPath(); ctx.moveTo(c*BT_CELL,0); ctx.lineTo(c*BT_CELL,BT_H); ctx.stroke(); }
+  for (let r = 1; r < BT_ROWS; r++) { ctx.beginPath(); ctx.moveTo(0,r*BT_CELL); ctx.lineTo(BT_W,r*BT_CELL); ctx.stroke(); }
+
+  // Board cells
+  for (let r = 0; r < BT_ROWS; r++) {
+    const flashing = btFlashLines.includes(r) && now < btFlashExpiry;
+    for (let c = 0; c < BT_COLS; c++) {
+      const color = btBoard[r][c];
+      if (color) btDrawCell(ctx, c, r, flashing ? '#fff' : color, flashing ? 'rgba(255,255,255,.8)' : null);
+    }
+  }
+
+  // Ghost piece
+  if (btCurrent) {
+    const gy = btGhostY();
+    if (gy > btCurrent.y) {
+      btCurrent.shape.forEach((row, r) => row.forEach((v, c) => {
+        if (!v) return;
+        const px = (btCurrent.x + c) * BT_CELL, py = (gy + r) * BT_CELL;
+        ctx.globalAlpha = 0.22;
+        ctx.fillStyle = btCurrent.color;
+        ctx.fillRect(px + 1, py + 1, BT_CELL - 2, BT_CELL - 2);
+        ctx.strokeStyle = btCurrent.color;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px + 1.5, py + 1.5, BT_CELL - 3, BT_CELL - 3);
+        ctx.globalAlpha = 1;
+      }));
+    }
+    // Current piece
+    btCurrent.shape.forEach((row, r) => row.forEach((v, c) => {
+      if (v) btDrawCell(ctx, btCurrent.x + c, btCurrent.y + r, btCurrent.color, btCurrent.glow);
+    }));
+  }
+}
+
+function btDrawCell(ctx, col, row, color, glow) {
+  const x = col * BT_CELL, y = row * BT_CELL, s = BT_CELL - 1;
+  ctx.shadowColor = glow || color;
+  ctx.shadowBlur = glow ? 10 : 3;
+  ctx.fillStyle = color;
+  ctx.fillRect(x + 1, y + 1, s - 1, s - 1);
+  // Top highlight
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fillRect(x + 2, y + 2, s - 3, 4);
+  // Bottom shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.fillRect(x + 2, y + s - 4, s - 3, 3);
+}
+
+function btDrawNextPiece() {
+  const nc = document.getElementById('btNextCanvas');
+  if (!nc || !btNext) return;
+  const ctx = nc.getContext('2d');
+  ctx.fillStyle = '#030712';
+  ctx.fillRect(0, 0, nc.width, nc.height);
+  const cz = 20;
+  const s = btNext.shape;
+  const ox = Math.floor((nc.width  / cz - s[0].length) / 2);
+  const oy = Math.floor((nc.height / cz - s.length)    / 2);
+  s.forEach((row, r) => row.forEach((v, c) => {
+    if (!v) return;
+    const px = (ox + c) * cz, py = (oy + r) * cz;
+    ctx.shadowColor = btNext.glow; ctx.shadowBlur = 8;
+    ctx.fillStyle = btNext.color;
+    ctx.fillRect(px + 1, py + 1, cz - 2, cz - 2);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(px + 2, py + 2, cz - 4, 3);
+  }));
+}
+
+function btUpdateHUD() {
+  const timerEl = document.getElementById('btHudTimer');
+  const wolfEl  = document.getElementById('btHudWolf');
+  const linesEl = document.getElementById('btHudLines');
+  if (timerEl) {
+    const m = Math.floor(btTimeLeft / 60), s = btTimeLeft % 60;
+    timerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    timerEl.style.color = btTimeLeft <= 30 ? '#ef4444' : '#60a5fa';
+  }
+  if (wolfEl)  wolfEl.textContent  = btWolfEarned;
+  if (linesEl) linesEl.textContent = btLinesCleared;
+}
+
+function btOnKeyDown(e) {
+  if (btGameState !== 'playing') return;
+  switch (e.key) {
+    case 'ArrowLeft':  case 'a': case 'A': btMove(-1, 0); break;
+    case 'ArrowRight': case 'd': case 'D': btMove(1, 0);  break;
+    case 'ArrowDown':  case 's': case 'S': if (!btMove(0,1)) btLock(); break;
+    case 'ArrowUp':    case 'w': case 'W': btRotate(); break;
+    case ' ': btHardDrop(); break;
+  }
+  if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault();
+}
+
+function btBindTouch() {
+  const add = (id, fn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.onpointerdown = e => { e.preventDefault(); fn(); };
+  };
+  add('btBtnLeft',   () => btMove(-1, 0));
+  add('btBtnRight',  () => btMove(1, 0));
+  add('btBtnDown',   () => { if (!btMove(0, 1)) btLock(); });
+  add('btBtnRotate', () => btRotate());
+  add('btBtnDrop',   () => btHardDrop());
+}
+
+function btEndGame(reason) {
+  if (btGameState === 'over') return;
+  btGameState = 'over';
+  if (btFallInterval)  { clearInterval(btFallInterval);  btFallInterval  = null; }
+  if (btTimerInterval) { clearInterval(btTimerInterval); btTimerInterval = null; }
+  if (btAnimFrame)     { cancelAnimationFrame(btAnimFrame); btAnimFrame   = null; }
+  document.removeEventListener('keydown', btOnKeyDown);
+  btDrawFrame();
+
+  const titleEl  = document.getElementById('btResultTitle');
+  const wolfEl   = document.getElementById('btResultWolf');
+  const claimSec = document.getElementById('btClaimSection');
+  const guestSec = document.getElementById('btGuestSection');
+  const claimBtn = document.getElementById('btClaimBtn');
+  if (titleEl) titleEl.textContent = reason === 'time' ? "⏱ TIME'S UP!" : '⛔ TOPPED OUT!';
+  if (wolfEl)  wolfEl.textContent  = btWolfEarned;
+  if (claimBtn) { claimBtn.disabled = false; claimBtn.textContent = '🐺 CLAIM WOLF'; }
+
+  if (currentUser && btWolfEarned > 0) {
+    if (claimSec) claimSec.style.display = 'block';
+    if (guestSec) guestSec.style.display = 'none';
+  } else if (!currentUser) {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'block';
+  } else {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'none';
+  }
+  const screen = document.getElementById('btResultScreen');
+  if (screen) screen.style.display = 'flex';
+}
+
+function btStopGame() {
+  if (btFallInterval)  { clearInterval(btFallInterval);  btFallInterval  = null; }
+  if (btTimerInterval) { clearInterval(btTimerInterval); btTimerInterval = null; }
+  if (btAnimFrame)     { cancelAnimationFrame(btAnimFrame); btAnimFrame   = null; }
+  document.removeEventListener('keydown', btOnKeyDown);
+  btGameState = 'idle';
+}
+
+function btRestartGame() {
+  document.getElementById('btResultScreen').style.display = 'none';
+  btInit();
+}
+
+async function btClaimWolf() {
+  if (!currentUser || btWolfEarned <= 0 || btClaimed) return;
+  const btn = document.getElementById('btClaimBtn');
+  const session = getSession();
+  if (!session?.tok) { showToast('Session expired — please log in again.', 'error'); return; }
+  const ENDPOINT = '/api/veloxfi/game/battle-tetris/earn';
+  const BODY = JSON.stringify({ wolfEarned: btWolfEarned });
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (btn) { btn.disabled = true; btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`; }
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
+        body: BODY,
+      });
+      if (res.status === 400) {
+        const d = await res.json().catch(() => ({}));
+        showToast(d.error || 'Invalid claim amount.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+      if (res.status === 401) {
+        showToast('Session expired — please log in again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+      if (data.ok) {
+        btClaimed = true;
+        try {
+          if (currentUser) currentUser.wolf = data.newWolfBalance;
+          if (typeof updateNavBalance === 'function') updateNavBalance();
+          showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        } catch (uiErr) {
+          showToast(`+${data.wolfEarned} WOLF claimed!`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        }
+        return;
+      }
+      showToast(data.error || 'Claim failed.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      return;
+    } catch (err) {
+      if (btClaimed) return;
+      if (attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, attempt * 600));
+      } else {
+        showToast('Network error after 3 attempts. Check your connection.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      }
+    }
+  }
+}
+// ── End Battle Tetris ──────────────────────────────
 
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');
