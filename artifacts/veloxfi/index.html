@@ -1444,6 +1444,36 @@
 .earn-card-badge.ready-badge { background:rgba(74,222,128,.15); color:#4ade80; border:1px solid rgba(74,222,128,.3); }
 .earn-card-badge.soon-badge { background:rgba(100,116,139,.12); color:#64748b; border:1px solid rgba(100,116,139,.2); }
 
+/* ── Play & Earn WOLF Section ────────────────────────────── */
+#playEarnSection { padding:56px 20px 32px; max-width:960px; margin:0 auto; }
+.pe-header { text-align:center; margin-bottom:36px; }
+.pe-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin-bottom:10px; }
+.pe-sub { font-family:'Rajdhani',sans-serif; font-size:1rem; color:#64748b; letter-spacing:.04em; }
+.pe-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+@media(max-width:680px){ .pe-grid { grid-template-columns:repeat(2,1fr); gap:12px; } }
+.pe-card { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; aspect-ratio:1/1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:20px 16px; text-align:center; gap:8px; transition:all .22s; box-sizing:border-box; overflow:hidden; }
+.pe-card.ready { cursor:pointer; border-color:rgba(124,58,237,.3); }
+.pe-card.ready:hover { background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.7); transform:translateY(-3px); box-shadow:0 0 28px rgba(124,58,237,.35),0 0 60px rgba(37,99,235,.15); }
+.pe-card.soon { opacity:.55; cursor:default; }
+.pe-card-icon { font-size:2.6rem; line-height:1; flex-shrink:0; }
+.pe-card-name { font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:800; letter-spacing:.1em; color:#fff; }
+.pe-card-desc { font-family:'Rajdhani',sans-serif; font-size:.85rem; color:#64748b; line-height:1.35; }
+.pe-card-earn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; color:#a78bfa; letter-spacing:.06em; margin-top:2px; }
+.pe-cs-badge { position:absolute; top:12px; right:12px; font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.08em; background:rgba(100,116,139,.2); color:#64748b; border:1px solid rgba(100,116,139,.25); padding:3px 8px; border-radius:99px; }
+
+/* ── Activity Page ───────────────────────────────────────── */
+#activityPage { min-height:80vh; }
+.act-page-inner { max-width:740px; margin:0 auto; padding:24px 20px 48px; }
+.act-page-top { display:flex; align-items:center; gap:14px; margin-bottom:24px; flex-wrap:wrap; }
+.act-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; transition:all .15s; }
+.act-page-back:hover { border-color:rgba(255,255,255,.25); color:#fff; }
+.act-page-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:700; letter-spacing:.12em; color:#fff; display:flex; align-items:center; }
+.act-page-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:20px; }
+
+/* ── Nav Activity Button ─────────────────────────────────── */
+.btn-nav-activity { background:none; border:1px solid rgba(255,255,255,.15); color:#94a3b8; font-family:'Orbitron',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.1em; padding:7px 14px; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-nav-activity:hover { border-color:rgba(37,99,235,.5); color:#60a5fa; }
+
 /* ── Games Page ──────────────────────────────────────────── */
 #gamesPage { display:none; }
 .games-page-top { display:flex; align-items:center; gap:16px; padding:20px 24px 0; max-width:900px; margin:0 auto; }
@@ -1824,20 +1854,60 @@
   </div>
 
 
-  <!-- LIVE ACTIVITY FEED -->
-  <div class="activity-section" id="activitySection">
-    <div class="activity-card">
-      <div class="activity-header">
-        <div class="activity-header-left">
-          <div class="activity-live-dot"></div>
-          <span class="activity-live-label">LIVE</span>
-          <span class="activity-title">ACTIVITY FEED</span>
-        </div>
-        <span class="activity-refresh-label" id="activityRefreshLabel">Refreshes every 15s</span>
+  <!-- PLAY & EARN WOLF -->
+  <div id="playEarnSection">
+    <div class="pe-header">
+      <div class="pe-title">PLAY &amp; EARN WOLF</div>
+      <div class="pe-sub">Every game earns you WOLF tokens — convert to $BATTLE at 5,000 : 1</div>
+    </div>
+    <div class="pe-grid">
+
+      <div class="pe-card ready" onclick="currentUser ? document.getElementById('miningSection').scrollIntoView({behavior:'smooth'}) : openModal('register')">
+        <div class="pe-card-icon">⛏️</div>
+        <div class="pe-card-name">MINING</div>
+        <div class="pe-card-desc">Click Mine every 4 hours to earn WOLF passively</div>
+        <div class="pe-card-earn">1 WOLF / minute</div>
       </div>
-      <div class="activity-list" id="activityList">
-        <div class="activity-empty">Loading activity…</div>
+
+      <div class="pe-card ready" onclick="currentUser ? goGames() : openModal('register')">
+        <div class="pe-card-icon">⚔️</div>
+        <div class="pe-card-name">BATTLE PREDICTION</div>
+        <div class="pe-card-desc">Pick which memecoin gains the most in 5–30 min</div>
+        <div class="pe-card-earn">Earn up to 150 WOLF</div>
       </div>
+
+      <div class="pe-card soon">
+        <div class="pe-cs-badge">COMING SOON</div>
+        <div class="pe-card-icon">🚀</div>
+        <div class="pe-card-name">ROCKET MINER</div>
+        <div class="pe-card-desc">Shoot falling coins out of the sky</div>
+        <div class="pe-card-earn">1 WOLF / hit</div>
+      </div>
+
+      <div class="pe-card soon">
+        <div class="pe-cs-badge">COMING SOON</div>
+        <div class="pe-card-icon">🐍</div>
+        <div class="pe-card-name">CRYPTO SNAKE</div>
+        <div class="pe-card-desc">Eat crypto coins and grow your snake</div>
+        <div class="pe-card-earn">1 WOLF / bite</div>
+      </div>
+
+      <div class="pe-card soon">
+        <div class="pe-cs-badge">COMING SOON</div>
+        <div class="pe-card-icon">🎮</div>
+        <div class="pe-card-name">BATTLE TETRIS</div>
+        <div class="pe-card-desc">Complete lines with crypto-themed blocks</div>
+        <div class="pe-card-earn">1 WOLF / line</div>
+      </div>
+
+      <div class="pe-card soon">
+        <div class="pe-cs-badge">COMING SOON</div>
+        <div class="pe-card-icon">🐺</div>
+        <div class="pe-card-name">WOLF RUN</div>
+        <div class="pe-card-desc">Run and collect coins as the VeloxFi wolf</div>
+        <div class="pe-card-earn">1 WOLF / coin</div>
+      </div>
+
     </div>
   </div>
 
@@ -2050,6 +2120,25 @@
     </div>
   </div>
 </div><!-- /convertPage -->
+
+<!-- ACTIVITY PAGE -->
+<div id="activityPage" style="display:none">
+  <div class="act-page-inner">
+    <div class="act-page-top">
+      <button class="act-page-back" onclick="goHome()">← HOME</button>
+      <div class="act-page-title">
+        <div class="activity-live-dot" style="margin-right:8px"></div>
+        LIVE ACTIVITY FEED
+      </div>
+      <span class="activity-refresh-label" id="activityRefreshLabel">Refreshes every 15s</span>
+    </div>
+    <div class="act-page-card">
+      <div class="activity-list" id="activityList">
+        <div class="activity-empty">Loading activity…</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /activityPage -->
 
 <!-- BATTLE PAGE -->
 <div id="battlePage" style="display:none">
@@ -3278,7 +3367,7 @@ function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(c
 
 function _showOnlyPage(id) {
   ['mainPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -3357,6 +3446,11 @@ function initRouter() {
     _showOnlyPage('convertPage');
     syncConvertPage();
     window.scrollTo(0,0);
+  } else if (path === '/activity') {
+    setPageMeta('activity');
+    _showOnlyPage('activityPage');
+    fetchActivityFeed();
+    window.scrollTo(0,0);
   } else {
     _showOnlyPage('mainPage');
   }
@@ -3434,6 +3528,11 @@ const PAGE_META = {
     desc:      'Convert your WOLF mining tokens to $BATTLE on VeloxFi. 5,000 WOLF = 1 $BATTLE. Mine WOLF for free and exchange for $BATTLE tokens.',
     canonical: 'https://veloxfi.io/convert',
   },
+  activity: {
+    title:     'Live Activity Feed | VeloxFi',
+    desc:      'See real-time player activity on VeloxFi — battles, wins, level-ups, and achievements from the community.',
+    canonical: 'https://veloxfi.io/activity',
+  },
 };
 
 function setPageMeta(key) {
@@ -3496,6 +3595,14 @@ function goConvert() {
   history.pushState(null, '', '/convert');
   _showOnlyPage('convertPage');
   syncConvertPage();
+  window.scrollTo(0,0);
+}
+
+function goActivity() {
+  setPageMeta('activity');
+  history.pushState(null, '', '/activity');
+  _showOnlyPage('activityPage');
+  fetchActivityFeed();
   window.scrollTo(0,0);
 }
 
@@ -4405,16 +4512,20 @@ function renderNav() {
     <span class="nav-battle-bal">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</span>
     <button class="btn-nav-games" onclick="goGames()">GAMES</button>
     <button class="btn-nav-convert" onclick="goConvert()">CONVERT</button>
+    <button class="btn-nav-activity" onclick="goActivity()">ACTIVITY</button>
     <button class="btn-nav-profile" onclick="goProfile()" style="display:inline-flex;align-items:center;gap:6px;">${badge} ${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
     if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">⚔️ GAMES</button>
     <button class="mob-menu-btn" onclick="goConvert();closeMobileMenu()">🐺 CONVERT WOLF</button>
+    <button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
     <button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()} ${badge}</button>
     <button class="mob-menu-btn mob-logout" onclick="handleLogout();closeMobileMenu()">LOGOUT</button>`;
   } else {
-    el.innerHTML=`<button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
+    el.innerHTML=`<button class="btn-nav-activity" onclick="goActivity()">ACTIVITY</button>
+    <button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
     <button class="btn-nav-register" onclick="openModal('register')">REGISTER</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="openModal('login');closeMobileMenu()">LOGIN</button>
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
+    <button class="mob-menu-btn" onclick="openModal('login');closeMobileMenu()">LOGIN</button>
     <button class="mob-menu-btn mob-register" onclick="openModal('register');closeMobileMenu()">🚀 REGISTER FREE</button>`;
   }
 }
@@ -5904,12 +6015,11 @@ async function init() {
     // Fire stats + coins concurrently — do not await so they load in parallel
     fetchStatsBar();
     fetchMemecoins();
-    fetchActivityFeed();
     setInterval(fetchMemecoins, 5 * 60_000);
     setInterval(() => { if (activeBattles.length) fetchPrices(); }, 30_000);
     setInterval(updateRefreshLabel, 60_000);
     setInterval(fetchStatsBar, 30_000);
-    setInterval(fetchActivityFeed, 15_000);
+    setInterval(() => { if (window.location.pathname === '/activity') fetchActivityFeed(); }, 15_000);
   }
 }
 init();
