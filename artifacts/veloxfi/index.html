@@ -1473,7 +1473,26 @@
 .btn-nav-activity:hover { border-color:rgba(37,99,235,.5); color:#60a5fa; }
 
 /* ── Games Page ──────────────────────────────────────────── */
+#gamesHubPage { display:none; }
 #gamesPage { display:none; }
+/* ── Games Hub ─────────────────────────────────── */
+.ghub-wrap { max-width:960px; margin:0 auto; padding:40px 20px 60px; }
+.ghub-header { margin-bottom:32px; }
+.ghub-title { font-family:'Orbitron',sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:.14em; color:#fff; margin:0 0 6px; }
+.ghub-sub { font-family:'Rajdhani',sans-serif; font-size:1rem; color:#475569; }
+.ghub-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:700px){ .ghub-grid { grid-template-columns:repeat(2,1fr); gap:14px; } }
+@media(max-width:440px){ .ghub-grid { grid-template-columns:1fr 1fr; gap:12px; } }
+.ghub-card { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; aspect-ratio:1/1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:22px 16px; text-align:center; gap:8px; transition:all .22s; box-sizing:border-box; overflow:hidden; }
+.ghub-card.ready { cursor:pointer; border-color:rgba(124,58,237,.3); }
+.ghub-card.ready:hover { background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.7); transform:translateY(-4px); box-shadow:0 0 32px rgba(124,58,237,.35),0 0 70px rgba(37,99,235,.15); }
+.ghub-card.soon { opacity:.5; cursor:default; }
+.ghub-card-icon { font-size:2.8rem; line-height:1; flex-shrink:0; }
+.ghub-card-name { font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:800; letter-spacing:.1em; color:#fff; }
+.ghub-card-desc { font-family:'Rajdhani',sans-serif; font-size:.84rem; color:#64748b; line-height:1.35; }
+.ghub-card-earn { font-family:'Orbitron',sans-serif; font-size:.65rem; font-weight:700; color:#a78bfa; letter-spacing:.06em; margin-top:2px; }
+.ghub-soon-badge { position:absolute; top:12px; right:12px; font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.1em; background:rgba(71,85,105,.5); color:#64748b; border-radius:6px; padding:3px 7px; }
+.ghub-play-badge { position:absolute; top:12px; right:12px; font-family:'Orbitron',sans-serif; font-size:.52rem; font-weight:700; letter-spacing:.1em; background:rgba(124,58,237,.3); color:#a78bfa; border-radius:6px; padding:3px 7px; }
 .games-page-top { display:flex; align-items:center; gap:16px; padding:20px 24px 0; max-width:900px; margin:0 auto; }
 .games-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; }
 .games-page-back:hover { border-color:rgba(255,255,255,.2); color:#fff; }
@@ -1814,7 +1833,7 @@
         <div class="pe-card-earn">1 WOLF / minute</div>
       </div>
 
-      <div class="pe-card ready" onclick="currentUser ? goGames() : openModal('register')">
+      <div class="pe-card ready" onclick="currentUser ? goBattlePrediction() : openModal('register')">
         <div class="pe-card-icon">⚔️</div>
         <div class="pe-card-name">BATTLE PREDICTION</div>
         <div class="pe-card-desc">Pick which memecoin gains the most in 5–30 min</div>
@@ -1926,8 +1945,8 @@
 <!-- GAMES PAGE -->
 <div id="gamesPage" style="display:none">
   <div class="games-page-top">
-    <button class="games-page-back" onclick="goHome()">← HOME</button>
-    <div class="games-page-title">⚔️ BATTLE GAMES</div>
+    <button class="games-page-back" onclick="goGames()">← GAMES</button>
+    <div class="games-page-title">⚔️ BATTLE PREDICTION</div>
   </div>
 
   <div class="game-area">
@@ -2039,6 +2058,64 @@
     </div>
   </div>
 </div><!-- /gamesPage -->
+
+<!-- GAMES HUB PAGE -->
+<div id="gamesHubPage" style="display:none">
+  <div class="ghub-wrap">
+    <div class="ghub-header">
+      <div class="ghub-title">🎮 GAMES</div>
+      <div class="ghub-sub">Play skill games and earn WOLF tokens</div>
+    </div>
+    <div class="ghub-grid">
+
+      <!-- Rocket Miner -->
+      <div class="ghub-card ready" onclick="goRocketMiner()">
+        <div class="ghub-play-badge">PLAY NOW</div>
+        <div class="ghub-card-icon">🚀</div>
+        <div class="ghub-card-name">ROCKET MINER</div>
+        <div class="ghub-card-desc">Shoot falling coins in this arcade shooter</div>
+        <div class="ghub-card-earn">Up to 120 WOLF / session</div>
+      </div>
+
+      <!-- Battle Prediction -->
+      <div class="ghub-card ready" onclick="goBattlePrediction()">
+        <div class="ghub-play-badge">PLAY NOW</div>
+        <div class="ghub-card-icon">⚔️</div>
+        <div class="ghub-card-name">BATTLE PREDICTION</div>
+        <div class="ghub-card-desc">Pick which memecoin gains the most in 5–30 min</div>
+        <div class="ghub-card-earn">Earn up to 150 WOLF</div>
+      </div>
+
+      <!-- Crypto Snake -->
+      <div class="ghub-card soon">
+        <div class="ghub-soon-badge">COMING SOON</div>
+        <div class="ghub-card-icon">🐍</div>
+        <div class="ghub-card-name">CRYPTO SNAKE</div>
+        <div class="ghub-card-desc">Classic snake — collect tokens and grow your chain</div>
+        <div class="ghub-card-earn">Earn WOLF per token</div>
+      </div>
+
+      <!-- Battle Tetris -->
+      <div class="ghub-card soon">
+        <div class="ghub-soon-badge">COMING SOON</div>
+        <div class="ghub-card-icon">🧱</div>
+        <div class="ghub-card-name">BATTLE TETRIS</div>
+        <div class="ghub-card-desc">Stack crypto blocks and clear lines for WOLF</div>
+        <div class="ghub-card-earn">Earn WOLF per clear</div>
+      </div>
+
+      <!-- Wolf Run -->
+      <div class="ghub-card soon">
+        <div class="ghub-soon-badge">COMING SOON</div>
+        <div class="ghub-card-icon">🐺</div>
+        <div class="ghub-card-name">WOLF RUN</div>
+        <div class="ghub-card-desc">Endless runner — dodge obstacles and collect WOLF</div>
+        <div class="ghub-card-earn">Earn WOLF per run</div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /gamesHubPage -->
 
 <!-- CONVERT PAGE -->
 <div id="convertPage" style="display:none">
@@ -3393,7 +3470,7 @@ function getBattleParams() {
 function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
 
 function _showOnlyPage(id) {
-  ['mainPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
+  ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
    'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
@@ -3467,6 +3544,10 @@ function initRouter() {
     window.scrollTo(0,0);
     rmInit();
   } else if (path === '/games') {
+    setPageMeta('games');
+    _showOnlyPage('gamesHubPage');
+    window.scrollTo(0,0);
+  } else if (path === '/games/battle-prediction') {
     setPageMeta('games');
     _showOnlyPage('gamesPage');
     fetchMemecoins();
@@ -3618,6 +3699,13 @@ function _applyHomeView() {
 function goGames() {
   setPageMeta('games');
   history.pushState(null, '', '/games');
+  _showOnlyPage('gamesHubPage');
+  window.scrollTo(0,0);
+}
+
+function goBattlePrediction() {
+  setPageMeta('games');
+  history.pushState(null, '', '/games/battle-prediction');
   _showOnlyPage('gamesPage');
   fetchMemecoins();
   renderLeaderboard();
@@ -5038,10 +5126,12 @@ function renderNav() {
     <button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()} ${badge}</button>
     <button class="mob-menu-btn mob-logout" onclick="handleLogout();closeMobileMenu()">LOGOUT</button>`;
   } else {
-    el.innerHTML=`<button class="btn-nav-activity" onclick="goActivity()">ACTIVITY</button>
+    el.innerHTML=`<button class="btn-nav-games" onclick="goGames()">GAMES</button>
+    <button class="btn-nav-activity" onclick="goActivity()">ACTIVITY</button>
     <button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
     <button class="btn-nav-register" onclick="openModal('register')">REGISTER</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">🎮 GAMES</button>
+    <button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
     <button class="mob-menu-btn" onclick="openModal('login');closeMobileMenu()">LOGIN</button>
     <button class="mob-menu-btn mob-register" onclick="openModal('register');closeMobileMenu()">🚀 REGISTER FREE</button>`;
   }
