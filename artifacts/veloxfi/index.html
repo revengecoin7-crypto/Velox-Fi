@@ -1524,6 +1524,47 @@
 @media(pointer:coarse),(max-width:700px) { .wr-mobile-jump { display:flex; } }
 @media(max-width:520px) { .wr-overlay-content { padding:18px 16px; } .wr-overlay-title { font-size:1.2rem; } .wr-result-wolf-num { font-size:2.4rem; } #wolfRunPage { height:100svh; } }
 
+/* ── Mobile fullscreen game overlay ─────────────── */
+.game-fs {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  height: 100svh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+  background: #030712 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+/* Crypto Snake inner layout in fullscreen */
+.game-fs#cryptoSnakePage .cs-wrap {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  padding: 8px 8px 0; max-width: none;
+}
+.game-fs#cryptoSnakePage .cs-topbar { flex-shrink: 0; margin-bottom: 4px; }
+.game-fs#cryptoSnakePage .cs-hud { flex-shrink: 0; margin-bottom: 4px; }
+.game-fs#cryptoSnakePage .cs-canvas-outer {
+  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+}
+.game-fs#cryptoSnakePage #cryptoSnakeCanvas {
+  display: block; height: 100%; width: auto; max-width: 100%; aspect-ratio: 1;
+}
+.game-fs#cryptoSnakePage .cs-touch-controls { flex-shrink: 0; }
+/* Rocket Miner inner layout in fullscreen */
+.game-fs#rocketMinerPage .rmp-wrap {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  padding: 8px 12px 0; max-width: none;
+}
+.game-fs#rocketMinerPage .rmp-topbar { flex-shrink: 0; margin-bottom: 4px; }
+.game-fs#rocketMinerPage .rmp-hud { flex-shrink: 0; margin-bottom: 4px; }
+.game-fs#rocketMinerPage .rmp-canvas-outer {
+  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+}
+.game-fs#rocketMinerPage #rocketMinerCanvas {
+  display: block; height: 100%; width: auto; max-width: 100%; aspect-ratio: 480/620;
+}
+.game-fs#rocketMinerPage .rmp-touch-controls { flex-shrink: 0; padding-top: 8px; }
+
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
   /* ── Tell the browser to honour background colours ── */
@@ -3776,6 +3817,7 @@
 </div><!-- /wolfRunPage -->
 
 <div class="toast-container" id="toastContainer"></div>
+<button id="gameFsClose" onclick="exitGameFullscreen()" aria-label="Close game" style="display:none;position:fixed;top:12px;right:12px;z-index:10001;width:42px;height:42px;border-radius:50%;background:rgba(3,7,18,.88);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.25rem;line-height:1;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 14px rgba(0,0,0,.55);backdrop-filter:blur(6px);">✕</button>
 
 <script>
 // ── Dynamic coin list (populated from API) ───────
@@ -4114,8 +4156,44 @@ function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(c
 let _profWolfTimer = null;
 function _clearProfWolfTimer() { if (_profWolfTimer) { clearInterval(_profWolfTimer); _profWolfTimer = null; } }
 
+let gameFsPageId = null, gameFsExitFn = null;
+
+function enterGameFullscreen(pageId, exitFn) {
+  if (window.innerWidth >= 768) return;
+  gameFsPageId = pageId;
+  gameFsExitFn = exitFn;
+  const el = document.getElementById(pageId);
+  if (!el) return;
+  el.classList.add('game-fs');
+  el.style.display = 'flex';
+  const btn = document.getElementById('gameFsClose');
+  if (btn) btn.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function exitGameFullscreen() {
+  const btn = document.getElementById('gameFsClose');
+  if (btn) btn.style.display = 'none';
+  document.body.style.overflow = '';
+  if (gameFsPageId) {
+    const el = document.getElementById(gameFsPageId);
+    if (el) { el.classList.remove('game-fs'); el.style.removeProperty('display'); }
+    gameFsPageId = null;
+  }
+  if (gameFsExitFn) { const fn = gameFsExitFn; gameFsExitFn = null; fn(); }
+}
+
 function _showOnlyPage(id) {
   if (id !== 'profilePage') _clearProfWolfTimer();
+  // Clean up fullscreen when navigating away from a game
+  if (gameFsPageId && gameFsPageId !== id) {
+    const fsEl = document.getElementById(gameFsPageId);
+    if (fsEl) fsEl.classList.remove('game-fs');
+    gameFsPageId = null; gameFsExitFn = null;
+    const closeBtn = document.getElementById('gameFsClose');
+    if (closeBtn) closeBtn.style.display = 'none';
+    document.body.style.overflow = '';
+  }
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
    'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','blogPost6','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage','wolfRunPage'].forEach(p => {
     const el = document.getElementById(p);
@@ -4536,6 +4614,7 @@ function rmInit() {
 }
 
 function rmStartGame() {
+  enterGameFullscreen('rocketMinerPage', () => { rmStopGame(); goGames(); });
   document.getElementById('rmStartScreen').style.display = 'none';
   document.getElementById('rmResultScreen').style.display = 'none';
   rmGameState = 'playing';
@@ -5116,6 +5195,7 @@ function csBindDpad() {
 }
 
 function csStartGame() {
+  enterGameFullscreen('cryptoSnakePage', () => { csStopGame(); goGames(); });
   document.getElementById('csStartScreen').style.display = 'none';
   document.getElementById('csResultScreen').style.display = 'none';
   csSnakeReset(3);
@@ -5518,6 +5598,7 @@ function btCollides(piece, dx, dy, shape) {
 }
 
 function btStartGame() {
+  enterGameFullscreen('battleTetrisPage', () => { btStopGame(); goGames(); });
   document.getElementById('btStartScreen').style.display = 'none';
   document.getElementById('btResultScreen').style.display = 'none';
   btBoard = Array.from({length: BT_ROWS}, () => Array(BT_COLS).fill(null));
@@ -6271,6 +6352,7 @@ async function wrClaimWolf() {
 }
 
 function wrStartGame() {
+  enterGameFullscreen('wolfRunPage', () => { wrStopGame(); goGames(); });
   wrWolfY = WR_GROUND_Y - WR_WOLF_H; wrWolfVY = 0; wrOnGround = true;
   wrLives = 3; wrWolfEarned = 0; wrTimeLeft = WR_DURATION; wrFrame = 0; wrSpeed = 3.5;
   wrClaimed = false; wrInvincFrames = 0;
