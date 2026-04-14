@@ -1188,14 +1188,20 @@
 .rmp-canvas-outer { position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(37,99,235,.3); box-shadow:0 0 40px rgba(37,99,235,.15); }
 #rocketMinerCanvas { display:block; width:100%; }
 .rmp-overlay { position:absolute; inset:0; background:rgba(3,7,18,.92); display:flex; align-items:center; justify-content:center; z-index:10; }
-.rmp-overlay-content { text-align:center; padding:32px 24px; max-width:340px; }
 .rmp-overlay-icon { font-size:3rem; margin-bottom:10px; }
 .rmp-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 8px; }
 .rmp-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#64748b; margin:0 0 20px; }
 .rmp-rules { display:flex; gap:10px; justify-content:center; margin-bottom:14px; }
 .rmp-rule { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; min-width:72px; }
 .rmp-rule span:first-child { font-size:1.2rem; }
-.rmp-controls-hint { font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#475569; margin:0 0 18px; }
+.rmp-controls-hint { display:none; }
+.rmp-howto { margin:12px 0 16px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
+.rmp-howto-title { font-family:'Orbitron',sans-serif; font-size:.58rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; }
+.rmp-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.rmp-howto-row { display:flex; align-items:flex-start; gap:8px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; line-height:1.35; }
+.rmp-howto-icon { font-size:.95rem; flex-shrink:0; }
+.rmp-howto-key { color:#60a5fa; font-weight:600; }
+.rmp-overlay-content { text-align:center; padding:24px 20px; max-width:340px; max-height:90vh; overflow-y:auto; }
 .rmp-play-btn { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.12em; color:#fff; background:linear-gradient(135deg,#2563eb,#7c3aed); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; }
 .rmp-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(37,99,235,.4); }
 .rmp-result-wolf-display { margin:18px 0; }
@@ -1211,10 +1217,12 @@
 .rmp-again-btn:hover { background:rgba(124,58,237,.2); }
 .rmp-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
 .rmp-games-btn:hover { background:rgba(37,99,235,.18); }
-.rmp-touch-controls { display:none; justify-content:space-between; align-items:center; padding:10px 0 0; gap:8px; }
-@media (pointer:coarse),(max-width:600px){ .rmp-touch-controls { display:flex; } }
-.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(37,99,235,.15); border:1px solid rgba(37,99,235,.25); border-radius:12px; padding:18px 0; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; }
-.rmp-touch-btn.fire { background:rgba(124,58,237,.2); border-color:rgba(124,58,237,.35); font-size:.68rem; letter-spacing:.12em; }
+.rmp-touch-controls { display:none; justify-content:space-between; align-items:stretch; padding:10px 0 0; gap:8px; }
+@media (pointer:coarse),(max-width:700px){ .rmp-touch-controls { display:flex; } }
+.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#fff; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:22px 0; min-height:68px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; }
+.rmp-touch-btn:active,.rmp-touch-btn.pressed { background:rgba(37,99,235,.38); }
+.rmp-touch-btn.fire { background:rgba(124,58,237,.22); border-color:rgba(124,58,237,.38); font-size:.72rem; letter-spacing:.14em; }
+.rmp-touch-btn.fire:active,.rmp-touch-btn.fire.pressed { background:rgba(124,58,237,.45); }
 
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
@@ -3003,7 +3011,23 @@
             <div class="rmp-rule"><span>❤️</span><span>3 lives</span></div>
             <div class="rmp-rule"><span>🐺</span><span>1 WOLF / hit</span></div>
           </div>
-          <p class="rmp-controls-hint">← → / A D to move · SPACE to shoot</p>
+          <div class="rmp-howto">
+            <div class="rmp-howto-title">HOW TO PLAY</div>
+            <div class="rmp-howto-rows">
+              <div class="rmp-howto-row">
+                <span class="rmp-howto-icon">⌨️</span>
+                <span><span class="rmp-howto-key">← → / A D</span> move &nbsp;·&nbsp; <span class="rmp-howto-key">SPACE</span> shoot</span>
+              </div>
+              <div class="rmp-howto-row">
+                <span class="rmp-howto-icon">🖱️</span>
+                <span><span class="rmp-howto-key">Move mouse</span> to aim &nbsp;·&nbsp; <span class="rmp-howto-key">Click</span> to shoot</span>
+              </div>
+              <div class="rmp-howto-row">
+                <span class="rmp-howto-icon">📱</span>
+                <span>Tap <span class="rmp-howto-key">left</span> of screen to move left, <span class="rmp-howto-key">right</span> to move right, <span class="rmp-howto-key">center</span> to shoot — or use the buttons below</span>
+              </div>
+            </div>
+          </div>
           <button class="rmp-play-btn" onclick="rmStartGame()">▶ PLAY NOW</button>
         </div>
       </div>
@@ -3663,6 +3687,9 @@ let rmPlayer, rmBullets, rmCoins, rmExplosions, rmStars;
 let rmLives, rmWolfEarned, rmTimeLeft, rmKeys;
 let rmLastBulletTime = 0, rmLastCoinSpawn = 0;
 let rmClaimed = false;
+// Mouse & canvas-touch state
+let rmMouseX = -1, rmMouseActive = false;
+let rmTouchZone = null; // 'left' | 'mid' | 'right' | null (canvas touch zones)
 
 function goRocketMiner() {
   setPageMeta('rocketMiner');
@@ -3727,6 +3754,15 @@ function rmStartGame() {
   rmUpdateHUD();
   document.addEventListener('keydown', rmOnKeyDown);
   document.addEventListener('keyup', rmOnKeyUp);
+  // Mouse control on canvas
+  rmCanvas.addEventListener('mousemove',  rmOnMouseMove);
+  rmCanvas.addEventListener('mouseleave', rmOnMouseLeave);
+  rmCanvas.addEventListener('mousedown',  rmOnMouseDown);
+  // Canvas touch zones
+  rmCanvas.addEventListener('touchstart', rmOnCanvasTouchStart, { passive: false });
+  rmCanvas.addEventListener('touchmove',  rmOnCanvasTouchMove,  { passive: false });
+  rmCanvas.addEventListener('touchend',   rmOnCanvasTouchEnd,   { passive: false });
+  rmMouseActive = false; rmMouseX = -1; rmTouchZone = null;
   if (rmTimerInterval) clearInterval(rmTimerInterval);
   rmTimerInterval = setInterval(() => {
     if (rmGameState !== 'playing') return;
@@ -3745,19 +3781,73 @@ function rmOnKeyDown(e) {
 }
 function rmOnKeyUp(e) { rmKeys[e.key] = false; }
 
+// ── Mouse handlers ────────────────────────────────
+function rmOnMouseMove(e) {
+  if (!rmCanvas) return;
+  const rect = rmCanvas.getBoundingClientRect();
+  rmMouseX = (e.clientX - rect.left) * (RM_W / rect.width);
+  rmMouseActive = true;
+}
+function rmOnMouseLeave() { rmMouseActive = false; }
+function rmOnMouseDown(e) {
+  if (rmGameState !== 'playing') return;
+  e.preventDefault();
+  const now = performance.now();
+  if (now - rmLastBulletTime >= 260) {
+    rmLastBulletTime = now;
+    rmBullets.push({ x: rmPlayer.x + rmPlayer.w / 2, y: rmPlayer.y + 4 });
+  }
+}
+
+// ── Canvas touch-zone handlers ────────────────────
+function rmOnCanvasTouchStart(e) {
+  e.preventDefault();
+  if (rmGameState !== 'playing') return;
+  rmTouchZone = rmGetTouchZone(e);
+}
+function rmOnCanvasTouchMove(e) {
+  e.preventDefault();
+  if (rmGameState !== 'playing') return;
+  rmTouchZone = rmGetTouchZone(e);
+}
+function rmOnCanvasTouchEnd(e) {
+  e.preventDefault();
+  if (e.touches.length === 0) rmTouchZone = null;
+  else rmTouchZone = rmGetTouchZone(e);
+}
+function rmGetTouchZone(e) {
+  if (!rmCanvas || e.touches.length === 0) return null;
+  const rect = rmCanvas.getBoundingClientRect();
+  const relX = (e.touches[0].clientX - rect.left) / rect.width; // 0–1
+  if (relX < 0.33) return 'left';
+  if (relX > 0.67) return 'right';
+  return 'mid';
+}
+
 function rmGameLoop(ts) {
   if (rmGameState !== 'playing') return;
   rmAnimFrame = requestAnimationFrame(rmGameLoop);
 
-  // Player movement
+  // Player movement — keyboard
   const spd = 5;
   if (rmKeys['ArrowLeft'] || rmKeys['a'] || rmKeys['A'])
     rmPlayer.x = Math.max(0, rmPlayer.x - spd);
   if (rmKeys['ArrowRight'] || rmKeys['d'] || rmKeys['D'])
     rmPlayer.x = Math.min(RM_W - rmPlayer.w, rmPlayer.x + spd);
 
-  // Auto-fire while space held
-  if (rmKeys[' ']) {
+  // Player movement — mouse (smooth follow)
+  if (rmMouseActive && rmMouseX >= 0) {
+    const targetX = Math.max(0, Math.min(RM_W - rmPlayer.w, rmMouseX - rmPlayer.w / 2));
+    rmPlayer.x += (targetX - rmPlayer.x) * 0.22;
+  }
+
+  // Player movement — canvas touch zones
+  if (rmTouchZone === 'left')  rmPlayer.x = Math.max(0, rmPlayer.x - spd);
+  if (rmTouchZone === 'right') rmPlayer.x = Math.min(RM_W - rmPlayer.w, rmPlayer.x + spd);
+
+  // Auto-fire — spacebar / canvas mid-touch
+  const autoFire = rmKeys[' '] || rmTouchZone === 'mid';
+  if (autoFire) {
     if (ts - rmLastBulletTime >= 260) {
       rmLastBulletTime = ts;
       rmBullets.push({ x: rmPlayer.x + rmPlayer.w / 2, y: rmPlayer.y + 4 });
@@ -3981,6 +4071,17 @@ function rmUpdateHUD() {
   if (livesEl) livesEl.innerHTML = '❤️'.repeat(Math.max(0, rmLives)) + '🖤'.repeat(Math.max(0, 3 - rmLives));
 }
 
+function rmRemoveCanvasListeners() {
+  if (!rmCanvas) return;
+  rmCanvas.removeEventListener('mousemove',  rmOnMouseMove);
+  rmCanvas.removeEventListener('mouseleave', rmOnMouseLeave);
+  rmCanvas.removeEventListener('mousedown',  rmOnMouseDown);
+  rmCanvas.removeEventListener('touchstart', rmOnCanvasTouchStart);
+  rmCanvas.removeEventListener('touchmove',  rmOnCanvasTouchMove);
+  rmCanvas.removeEventListener('touchend',   rmOnCanvasTouchEnd);
+  rmMouseActive = false; rmTouchZone = null;
+}
+
 function rmEndGame(reason) {
   if (rmGameState === 'over') return;
   rmGameState = 'over';
@@ -3988,6 +4089,7 @@ function rmEndGame(reason) {
   if (rmAnimFrame) { cancelAnimationFrame(rmAnimFrame); rmAnimFrame = null; }
   document.removeEventListener('keydown', rmOnKeyDown);
   document.removeEventListener('keyup', rmOnKeyUp);
+  rmRemoveCanvasListeners();
   rmDrawFrame();
 
   const screen = document.getElementById('rmResultScreen');
@@ -4054,6 +4156,7 @@ function rmStopGame() {
   if (rmAnimFrame) { cancelAnimationFrame(rmAnimFrame); rmAnimFrame = null; }
   document.removeEventListener('keydown', rmOnKeyDown);
   document.removeEventListener('keyup', rmOnKeyUp);
+  rmRemoveCanvasListeners();
   rmGameState = 'idle';
 }
 
