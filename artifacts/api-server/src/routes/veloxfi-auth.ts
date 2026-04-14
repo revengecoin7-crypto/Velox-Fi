@@ -10,10 +10,18 @@ const router = Router();
 
 async function requireAuth(req: Request & { veloxfiUser?: typeof veloxfiUsers.$inferSelect }, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) { res.status(401).json({ error: "Unauthorized." }); return; }
+  if (!auth?.startsWith("Bearer ")) {
+    console.log(`[requireAuth] FAIL no/bad Authorization header on ${req.method} ${req.path} — got: ${auth ? auth.slice(0,20)+'...' : 'undefined'}`);
+    res.status(401).json({ error: "Unauthorized." }); return;
+  }
   const token = auth.slice(7);
+  console.log(`[requireAuth] ${req.method} ${req.path} — token prefix: ${token.slice(0,8)}... (len ${token.length})`);
   const [user] = await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.sessionToken, token)).limit(1);
-  if (!user) { res.status(401).json({ error: "Invalid or expired session." }); return; }
+  if (!user) {
+    console.log(`[requireAuth] FAIL token not found in DB for ${req.method} ${req.path}`);
+    res.status(401).json({ error: "Invalid or expired session." }); return;
+  }
+  console.log(`[requireAuth] OK user="${user.username}" on ${req.method} ${req.path}`);
   (req as any).veloxfiUser = user;
   next();
 }

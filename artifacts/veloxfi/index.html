@@ -4325,15 +4325,24 @@ function rmEndGame(reason) {
 }
 
 async function rmClaimWolf() {
-  if (!currentUser || rmWolfEarned <= 0 || rmClaimed) return;
+  console.log('[rmClaimWolf] called — currentUser:', !!currentUser, '| rmWolfEarned:', rmWolfEarned, '| rmClaimed:', rmClaimed);
+  if (!currentUser || rmWolfEarned <= 0 || rmClaimed) {
+    console.warn('[rmClaimWolf] early-exit guard hit — currentUser:', !!currentUser, 'rmWolfEarned:', rmWolfEarned, 'rmClaimed:', rmClaimed);
+    return;
+  }
   const btn = document.getElementById('rmClaimBtn');
 
   // Guard: ensure we have a valid session token before attempting
   const session = getSession();
+  console.log('[rmClaimWolf] session:', session ? { username: session.username, tokLen: session.tok?.length } : null);
   if (!session?.tok) {
     showToast('Session expired — please log in again.', 'error');
     return;
   }
+
+  const ENDPOINT = '/api/veloxfi/game/rocket-miner/earn';
+  const BODY = JSON.stringify({ wolfEarned: rmWolfEarned });
+  console.log('[rmClaimWolf] POST', ENDPOINT, '| body:', BODY);
 
   const MAX_RETRIES = 3;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -4342,15 +4351,18 @@ async function rmClaimWolf() {
       btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`;
     }
     try {
-      const res = await fetch('/api/veloxfi/game/rocket-miner/earn', {
+      const res = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
-        body: JSON.stringify({ wolfEarned: rmWolfEarned }),
+        body: BODY,
       });
 
-      // 400 = bad request (no wolf earned / invalid amount) — do not retry
+      console.log('[rmClaimWolf] attempt', attempt, '→ HTTP', res.status, res.statusText);
+
+      // 400 = bad request — do not retry
       if (res.status === 400) {
         const data = await res.json().catch(() => ({}));
+        console.warn('[rmClaimWolf] 400 response:', data);
         showToast(data.error || 'Invalid claim amount.', 'error');
         if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
         return;
@@ -4358,35 +4370,52 @@ async function rmClaimWolf() {
 
       // 401 = session invalid — no point retrying
       if (res.status === 401) {
+        const data = await res.json().catch(() => ({}));
+        console.warn('[rmClaimWolf] 401 response:', data);
         showToast('Session expired — please log in again.', 'error');
         if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
         return;
       }
 
-      // Server errors (5xx) — allow retry
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
-
-      const data = await res.json();
-      if (data.ok) {
-        rmClaimed = true;
-        if (currentUser) currentUser.wolf = data.newWolfBalance;
-        updateNavWolfChip && updateNavWolfChip();
-        showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
-        if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
-        return; // success — exit
+      // Server errors (5xx) — throw so the retry loop catches it
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        console.error('[rmClaimWolf] HTTP', res.status, '— body:', errText);
+        throw new Error(`Server error ${res.status}`);
       }
 
-      // Unexpected application error — show and bail
+      const data = await res.json();
+      console.log('[rmClaimWolf] success response:', data);
+      if (data.ok) {
+        // Mark claimed immediately — prevents any retry from re-calling the API
+        rmClaimed = true;
+        // Safe UI updates — errors here must NOT trigger a retry
+        try {
+          if (currentUser) currentUser.wolf = data.newWolfBalance;
+          if (typeof updateNavBalance === 'function') updateNavBalance();
+          showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        } catch (uiErr) {
+          console.warn('[rmClaimWolf] UI update error (claim still succeeded):', uiErr);
+          showToast(`+${data.wolfEarned} WOLF claimed!`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        }
+        return;
+      }
+
+      // Unexpected application error
+      console.warn('[rmClaimWolf] unexpected data:', data);
       showToast(data.error || 'Claim failed.', 'error');
       if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
       return;
 
     } catch (err) {
+      console.error('[rmClaimWolf] attempt', attempt, 'caught error:', err);
+      // If claim already succeeded (e.g. UI threw), stop retrying
+      if (rmClaimed) return;
       if (attempt < MAX_RETRIES) {
-        // Exponential back-off: 600ms, 1200ms before next attempt
         await new Promise(r => setTimeout(r, attempt * 600));
       } else {
-        // All retries exhausted
         showToast('Network error after 3 attempts. Check your connection and try again.', 'error');
         if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
       }
