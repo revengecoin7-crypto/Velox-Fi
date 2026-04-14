@@ -973,8 +973,20 @@
 /* ── Wallet wrap ── */
 .dash-wallet-wrap { }
 
+/* ── Compact achievement grid (inside 2-col card) ── */
+.dash-ach-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:14px; }
+.dash-ach-grid .ach-card { padding:10px 12px; border-radius:12px; }
+.dash-ach-grid .ach-emoji { font-size:1.3rem; }
+.dash-ach-grid .ach-name { font-size:.6rem; margin-top:4px; }
+.dash-ach-grid .ach-desc { font-size:.7rem; }
+.dash-ach-grid .ach-date { font-size:.65rem; }
+@media(max-width:680px){ .dash-ach-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* ── Compact wrap ── */
+.dash-wrap { padding-top:20px; padding-bottom:60px; }
+
 /* ── Back btn for profile page ── */
-.dash-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; margin:20px 20px 0; display:inline-block; }
+.dash-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; margin:16px 20px 0; display:inline-block; }
 .dash-page-back:hover { border-color:rgba(255,255,255,.2); color:#fff; }
 
 /* ── Forgot / Reset password ─────────────────────── */
@@ -3355,16 +3367,19 @@ function closeLevelUp() {
 
 // ── Achievement definitions ────────────────────────
 const ACHIEVEMENTS = [
-  { id:'first_blood',   emoji:'🐺', name:'First Blood',    desc:'Play your first battle',            color:'#ef4444', glow:'rgba(239,68,68,0.28)' },
-  { id:'on_a_roll',     emoji:'⚔️',  name:'On a Roll',      desc:'Win 3 battles in a row',            color:'#f97316', glow:'rgba(249,115,22,0.28)' },
-  { id:'diamond_hands', emoji:'💎', name:'Diamond Hands',  desc:'Win a 30-minute battle',            color:'#06b6d4', glow:'rgba(6,182,212,0.28)' },
-  { id:'hot_streak',    emoji:'🔥', name:'Hot Streak',     desc:'Win 5 battles in a row',            color:'#f97316', glow:'rgba(249,115,22,0.28)' },
-  { id:'sharp_shooter', emoji:'🎯', name:'Sharp Shooter',  desc:'Make 10 correct predictions',       color:'#84cc16', glow:'rgba(132,204,22,0.28)' },
-  { id:'top_dog',       emoji:'👑', name:'Top Dog',        desc:'Reach #1 on the leaderboard',       color:'#fbbf24', glow:'rgba(251,191,36,0.32)' },
-  { id:'night_owl',     emoji:'🌙', name:'Night Owl',      desc:'Win a battle between 00:00–06:00',  color:'#818cf8', glow:'rgba(129,140,248,0.28)' },
-  { id:'speed_demon',   emoji:'⚡', name:'Speed Demon',    desc:'Play 50 battles',                   color:'#facc15', glow:'rgba(250,204,21,0.28)' },
-  { id:'century_club',  emoji:'🏆', name:'Century Club',   desc:'Play 100 battles',                  color:'#d97706', glow:'rgba(217,119,6,0.28)' },
-  { id:'legend',        emoji:'🐉', name:'Legend',         desc:'Earn 500 $BATTLE tokens',           color:'#7c3aed', glow:'rgba(124,58,237,0.32)' },
+  { id:'first_mine',    emoji:'⛏️', name:'First Mine',      desc:'Start your first mining session',       color:'#a78bfa', glow:'rgba(167,139,250,0.28)' },
+  { id:'rocket_rookie', emoji:'🚀', name:'Rocket Rookie',   desc:'Play Rocket Miner for the first time',  color:'#60a5fa', glow:'rgba(96,165,250,0.28)'  },
+  { id:'sharp_shooter', emoji:'🎯', name:'Sharp Shooter',   desc:'Score 50 hits in Rocket Miner',         color:'#84cc16', glow:'rgba(132,204,22,0.28)'  },
+  { id:'snake_charmer', emoji:'🐍', name:'Snake Charmer',   desc:'Play Crypto Snake for the first time',  color:'#4ade80', glow:'rgba(74,222,128,0.28)'  },
+  { id:'tetris_master', emoji:'🎮', name:'Tetris Master',   desc:'Complete 20 lines in Battle Tetris',    color:'#f472b6', glow:'rgba(244,114,182,0.28)' },
+  { id:'wolf_runner',   emoji:'🐺', name:'Wolf Runner',     desc:'Play Wolf Run for the first time',      color:'#fb923c', glow:'rgba(251,146,60,0.28)'  },
+  { id:'first_blood',   emoji:'⚔️', name:'First Blood',     desc:'Play your first battle',                color:'#ef4444', glow:'rgba(239,68,68,0.28)'   },
+  { id:'on_fire',       emoji:'🔥', name:'On Fire',         desc:'Win 3 battles in a row',                color:'#f97316', glow:'rgba(249,115,22,0.28)'  },
+  { id:'diamond_hands', emoji:'💎', name:'Diamond Hands',   desc:'Win a 30-minute battle',                color:'#06b6d4', glow:'rgba(6,182,212,0.28)'   },
+  { id:'top_dog',       emoji:'👑', name:'Top Dog',         desc:'Reach #1 on the leaderboard',           color:'#fbbf24', glow:'rgba(251,191,36,0.32)'  },
+  { id:'first_convert', emoji:'🔄', name:'First Convert',   desc:'Convert WOLF to $BATTLE for the first time', color:'#34d399', glow:'rgba(52,211,153,0.28)' },
+  { id:'wolf_hoarder',  emoji:'💰', name:'Wolf Hoarder',    desc:'Accumulate 1,000 WOLF',                 color:'#fbbf24', glow:'rgba(251,191,36,0.28)'  },
+  { id:'legend',        emoji:'🏆', name:'Legend',          desc:'Earn 500 $BATTLE total',                color:'#7c3aed', glow:'rgba(124,58,237,0.32)'  },
 ];
 
 function showAchievementToasts(ids) {
@@ -3396,10 +3411,11 @@ function showAchievementToasts(ids) {
 
 // ── Daily mission definitions (frontend) ──────────
 const MISSION_DEFS_FE = [
-  { id:'m1', icon:'⚔️',  title:'Play 3 Battles',       sub:'Play any 3 battles today',            field:'battlesPlayed', target:3, rewardField:'m1Rewarded', reward:2 },
-  { id:'m2', icon:'💎', title:'Win a 30-Min Battle',   sub:'Win a 30-minute battle today',        field:'thirtyMinWins', target:1, rewardField:'m2Rewarded', reward:3 },
-  { id:'m3', icon:'🛡️', title:'Play a Team Battle',    sub:'Play any team battle today',          field:'teamBattles',   target:1, rewardField:'m3Rewarded', reward:1 },
-  { id:'m4', icon:'🎁', title:'Invite Someone',         sub:'A friend registers with your link',   field:'referrals',     target:1, rewardField:'m4Rewarded', reward:3 },
+  { id:'m1', icon:'⛏️', title:'Mine Today',         sub:'Complete a mining session today',       field:'miningToday',      target:1, rewardField:'m1Rewarded', reward:10 },
+  { id:'m2', icon:'🚀', title:'Play Rocket Miner',  sub:'Play one Rocket Miner game today',      field:'rocketMinerPlayed',target:1, rewardField:'m2Rewarded', reward:5  },
+  { id:'m3', icon:'🐍', title:'Play Crypto Snake',  sub:'Play one Crypto Snake game today',      field:'snakePlayed',       target:1, rewardField:'m3Rewarded', reward:5  },
+  { id:'m4', icon:'⚔️', title:'Play a Battle',       sub:'Start any battle today',               field:'battlesPlayed',     target:1, rewardField:'m4Rewarded', reward:5  },
+  { id:'m5', icon:'🎯', title:'Win a Battle',        sub:'Win any battle today',                  field:'battlesWon',        target:1, rewardField:'m5Rewarded', reward:20 },
 ];
 
 function buildMissionCardsHtml(missions) {
@@ -3418,7 +3434,7 @@ function buildMissionCardsHtml(missions) {
             <div class="mission-card-sub">${def.sub}</div>
           </div>
         </div>
-        ${done ? '<span class="mission-check">✅</span>' : `<span class="mission-card-reward">+${def.reward} $BATTLE</span>`}
+        ${done ? '<span class="mission-check">✅</span>' : `<span class="mission-card-reward">+${def.reward} WOLF</span>`}
       </div>
       <div class="mission-bar-wrap">
         <div class="mission-bar-bg"><div class="mission-bar-fill" style="width:${pct}%"></div></div>
@@ -4413,30 +4429,18 @@ async function loadProfile() {
     const tf30 = d.battles.filter(b=>b.timeframe===1800).length;
     const noDonut = tf5+tf15+tf30===0;
 
-    // Missions
-    const missions = d.missions || {
-      date: new Date().toISOString().slice(0,10),
-      battlesPlayed:0,thirtyMinWins:0,teamBattles:0,referrals:0,
-      m1Rewarded:false,m2Rewarded:false,m3Rewarded:false,m4Rewarded:false,
+    // Missions — build enriched data object with computed fields
+    const rawMissions = d.missions || {};
+    const miningToday = miningStart && new Date(miningStart).toDateString() === new Date().toDateString() ? 1 : 0;
+    const battlesWonToday = rawMissions.battlesWon || 0;
+    const missions = {
+      ...rawMissions,
+      miningToday,
+      rocketMinerPlayed: rawMissions.rocketMinerPlayed || 0,
+      snakePlayed:       rawMissions.snakePlayed       || 0,
+      battlesPlayed:     Math.min(rawMissions.battlesPlayed || 0, 1),
+      battlesWon:        battlesWonToday,
     };
-
-    // Battle history rows
-    const histRows = d.battles.length === 0
-      ? `<tr><td colspan="5" class="dash-table-empty">No battles yet — start playing!</td></tr>`
-      : d.battles.slice(0,20).map(b => {
-          const tl = b.timeframe<60?`${b.timeframe}s`:`${b.timeframe/60}m`;
-          const dt = new Date(b.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-          const bc = b.result==='win'?'win':b.result==='draw'?'draw':'loss';
-          const bt = b.result==='win'?'⚔️ WON':b.result==='draw'?'— DRAW':'✗ LOST';
-          const tk = b.tokensEarned>0?`<span style="color:#60a5fa;font-family:Orbitron,monospace;font-size:.78rem">+${b.tokensEarned} ⚔️</span>`:`<span style="color:#334155">—</span>`;
-          return `<tr>
-            <td><span style="color:#64748b;font-size:.8rem">${dt}</span></td>
-            <td><span style="font-family:Orbitron,monospace;font-size:.7rem;color:#cbd5e1">${b.coinAName||'?'} <span style="color:#334155">vs</span> ${b.coinBName||'?'}</span></td>
-            <td><span style="color:#64748b;font-size:.8rem">${tl}</span></td>
-            <td><span class="ph-badge ${bc}">${bt}</span></td>
-            <td>${tk}</td>
-          </tr>`;
-        }).join('');
 
     // Active battle HTML
     const activeBattleHtml = d.activeBattle ? (() => {
@@ -4607,65 +4611,53 @@ async function loadProfile() {
     </div>
   </div>
 
-  <!-- 5. RECENT ACTIVITY TABLE -->
-  <div class="dash-card">
-    <div class="dash-card-title">📋 RECENT BATTLE ACTIVITY</div>
-    <div class="dash-card-sub">Last ${Math.min(d.battles.length,20)} battles</div>
-    <div class="dash-table-wrap">
-      <table class="dash-table">
-        <thead><tr><th>DATE</th><th>BATTLE</th><th>TIME</th><th>RESULT</th><th>EARNED</th></tr></thead>
-        <tbody>${histRows}</tbody>
-      </table>
+  <!-- 5. ACHIEVEMENTS + MISSIONS (2-column) -->
+  <div class="dash-two-col">
+    <div class="dash-card">
+      <div class="dash-card-title">🏅 ACHIEVEMENTS</div>
+      <div class="dash-card-sub">${(d.achievements||[]).length} / ${ACHIEVEMENTS.length} earned</div>
+      <div class="dash-ach-grid">${achHtml}</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">🎯 DAILY MISSIONS</div>
+      <div class="dash-card-sub">Resets at midnight UTC · Rewards in WOLF</div>
+      <div class="mission-cards" style="margin-top:12px">${buildMissionCardsHtml(missions)}</div>
     </div>
   </div>
 
-  <!-- 6. ACHIEVEMENTS -->
-  <div class="dash-card">
-    <div class="dash-card-title">🏅 ACHIEVEMENTS</div>
-    <div class="dash-card-sub">${(d.achievements||[]).length} / ${ACHIEVEMENTS.length} earned</div>
-    <div class="ach-grid" style="margin-top:18px">${achHtml}</div>
-  </div>
-
-  <!-- 7. DAILY MISSIONS -->
-  <div class="dash-card">
-    <div class="dash-card-title">🎯 DAILY MISSIONS</div>
-    <div class="dash-card-sub">Resets at midnight UTC</div>
-    <div class="mission-cards" style="margin-top:16px">${buildMissionCardsHtml(missions)}</div>
-  </div>
-
-  <!-- 8. WALLET & CLAIM -->
-  <div class="dash-card">
-    <div class="dash-card-title">💎 WALLET &amp; CLAIM</div>
-    <div class="dash-card-sub">Register your Solana wallet to claim $BATTLE tokens</div>
-    <div class="prof-wallet-row" style="margin-top:18px">
-      <input type="text" class="prof-wallet-input" id="walletInput"
-        placeholder="Solana wallet address (e.g. 7xKj…9mNp)"
-        value="${d.walletAddress||''}" spellcheck="false" autocomplete="off">
-      <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
+  <!-- 6. WALLET & REFERRAL (2-column) -->
+  <div class="dash-two-col">
+    <div class="dash-card">
+      <div class="dash-card-title">💎 WALLET &amp; CLAIM</div>
+      <div class="dash-card-sub">Register your Solana wallet for the $BATTLE airdrop</div>
+      <div class="prof-wallet-row" style="margin-top:14px">
+        <input type="text" class="prof-wallet-input" id="walletInput"
+          placeholder="Solana wallet address (e.g. 7xKj…9mNp)"
+          value="${d.walletAddress||''}" spellcheck="false" autocomplete="off">
+        <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
+      </div>
+      ${d.claimedAt
+        ? `<div class="prof-wallet-saved-badge">✅ TOKENS SENT — ${new Date(d.claimedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>`
+        : d.walletAddress
+          ? `<div class="prof-wallet-msg ok">✓ Wallet saved. Registered for airdrop.</div>`
+          : `<div class="prof-wallet-msg" id="walletSaveMsg"></div>`}
+      ${d.tokens>0&&d.walletAddress&&!d.claimedAt
+        ? `<button class="prof-claim-btn gold" style="margin-top:12px;width:100%" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM ${d.tokens} $BATTLE</button>`
+        : d.tokens>0&&!d.walletAddress
+          ? `<button class="prof-claim-btn add-wallet" style="margin-top:12px;width:100%" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>`
+          : ''}
     </div>
-    ${d.claimedAt
-      ? `<div class="prof-wallet-saved-badge">✅ TOKENS SENT — ${new Date(d.claimedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>`
-      : d.walletAddress
-        ? `<div class="prof-wallet-msg ok">✓ Wallet saved. You're registered for the $BATTLE airdrop.</div>`
-        : `<div class="prof-wallet-msg" id="walletSaveMsg"></div>`}
-    ${d.tokens>0&&d.walletAddress&&!d.claimedAt
-      ? `<button class="prof-claim-btn gold" style="margin-top:16px;width:100%" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM ${d.tokens} $BATTLE TOKENS</button>`
-      : d.tokens>0&&!d.walletAddress
-        ? `<button class="prof-claim-btn add-wallet" style="margin-top:16px;width:100%" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>`
-        : ''}
-  </div>
-
-  <!-- 9. REFERRAL -->
-  <div class="dash-card">
-    <div class="dash-card-title">🎁 REFERRAL PROGRAM</div>
-    <div class="dash-card-sub">You both earn 3 bonus $BATTLE tokens when a friend signs up</div>
-    <div class="ref-link-row" style="margin-top:16px">
-      <div class="ref-link-box" id="refLinkBox">${location.origin}/?ref=${d.username}</div>
-      <button class="ref-copy-btn" onclick="copyRefLink('${d.username}')">COPY LINK</button>
-    </div>
-    <div class="ref-stats-row" style="margin-top:14px">
-      <div class="ref-stat"><div class="ref-stat-val">${d.referralCount||0}</div><div class="ref-stat-label">FRIENDS REFERRED</div></div>
-      <div class="ref-stat"><div class="ref-stat-val gold">${d.referralTokens||0}</div><div class="ref-stat-label">BONUS TOKENS EARNED</div></div>
+    <div class="dash-card">
+      <div class="dash-card-title">🎁 REFERRAL PROGRAM</div>
+      <div class="dash-card-sub">You both earn 3 bonus $BATTLE when a friend signs up</div>
+      <div class="ref-link-row" style="margin-top:14px">
+        <div class="ref-link-box" id="refLinkBox">${location.origin}/?ref=${d.username}</div>
+        <button class="ref-copy-btn" onclick="copyRefLink('${d.username}')">COPY</button>
+      </div>
+      <div class="ref-stats-row" style="margin-top:12px">
+        <div class="ref-stat"><div class="ref-stat-val">${d.referralCount||0}</div><div class="ref-stat-label">REFERRED</div></div>
+        <div class="ref-stat"><div class="ref-stat-val gold">${d.referralTokens||0}</div><div class="ref-stat-label">BONUS EARNED</div></div>
+      </div>
     </div>
   </div>
 
