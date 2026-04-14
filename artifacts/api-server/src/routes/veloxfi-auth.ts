@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiClaims } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiClaims, veloxfiGameSessions } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
@@ -329,7 +329,6 @@ router.post("/veloxfi/game/rocket-miner/earn", requireAuth as any, async (req: a
       res.status(400).json({ error: "No WOLF earned." }); return;
     }
     const wolfEarned = Math.min(Math.floor(raw), ROCKET_MINER_MAX_WOLF);
-    // Atomic increment — avoids read-then-write race conditions
     const [updated] = await db.update(veloxfiUsers)
       .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
       .where(eq(veloxfiUsers.username, user.username))
@@ -337,6 +336,7 @@ router.post("/veloxfi/game/rocket-miner/earn", requireAuth as any, async (req: a
     if (!updated) {
       res.status(500).json({ error: "Failed to update balance." }); return;
     }
+    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'rocket-miner', wolfEarned });
     res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
   } catch (e) {
     console.error("rocket-miner/earn error:", e);
@@ -376,6 +376,7 @@ router.post("/veloxfi/game/battle-tetris/earn", requireAuth as any, async (req: 
     if (!updated) {
       res.status(500).json({ error: "Failed to update balance." }); return;
     }
+    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'battle-tetris', wolfEarned });
     res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
   } catch (e) {
     console.error("battle-tetris/earn error:", e);
@@ -399,6 +400,7 @@ router.post("/veloxfi/game/crypto-snake/earn", requireAuth as any, async (req: a
     if (!updated) {
       res.status(500).json({ error: "Failed to update balance." }); return;
     }
+    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'crypto-snake', wolfEarned });
     res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
   } catch (e) {
     console.error("crypto-snake/earn error:", e);

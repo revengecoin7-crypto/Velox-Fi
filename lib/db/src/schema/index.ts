@@ -10,3 +10,4 @@ export * from "./veloxfi-claims";
 export * from "./veloxfi-achievements";
 export * from "./veloxfi-missions";
 export * from "./veloxfi-activity";
+export * from "./veloxfi-game-sessions";

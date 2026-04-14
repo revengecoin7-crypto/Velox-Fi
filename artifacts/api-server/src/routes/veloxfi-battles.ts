@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiAchievements, veloxfiMissions, veloxfiActivity } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiBattles, veloxfiAchievements, veloxfiMissions, veloxfiActivity, veloxfiGameSessions } from "@workspace/db/schema";
 import { eq, desc, sql, gte, and } from "drizzle-orm";
 import { getSharedCoin, isSharedCacheUsable } from "../lib/coinCache";
 import { fetchFromBinance } from "../lib/binanceFallback";
@@ -398,6 +398,44 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
           m1Rewarded: false, m2Rewarded: false, m3Rewarded: false, m4Rewarded: false,
         };
 
+    // All-time game activity per game (plays + wolf earned)
+    const gameActivityRows = await db
+      .select({
+        game:      veloxfiGameSessions.game,
+        plays:     sql<number>`count(*)::int`,
+        totalWolf: sql<number>`coalesce(sum(${veloxfiGameSessions.wolfEarned}), 0)::int`,
+      })
+      .from(veloxfiGameSessions)
+      .where(eq(veloxfiGameSessions.username, user.username))
+      .groupBy(veloxfiGameSessions.game);
+
+    // Today's game plays for mission progress
+    const todayMidnight = new Date();
+    todayMidnight.setUTCHours(0, 0, 0, 0);
+    const todayGameRows = await db
+      .select({
+        game:  veloxfiGameSessions.game,
+        plays: sql<number>`count(*)::int`,
+      })
+      .from(veloxfiGameSessions)
+      .where(and(
+        eq(veloxfiGameSessions.username, user.username),
+        gte(veloxfiGameSessions.createdAt, todayMidnight),
+      ))
+      .groupBy(veloxfiGameSessions.game);
+
+    const gameActivity: Record<string, { plays: number; totalWolf: number }> = {};
+    gameActivityRows.forEach(r => { gameActivity[r.game] = { plays: r.plays, totalWolf: r.totalWolf }; });
+
+    const todayByGame: Record<string, number> = {};
+    todayGameRows.forEach(r => { todayByGame[r.game] = r.plays; });
+
+    const gameMissions = {
+      rocketMiner:  todayByGame['rocket-miner']  || 0,
+      snake:        todayByGame['crypto-snake']   || 0,
+      battleTetris: todayByGame['battle-tetris']  || 0,
+    };
+
     const totalBattles = stats?.totalBattles || 0;
     const totalWins    = stats?.totalWins    || 0;
     const totalLosses  = stats?.totalLosses  || 0;
@@ -432,6 +470,8 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       battles,
       achievements: achievementRows.map(a => ({ id: a.achievementId, earnedAt: a.earnedAt })),
       missions,
+      gameActivity,
+      gameMissions,
     });
   } catch (e) {
     console.error("veloxfi/profile GET error:", e);

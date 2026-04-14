@@ -3729,10 +3729,11 @@ function showAchievementToasts(ids) {
 
 // ── Daily mission definitions (frontend) ──────────
 const MISSION_DEFS_FE = [
-  { id:'m1', icon:'⛏️', title:'Mine Today',         sub:'Complete a mining session today',       field:'miningToday',      target:1, rewardField:'m1Rewarded', reward:10 },
-  { id:'m2', icon:'🚀', title:'Play Rocket Miner',  sub:'Play one Rocket Miner game today',      field:'rocketMinerPlayed',target:1, rewardField:'m2Rewarded', reward:5  },
+  { id:'m1', icon:'⛏️', title:'Mine Today',         sub:'Complete a mining session today',       field:'miningToday',       target:1, rewardField:'m1Rewarded', reward:10 },
+  { id:'m2', icon:'🚀', title:'Play Rocket Miner',  sub:'Play one Rocket Miner game today',      field:'rocketMinerPlayed', target:1, rewardField:'m2Rewarded', reward:5  },
   { id:'m3', icon:'🐍', title:'Play Crypto Snake',  sub:'Play one Crypto Snake game today',      field:'snakePlayed',       target:1, rewardField:'m3Rewarded', reward:5  },
-  { id:'m4', icon:'⚔️', title:'Play a Battle',       sub:'Start any battle today',               field:'battlesPlayed',     target:1, rewardField:'m4Rewarded', reward:5  },
+  { id:'m6', icon:'🧱', title:'Play Battle Tetris', sub:'Play one Battle Tetris game today',     field:'battleTetrisPlayed',target:1, rewardField:'m6Rewarded', reward:5  },
+  { id:'m4', icon:'⚔️', title:'Play a Battle',      sub:'Start any battle today',               field:'battlesPlayed',     target:1, rewardField:'m4Rewarded', reward:5  },
   { id:'m5', icon:'🎯', title:'Win a Battle',        sub:'Win any battle today',                  field:'battlesWon',        target:1, rewardField:'m5Rewarded', reward:20 },
 ];
 
@@ -5643,13 +5644,15 @@ async function loadProfile() {
 
     // Missions — build enriched data object with computed fields
     const rawMissions = d.missions || {};
+    const gm = d.gameMissions || {};
     const miningToday = miningStart && new Date(miningStart).toDateString() === new Date().toDateString() ? 1 : 0;
     const battlesWonToday = rawMissions.battlesWon || 0;
     const missions = {
       ...rawMissions,
       miningToday,
-      rocketMinerPlayed: rawMissions.rocketMinerPlayed || 0,
-      snakePlayed:       rawMissions.snakePlayed       || 0,
+      rocketMinerPlayed: gm.rocketMiner    || 0,
+      snakePlayed:       gm.snake          || 0,
+      battleTetrisPlayed:gm.battleTetris   || 0,
       battlesPlayed:     Math.min(rawMissions.battlesPlayed || 0, 1),
       battlesWon:        battlesWonToday,
     };
@@ -5799,21 +5802,21 @@ async function loadProfile() {
           <div class="dash-game-info"><div class="dash-game-name">BATTLE PREDICTION</div><div class="dash-game-sub">${d.stats.totalBattles} played · ${d.stats.totalWins} wins</div></div>
           <div class="dash-game-stats"><div class="dash-game-stat-val">${d.stats.totalTokens}</div><div class="dash-game-stat-label">$BATTLE</div></div>
         </div>
-        <div class="dash-game-row soon">
+        ${(()=>{const rm=d.gameActivity?.['rocket-miner']||{plays:0,totalWolf:0};return`<div class="dash-game-row${rm.plays>0?'':' soon'}">
           <div class="dash-game-icon">🚀</div>
-          <div class="dash-game-info"><div class="dash-game-name">ROCKET MINER</div><div class="dash-game-sub">Arcade shooter</div></div>
-          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
-        </div>
-        <div class="dash-game-row soon">
+          <div class="dash-game-info"><div class="dash-game-name">ROCKET MINER</div><div class="dash-game-sub">${rm.plays>0?rm.plays+' game'+(rm.plays!==1?'s':'')+' played':'No games yet'}</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val"${rm.plays>0?'':' style="color:#334155"'}>${rm.plays>0?rm.totalWolf.toLocaleString():'—'}</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>`;})()}
+        ${(()=>{const cs=d.gameActivity?.['crypto-snake']||{plays:0,totalWolf:0};return`<div class="dash-game-row${cs.plays>0?'':' soon'}">
           <div class="dash-game-icon">🐍</div>
-          <div class="dash-game-info"><div class="dash-game-name">CRYPTO SNAKE</div><div class="dash-game-sub">Coming soon</div></div>
-          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
-        </div>
-        <div class="dash-game-row soon">
+          <div class="dash-game-info"><div class="dash-game-name">CRYPTO SNAKE</div><div class="dash-game-sub">${cs.plays>0?cs.plays+' game'+(cs.plays!==1?'s':'')+' played':'No games yet'}</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val"${cs.plays>0?'':' style="color:#334155"'}>${cs.plays>0?cs.totalWolf.toLocaleString():'—'}</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>`;})()}
+        ${(()=>{const bt=d.gameActivity?.['battle-tetris']||{plays:0,totalWolf:0};return`<div class="dash-game-row${bt.plays>0?'':' soon'}">
           <div class="dash-game-icon">🧱</div>
-          <div class="dash-game-info"><div class="dash-game-name">BATTLE TETRIS</div><div class="dash-game-sub">Coming soon</div></div>
-          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
-        </div>
+          <div class="dash-game-info"><div class="dash-game-name">BATTLE TETRIS</div><div class="dash-game-sub">${bt.plays>0?bt.plays+' game'+(bt.plays!==1?'s':'')+' played':'No games yet'}</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val"${bt.plays>0?'':' style="color:#334155"'}>${bt.plays>0?bt.totalWolf.toLocaleString():'—'}</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>`;})()}
         <div class="dash-game-row soon">
           <div class="dash-game-icon">🐺</div>
           <div class="dash-game-info"><div class="dash-game-name">WOLF RUN</div><div class="dash-game-sub">Coming soon</div></div>
