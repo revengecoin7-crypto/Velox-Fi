@@ -4129,6 +4129,8 @@ function initRouter() {
   } else if (path === '/games/wolf-run') {
     setPageMeta('wolfRun');
     _showOnlyPage('wolfRunPage');
+    const wrEl = document.getElementById('wolfRunPage');
+    if (wrEl) wrEl.style.display = 'flex';
     window.scrollTo(0,0);
     wrInit();
   } else if (path === '/games') {
@@ -5339,6 +5341,8 @@ function goWolfRun() {
   setPageMeta('wolfRun');
   history.pushState(null, '', '/games/wolf-run');
   _showOnlyPage('wolfRunPage');
+  const wrEl = document.getElementById('wolfRunPage');
+  if (wrEl) wrEl.style.display = 'flex';
   window.scrollTo(0, 0);
   wrInit();
 }
