@@ -1425,6 +1425,25 @@
 .mine-earned-preview { font-family:'Orbitron',sans-serif; font-size:.95rem; color:#a78bfa; margin-top:10px; }
 .mine-hint { font-family:'Rajdhani',sans-serif; font-size:.95rem; color:#475569; text-align:center; margin-top:8px; margin-bottom:8px; }
 
+/* ── Earn WOLF Section ───────────────────────────────────── */
+#earnSection { padding:48px 20px 24px; max-width:900px; margin:0 auto; }
+.earn-header { text-align:center; margin-bottom:32px; }
+.earn-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin-bottom:10px; }
+.earn-sub { font-family:'Rajdhani',sans-serif; font-size:1rem; color:#64748b; letter-spacing:.05em; }
+.earn-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media(max-width:680px){ .earn-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:420px){ .earn-grid { grid-template-columns:1fr 1fr; gap:12px; } }
+.earn-card { position:relative; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:24px 16px 20px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; transition:all .2s; }
+.earn-card.ready { cursor:pointer; border-color:rgba(124,58,237,.35); }
+.earn-card.ready:hover { background:rgba(124,58,237,.08); border-color:rgba(124,58,237,.6); transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.2); }
+.earn-card.soon { opacity:.6; cursor:default; }
+.earn-card-icon { font-size:2.2rem; line-height:1; }
+.earn-card-name { font-family:'Orbitron',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.1em; color:#fff; }
+.earn-card-desc { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#64748b; line-height:1.4; }
+.earn-card-badge { font-family:'Orbitron',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.1em; padding:4px 10px; border-radius:99px; margin-top:4px; }
+.earn-card-badge.ready-badge { background:rgba(74,222,128,.15); color:#4ade80; border:1px solid rgba(74,222,128,.3); }
+.earn-card-badge.soon-badge { background:rgba(100,116,139,.12); color:#64748b; border:1px solid rgba(100,116,139,.2); }
+
 /* ── Games Page ──────────────────────────────────────────── */
 #gamesPage { display:none; }
 .games-page-top { display:flex; align-items:center; gap:16px; padding:20px 24px 0; max-width:900px; margin:0 auto; }
@@ -1483,21 +1502,21 @@
 <!-- TICKER -->
 <div class="ticker">
   <div class="ticker-track">
-    <span class="ticker-item">🐺 VELOXFI MEMECOIN BATTLE ARENA</span>
-    <span class="ticker-item">⚔️ FREE MEMECOIN PREDICTION GAME</span>
-    <span class="ticker-item">🎯 PREDICT WHICH MEMECOIN WINS</span>
-    <span class="ticker-item">⚡ EARN FREE $BATTLE TOKENS</span>
-    <span class="ticker-item">🌐 NO WALLET NEEDED — FREE TO PLAY</span>
-    <span class="ticker-item">🚀 SOLANA MEMECOIN ARENA</span>
-    <span class="ticker-item">📊 LIVE CRYPTO PRICE DATA</span>
+    <span class="ticker-item">🐺 VELOXFI — MINE WOLF TOKENS FREE</span>
+    <span class="ticker-item">⛏️ 1 WOLF PER MINUTE — 240 PER SESSION</span>
+    <span class="ticker-item">🎮 PLAY GAMES — EARN WOLF TOKENS</span>
+    <span class="ticker-item">🔄 5,000 WOLF = 1 $BATTLE TOKEN</span>
+    <span class="ticker-item">🚀 ROCKET MINER — COMING SOON</span>
+    <span class="ticker-item">🐍 CRYPTO SNAKE — COMING SOON</span>
+    <span class="ticker-item">🌐 NO WALLET NEEDED — 100% FREE</span>
     <span class="ticker-item">🔥 NOT FINANCIAL ADVICE — DYOR</span>
-    <span class="ticker-item">🐺 VELOXFI MEMECOIN BATTLE ARENA</span>
-    <span class="ticker-item">⚔️ FREE MEMECOIN PREDICTION GAME</span>
-    <span class="ticker-item">🎯 PREDICT WHICH MEMECOIN WINS</span>
-    <span class="ticker-item">⚡ EARN FREE $BATTLE TOKENS</span>
-    <span class="ticker-item">🌐 NO WALLET NEEDED — FREE TO PLAY</span>
-    <span class="ticker-item">🚀 SOLANA MEMECOIN ARENA</span>
-    <span class="ticker-item">📊 LIVE CRYPTO PRICE DATA</span>
+    <span class="ticker-item">🐺 VELOXFI — MINE WOLF TOKENS FREE</span>
+    <span class="ticker-item">⛏️ 1 WOLF PER MINUTE — 240 PER SESSION</span>
+    <span class="ticker-item">🎮 PLAY GAMES — EARN WOLF TOKENS</span>
+    <span class="ticker-item">🔄 5,000 WOLF = 1 $BATTLE TOKEN</span>
+    <span class="ticker-item">🚀 ROCKET MINER — COMING SOON</span>
+    <span class="ticker-item">🐍 CRYPTO SNAKE — COMING SOON</span>
+    <span class="ticker-item">🌐 NO WALLET NEEDED — 100% FREE</span>
     <span class="ticker-item">🔥 NOT FINANCIAL ADVICE — DYOR</span>
   </div>
 </div>
@@ -1617,8 +1636,8 @@
   <div class="hero" id="heroSection">
     <img id="wolfMain" class="wolf-logo" src="/wolf.jpg" alt="VeloxFi cyberpunk wolf mascot — free memecoin battle prediction game">
     <div class="unit-badge">UNIT-1 ONLINE</div>
-    <div class="hero-title">MEMECOIN BATTLES.<br>PREDICT THE WINNER.</div>
-    <div class="hero-sub">The free memecoin battle prediction game on Solana. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed — 100% free to play.</div>
+    <div class="hero-title">MINE. PLAY.<br>EARN WOLF.</div>
+    <div class="hero-sub">The free crypto earning platform on Solana. Mine WOLF tokens every 4 hours, play skill games, and convert your WOLF into $BATTLE. No wallet needed — 100% free.</div>
     <button class="hero-cta" onclick="openModal('register')">🚀 CREATE FREE ACCOUNT</button>
     <div class="hero-note">Already have an account? <span onclick="openModal('login')">Log in here</span></div>
   </div>
@@ -1651,6 +1670,59 @@
         <div class="mine-earned-preview" id="mineEarnedPreview"></div>
       </div>
       <div class="mine-hint" id="mineHint">Click MINE to start earning 1 WOLF per minute for 4 hours.</div>
+    </div>
+  </div>
+
+  <!-- EARN WOLF TOKENS SECTION -->
+  <div id="earnSection">
+    <div class="earn-header">
+      <div class="earn-title">EARN WOLF TOKENS</div>
+      <div class="earn-sub">Multiple ways to mine, play, and earn — new games added every week</div>
+    </div>
+    <div class="earn-grid">
+
+      <div class="earn-card ready" onclick="currentUser ? document.getElementById('miningSection').scrollIntoView({behavior:'smooth'}) : openModal('register')">
+        <div class="earn-card-icon">⛏️</div>
+        <div class="earn-card-name">Mining</div>
+        <div class="earn-card-desc">Mine 1 WOLF per minute for 4 hours, every session</div>
+        <div class="earn-card-badge ready-badge">LIVE</div>
+      </div>
+
+      <div class="earn-card ready" onclick="currentUser ? goGames() : openModal('register')">
+        <div class="earn-card-icon">⚔️</div>
+        <div class="earn-card-name">Battle Prediction</div>
+        <div class="earn-card-desc">Predict which memecoin gains the most and earn WOLF</div>
+        <div class="earn-card-badge ready-badge">LIVE</div>
+      </div>
+
+      <div class="earn-card soon">
+        <div class="earn-card-icon">🚀</div>
+        <div class="earn-card-name">Rocket Miner</div>
+        <div class="earn-card-desc">Shoot falling coins out of the sky to earn WOLF tokens</div>
+        <div class="earn-card-badge soon-badge">COMING SOON</div>
+      </div>
+
+      <div class="earn-card soon">
+        <div class="earn-card-icon">🐍</div>
+        <div class="earn-card-name">Crypto Snake</div>
+        <div class="earn-card-desc">Eat crypto coins and grow your snake to earn WOLF</div>
+        <div class="earn-card-badge soon-badge">COMING SOON</div>
+      </div>
+
+      <div class="earn-card soon">
+        <div class="earn-card-icon">🎮</div>
+        <div class="earn-card-name">Battle Tetris</div>
+        <div class="earn-card-desc">Complete lines with crypto-themed blocks to earn WOLF</div>
+        <div class="earn-card-badge soon-badge">COMING SOON</div>
+      </div>
+
+      <div class="earn-card soon">
+        <div class="earn-card-icon">🐺</div>
+        <div class="earn-card-name">Wolf Run</div>
+        <div class="earn-card-desc">Run, jump, and collect coins as the VeloxFi wolf</div>
+        <div class="earn-card-badge soon-badge">COMING SOON</div>
+      </div>
+
     </div>
   </div>
 
@@ -1775,33 +1847,33 @@
     <div class="hiw-steps">
       <div class="hiw-step">
         <div class="hiw-num">STEP 01</div>
-        <span class="hiw-icon">⚔️</span>
-        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
-        <div class="hiw-desc">Choose any two memecoins from our memecoin arena — top volatile Solana tokens updated live every 5 minutes.</div>
+        <span class="hiw-icon">⛏️</span>
+        <div class="hiw-step-title">MINE WOLF TOKENS</div>
+        <div class="hiw-desc">Click MINE to earn 1 WOLF token per minute for up to 4 hours. Return every session to claim up to 240 WOLF — completely free.</div>
       </div>
       <div class="hiw-step">
         <div class="hiw-num">STEP 02</div>
-        <span class="hiw-icon">🎯</span>
-        <div class="hiw-step-title">PREDICT THE WINNER</div>
-        <div class="hiw-desc">Predict which memecoin wins by gaining the most % in 5, 15, or 30 minutes. The ultimate crypto prediction game.</div>
+        <span class="hiw-icon">🎮</span>
+        <div class="hiw-step-title">PLAY SKILL GAMES</div>
+        <div class="hiw-desc">Earn extra WOLF by playing arcade games — Rocket Miner, Crypto Snake, Battle Tetris, Wolf Run, and more coming every week.</div>
       </div>
       <div class="hiw-step">
         <div class="hiw-num">STEP 03</div>
-        <span class="hiw-icon">🪙</span>
-        <div class="hiw-step-title">EARN FREE $BATTLE TOKENS</div>
-        <div class="hiw-desc">Earn free crypto tokens for every correct prediction — 1, 2, or 3 $BATTLE tokens on Solana. No investment required.</div>
+        <span class="hiw-icon">⚔️</span>
+        <div class="hiw-step-title">PREDICT MEMECOIN BATTLES</div>
+        <div class="hiw-desc">Pick which memecoin gains the most % in 5, 15, or 30 minutes and earn bonus WOLF tokens for every correct call.</div>
       </div>
       <div class="hiw-step">
         <div class="hiw-num">STEP 04</div>
-        <span class="hiw-icon">🏆</span>
-        <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
-        <div class="hiw-desc">Gain XP, unlock achievements and climb the memecoin tournament ranks from Rookie Wolf to Legend Wolf.</div>
+        <span class="hiw-icon">🔄</span>
+        <div class="hiw-step-title">CONVERT TO $BATTLE</div>
+        <div class="hiw-desc">Stack up 5,000 WOLF and convert them to 1 $BATTLE token on Solana. No wallet required to start — claim anytime.</div>
       </div>
       <div class="hiw-step">
         <div class="hiw-num">STEP 05</div>
-        <span class="hiw-icon">📅</span>
-        <div class="hiw-step-title">COMPLETE DAILY MISSIONS</div>
-        <div class="hiw-desc">Earn bonus free coins every day by completing missions in this free crypto game. Resets at midnight!</div>
+        <span class="hiw-icon">🏆</span>
+        <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
+        <div class="hiw-desc">Gain XP, unlock achievements and climb the ranks from Rookie Wolf to Legend Wolf. The more you play, the more you earn.</div>
       </div>
     </div>
   </div>
@@ -1809,7 +1881,7 @@
   <!-- SEO BLURB -->
   <div style="max-width:700px;margin:36px auto 0;padding:0 24px;text-align:center;">
     <p style="font-family:'Rajdhani',sans-serif;font-size:.95rem;color:#475569;line-height:1.75;">
-      VeloxFi is the <strong style="color:#64748b;">free memecoin battle prediction platform</strong> on Solana. Predict which memecoin wins each round, earn free $BATTLE tokens, and level up — all with no wallet needed and no investment required. Whether you're looking to <strong style="color:#64748b;">earn crypto without investment</strong>, play the best <strong style="color:#64748b;">crypto prediction game</strong>, or compete in a <strong style="color:#64748b;">memecoin tournament</strong>, VeloxFi is your arena.
+      VeloxFi is the <strong style="color:#64748b;">free crypto earning platform</strong> on Solana. Mine WOLF tokens every 4 hours, play arcade games, and convert your earnings into real $BATTLE tokens — all with no wallet needed and no investment required. Whether you want to <strong style="color:#64748b;">earn crypto for free</strong>, play <strong style="color:#64748b;">crypto skill games</strong>, or test your skills in <strong style="color:#64748b;">memecoin prediction battles</strong>, VeloxFi is your arena.
     </p>
   </div>
 
@@ -3399,13 +3471,14 @@ function _applyHomeView() {
   const loggedIn = !!(currentUser || getSession());
   const heroEl   = document.getElementById('heroSection');
   const mineEl   = document.getElementById('miningSection');
+  const earnEl   = document.getElementById('earnSection');
   const supplyEl = document.getElementById('tokenSupplyBlock');
   const hiwEl    = document.querySelector('.hiw');
-  const seoEl    = document.querySelector('#mainPage .game-area ~ div[style]') || null;
   if (heroEl)   heroEl.style.display   = loggedIn ? 'none' : '';
   if (mineEl)   mineEl.style.display   = loggedIn ? 'block' : 'none';
+  if (earnEl)   earnEl.style.display   = '';
   if (supplyEl) supplyEl.style.display = loggedIn ? 'none' : '';
-  if (hiwEl)    hiwEl.style.display    = loggedIn ? 'none' : '';
+  if (hiwEl)    hiwEl.style.display    = '';
 }
 
 function goGames() {
