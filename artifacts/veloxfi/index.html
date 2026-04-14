@@ -1339,12 +1339,12 @@
 .rmp-again-btn:hover { background:rgba(124,58,237,.2); }
 .rmp-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
 .rmp-games-btn:hover { background:rgba(37,99,235,.18); }
-.rmp-touch-controls { display:none; justify-content:space-between; align-items:stretch; padding:10px 0 0; gap:8px; }
+.rmp-touch-controls { display:none; justify-content:space-between; align-items:stretch; padding:12px 0 0; gap:8px; }
 @media (pointer:coarse),(max-width:700px){ .rmp-touch-controls { display:flex; } }
-.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#fff; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:22px 0; min-height:68px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; }
-.rmp-touch-btn:active,.rmp-touch-btn.pressed { background:rgba(37,99,235,.38); }
-.rmp-touch-btn.fire { background:rgba(124,58,237,.22); border-color:rgba(124,58,237,.38); font-size:.72rem; letter-spacing:.14em; }
-.rmp-touch-btn.fire:active,.rmp-touch-btn.fire.pressed { background:rgba(124,58,237,.45); }
+.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:1.6rem; font-weight:900; color:#fff; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:0; height:80px; min-height:80px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.rmp-touch-btn:active,.rmp-touch-btn.pressed { background:rgba(37,99,235,.45); }
+.rmp-touch-btn.fire { background:rgba(124,58,237,.22); border-color:rgba(124,58,237,.38); font-size:.8rem; letter-spacing:.14em; }
+.rmp-touch-btn.fire:active,.rmp-touch-btn.fire.pressed { background:rgba(124,58,237,.55); }
 
 /* ── Crypto Snake Game Page ─────────────────────── */
 #cryptoSnakePage { min-height:100vh; background:#030712; }
@@ -1390,13 +1390,13 @@
 .cs-again-btn:hover { background:rgba(124,58,237,.2); }
 .cs-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
 .cs-games-btn:hover { background:rgba(37,99,235,.18); }
-.cs-touch-controls { display:none; padding:12px 0 0; justify-content:center; }
+.cs-touch-controls { display:none; padding:14px 0 0; justify-content:center; }
 @media (pointer:coarse),(max-width:700px){ .cs-touch-controls { display:flex; } }
-.cs-dpad { display:flex; flex-direction:column; align-items:center; gap:7px; }
-.cs-dpad-row { display:flex; align-items:center; gap:7px; }
-.cs-dpad-center { width:64px; height:64px; background:rgba(255,255,255,.03); border-radius:12px; }
-.cs-dpad-btn { width:64px; height:64px; font-size:1.5rem; font-family:'Orbitron',sans-serif; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
-.cs-dpad-btn:active,.cs-dpad-btn.pressed { background:rgba(124,58,237,.45); }
+.cs-dpad { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.cs-dpad-row { display:flex; align-items:center; gap:10px; }
+.cs-dpad-center { width:80px; height:80px; background:rgba(255,255,255,.03); border-radius:14px; }
+.cs-dpad-btn { width:80px; height:80px; font-size:1.8rem; font-family:'Orbitron',sans-serif; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:14px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.cs-dpad-btn:active,.cs-dpad-btn.pressed { background:rgba(124,58,237,.55); }
 
 /* ── Battle Tetris Game Page ────────────────────── */
 #battleTetrisPage { height:calc(100vh - 93px); display:flex; flex-direction:column; background:#030712; overflow:hidden; }
@@ -1408,6 +1408,13 @@
 .bt-canvas-outer { position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(124,58,237,.45); box-shadow:0 0 60px rgba(124,58,237,.18), 0 0 120px rgba(124,58,237,.06); flex-shrink:0; display:flex; align-items:center; }
 #battleTetrisCanvas { display:block; max-height:calc(100vh - 155px); width:auto; }
 .bt-side-panel { display:flex; flex-direction:column; gap:10px; width:120px; flex-shrink:0; align-self:center; }
+@media (max-width:600px) {
+  #battleTetrisPage { height:100svh; }
+  .bt-game-area { padding:6px 4px; gap:0; align-items:center; justify-content:center; }
+  .bt-side-panel { display:none; }
+  .bt-canvas-outer { align-self:center; }
+  #battleTetrisCanvas { height:calc(100svh - 310px); width:auto; max-height:none; max-width:calc(100vw - 8px); }
+}
 .bt-panel-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:12px 10px; text-align:center; }
 .bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.5rem; font-weight:700; letter-spacing:.15em; color:#475569; margin-bottom:8px; }
 .bt-panel-timer { font-family:'Orbitron',sans-serif; font-size:1.9rem; font-weight:900; color:#60a5fa; letter-spacing:.04em; line-height:1; }
@@ -1444,17 +1451,17 @@
 .bt-again-btn:hover { background:rgba(124,58,237,.2); }
 .bt-games-btn { color:#22d3ee; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25); }
 .bt-games-btn:hover { background:rgba(34,211,238,.15); }
-.bt-touch-controls { display:none; flex-shrink:0; padding:10px 16px 12px; gap:8px; flex-direction:column; align-items:center; border-top:1px solid rgba(255,255,255,.05); background:rgba(0,0,0,.18); }
+.bt-touch-controls { display:none; flex-shrink:0; padding:10px 16px 14px; gap:10px; flex-direction:column; align-items:center; border-top:1px solid rgba(255,255,255,.05); background:rgba(0,0,0,.18); }
 @media (pointer:coarse),(max-width:700px){ .bt-touch-controls { display:flex; } }
-.bt-touch-row { display:flex; gap:8px; justify-content:center; }
-.bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; padding:0; width:68px; height:52px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
-.bt-touch-btn:active,.bt-touch-btn.pressed { background:rgba(124,58,237,.45); }
-.bt-touch-btn.rotate { background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.35); font-size:.75rem; letter-spacing:.05em; }
-.bt-touch-btn.rotate:active { background:rgba(34,211,238,.35); }
-.bt-touch-btn.drop { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.3); font-size:.62rem; letter-spacing:.08em; width:100px; }
-.bt-touch-btn.drop:active { background:rgba(239,68,68,.32); }
+.bt-touch-row { display:flex; gap:10px; justify-content:center; }
+.bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:14px; padding:0; width:80px; height:80px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.bt-touch-btn:active,.bt-touch-btn.pressed { background:rgba(124,58,237,.55); }
+.bt-touch-btn.rotate { background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.35); font-size:.8rem; letter-spacing:.04em; }
+.bt-touch-btn.rotate:active { background:rgba(34,211,238,.42); }
+.bt-touch-btn.drop { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.3); font-size:.7rem; letter-spacing:.08em; width:130px; }
+.bt-touch-btn.drop:active { background:rgba(239,68,68,.4); }
 .bt-touch-btn.soft { background:rgba(37,99,235,.15); border-color:rgba(37,99,235,.35); }
-.bt-touch-btn.soft:active { background:rgba(37,99,235,.35); }
+.bt-touch-btn.soft:active { background:rgba(37,99,235,.42); }
 
 /* ── Wolf Run Game Page ─────────────────────────── */
 #wolfRunPage { height:calc(100vh - 93px); display:flex; flex-direction:column; background:#030712; overflow:hidden; }
@@ -1497,11 +1504,11 @@
 .wr-again-btn:hover { background:rgba(124,58,237,.32); }
 .wr-games-btn { background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.38); color:#60a5fa; }
 .wr-games-btn:hover { background:rgba(37,99,235,.26); }
-.wr-mobile-jump { display:none; align-items:center; justify-content:center; padding:10px 16px 14px; background:rgba(5,8,15,.92); border-top:1px solid rgba(124,58,237,.2); flex-shrink:0; }
-.wr-jump-btn { background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(124,58,237,.25)); border:2px solid rgba(167,139,250,.5); color:#a78bfa; font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:.12em; padding:18px 72px; border-radius:14px; cursor:pointer; transition:.15s; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
-.wr-jump-btn:active { background:rgba(124,58,237,.62); transform:scale(.96); }
+.wr-mobile-jump { display:none; align-items:center; justify-content:center; padding:12px 16px 16px; background:rgba(5,8,15,.92); border-top:1px solid rgba(124,58,237,.2); flex-shrink:0; }
+.wr-jump-btn { background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(124,58,237,.25)); border:2px solid rgba(167,139,250,.5); color:#a78bfa; font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:700; letter-spacing:.12em; padding:0; height:80px; min-width:200px; width:80%; max-width:400px; border-radius:16px; cursor:pointer; transition:.15s; user-select:none; -webkit-user-select:none; touch-action:manipulation; display:flex; align-items:center; justify-content:center; }
+.wr-jump-btn:active { background:rgba(124,58,237,.72); transform:scale(.97); }
 @media(pointer:coarse),(max-width:700px) { .wr-mobile-jump { display:flex; } }
-@media(max-width:520px) { .wr-overlay-content { padding:18px 16px; } .wr-overlay-title { font-size:1.2rem; } .wr-result-wolf-num { font-size:2.4rem; } .wr-jump-btn { padding:16px 50px; } }
+@media(max-width:520px) { .wr-overlay-content { padding:18px 16px; } .wr-overlay-title { font-size:1.2rem; } .wr-result-wolf-num { font-size:2.4rem; } #wolfRunPage { height:100svh; } }
 
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
@@ -4479,22 +4486,24 @@ function rmInit() {
   document.getElementById('rmStartScreen').style.display = 'flex';
   document.getElementById('rmResultScreen').style.display = 'none';
 
-  // Wire touch buttons
+  // Wire touch buttons — touchstart for instant mobile response
   const btnL = document.getElementById('rmBtnLeft');
   const btnR = document.getElementById('rmBtnRight');
   const btnF = document.getElementById('rmBtnFire');
-  if (btnL) {
-    btnL.onpointerdown = () => rmKeys['ArrowLeft'] = true;
-    btnL.onpointerup = btnL.onpointercancel = () => rmKeys['ArrowLeft'] = false;
-  }
-  if (btnR) {
-    btnR.onpointerdown = () => rmKeys['ArrowRight'] = true;
-    btnR.onpointerup = btnR.onpointercancel = () => rmKeys['ArrowRight'] = false;
-  }
-  if (btnF) {
-    btnF.onpointerdown = () => rmKeys[' '] = true;
-    btnF.onpointerup = btnF.onpointercancel = () => rmKeys[' '] = false;
-  }
+  const bindRmBtn = (btn, key) => {
+    if (!btn) return;
+    const dn = e => { e.preventDefault(); rmKeys[key] = true; btn.classList.add('pressed'); };
+    const up = e => { rmKeys[key] = false; btn.classList.remove('pressed'); };
+    btn.addEventListener('touchstart',  dn, {passive:false});
+    btn.addEventListener('touchend',    up, {passive:true});
+    btn.addEventListener('touchcancel', up, {passive:true});
+    btn.addEventListener('pointerdown', dn, {passive:false});
+    btn.addEventListener('pointerup',   up, {passive:true});
+    btn.addEventListener('pointercancel', up, {passive:true});
+  };
+  bindRmBtn(btnL, 'ArrowLeft');
+  bindRmBtn(btnR, 'ArrowRight');
+  bindRmBtn(btnF, ' ');
 
   // Draw idle background with ship
   rmKeys = {};
@@ -5054,9 +5063,14 @@ function csBindDpad() {
   const addBtn = (id, fn) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const down = (e) => { e.preventDefault(); fn(); };
+    const down = (e) => { e.preventDefault(); fn(); el.classList.add('pressed'); };
+    const up   = (e) => { el.classList.remove('pressed'); };
+    el.addEventListener('touchstart',  down, {passive:false});
+    el.addEventListener('touchend',    up,   {passive:true});
+    el.addEventListener('touchcancel', up,   {passive:true});
     el.addEventListener('pointerdown', down, {passive:false});
-    csDpadListeners.push([el, 'pointerdown', down]);
+    el.addEventListener('pointerup',   up,   {passive:true});
+    csDpadListeners.push([el,'touchstart',down],[el,'touchend',up],[el,'touchcancel',up],[el,'pointerdown',down],[el,'pointerup',up]);
   };
   addBtn('csBtnUp',    () => { if (csDir.y !== 1)  csNextDir = {x:0,y:-1}; });
   addBtn('csBtnDown',  () => { if (csDir.y !== -1) csNextDir = {x:0,y:1};  });
@@ -5689,13 +5703,39 @@ function btBindTouch() {
   const add = (id, fn) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.onpointerdown = e => { e.preventDefault(); fn(); };
+    const act = e => { e.preventDefault(); if (btGameState === 'playing') fn(); };
+    el.addEventListener('touchstart',  act, {passive:false});
+    el.addEventListener('pointerdown', act, {passive:false});
   };
   add('btBtnLeft',   () => btMove(-1, 0));
   add('btBtnRight',  () => btMove(1, 0));
   add('btBtnDown',   () => { if (!btMove(0, 1)) btLock(); });
   add('btBtnRotate', () => btRotate());
   add('btBtnDrop',   () => btHardDrop());
+
+  // Swipe gestures on canvas
+  const cv = document.getElementById('battleTetrisCanvas');
+  if (!cv) return;
+  let swX = 0, swY = 0, swActive = false;
+  const SWIPE_MIN = 30;
+  cv.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    swX = e.touches[0].clientX;
+    swY = e.touches[0].clientY;
+    swActive = true;
+  }, {passive:true});
+  cv.addEventListener('touchend', e => {
+    if (!swActive || btGameState !== 'playing') { swActive = false; return; }
+    swActive = false;
+    const dx = e.changedTouches[0].clientX - swX;
+    const dy = e.changedTouches[0].clientY - swY;
+    if (Math.abs(dx) < SWIPE_MIN && Math.abs(dy) < SWIPE_MIN) return;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      dx < 0 ? btMove(-1, 0) : btMove(1, 0);
+    } else {
+      dy < 0 ? btRotate() : btHardDrop();
+    }
+  }, {passive:true});
 }
 
 function btEndGame(reason) {
