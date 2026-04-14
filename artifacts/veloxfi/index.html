@@ -1174,139 +1174,103 @@
 
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
-  /* hide everything that isn't the whitepaper content */
-  .ticker, nav, .stats-bar, .social-footer,
+  /* ── Tell the browser to honour background colours ── */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ── Hide only UI chrome — never page content ── */
+  .ticker,
+  nav,
+  .mobile-menu,
+  #hamburgerBtn,
+  #statsBar,
+  .ca-banner,
+  .social-footer,
+  .notif-perm-overlay,
+  .modal-overlay,
+  .toast-container,
+  /* page-specific back/download buttons */
   .cp-back, .wp-download-btn,
-  #faqPage, #battlePage, #mainPage,
-  .notif-perm-overlay { display: none !important; }
+  .act-page-back, .convert-back,
+  .games-page-back, .bp-back { display: none !important; }
 
-  /* reveal whitepaper page even though JS sets display:none initially */
-  #whitepaperPage { display: block !important; }
-
-  body, html {
+  /* ── Page renders on white ── */
+  html, body {
     background: #fff !important;
     color: #111 !important;
     font-size: 12pt;
   }
 
-  .cp-page {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  .cp-hero {
-    border: none !important;
-    background: none !important;
-    padding: 0 0 24pt !important;
-  }
-
-  .cp-tag {
-    color: #2563eb !important;
-    background: none !important;
-    border: 1px solid #2563eb !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .cp-title {
+  /* ── All visible page wrappers get a white background ── */
+  #mainPage, #gamesPage, #convertPage, #activityPage,
+  #whitepaperPage, #faqPage, #battlePage, #profilePage,
+  #blogPage, #blogPost1, #blogPost2, #blogPost3, #blogPost4, #blogPost5 {
+    background: #fff !important;
     color: #111 !important;
-    background: none !important;
-    -webkit-text-fill-color: #111 !important;
-    font-size: 28pt !important;
   }
 
-  .cp-sub { color: #444 !important; }
-
-  .cp-section { page-break-inside: avoid; margin-bottom: 20pt !important; }
-
-  .cp-section-title {
-    color: #2563eb !important;
-    border-left-color: #2563eb !important;
-    background: none !important;
-    font-size: 11pt !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .cp-subsection-title {
-    color: #7c3aed !important;
-    background: none !important;
-    font-size: 9pt !important;
-    margin: 16pt 0 8pt !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .cp-body p, .cp-card-body, .faq-a-inner {
-    color: #222 !important;
-  }
-
-  .cp-card {
+  /* ── Generic dark-card → light paper ── */
+  .card, [class*="-card"], [class*="-section"],
+  .hiw-step, .pe-card, .earn-card,
+  .convert-card, .act-page-card,
+  .adm-stat-card, .tsb-card {
     background: #f5f5f5 !important;
     border-color: #ccc !important;
-    page-break-inside: avoid;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    color: #111 !important;
   }
 
-  .cp-card-title { color: #2563eb !important; }
-
-  .reward-table th {
-    background: #2563eb !important;
-    color: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  /* ── Text that uses CSS gradient clips won't print — override ── */
+  [style*="-webkit-text-fill-color"],
+  .hero-title, .adm-title, .mine-countdown,
+  .pe-card-name, .earn-card-name,
+  .hiw-step-title, .cp-title,
+  .adm-login-logo, .logo {
+    -webkit-text-fill-color: #111 !important;
+    background: none !important;
+    color: #111 !important;
   }
 
+  /* ── Dim text → readable ── */
+  .hero-sub, .pe-card-desc, .earn-card-desc,
+  .hiw-desc, .cp-sub, .cp-body p,
+  .activity-time, [class*="-dim"] {
+    color: #444 !important;
+  }
+
+  /* ── Accent colours ── */
+  .pe-card-earn, .mine-bal-num,
+  .tknm-pct.blue  { color: #2563eb !important; }
+  .tknm-pct.purple, .cp-section-title { color: #7c3aed !important; }
+  .tknm-pct.green  { color: #16a34a !important; }
+  .tknm-pct.gold, .cp-card-title { color: #b45309 !important; }
+
+  /* ── Whitepaper-specific ── */
+  .cp-page   { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  .cp-hero   { border: none !important; background: none !important; padding: 0 0 24pt !important; }
+  .cp-tag    { color: #2563eb !important; background: none !important; border: 1px solid #2563eb !important; }
+  .cp-section { page-break-inside: avoid; margin-bottom: 20pt !important; }
+  .cp-section-title { border-left-color: #2563eb !important; font-size: 11pt !important; }
+  .cp-subsection-title { color: #7c3aed !important; font-size: 9pt !important; margin: 16pt 0 8pt !important; }
+  .cp-card   { background: #f5f5f5 !important; border-color: #ccc !important; page-break-inside: avoid; }
+  .reward-table th { background: #2563eb !important; color: #fff !important; }
   .reward-table td { color: #111 !important; border-color: #ddd !important; }
   .reward-table tbody tr:nth-child(odd) { background: #f9f9f9 !important; }
-
-  .reward-badge {
-    background: #eee !important;
-    color: #111 !important;
-    border-radius: 4px !important;
-    padding: 2px 8px !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .tknm-grid {
-    grid-template-columns: repeat(2,1fr) !important;
-    gap: 12pt !important;
-  }
-
-  .tknm-item {
-    background: #f5f5f5 !important;
-    border-color: #ccc !important;
-    page-break-inside: avoid;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .tknm-pct { font-size: 20pt !important; }
-  .tknm-pct.blue  { color: #2563eb !important; }
-  .tknm-pct.purple { color: #7c3aed !important; }
-  .tknm-pct.green  { color: #16a34a !important; }
-  .tknm-pct.gold   { color: #b45309 !important; }
+  .reward-badge { background: #eee !important; color: #111 !important; }
+  .tknm-item { background: #f5f5f5 !important; border-color: #ccc !important; page-break-inside: avoid; }
   .tknm-label { color: #222 !important; }
-
   .roadmap-list { gap: 16pt !important; }
-
-  .rm-dot {
-    border-color: #999 !important;
-    background: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
+  .rm-dot { border-color: #999 !important; background: #fff !important; }
   .rm-dot.done   { background: #2563eb !important; border-color: #2563eb !important; }
   .rm-dot.active { background: #7c3aed !important; border-color: #7c3aed !important; }
-
   .rm-phase       { color: #111 !important; }
   .rm-phase.done  { color: #2563eb !important; }
   .rm-desc        { color: #444 !important; }
   .rm-detail      { color: #555 !important; }
+
+  /* ── Page breaks ── */
+  .hiw-steps, .pe-grid, .earn-grid { break-inside: avoid; }
 
   a { color: #2563eb !important; text-decoration: underline; }
 }
