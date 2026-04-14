@@ -5756,7 +5756,7 @@ function btBindTouch() {
   add('btBtnRight',  () => btMove(1, 0));
   add('btBtnDown',   () => { if (!btMove(0, 1)) btLock(); });
   add('btBtnRotate', () => btRotate());
-  add('btBtnDrop',   () => btHardDrop());
+  add('btBtnDrop',   () => { if (!btMove(0, 1)) btLock(); });
 
   // Swipe gestures on canvas
   const cv = document.getElementById('battleTetrisCanvas');
