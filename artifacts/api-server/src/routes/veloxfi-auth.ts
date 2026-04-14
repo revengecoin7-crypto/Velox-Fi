@@ -100,7 +100,7 @@ router.post("/veloxfi/register", async (req, res) => {
 
     const regXPInfo = getXPInfo(user.xp ?? 0);
     res.json({
-      username: user.username, tokens: user.tokens, email: user.email, token,
+      username: user.username, tokens: user.tokens, wolf: user.wolf ?? 0, email: user.email, token,
       referralBonus: validReferrer ? REFERRAL_BONUS : 0,
       xp: user.xp ?? 0, level: regXPInfo.level, levelName: regXPInfo.levelName,
     });
@@ -124,7 +124,7 @@ router.post("/veloxfi/login", async (req, res) => {
     const token = randomUUID();
     await db.update(veloxfiUsers).set({ sessionToken: token }).where(eq(veloxfiUsers.username, username));
     const loginXPInfo = getXPInfo(user.xp ?? 0);
-    res.json({ username: user.username, tokens: user.tokens, email: user.email, token, xp: user.xp ?? 0, level: loginXPInfo.level, levelName: loginXPInfo.levelName });
+    res.json({ username: user.username, tokens: user.tokens, wolf: user.wolf ?? 0, email: user.email, token, xp: user.xp ?? 0, level: loginXPInfo.level, levelName: loginXPInfo.levelName });
   } catch (e) {
     res.status(500).json({ error: "Server error. Please try again." });
   }
@@ -212,6 +212,98 @@ router.get("/veloxfi/leaderboard", async (_req, res) => {
       .limit(10);
     users.sort((a, b) => b.tokens - a.tokens);
     res.json(users);
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ── Wolf Mining ────────────────────────────────────────────────────────────────
+const MINING_DURATION_MS  = 4 * 60 * 60 * 1000; // 4 hours
+const WOLF_PER_MINUTE     = 1;
+const MAX_WOLF_PER_SESSION = 240;                 // 4 hr * 60 min * 1
+
+function getMiningStatus(user: typeof veloxfiUsers.$inferSelect) {
+  const start = user.wolfMiningStart;
+  if (!start) return { status: 'inactive' as const, secondsRemaining: 0, wolfEarned: 0 };
+  const elapsedMs = Date.now() - start.getTime();
+  if (elapsedMs >= MINING_DURATION_MS) {
+    const wolfEarned = MAX_WOLF_PER_SESSION;
+    return { status: 'complete' as const, secondsRemaining: 0, wolfEarned };
+  }
+  const secondsRemaining = Math.ceil((MINING_DURATION_MS - elapsedMs) / 1000);
+  const wolfEarned = Math.floor(elapsedMs / 60000) * WOLF_PER_MINUTE;
+  return { status: 'active' as const, secondsRemaining, wolfEarned };
+}
+
+router.get("/veloxfi/mining/status", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const mining = getMiningStatus(user);
+    res.json({ ...mining, wolfBalance: user.wolf ?? 0, battleBalance: user.tokens });
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.post("/veloxfi/mining/start", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const existing = getMiningStatus(user);
+    if (existing.status === 'active') {
+      res.status(400).json({ error: "Mining session already active." }); return;
+    }
+    if (existing.status === 'complete') {
+      res.status(400).json({ error: "Claim your WOLF before starting a new session." }); return;
+    }
+    const now = new Date();
+    await db.update(veloxfiUsers).set({ wolfMiningStart: now }).where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true, wolfMiningStart: now.toISOString() });
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const mining = getMiningStatus(user);
+    if (mining.status === 'inactive') {
+      res.status(400).json({ error: "No active mining session." }); return;
+    }
+    const wolfEarned = mining.status === 'complete'
+      ? MAX_WOLF_PER_SESSION
+      : Math.max(1, Math.floor(((Date.now() - user.wolfMiningStart!.getTime())) / 60000) * WOLF_PER_MINUTE);
+    const newWolfBalance = (user.wolf ?? 0) + wolfEarned;
+    await db.update(veloxfiUsers)
+      .set({ wolf: newWolfBalance, wolfMiningStart: null })
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true, wolfEarned, newWolfBalance, battleBalance: user.tokens });
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ── Wolf → $BATTLE Conversion ────────────────────────────────────────────────
+const WOLF_PER_BATTLE = 5000;
+
+router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const amount = parseInt(req.body.amount) || 0;
+    if (amount < WOLF_PER_BATTLE || amount % WOLF_PER_BATTLE !== 0) {
+      res.status(400).json({ error: `Amount must be a multiple of ${WOLF_PER_BATTLE.toLocaleString()} WOLF.` }); return;
+    }
+    const currentWolf = user.wolf ?? 0;
+    if (amount > currentWolf) {
+      res.status(400).json({ error: "Insufficient WOLF balance." }); return;
+    }
+    const battleEarned = Math.floor(amount / WOLF_PER_BATTLE);
+    const newWolfBalance   = currentWolf - amount;
+    const newBattleBalance = user.tokens + battleEarned;
+    await db.update(veloxfiUsers)
+      .set({ wolf: newWolfBalance, tokens: newBattleBalance })
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true, wolfSpent: amount, battleEarned, newWolfBalance, newBattleBalance });
   } catch (e) {
     res.status(500).json({ error: "Server error." });
   }

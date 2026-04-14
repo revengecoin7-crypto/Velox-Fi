@@ -5,6 +5,8 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   email:            varchar("email", { length: 255 }).notNull().unique(),
   passwordHash:     text("password_hash").notNull(),
   tokens:           integer("tokens").notNull().default(0),
+  wolf:             integer("wolf").notNull().default(0),
+  wolfMiningStart:  timestamp("wolf_mining_start"),
   sessionToken:     text("session_token"),
   createdAt:        timestamp("created_at").notNull().defaultNow(),
   referredBy:       varchar("referred_by", { length: 50 }),
@@ -15,6 +17,6 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   walletAddress:      text("wallet_address"),
   claimRequestedAt:   timestamp("claim_requested_at"),
   claimedAt:          timestamp("claimed_at"),
-  activeBattle:       text("active_battle"), // JSON-serialized active battle state
+  activeBattle:       text("active_battle"),
   xp:                 integer("xp").notNull().default(0),
 });

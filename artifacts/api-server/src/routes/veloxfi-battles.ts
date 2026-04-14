@@ -414,6 +414,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       username:       user.username,
       email:          user.email,
       tokens:         user.tokens,
+      wolf:           user.wolf ?? 0,
       createdAt:      user.createdAt,
       referralCount:  user.referralCount,
       referralTokens: user.referralTokens,

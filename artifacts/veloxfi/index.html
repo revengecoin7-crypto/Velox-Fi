@@ -1399,6 +1399,71 @@
 .blog-post ul { font-family:Rajdhani,sans-serif; font-size:1.05rem; color:#94a3b8; line-height:1.8; margin:0 0 14px 18px; }
 .blog-post ul li { margin-bottom:6px; }
 .blog-post .blog-back { margin-bottom:40px; }
+
+/* ── Mining Section ───────────────────────────────────────── */
+#miningSection { display:none; padding:24px 20px 0; }
+.mine-hero { display:flex; flex-direction:column; align-items:center; padding:10px 0 0; }
+.mine-wolf { width:190px; height:190px; object-fit:cover; border-radius:50%; border:3px solid rgba(124,58,237,.5); box-shadow:0 0 40px rgba(124,58,237,.35),0 0 80px rgba(37,99,235,.15); animation:wolfPulse 3s ease-in-out infinite; margin-bottom:28px; }
+@keyframes wolfPulse { 0%,100%{box-shadow:0 0 40px rgba(124,58,237,.35),0 0 80px rgba(37,99,235,.15)} 50%{box-shadow:0 0 65px rgba(124,58,237,.55),0 0 110px rgba(37,99,235,.3)} }
+.mine-balances { display:flex; gap:16px; margin-bottom:30px; }
+.mine-bal-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px 26px; text-align:center; min-width:110px; }
+.mine-bal-card.battle { border-color:rgba(37,99,235,.3); background:rgba(37,99,235,.06); }
+.mine-bal-icon { font-size:1.4rem; margin-bottom:5px; }
+.mine-bal-num { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:700; color:#fff; }
+.mine-bal-lbl { font-family:'Rajdhani',sans-serif; font-size:.72rem; letter-spacing:.1em; color:#64748b; margin-top:4px; }
+.mine-btn-wrap { margin-bottom:22px; }
+.mine-btn { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:.15em; padding:22px 72px; border:none; border-radius:16px; cursor:pointer; transition:all .2s; }
+.mine-btn.inactive { background:linear-gradient(135deg,#7c3aed,#2563eb); color:#fff; box-shadow:0 0 30px rgba(124,58,237,.5),0 0 60px rgba(37,99,235,.2); }
+.mine-btn.inactive:hover { transform:scale(1.05); box-shadow:0 0 50px rgba(124,58,237,.7),0 0 80px rgba(37,99,235,.4); }
+.mine-btn.active-state { background:rgba(255,255,255,.06); color:#475569; border:2px solid rgba(255,255,255,.1); cursor:not-allowed; font-size:1rem; padding:14px 40px; }
+.mine-btn.claim { background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; box-shadow:0 0 30px rgba(245,158,11,.5); }
+.mine-btn.claim:hover { transform:scale(1.05); box-shadow:0 0 50px rgba(245,158,11,.7); }
+.mine-timer-wrap { text-align:center; margin-bottom:14px; }
+.mine-timer-label { font-family:'Rajdhani',sans-serif; font-size:.8rem; letter-spacing:.15em; color:#64748b; margin-bottom:8px; }
+.mine-countdown { font-family:'Orbitron',sans-serif; font-size:2.4rem; font-weight:700; color:#4ade80; letter-spacing:.05em; text-shadow:0 0 20px rgba(74,222,128,.4); }
+.mine-rate-label { font-family:'Rajdhani',sans-serif; font-size:.85rem; color:#64748b; margin-top:8px; }
+.mine-earned-preview { font-family:'Orbitron',sans-serif; font-size:.95rem; color:#a78bfa; margin-top:10px; }
+.mine-hint { font-family:'Rajdhani',sans-serif; font-size:.95rem; color:#475569; text-align:center; margin-top:8px; margin-bottom:8px; }
+
+/* ── Games Page ──────────────────────────────────────────── */
+#gamesPage { display:none; }
+.games-page-top { display:flex; align-items:center; gap:16px; padding:20px 24px 0; max-width:900px; margin:0 auto; }
+.games-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; }
+.games-page-back:hover { border-color:rgba(255,255,255,.2); color:#fff; }
+.games-page-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:700; color:#fff; letter-spacing:.1em; }
+
+/* ── Convert Page ─────────────────────────────────────────── */
+#convertPage { display:none; }
+.convert-inner { max-width:480px; margin:0 auto; padding:36px 24px 60px; }
+.convert-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; margin-bottom:28px; display:inline-block; }
+.convert-back:hover { border-color:rgba(255,255,255,.2); color:#fff; }
+.convert-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:32px; }
+.convert-title { font-family:'Orbitron',sans-serif; font-size:1.15rem; font-weight:700; color:#fff; letter-spacing:.08em; margin-bottom:6px; }
+.convert-subtitle { font-family:'Rajdhani',sans-serif; font-size:.9rem; color:#64748b; margin-bottom:24px; }
+.convert-rate-badge { display:inline-block; background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.3); border-radius:10px; padding:10px 20px; font-family:'Orbitron',sans-serif; font-size:.82rem; color:#a78bfa; letter-spacing:.05em; margin-bottom:26px; }
+.convert-bals { display:flex; gap:12px; margin-bottom:22px; }
+.convert-bal-chip { flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; text-align:center; }
+.convert-bal-chip.wolf { border-color:rgba(124,58,237,.3); }
+.convert-bal-chip.battle { border-color:rgba(37,99,235,.3); }
+.convert-bal-chip-num { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700; color:#fff; }
+.convert-bal-chip-lbl { font-family:'Rajdhani',sans-serif; font-size:.7rem; letter-spacing:.1em; color:#64748b; margin-top:3px; }
+.convert-input-label { font-family:'Rajdhani',sans-serif; font-size:.8rem; letter-spacing:.1em; color:#64748b; margin-bottom:8px; }
+.convert-input { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:14px 16px; font-family:'Orbitron',sans-serif; font-size:1rem; color:#fff; outline:none; box-sizing:border-box; }
+.convert-input:focus { border-color:rgba(124,58,237,.5); box-shadow:0 0 0 2px rgba(124,58,237,.15); }
+.convert-preview { background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.15); border-radius:12px; padding:14px 16px; margin:14px 0 22px; font-family:'Orbitron',sans-serif; font-size:1rem; color:#4ade80; text-align:center; min-height:50px; display:flex; align-items:center; justify-content:center; }
+.convert-btn { width:100%; background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; border-radius:12px; padding:16px; font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:700; letter-spacing:.1em; color:#fff; cursor:pointer; transition:all .2s; }
+.convert-btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.convert-btn:disabled { opacity:.4; cursor:not-allowed; }
+.convert-min-note { font-family:'Rajdhani',sans-serif; font-size:.8rem; color:#475569; text-align:center; margin-top:12px; }
+
+/* ── Nav wolf / battle balances ───────────────────────────── */
+.nav-wolf-bal { font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700; color:#a78bfa; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.25); padding:5px 10px; border-radius:8px; white-space:nowrap; cursor:default; }
+.nav-battle-bal { font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700; color:#60a5fa; background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.25); padding:5px 10px; border-radius:8px; white-space:nowrap; cursor:default; }
+.btn-nav-games { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; padding:7px 13px; border-radius:8px; border:1px solid rgba(37,99,235,.4); color:var(--blue-glow); background:rgba(37,99,235,.08); cursor:pointer; transition:all .15s; }
+.btn-nav-games:hover { background:rgba(37,99,235,.18); }
+.btn-nav-convert { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; padding:7px 13px; border-radius:8px; border:1px solid rgba(124,58,237,.4); color:#a78bfa; background:rgba(124,58,237,.08); cursor:pointer; transition:all .15s; }
+.btn-nav-convert:hover { background:rgba(124,58,237,.18); }
+@media(max-width:768px) { .nav-wolf-bal,.nav-battle-bal { display:none; } }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WR31Y72PW3"></script>
@@ -1558,9 +1623,35 @@
     <div class="hero-note">Already have an account? <span onclick="openModal('login')">Log in here</span></div>
   </div>
 
-  <!-- WOLF — logged-in view (small, always centered above stats) -->
-  <div id="wolfSmallSection">
-    <img id="wolfSmall" class="wolf-logo-sm" src="/wolf.jpg" alt="VeloxFi cyberpunk wolf mascot — free memecoin battle prediction game">
+  <!-- MINING SECTION — logged-in homepage -->
+  <div id="miningSection">
+    <div class="mine-hero">
+      <img class="mine-wolf" src="/wolf.jpg" alt="VeloxFi wolf — mine WOLF tokens free">
+      <div class="mine-balances">
+        <div class="mine-bal-card">
+          <div class="mine-bal-icon">🐺</div>
+          <div class="mine-bal-num" id="mineWolfBal">0</div>
+          <div class="mine-bal-lbl">WOLF</div>
+        </div>
+        <div class="mine-bal-card battle">
+          <div class="mine-bal-icon">⚔️</div>
+          <div class="mine-bal-num" id="mineBattleBal">0</div>
+          <div class="mine-bal-lbl">$BATTLE</div>
+        </div>
+      </div>
+      <div class="mine-btn-wrap">
+        <button class="mine-btn inactive" id="mineBtn" onclick="handleMineClick()">
+          <span id="mineBtnTxt">MINE</span>
+        </button>
+      </div>
+      <div class="mine-timer-wrap" id="mineTimerWrap" style="display:none">
+        <div class="mine-timer-label">⛏️ MINING IN PROGRESS</div>
+        <div class="mine-countdown" id="mineCountdown">4:00:00</div>
+        <div class="mine-rate-label">+1 WOLF per minute • Max 240 WOLF per session</div>
+        <div class="mine-earned-preview" id="mineEarnedPreview"></div>
+      </div>
+      <div class="mine-hint" id="mineHint">Click MINE to start earning 1 WOLF per minute for 4 hours.</div>
+    </div>
   </div>
 
   <!-- HOME LIVE BATTLE CARD — replaces game-area while a battle is running -->
@@ -1658,6 +1749,97 @@
         BUY ON PUMP.FUN
       </a>
     </div>
+  </div>
+
+
+  <!-- LIVE ACTIVITY FEED -->
+  <div class="activity-section" id="activitySection">
+    <div class="activity-card">
+      <div class="activity-header">
+        <div class="activity-header-left">
+          <div class="activity-live-dot"></div>
+          <span class="activity-live-label">LIVE</span>
+          <span class="activity-title">ACTIVITY FEED</span>
+        </div>
+        <span class="activity-refresh-label" id="activityRefreshLabel">Refreshes every 15s</span>
+      </div>
+      <div class="activity-list" id="activityList">
+        <div class="activity-empty">Loading activity…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw">
+    <div class="hiw-title">HOW IT WORKS</div>
+    <div class="hiw-steps">
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 01</div>
+        <span class="hiw-icon">⚔️</span>
+        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
+        <div class="hiw-desc">Choose any two memecoins from our memecoin arena — top volatile Solana tokens updated live every 5 minutes.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 02</div>
+        <span class="hiw-icon">🎯</span>
+        <div class="hiw-step-title">PREDICT THE WINNER</div>
+        <div class="hiw-desc">Predict which memecoin wins by gaining the most % in 5, 15, or 30 minutes. The ultimate crypto prediction game.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 03</div>
+        <span class="hiw-icon">🪙</span>
+        <div class="hiw-step-title">EARN FREE $BATTLE TOKENS</div>
+        <div class="hiw-desc">Earn free crypto tokens for every correct prediction — 1, 2, or 3 $BATTLE tokens on Solana. No investment required.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 04</div>
+        <span class="hiw-icon">🏆</span>
+        <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
+        <div class="hiw-desc">Gain XP, unlock achievements and climb the memecoin tournament ranks from Rookie Wolf to Legend Wolf.</div>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-num">STEP 05</div>
+        <span class="hiw-icon">📅</span>
+        <div class="hiw-step-title">COMPLETE DAILY MISSIONS</div>
+        <div class="hiw-desc">Earn bonus free coins every day by completing missions in this free crypto game. Resets at midnight!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEO BLURB -->
+  <div style="max-width:700px;margin:36px auto 0;padding:0 24px;text-align:center;">
+    <p style="font-family:'Rajdhani',sans-serif;font-size:.95rem;color:#475569;line-height:1.75;">
+      VeloxFi is the <strong style="color:#64748b;">free memecoin battle prediction platform</strong> on Solana. Predict which memecoin wins each round, earn free $BATTLE tokens, and level up — all with no wallet needed and no investment required. Whether you're looking to <strong style="color:#64748b;">earn crypto without investment</strong>, play the best <strong style="color:#64748b;">crypto prediction game</strong>, or compete in a <strong style="color:#64748b;">memecoin tournament</strong>, VeloxFi is your arena.
+    </p>
+  </div>
+
+  <!-- SOCIAL FOOTER -->
+  <div class="social-footer">
+    <div class="social-footer-title">JOIN THE COMMUNITY</div>
+    <div class="social-links">
+      <a class="social-btn tg" href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </a>
+      <a class="social-btn dc" href="https://discord.gg/u2UhxuTd" target="_blank" rel="noopener" aria-label="Discord">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </a>
+    </div>
+    <div class="footer-page-links">
+      <span class="footer-page-link" onclick="goWhitepaper()">WHITEPAPER</span>
+      <span class="footer-page-link" onclick="goFaq()">FAQ</span>
+      <span class="footer-page-link" onclick="goBlog()">BLOG</span>
+    </div>
+    <div class="footer-copy">© 2025 VeloxFi. All rights reserved. Not financial advice.</div>
+  </div>
+
+</main>
+</div><!-- /mainPage -->
+
+<!-- GAMES PAGE -->
+<div id="gamesPage" style="display:none">
+  <div class="games-page-top">
+    <button class="games-page-back" onclick="goHome()">← HOME</button>
+    <div class="games-page-title">⚔️ BATTLE GAMES</div>
   </div>
 
   <div class="game-area">
@@ -1768,89 +1950,34 @@
       Not for US residents. © 2025 VeloxFi — veloxfi.io
     </div>
   </div>
+</div><!-- /gamesPage -->
 
-  <!-- LIVE ACTIVITY FEED -->
-  <div class="activity-section" id="activitySection">
-    <div class="activity-card">
-      <div class="activity-header">
-        <div class="activity-header-left">
-          <div class="activity-live-dot"></div>
-          <span class="activity-live-label">LIVE</span>
-          <span class="activity-title">ACTIVITY FEED</span>
+<!-- CONVERT PAGE -->
+<div id="convertPage" style="display:none">
+  <div class="convert-inner">
+    <button class="convert-back" onclick="goHome()">← HOME</button>
+    <div class="convert-card">
+      <div class="convert-title">🐺 CONVERT WOLF</div>
+      <div class="convert-subtitle">Exchange your WOLF tokens for $BATTLE</div>
+      <div class="convert-rate-badge">5,000 WOLF = 1 $BATTLE</div>
+      <div class="convert-bals">
+        <div class="convert-bal-chip wolf">
+          <div class="convert-bal-chip-num" id="convertWolfBal">0</div>
+          <div class="convert-bal-chip-lbl">🐺 WOLF</div>
         </div>
-        <span class="activity-refresh-label" id="activityRefreshLabel">Refreshes every 15s</span>
+        <div class="convert-bal-chip battle">
+          <div class="convert-bal-chip-num" id="convertBattleBal">0</div>
+          <div class="convert-bal-chip-lbl">⚔️ $BATTLE</div>
+        </div>
       </div>
-      <div class="activity-list" id="activityList">
-        <div class="activity-empty">Loading activity…</div>
-      </div>
+      <div class="convert-input-label">WOLF AMOUNT TO CONVERT</div>
+      <input class="convert-input" id="convertAmt" type="number" min="5000" step="5000" placeholder="e.g. 5000" oninput="updateConvertPreview()">
+      <div class="convert-preview" id="convertPreview">Enter amount above</div>
+      <button class="convert-btn" id="convertBtn" onclick="doConvert()" disabled>CONVERT</button>
+      <div class="convert-min-note">Minimum 5,000 WOLF · Must be a multiple of 5,000</div>
     </div>
   </div>
-
-  <!-- HOW IT WORKS -->
-  <div class="hiw">
-    <div class="hiw-title">HOW IT WORKS</div>
-    <div class="hiw-steps">
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 01</div>
-        <span class="hiw-icon">⚔️</span>
-        <div class="hiw-step-title">PICK YOUR FIGHTERS</div>
-        <div class="hiw-desc">Choose any two memecoins from our memecoin arena — top volatile Solana tokens updated live every 5 minutes.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 02</div>
-        <span class="hiw-icon">🎯</span>
-        <div class="hiw-step-title">PREDICT THE WINNER</div>
-        <div class="hiw-desc">Predict which memecoin wins by gaining the most % in 5, 15, or 30 minutes. The ultimate crypto prediction game.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 03</div>
-        <span class="hiw-icon">🪙</span>
-        <div class="hiw-step-title">EARN FREE $BATTLE TOKENS</div>
-        <div class="hiw-desc">Earn free crypto tokens for every correct prediction — 1, 2, or 3 $BATTLE tokens on Solana. No investment required.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 04</div>
-        <span class="hiw-icon">🏆</span>
-        <div class="hiw-step-title">LEVEL UP & EARN BADGES</div>
-        <div class="hiw-desc">Gain XP, unlock achievements and climb the memecoin tournament ranks from Rookie Wolf to Legend Wolf.</div>
-      </div>
-      <div class="hiw-step">
-        <div class="hiw-num">STEP 05</div>
-        <span class="hiw-icon">📅</span>
-        <div class="hiw-step-title">COMPLETE DAILY MISSIONS</div>
-        <div class="hiw-desc">Earn bonus free coins every day by completing missions in this free crypto game. Resets at midnight!</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SEO BLURB -->
-  <div style="max-width:700px;margin:36px auto 0;padding:0 24px;text-align:center;">
-    <p style="font-family:'Rajdhani',sans-serif;font-size:.95rem;color:#475569;line-height:1.75;">
-      VeloxFi is the <strong style="color:#64748b;">free memecoin battle prediction platform</strong> on Solana. Predict which memecoin wins each round, earn free $BATTLE tokens, and level up — all with no wallet needed and no investment required. Whether you're looking to <strong style="color:#64748b;">earn crypto without investment</strong>, play the best <strong style="color:#64748b;">crypto prediction game</strong>, or compete in a <strong style="color:#64748b;">memecoin tournament</strong>, VeloxFi is your arena.
-    </p>
-  </div>
-
-  <!-- SOCIAL FOOTER -->
-  <div class="social-footer">
-    <div class="social-footer-title">JOIN THE COMMUNITY</div>
-    <div class="social-links">
-      <a class="social-btn tg" href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener" aria-label="Telegram">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-      </a>
-      <a class="social-btn dc" href="https://discord.gg/u2UhxuTd" target="_blank" rel="noopener" aria-label="Discord">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-      </a>
-    </div>
-    <div class="footer-page-links">
-      <span class="footer-page-link" onclick="goWhitepaper()">WHITEPAPER</span>
-      <span class="footer-page-link" onclick="goFaq()">FAQ</span>
-      <span class="footer-page-link" onclick="goBlog()">BLOG</span>
-    </div>
-    <div class="footer-copy">© 2025 VeloxFi. All rights reserved. Not financial advice.</div>
-  </div>
-
-</main>
-</div><!-- /mainPage -->
+</div><!-- /convertPage -->
 
 <!-- BATTLE PAGE -->
 <div id="battlePage" style="display:none">
@@ -3078,7 +3205,7 @@ function getBattleParams() {
 function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
 
 function _showOnlyPage(id) {
-  ['mainPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
+  ['mainPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
    'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
@@ -3145,6 +3272,18 @@ function initRouter() {
   } else if (path === '/blog/post5') {
     setPageMeta('blogPost5');
     _showOnlyPage('blogPost5');
+    window.scrollTo(0,0);
+  } else if (path === '/games') {
+    setPageMeta('games');
+    _showOnlyPage('gamesPage');
+    fetchMemecoins();
+    renderLeaderboard();
+    window.scrollTo(0,0);
+  } else if (path === '/convert') {
+    if (!currentUser) { history.replaceState(null,'','/'); _showOnlyPage('mainPage'); return; }
+    setPageMeta('convert');
+    _showOnlyPage('convertPage');
+    syncConvertPage();
     window.scrollTo(0,0);
   } else {
     _showOnlyPage('mainPage');
@@ -3213,6 +3352,16 @@ const PAGE_META = {
     desc:      'Explore the best free play-to-earn crypto games in 2026. Learn why VeloxFi stands out as truly free — no wallet, no investment, just predictions.',
     canonical: 'https://veloxfi.io/blog/post5',
   },
+  games: {
+    title:     'Battle Games — Predict Memecoins & Earn $BATTLE | VeloxFi',
+    desc:      'Play memecoin battle prediction games on VeloxFi. Pick two memecoins, predict the winner, and earn free $BATTLE tokens. No wallet needed.',
+    canonical: 'https://veloxfi.io/games',
+  },
+  convert: {
+    title:     'Convert WOLF to $BATTLE | VeloxFi',
+    desc:      'Convert your WOLF mining tokens to $BATTLE on VeloxFi. 5,000 WOLF = 1 $BATTLE. Mine WOLF for free and exchange for $BATTLE tokens.',
+    canonical: 'https://veloxfi.io/convert',
+  },
 };
 
 function setPageMeta(key) {
@@ -3239,20 +3388,42 @@ function goHome() {
   if (tbPriceInterval) { clearInterval(tbPriceInterval); tbPriceInterval = null; }
   setPageMeta('home');
   history.pushState(null, '', '/');
-  // Hide hero immediately before the page becomes visible — never flash CTA to logged-in users
-  const _s = currentUser || getSession();
-  if (_s) {
-    document.getElementById('heroSection').style.display     = 'none';
-    document.getElementById('wolfSmallSection').style.display = 'block';
-  } else {
-    document.getElementById('heroSection').style.display     = 'block';
-    document.getElementById('wolfSmallSection').style.display = 'none';
-  }
+  _applyHomeView();
   _showOnlyPage('mainPage');
   window.scrollTo(0,0);
-  // Always re-check DB immediately when returning to the main page
-  if (currentUser) checkActiveBattleNow();
+  if (currentUser) { checkActiveBattleNow(); fetchMiningStatus(); }
   fetchStatsBar();
+}
+
+function _applyHomeView() {
+  const loggedIn = !!(currentUser || getSession());
+  const heroEl   = document.getElementById('heroSection');
+  const mineEl   = document.getElementById('miningSection');
+  const supplyEl = document.getElementById('tokenSupplyBlock');
+  const hiwEl    = document.querySelector('.hiw');
+  const seoEl    = document.querySelector('#mainPage .game-area ~ div[style]') || null;
+  if (heroEl)   heroEl.style.display   = loggedIn ? 'none' : '';
+  if (mineEl)   mineEl.style.display   = loggedIn ? 'block' : 'none';
+  if (supplyEl) supplyEl.style.display = loggedIn ? 'none' : '';
+  if (hiwEl)    hiwEl.style.display    = loggedIn ? 'none' : '';
+}
+
+function goGames() {
+  setPageMeta('games');
+  history.pushState(null, '', '/games');
+  _showOnlyPage('gamesPage');
+  fetchMemecoins();
+  renderLeaderboard();
+  window.scrollTo(0,0);
+}
+
+function goConvert() {
+  if (!currentUser) { openModal('login'); return; }
+  setPageMeta('convert');
+  history.pushState(null, '', '/convert');
+  _showOnlyPage('convertPage');
+  syncConvertPage();
+  window.scrollTo(0,0);
 }
 
 function goWhitepaper() {
@@ -4116,7 +4287,7 @@ async function handleLogin() {
 }
 
 function afterLogin(data) {
-  currentUser = { username: data.username, tokens: data.tokens, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
+  currentUser = { username: data.username, tokens: data.tokens, wolf: data.wolf ?? 0, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
   setSession(data.username, data.token);
   renderNav();
   showToast(`⚡ Welcome back, ${data.username.toUpperCase()}!`,'info');
@@ -4124,12 +4295,11 @@ function afterLogin(data) {
   if (isBattlePage()) {
     onBattlePageAuth();
   } else {
-    document.getElementById('heroSection').style.display = 'none';
-    document.getElementById('wolfSmallSection').style.display = 'block';
-    document.getElementById('activeBattlesSection').style.display = activeBattles.length?'block':'none';
+    _applyHomeView();
+    document.getElementById('activeBattlesSection') && (document.getElementById('activeBattlesSection').style.display = activeBattles.length?'block':'none');
     renderLeaderboard();
-    // Check for any in-progress battle saved to DB from a previous session
     checkActiveBattleNow();
+    fetchMiningStatus();
   }
 }
 
@@ -4143,9 +4313,10 @@ function handleLogout() {
   hideHomeLiveBattleCard(); // clears timer + price intervals
   renderNav();
   if (isBattlePage()) { goHome(); return; }
-  document.getElementById('heroSection').style.display = 'block';
-  document.getElementById('wolfSmallSection').style.display = 'none';
-  document.getElementById('activeBattlesSection').style.display = 'none';
+  stopMiningCountdown();
+  _applyHomeView();
+  const asEl = document.getElementById('activeBattlesSection');
+  if (asEl) asEl.style.display = 'none';
   renderLeaderboard();
 }
 
@@ -4157,10 +4328,15 @@ function renderNav() {
   const mob = document.getElementById('mobileMenuContent');
   if (currentUser) {
     const badge = getLevelBadgeHTML(currentUser.xp ?? 0, 'sm');
-    el.innerHTML=`<div class="battle-balance">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</div>
+    el.innerHTML=`<span class="nav-wolf-bal">🐺 <span id="navWolfBal">${currentUser.wolf ?? 0}</span> WOLF</span>
+    <span class="nav-battle-bal">⚔️ <span id="navBal">${currentUser.tokens}</span> $BATTLE</span>
+    <button class="btn-nav-games" onclick="goGames()">GAMES</button>
+    <button class="btn-nav-convert" onclick="goConvert()">CONVERT</button>
     <button class="btn-nav-profile" onclick="goProfile()" style="display:inline-flex;align-items:center;gap:6px;">${badge} ${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()} ${badge}</button>
+    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">⚔️ GAMES</button>
+    <button class="mob-menu-btn" onclick="goConvert();closeMobileMenu()">🐺 CONVERT WOLF</button>
+    <button class="mob-menu-btn" onclick="goProfile();closeMobileMenu()">👤 ${currentUser.username.toUpperCase()} ${badge}</button>
     <button class="mob-menu-btn mob-logout" onclick="handleLogout();closeMobileMenu()">LOGOUT</button>`;
   } else {
     el.innerHTML=`<button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
@@ -4169,7 +4345,12 @@ function renderNav() {
     <button class="mob-menu-btn mob-register" onclick="openModal('register');closeMobileMenu()">🚀 REGISTER FREE</button>`;
   }
 }
-function updateNavBalance() { const el=document.getElementById('navBal'); if(el&&currentUser) el.textContent=currentUser.tokens; }
+function updateNavBalance() {
+  const el = document.getElementById('navBal');
+  const elW = document.getElementById('navWolfBal');
+  if (el && currentUser) el.textContent = currentUser.tokens;
+  if (elW && currentUser) elW.textContent = currentUser.wolf ?? 0;
+}
 
 function toggleMobileMenu() {
   const menu = document.getElementById('mobileMenu');
@@ -5603,7 +5784,8 @@ async function init() {
   const earlySession = getSession();
   if (!isBattlePage() && earlySession?.username && earlySession?.tok) {
     document.getElementById('heroSection').style.display = 'none';
-    document.getElementById('wolfSmallSection').style.display = 'block';
+    const earlyMineEl = document.getElementById('miningSection');
+    if (earlyMineEl) earlyMineEl.style.display = 'block';
   }
 
   renderNav();
@@ -5615,21 +5797,20 @@ async function init() {
       const res = await fetch(`/api/veloxfi/profile?_t=${Date.now()}`, { headers:{'Authorization':`Bearer ${session.tok}`}, cache:'no-store' });
       if (res.ok) {
         const data = await res.json();
-        currentUser = { username: data.username, tokens: data.tokens, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
+        currentUser = { username: data.username, tokens: data.tokens, wolf: data.wolf ?? 0, email: data.email, xp: data.xp ?? 0, level: data.level ?? 1, levelName: data.levelName ?? 'Rookie Wolf' };
         renderNav();
         document.getElementById('refBanner').style.display = 'none';
-        // Surface any active battle found in the DB during this same fetch
         if (!isBattlePage()) {
-          document.getElementById('heroSection').style.display = 'none';
-          document.getElementById('wolfSmallSection').style.display = 'block';
-          document.getElementById('activeBattlesSection').style.display = 'none';
+          _applyHomeView();
+          const asEl = document.getElementById('activeBattlesSection');
+          if (asEl) asEl.style.display = 'none';
           checkAndShowActiveBattle(data.activeBattle || null);
+          fetchMiningStatus();
         }
       } else {
         clearSession();
         // Session invalid — show hero for guests
-        document.getElementById('heroSection').style.display = 'block';
-        document.getElementById('wolfSmallSection').style.display = 'none';
+        _applyHomeView();
       }
     } catch {
       // Network error — keep the optimistic hero-hide; still try active battle
@@ -5792,12 +5973,181 @@ async function fetchActivityFeed() {
   raf = requestAnimationFrame(frame);
 })();
 
+// ── WOLF MINING ──────────────────────────────────
+let _miningCountdownInterval = null;
+
+async function fetchMiningStatus() {
+  if (!currentUser) return;
+  const session = getSession();
+  if (!session) return;
+  try {
+    const r = await fetch('/api/veloxfi/mining/status', { headers:{ Authorization:`Bearer ${session.tok}` } });
+    if (!r.ok) return;
+    const d = await r.json();
+    currentUser.wolf = d.wolfBalance;
+    currentUser.tokens = d.battleBalance;
+    updateNavBalance();
+    const mineWolfEl = document.getElementById('mineWolfBal');
+    const mineBattleEl = document.getElementById('mineBattleBal');
+    if (mineWolfEl) mineWolfEl.textContent = d.wolfBalance.toLocaleString();
+    if (mineBattleEl) mineBattleEl.textContent = d.battleBalance.toLocaleString();
+    _applyMiningUI(d.status, d.secondsRemaining, d.wolfEarned);
+  } catch(e) {}
+}
+
+function _applyMiningUI(status, secondsRemaining, wolfEarned) {
+  const btn = document.getElementById('mineBtn');
+  const txtEl = document.getElementById('mineBtnTxt');
+  const timerWrap = document.getElementById('mineTimerWrap');
+  const hintEl = document.getElementById('mineHint');
+  if (!btn) return;
+
+  stopMiningCountdown();
+
+  if (status === 'inactive') {
+    btn.className = 'mine-btn inactive';
+    if (txtEl) txtEl.textContent = 'MINE';
+    if (timerWrap) timerWrap.style.display = 'none';
+    if (hintEl) hintEl.textContent = 'Click MINE to start earning 1 WOLF per minute for 4 hours.';
+  } else if (status === 'active') {
+    btn.className = 'mine-btn active-state';
+    if (txtEl) txtEl.textContent = 'MINING…';
+    if (timerWrap) timerWrap.style.display = 'block';
+    if (hintEl) hintEl.textContent = `Session earns up to 240 WOLF. Come back after 4 hours to CLAIM.`;
+    _startMiningCountdown(secondsRemaining, wolfEarned);
+  } else if (status === 'complete') {
+    btn.className = 'mine-btn claim';
+    if (txtEl) txtEl.textContent = 'CLAIM ' + wolfEarned.toLocaleString() + ' WOLF';
+    if (timerWrap) timerWrap.style.display = 'none';
+    if (hintEl) hintEl.textContent = 'Your 4-hour session is complete! Claim your WOLF tokens now.';
+  }
+}
+
+function _startMiningCountdown(secondsLeft, wolfEarnedSoFar) {
+  let secs = secondsLeft;
+  let earned = wolfEarnedSoFar;
+  const countdownEl = document.getElementById('mineCountdown');
+  const previewEl = document.getElementById('mineEarnedPreview');
+
+  function tick() {
+    if (secs <= 0) {
+      stopMiningCountdown();
+      _applyMiningUI('complete', 0, 240);
+      return;
+    }
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    if (countdownEl) countdownEl.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    earned = Math.min(240, Math.floor((4*3600 - secs) / 60));
+    if (previewEl) previewEl.textContent = earned > 0 ? `+${earned.toLocaleString()} WOLF earned so far` : '';
+    secs--;
+  }
+  tick();
+  _miningCountdownInterval = setInterval(tick, 1000);
+}
+
+function stopMiningCountdown() {
+  if (_miningCountdownInterval) { clearInterval(_miningCountdownInterval); _miningCountdownInterval = null; }
+}
+
+async function handleMineClick() {
+  if (!currentUser) { openModal('login'); return; }
+  const btn = document.getElementById('mineBtn');
+  const cls = btn ? btn.className : '';
+  if (cls.includes('inactive')) {
+    await startMining();
+  } else if (cls.includes('claim')) {
+    await claimMining();
+  }
+}
+
+async function startMining() {
+  const session = getSession();
+  if (!session) return;
+  const btn = document.getElementById('mineBtn');
+  if (btn) { btn.disabled = true; }
+  try {
+    const r = await fetch('/api/veloxfi/mining/start', { method:'POST', headers:{ Authorization:`Bearer ${session.tok}`, 'Content-Type':'application/json' } });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Could not start mining.','error'); return; }
+    showToast('⛏️ Mining started! Come back in 4 hours to claim your WOLF.','success');
+    _applyMiningUI('active', 4*3600, 0);
+  } catch(e) { showToast('Network error. Try again.','error'); }
+  finally { if (btn) btn.disabled = false; }
+}
+
+async function claimMining() {
+  const session = getSession();
+  if (!session) return;
+  const btn = document.getElementById('mineBtn');
+  if (btn) btn.disabled = true;
+  try {
+    const r = await fetch('/api/veloxfi/mining/claim', { method:'POST', headers:{ Authorization:`Bearer ${session.tok}`, 'Content-Type':'application/json' } });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Could not claim.','error'); return; }
+    currentUser.wolf = d.newWolfBalance;
+    currentUser.tokens = d.battleBalance;
+    updateNavBalance();
+    const mineWolfEl = document.getElementById('mineWolfBal');
+    if (mineWolfEl) mineWolfEl.textContent = d.newWolfBalance.toLocaleString();
+    showToast(`🐺 Claimed ${d.wolfEarned} WOLF! New balance: ${d.newWolfBalance.toLocaleString()} WOLF`, 'success');
+    _applyMiningUI('inactive', 0, 0);
+  } catch(e) { showToast('Network error. Try again.','error'); }
+  finally { if (btn) btn.disabled = false; }
+}
+
+// ── WOLF CONVERSION ───────────────────────────────
+function syncConvertPage() {
+  const wolfEl   = document.getElementById('convertWolfBal');
+  const battleEl = document.getElementById('convertBattleBal');
+  if (wolfEl && currentUser)   wolfEl.textContent   = (currentUser.wolf ?? 0).toLocaleString();
+  if (battleEl && currentUser) battleEl.textContent = (currentUser.tokens ?? 0).toLocaleString();
+  updateConvertPreview();
+}
+
+function updateConvertPreview() {
+  const amtEl  = document.getElementById('convertAmt');
+  const preEl  = document.getElementById('convertPreview');
+  const btnEl  = document.getElementById('convertBtn');
+  const amount = parseInt(amtEl?.value) || 0;
+  const wolf   = currentUser?.wolf ?? 0;
+  const battleOut = Math.floor(amount / 5000);
+  const valid = amount >= 5000 && amount % 5000 === 0 && amount <= wolf;
+  if (preEl) preEl.textContent = amount > 0 ? (valid ? `You receive: ${battleOut} $BATTLE` : (amount > wolf ? 'Insufficient WOLF balance' : 'Must be a multiple of 5,000')) : 'Enter amount above';
+  if (btnEl) btnEl.disabled = !valid;
+}
+
+async function doConvert() {
+  const session = getSession();
+  if (!session || !currentUser) return;
+  const amtEl = document.getElementById('convertAmt');
+  const amount = parseInt(amtEl?.value) || 0;
+  const btnEl = document.getElementById('convertBtn');
+  if (btnEl) btnEl.disabled = true;
+  try {
+    const r = await fetch('/api/veloxfi/convert-wolf', { method:'POST', headers:{ Authorization:`Bearer ${session.tok}`, 'Content-Type':'application/json' }, body:JSON.stringify({ amount }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Conversion failed.','error'); return; }
+    currentUser.wolf   = d.newWolfBalance;
+    currentUser.tokens = d.newBattleBalance;
+    updateNavBalance();
+    if (amtEl) amtEl.value = '';
+    syncConvertPage();
+    showToast(`✅ Converted ${d.wolfSpent.toLocaleString()} WOLF → ${d.battleEarned} $BATTLE!`, 'success');
+  } catch(e) { showToast('Network error. Try again.','error'); }
+  finally { updateConvertPreview(); }
+}
+
 // ── WOLF EYE BLINK ───────────────────────────────
 (function() {
   function getWolves() {
-    return ['wolfMain', 'wolfSmall']
-      .map(id => document.getElementById(id))
-      .filter(el => el && el.offsetParent !== null); // only visible ones
+    const ids = ['wolfMain'];
+    const cls = ['.mine-wolf'];
+    return [
+      ...ids.map(id => document.getElementById(id)),
+      ...cls.map(c => document.querySelector(c)),
+    ].filter(el => el && el.offsetParent !== null);
   }
 
   function blink() {
