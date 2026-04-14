@@ -1371,6 +1371,8 @@
 .cs-howto { margin:0 0 16px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
 .cs-howto-title { font-family:'Orbitron',sans-serif; font-size:.58rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; }
 .cs-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.cs-howto-rows.collapsed { display:none; }
+@media (pointer:coarse),(max-width:700px) { .cs-howto-rows { display:none; } .cs-howto-rows.open { display:flex; } }
 .cs-howto-row { display:flex; align-items:flex-start; gap:8px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; line-height:1.35; }
 .cs-howto-icon { font-size:.95rem; flex-shrink:0; }
 .cs-howto-key { color:#a78bfa; font-weight:600; }
@@ -3502,8 +3504,11 @@
             <div class="cs-rule"><span>🪙</span><span>1 WOLF / coin</span></div>
           </div>
           <div class="cs-howto">
-            <div class="cs-howto-title">HOW TO PLAY</div>
-            <div class="cs-howto-rows">
+            <div class="cs-howto-title" id="csHowtoToggle" onclick="csToggleHowto()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+              <span>HOW TO PLAY</span>
+              <span id="csHowtoArrow" style="font-size:.9rem;transition:transform .2s;">▼</span>
+            </div>
+            <div id="csHowtoBody" class="cs-howto-rows">
               <div class="cs-howto-row">
                 <span class="cs-howto-icon">⌨️</span>
                 <span><span class="cs-howto-key">↑ ↓ ← →</span> or <span class="cs-howto-key">W A S D</span> to steer your snake</span>
@@ -4492,7 +4497,13 @@ function rmInit() {
   const btnF = document.getElementById('rmBtnFire');
   const bindRmBtn = (btn, key) => {
     if (!btn) return;
-    const dn = e => { e.preventDefault(); rmKeys[key] = true; btn.classList.add('pressed'); };
+    let lastTouch = 0;
+    const dn = e => {
+      e.preventDefault();
+      if (e.type === 'touchstart') { lastTouch = Date.now(); rmKeys[key] = true; btn.classList.add('pressed'); return; }
+      if (Date.now() - lastTouch < 300) return; // suppress pointerdown duplicate on touch
+      rmKeys[key] = true; btn.classList.add('pressed');
+    };
     const up = e => { rmKeys[key] = false; btn.classList.remove('pressed'); };
     btn.addEventListener('touchstart',  dn, {passive:false});
     btn.addEventListener('touchend',    up, {passive:true});
@@ -5057,14 +5068,28 @@ function csSnakeReset(len) {
   csNextDir = {x:1, y:0};
 }
 
+function csToggleHowto() {
+  const body  = document.getElementById('csHowtoBody');
+  const arrow = document.getElementById('csHowtoArrow');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
 function csBindDpad() {
   csDpadListeners.forEach(([el, ev, fn]) => el.removeEventListener(ev, fn));
   csDpadListeners = [];
   const addBtn = (id, fn) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const down = (e) => { e.preventDefault(); fn(); el.classList.add('pressed'); };
-    const up   = (e) => { el.classList.remove('pressed'); };
+    let lastTouch = 0;
+    const down = (e) => {
+      e.preventDefault();
+      if (e.type === 'touchstart') { lastTouch = Date.now(); fn(); el.classList.add('pressed'); return; }
+      if (Date.now() - lastTouch < 300) return; // suppress duplicate pointerdown after touch
+      fn(); el.classList.add('pressed');
+    };
+    const up = () => el.classList.remove('pressed');
     el.addEventListener('touchstart',  down, {passive:false});
     el.addEventListener('touchend',    up,   {passive:true});
     el.addEventListener('touchcancel', up,   {passive:true});
@@ -5703,7 +5728,14 @@ function btBindTouch() {
   const add = (id, fn) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const act = e => { e.preventDefault(); if (btGameState === 'playing') fn(); };
+    let lastTouch = 0;
+    const act = e => {
+      e.preventDefault();
+      if (btGameState !== 'playing') return;
+      if (e.type === 'touchstart') { lastTouch = Date.now(); fn(); return; }
+      if (Date.now() - lastTouch < 300) return; // suppress pointerdown duplicate on touch
+      fn();
+    };
     el.addEventListener('touchstart',  act, {passive:false});
     el.addEventListener('pointerdown', act, {passive:false});
   };
