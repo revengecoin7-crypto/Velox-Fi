@@ -106,7 +106,7 @@ export default function Whitepaper() {
           <p className="text-xs leading-relaxed" style={{ fontFamily: "Inter, sans-serif", color: "#6b7280" }}>
             <strong style={{ color: "#f59e0b" }}>DISCLAIMER:</strong> This whitepaper is for informational purposes only and does not constitute financial advice.
             Cryptocurrency investments carry significant risk. Never invest more than you can afford to lose. $BATTLE token is a freely
-            tradeable token — VeloxFi has no control over who purchases it. Not available to residents of the United States or other restricted jurisdictions.
+            tradeable token — VeloxFi has no control over who purchases it.
           </p>
         </div>
 
