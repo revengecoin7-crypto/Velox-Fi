@@ -421,6 +421,7 @@ router.get("/veloxfi/profile", requireAuth as any, async (req: any, res) => {
       walletAddress:      user.walletAddress      ?? null,
       claimRequestedAt:   user.claimRequestedAt   ?? null,
       claimedAt:          user.claimedAt           ?? null,
+      wolfMiningStart:    user.wolfMiningStart     ?? null,
       activeBattle,
       xp:             user.xp ?? 0,
       level:          xpInfo.level,

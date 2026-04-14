@@ -14,6 +14,7 @@ Single `index.html` SPA (served by Vite). Key features:
 - **TIMEFRAME_REWARDS**: `{300:1, 900:2, 1800:3}` (seconds → tokens)
 - **Referral system**: `?ref=username` URL param → saved to localStorage as `vfxRef` → referral banner shown → 3 bonus $BATTLE tokens for both parties on register; profile shows unique referral link + referral count + bonus tokens earned
 - **Admin dashboard**: `/admin` path; password `veloxfi2025`; shows stats cards, 7-day bar chart, last 20 battles, full user list; server-side password check on every API call
+- **Profile dashboard**: Full redesign at `/profile`. Sections: hero card (avatar + XP ring Chart.js donut), 4-box balance strip (WOLF / $BATTLE / battles / win rate), charts row (timeframe donut + daily activity bar), full-width earnings trend line chart, two-col mining status + games activity, recent battle history table, achievements grid, daily missions, wallet & claim, referral. `_profCharts` global tracks Chart.js instances, destroyed before each reload. CSS classes all `.dash-*`.
 
 ## Key Files
 

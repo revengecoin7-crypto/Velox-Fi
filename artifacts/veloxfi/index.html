@@ -871,6 +871,112 @@
 
 @media(max-width:640px) { .prof-header { flex-direction: column; text-align: center; } .prof-balance-box { margin-top: 4px; } }
 
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD (new profile redesign)
+══════════════════════════════════════════════════════════════ */
+.dash-wrap { max-width:980px; margin:0 auto; padding:32px 20px 80px; display:flex; flex-direction:column; gap:20px; }
+/* Shared card */
+.dash-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:24px; }
+.dash-card-title { font-family:'Orbitron',monospace; font-size:.7rem; font-weight:700; letter-spacing:.16em; color:#fff; margin-bottom:4px; }
+.dash-card-sub { font-family:'Rajdhani',sans-serif; font-size:.85rem; color:#475569; margin-bottom:0; }
+
+/* ── Hero card ── */
+.dash-hero-card { background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(124,58,237,.1)); border:1px solid rgba(37,99,235,.25); border-radius:20px; padding:28px 32px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.dash-hero-left { display:flex; align-items:center; gap:20px; min-width:0; }
+.dash-big-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:2rem; font-weight:900; color:#fff; flex-shrink:0; box-shadow:0 0 30px rgba(37,99,235,.5); }
+.dash-hero-info { min-width:0; }
+.dash-hero-name { font-family:'Orbitron',monospace; font-size:1.4rem; font-weight:900; color:#fff; letter-spacing:.08em; }
+.dash-hero-level { display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+.dash-level-name { font-family:'Rajdhani',sans-serif; font-size:.9rem; color:#94a3b8; }
+.dash-hero-since { font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#475569; margin-top:4px; }
+.dash-hero-email { font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#334155; margin-top:2px; }
+.dash-hero-right { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+.dash-ring-wrap { position:relative; width:140px; height:140px; display:flex; align-items:center; justify-content:center; }
+.dash-ring-wrap canvas { position:absolute; inset:0; }
+.dash-ring-label { position:relative; text-align:center; z-index:1; }
+.dash-ring-pct { font-family:'Orbitron',monospace; font-size:1.4rem; font-weight:900; color:#a78bfa; line-height:1; }
+.dash-ring-sub { font-family:'Rajdhani',sans-serif; font-size:.72rem; color:#64748b; margin-top:2px; }
+.dash-ring-info { text-align:center; }
+.dash-ring-xp-val { font-family:'Orbitron',monospace; font-size:.78rem; font-weight:700; color:#f59e0b; letter-spacing:.06em; }
+.dash-ring-xp-sub { font-family:'Rajdhani',sans-serif; font-size:.78rem; color:#475569; }
+@media(max-width:640px){ .dash-hero-card { flex-direction:column; padding:20px; } .dash-hero-right { width:100%; } }
+
+/* ── Balance strip ── */
+.dash-balance-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+@media(max-width:700px){ .dash-balance-strip { grid-template-columns:repeat(2,1fr); } }
+.dash-bal-box { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:18px; text-align:center; }
+.dash-bal-box.wolf   { border-color:rgba(167,139,250,.25); background:rgba(167,139,250,.05); }
+.dash-bal-box.battle { border-color:rgba(96,165,250,.25);  background:rgba(96,165,250,.05); }
+.dash-bal-box.winrate{ border-color:rgba(34,197,94,.2);    background:rgba(34,197,94,.04); }
+.dash-bal-icon { font-size:1.5rem; margin-bottom:6px; }
+.dash-bal-val { font-family:'Orbitron',monospace; font-size:1.5rem; font-weight:900; color:#fff; line-height:1; }
+.dash-bal-box.wolf   .dash-bal-val { color:#a78bfa; }
+.dash-bal-box.battle .dash-bal-val { color:#60a5fa; }
+.dash-bal-box.winrate .dash-bal-val { color:#4ade80; }
+.dash-bal-label { font-family:'Orbitron',monospace; font-size:.55rem; letter-spacing:.12em; color:#475569; margin-top:6px; }
+
+/* ── Charts row ── */
+.dash-charts-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:680px){ .dash-charts-row { grid-template-columns:1fr; } }
+.dash-chart-card { display:flex; flex-direction:column; gap:4px; }
+.dash-chart-full { }
+.dash-donut-wrap { position:relative; max-width:240px; margin:16px auto 8px; }
+.dash-chart-empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#334155; }
+.dash-donut-legend { display:flex; flex-wrap:wrap; gap:10px 18px; justify-content:center; margin-top:8px; }
+.dash-legend-row { display:flex; align-items:center; gap:6px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; }
+.dash-legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+/* ── Two-col ── */
+.dash-two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:680px){ .dash-two-col { grid-template-columns:1fr; } }
+
+/* ── Mining card ── */
+.dash-mine-status { display:flex; align-items:center; gap:8px; margin-top:14px; }
+.dash-mine-status .dash-mine-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e; animation:liveActivityPulse 1.8s ease-in-out infinite; flex-shrink:0; }
+.dash-mine-status.idle .dash-mine-dot { background:#475569; box-shadow:none; animation:none; }
+.dash-mine-state { font-family:'Orbitron',monospace; font-size:.62rem; font-weight:700; letter-spacing:.12em; color:#22c55e; }
+.dash-mine-status.idle .dash-mine-state { color:#475569; }
+.dash-mine-progress-wrap { margin-top:12px; }
+.dash-mine-progress-bar { height:6px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+.dash-mine-progress-fill { height:100%; background:linear-gradient(90deg,#2563eb,#a78bfa); border-radius:99px; transition:width 1s linear; }
+.dash-mine-time { font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; margin-top:6px; }
+.dash-mine-stats { display:flex; gap:14px; margin-top:16px; }
+.dash-mine-stat { flex:1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:12px; text-align:center; }
+.dash-mine-val { font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#a78bfa; }
+.dash-mine-label { font-family:'Orbitron',monospace; font-size:.52rem; letter-spacing:.1em; color:#475569; margin-top:4px; }
+.dash-mine-btn { margin-top:16px; width:100%; font-family:'Orbitron',monospace; font-size:.65rem; font-weight:700; letter-spacing:.12em; background:linear-gradient(135deg,rgba(37,99,235,.25),rgba(124,58,237,.2)); border:1px solid rgba(37,99,235,.35); border-radius:10px; color:#60a5fa; padding:12px; cursor:pointer; transition:all .2s; }
+.dash-mine-btn:hover { background:linear-gradient(135deg,rgba(37,99,235,.4),rgba(124,58,237,.35)); box-shadow:0 0 20px rgba(37,99,235,.3); }
+
+/* ── Games list ── */
+.dash-games-list { display:flex; flex-direction:column; gap:0; margin-top:14px; }
+.dash-game-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.dash-game-row:last-child { border-bottom:none; }
+.dash-game-row.soon { opacity:.45; }
+.dash-game-icon { font-size:1.4rem; flex-shrink:0; width:32px; text-align:center; }
+.dash-game-info { flex:1; min-width:0; }
+.dash-game-name { font-family:'Orbitron',monospace; font-size:.62rem; font-weight:700; color:#fff; letter-spacing:.08em; }
+.dash-game-sub { font-family:'Rajdhani',sans-serif; font-size:.8rem; color:#475569; margin-top:1px; }
+.dash-game-stats { text-align:right; flex-shrink:0; }
+.dash-game-stat-val { font-family:'Orbitron',monospace; font-size:.9rem; font-weight:700; color:#a78bfa; }
+.dash-game-stat-label { font-family:'Orbitron',monospace; font-size:.5rem; letter-spacing:.1em; color:#475569; margin-top:2px; }
+
+/* ── Table ── */
+.dash-table-wrap { margin-top:16px; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.06); }
+.dash-table { width:100%; border-collapse:collapse; }
+.dash-table th { font-family:'Orbitron',monospace; font-size:.55rem; letter-spacing:.1em; color:#475569; padding:10px 14px; text-align:left; border-bottom:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.02); white-space:nowrap; }
+.dash-table td { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#94a3b8; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+.dash-table tr:last-child td { border-bottom:none; }
+.dash-table tr:hover td { background:rgba(255,255,255,.02); }
+.dash-table-empty { text-align:center; color:#334155; padding:32px; font-family:'Rajdhani',sans-serif; }
+@media(max-width:600px){ .dash-table thead th:nth-child(3), .dash-table td:nth-child(3) { display:none; } }
+
+/* ── Wallet wrap ── */
+.dash-wallet-wrap { }
+
+/* ── Back btn for profile page ── */
+.dash-page-back { background:none; border:1px solid rgba(255,255,255,.1); color:#94a3b8; font-family:'Rajdhani',sans-serif; font-size:.85rem; letter-spacing:.1em; padding:8px 16px; border-radius:8px; cursor:pointer; margin:20px 20px 0; display:inline-block; }
+.dash-page-back:hover { border-color:rgba(255,255,255,.2); color:#fff; }
+
 /* ── Forgot / Reset password ─────────────────────── */
 .forgot-link { display:block; text-align:right; margin-top:6px; font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:none; transition:color .2s; }
 .forgot-link:hover { color:var(--blue-glow); }
@@ -2615,10 +2721,8 @@
 
 <!-- PROFILE PAGE -->
 <div id="profilePage" style="display:none">
-  <div class="cp-page">
-    <button class="cp-back" onclick="goHome()">← BACK TO ARENA</button>
-    <div id="profileContent"><div class="prof-loading">LOADING PROFILE…</div></div>
-  </div>
+  <button class="dash-page-back" onclick="goHome()">← HOME</button>
+  <div id="profileContent"><div class="prof-loading">LOADING DASHBOARD…</div></div>
 </div>
 
 <!-- BLOG OVERVIEW PAGE -->
@@ -4254,219 +4358,425 @@ function toggleFaq(item) {
   if (!isOpen) item.classList.add('open');
 }
 
+let _profCharts = {};
+
 async function loadProfile() {
   const el = document.getElementById('profileContent');
   if (!el) return;
-  el.innerHTML = '<div class="prof-loading">LOADING PROFILE…</div>';
+  el.innerHTML = '<div class="prof-loading">LOADING DASHBOARD…</div>';
   const session = getSession();
   if (!session?.tok) { el.innerHTML = '<div class="prof-loading">Please log in to view your profile.</div>'; return; }
   try {
     const res = await fetch('/api/veloxfi/profile', { headers: { Authorization: `Bearer ${session.tok}` } });
     if (!res.ok) throw new Error('fetch failed');
     const d = await res.json();
+
+    // Destroy any existing chart instances before re-render
+    Object.values(_profCharts).forEach(c => { try { c.destroy(); } catch {} });
+    _profCharts = {};
+
     const joined = d.createdAt ? new Date(d.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
     const winPct = d.stats.winPct;
     const pctColor = winPct >= 60 ? 'win' : winPct >= 40 ? '' : 'loss';
 
+    // ── Computed values ──────────────────────────────
+    const xpInfo   = getXPInfo(d.xp ?? 0);
+    const xpPct    = xpInfo.nextLevelXP > 0 ? Math.min((xpInfo.currentLevelXP / xpInfo.nextLevelXP) * 100, 100) : 100;
+    const lvlBadge = getLevelBadgeHTML(d.xp ?? 0, 'med');
+
+    // Mining status
+    const miningStart    = d.wolfMiningStart ? new Date(d.wolfMiningStart).getTime() : null;
+    const MINE_DUR       = 4 * 60 * 60 * 1000;
+    const miningActive   = !!(miningStart && (Date.now() - miningStart) < MINE_DUR);
+    const miningRemMs    = miningActive ? MINE_DUR - (Date.now() - miningStart) : 0;
+    const miningPct      = miningActive ? ((Date.now() - miningStart) / MINE_DUR) * 100 : 0;
+    const miningHr       = Math.floor(miningRemMs / 3600000);
+    const miningMin      = Math.floor((miningRemMs % 3600000) / 60000);
+    const miningTimeStr  = miningActive ? `${miningHr}h ${miningMin}m remaining` : 'Ready to mine';
+
+    // Last 7 days arrays
+    const last7 = Array.from({length:7}, (_, i) => { const d2=new Date(); d2.setDate(d2.getDate()-(6-i)); return d2; });
+    const dayLabels = last7.map(d2 => d2.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    const battlesPerDay = last7.map(day => {
+      const s=new Date(day); s.setHours(0,0,0,0); const e=new Date(day); e.setHours(23,59,59,999);
+      return d.battles.filter(b=>{ const t=new Date(b.createdAt); return t>=s&&t<=e; }).length;
+    });
+    const tokensPerDay = last7.map(day => {
+      const s=new Date(day); s.setHours(0,0,0,0); const e=new Date(day); e.setHours(23,59,59,999);
+      return d.battles.filter(b=>{ const t=new Date(b.createdAt); return t>=s&&t<=e; })
+        .reduce((sum,b)=>sum+(b.tokensEarned||0),0);
+    });
+
+    // Battle timeframe breakdown for donut
+    const tf5  = d.battles.filter(b=>b.timeframe===300).length;
+    const tf15 = d.battles.filter(b=>b.timeframe===900).length;
+    const tf30 = d.battles.filter(b=>b.timeframe===1800).length;
+    const noDonut = tf5+tf15+tf30===0;
+
+    // Missions
+    const missions = d.missions || {
+      date: new Date().toISOString().slice(0,10),
+      battlesPlayed:0,thirtyMinWins:0,teamBattles:0,referrals:0,
+      m1Rewarded:false,m2Rewarded:false,m3Rewarded:false,m4Rewarded:false,
+    };
+
+    // Battle history rows
     const histRows = d.battles.length === 0
-      ? `<tr><td colspan="6" class="ph-empty">No battles yet — start playing to build your history!</td></tr>`
-      : d.battles.map(b => {
-          const timeLabel = b.timeframe < 60 ? `${b.timeframe}s` : `${b.timeframe/60}m`;
-          const dtStr = new Date(b.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-          const badgeClass = b.result === 'win' ? 'win' : b.result === 'draw' ? 'draw' : 'loss';
-          const badgeText  = b.result === 'win' ? '⚔️ WON' : b.result === 'draw' ? '— DRAW' : '✗ LOST';
-          const tokStr = b.tokensEarned > 0 ? `+${b.tokensEarned} ⚔️` : '—';
+      ? `<tr><td colspan="5" class="dash-table-empty">No battles yet — start playing!</td></tr>`
+      : d.battles.slice(0,20).map(b => {
+          const tl = b.timeframe<60?`${b.timeframe}s`:`${b.timeframe/60}m`;
+          const dt = new Date(b.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          const bc = b.result==='win'?'win':b.result==='draw'?'draw':'loss';
+          const bt = b.result==='win'?'⚔️ WON':b.result==='draw'?'— DRAW':'✗ LOST';
+          const tk = b.tokensEarned>0?`<span style="color:#60a5fa;font-family:Orbitron,monospace;font-size:.78rem">+${b.tokensEarned} ⚔️</span>`:`<span style="color:#334155">—</span>`;
           return `<tr>
-            <td><span style="font-size:1.1em">${b.coinAEmoji||''}</span> ${b.coinAName} <span style="color:#475569">vs</span> <span style="font-size:1.1em">${b.coinBEmoji||''}</span> ${b.coinBName}</td>
-            <td style="color:var(--text-dim)">${timeLabel}</td>
-            <td><span class="ph-badge ${badgeClass}">${badgeText}</span></td>
-            <td style="color:var(--blue-glow);font-family:Orbitron,monospace;font-size:.78rem">${tokStr}</td>
-            <td style="color:#475569;font-size:.82rem">${dtStr}</td>
+            <td><span style="color:#64748b;font-size:.8rem">${dt}</span></td>
+            <td><span style="font-family:Orbitron,monospace;font-size:.7rem;color:#cbd5e1">${b.coinAName||'?'} <span style="color:#334155">vs</span> ${b.coinBName||'?'}</span></td>
+            <td><span style="color:#64748b;font-size:.8rem">${tl}</span></td>
+            <td><span class="ph-badge ${bc}">${bt}</span></td>
+            <td>${tk}</td>
           </tr>`;
         }).join('');
 
-    const xpInfo = getXPInfo(d.xp ?? 0);
-    const xpPct  = xpInfo.nextLevelXP > 0 ? Math.min((xpInfo.currentLevelXP / xpInfo.nextLevelXP) * 100, 100) : 100;
-    const lvlBadge = getLevelBadgeHTML(d.xp ?? 0, 'med');
-
-    const missions = d.missions || {
-      date: new Date().toISOString().slice(0,10),
-      battlesPlayed: 0, thirtyMinWins: 0, teamBattles: 0, referrals: 0,
-      m1Rewarded: false, m2Rewarded: false, m3Rewarded: false, m4Rewarded: false,
-    };
-
-    el.innerHTML = `
-      <div class="prof-header">
-        <div class="prof-avatar">${d.username.charAt(0).toUpperCase()}</div>
-        <div class="prof-info">
-          <div class="prof-username" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${d.username.toUpperCase()} ${lvlBadge}</div>
-          <div class="prof-email">${d.email}</div>
-          ${joined ? `<div class="prof-member">Member since ${joined}</div>` : ''}
+    // Active battle HTML
+    const activeBattleHtml = d.activeBattle ? (() => {
+      const ab = d.activeBattle;
+      const rem = Math.max(0, ab.endTime - Date.now());
+      const mm = Math.floor(rem/60000), ss = Math.floor((rem%60000)/1000);
+      return `<div class="prof-ab-card" style="margin:0">
+        <div class="prof-ab-icon">⚔️</div>
+        <div class="prof-ab-info">
+          <div class="prof-ab-label">⚡ ACTIVE BATTLE</div>
+          <div class="prof-ab-coins">${(ab.coinAName||'?').toUpperCase()} VS ${(ab.coinBName||'?').toUpperCase()}</div>
+          <div class="prof-ab-time">${rem>0?`${mm}:${String(ss).padStart(2,'0')} remaining`:'Battle ending…'}</div>
         </div>
-        <div class="prof-balance-box">
-          <div class="prof-balance-val">${d.tokens.toLocaleString()}</div>
-          <div class="prof-balance-label">$BATTLE TOKENS</div>
-          ${d.tokens > 0 && d.walletAddress ? `<button class="prof-claim-btn gold" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM $BATTLE</button>` : ''}
-          ${d.tokens > 0 && !d.walletAddress ? `<button class="prof-claim-btn add-wallet" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>` : ''}
-        </div>
-      </div>
-
-      <div class="prof-xp-card">
-        <div class="prof-xp-header">
-          <span>${lvlBadge.replace('med','lg')}</span>
-          <span class="prof-xp-right">${xpInfo.totalXP.toLocaleString()} Total XP${xpInfo.level < 50 ? ` · ${xpInfo.currentLevelXP}/${xpInfo.nextLevelXP} to LV${xpInfo.level+1}` : ' · MAX LEVEL'}</span>
-        </div>
-        <div class="prof-xp-bar-bg">
-          <div class="prof-xp-bar-fill" style="width:${xpPct.toFixed(2)}%"></div>
-        </div>
-        <div class="prof-xp-labels">
-          <span>LV${xpInfo.level}</span>
-          ${xpInfo.level < 50 ? `<span>LV${xpInfo.level+1}</span>` : '<span>LEGEND</span>'}
-        </div>
-      </div>
-
-      ${d.activeBattle ? (() => {
-        const ab = d.activeBattle;
-        const remaining = Math.max(0, ab.endTime - Date.now());
-        const mins = Math.floor(remaining/60000);
-        const secs = Math.floor((remaining%60000)/1000);
-        const timeStr = remaining > 0 ? `${mins}:${String(secs).padStart(2,'0')} remaining` : 'Battle ending…';
-        return `<div class="prof-ab-card">
-          <div class="prof-ab-icon">⚔️</div>
-          <div class="prof-ab-info">
-            <div class="prof-ab-label">⚡ ACTIVE BATTLE</div>
-            <div class="prof-ab-coins">${(ab.coinAName||ab.coinAId||'?').toUpperCase()} VS ${(ab.coinBName||ab.coinBId||'?').toUpperCase()}</div>
-            <div class="prof-ab-time">${timeStr}</div>
-          </div>
-          <button class="prof-ab-btn" onclick="goToActiveBattle()">BACK TO BATTLE →</button>
-        </div>`;
-      })() : ''}
-
-      <div class="ref-section">
-        <div class="ref-section-title">🎁 YOUR REFERRAL LINK</div>
-        <div class="ref-link-row">
-          <div class="ref-link-box" id="refLinkBox">${location.origin}/?ref=${d.username}</div>
-          <button class="ref-copy-btn" onclick="copyRefLink('${d.username}')">COPY LINK</button>
-        </div>
-        <div class="ref-reward-hint">🎁 Share your link and you both earn <strong>3 bonus $BATTLE tokens</strong> when your friend signs up!</div>
-        <div class="ref-stats-row">
-          <div class="ref-stat"><div class="ref-stat-val">${d.referralCount || 0}</div><div class="ref-stat-label">FRIENDS REFERRED</div></div>
-          <div class="ref-stat"><div class="ref-stat-val gold">${d.referralTokens || 0}</div><div class="ref-stat-label">BONUS TOKENS EARNED</div></div>
-        </div>
-      </div>
-
-      <div class="prof-wallet-section">
-        <div class="prof-wallet-title">💎 CLAIM $BATTLE TOKENS</div>
-        <div class="prof-wallet-desc">$BATTLE is now LIVE on Solana! Paste your Solana wallet address below to register for the airdrop. Claims are processed within 24 hours on weekdays.</div>
-        <div class="prof-wallet-row">
-          <input type="text" class="prof-wallet-input" id="walletInput" placeholder="Solana wallet address (e.g. 7xKj…9mNp)" value="${d.walletAddress || ''}" spellcheck="false" autocomplete="off">
-          <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
-        </div>
-        ${d.claimedAt ? `<div class="prof-wallet-saved-badge">✅ TOKENS SENT — ${new Date(d.claimedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>` : d.walletAddress ? `<div class="prof-wallet-msg ok">✓ Wallet address saved. You're registered for the $BATTLE airdrop.</div>` : `<div class="prof-wallet-msg" id="walletSaveMsg"></div>`}
-      </div>
-
-      <div class="cp-section-title" style="margin-bottom:16px">BATTLE STATISTICS</div>
-      <div class="prof-stats-grid">
-        <div class="prof-stat"><div class="prof-stat-val">${d.stats.totalBattles}</div><div class="prof-stat-label">BATTLES PLAYED</div></div>
-        <div class="prof-stat"><div class="prof-stat-val win">${d.stats.totalWins}</div><div class="prof-stat-label">BATTLES WON</div></div>
-        <div class="prof-stat"><div class="prof-stat-val loss">${d.stats.totalLosses}</div><div class="prof-stat-label">BATTLES LOST</div></div>
-        <div class="prof-stat"><div class="prof-stat-val ${pctColor}">${winPct}%</div><div class="prof-stat-label">WIN RATE</div></div>
-        <div class="prof-stat"><div class="prof-stat-val tokens">${d.stats.totalTokens}</div><div class="prof-stat-label">ALL-TIME TOKENS</div></div>
-      </div>
-
-      <div class="cp-section-title" style="margin-bottom:16px">BATTLE HISTORY</div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;overflow:hidden">
-        <table class="prof-history-table">
-          <thead><tr>
-            <th>COINS</th><th>TIME</th><th>RESULT</th><th>EARNED</th><th>DATE</th>
-          </tr></thead>
-          <tbody>${histRows}</tbody>
-        </table>
-      </div>
-
-      <div class="mission-section-title">DAILY MISSIONS</div>
-
-      <div class="missions-info" id="missionsInfo">
-        <button class="gamif-toggle" onclick="document.getElementById('missionsInfo').classList.toggle('open')">
-          <span class="gamif-qmark">?</span>
-          <span class="gamif-toggle-label">HOW DO DAILY MISSIONS WORK?</span>
-          <span class="gamif-arrow">▼</span>
-        </button>
-        <div class="gamif-body">
-          <div class="gamif-rows">
-            <div class="gamif-row"><span class="gamif-row-icon">🕛</span><span class="gamif-row-text">Missions <strong>reset every day at midnight UTC</strong>. A fresh set of 4 missions becomes available every 24 hours.</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">💰</span><span class="gamif-row-text">Completing missions earns <strong>bonus $BATTLE tokens</strong> on top of your normal battle rewards. Tokens are awarded instantly when a mission is completed.</span></div>
-          </div>
-          <div class="gamif-subtitle" style="margin-top:14px">Today's Missions</div>
-          <div class="gamif-rows">
-            <div class="gamif-row"><span class="gamif-row-icon">⚔️</span><span class="gamif-row-text"><strong>Play 3 Battles</strong> — earn +2 $BATTLE bonus tokens</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">💎</span><span class="gamif-row-text"><strong>Win a 30-Min Battle</strong> — earn +3 $BATTLE bonus tokens</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">🛡️</span><span class="gamif-row-text"><strong>Play a Team Battle</strong> — earn +1 $BATTLE bonus token</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">🎁</span><span class="gamif-row-text"><strong>Invite Someone</strong> — earn +3 $BATTLE bonus tokens when a friend registers with your referral link</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mission-cards">
-        ${buildMissionCardsHtml(missions)}
-      </div>
-
-      <div class="ach-section-title">ACHIEVEMENTS</div>
-
-      <div class="gamif-info" id="gamifInfo">
-        <button class="gamif-toggle" onclick="document.getElementById('gamifInfo').classList.toggle('open')">
-          <span class="gamif-qmark">?</span>
-          <span class="gamif-toggle-label">HOW DO XP &amp; LEVELS WORK?</span>
-          <span class="gamif-arrow">▼</span>
-        </button>
-        <div class="gamif-body">
-          <div class="gamif-subtitle">How XP is Earned</div>
-          <div class="gamif-rows">
-            <div class="gamif-row"><span class="gamif-row-icon">⚔️</span><span class="gamif-row-text"><strong>+10 XP</strong> for every battle played</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">🎯</span><span class="gamif-row-text"><strong>+25 XP</strong> for winning a 5-min or 15-min battle (total 35 XP)</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">💎</span><span class="gamif-row-text"><strong>+50 XP</strong> for winning a 30-min battle (total 60 XP — hardest timeframe)</span></div>
-            <div class="gamif-row"><span class="gamif-row-icon">🎁</span><span class="gamif-row-text"><strong>+5 XP</strong> awarded to you when a friend registers with your referral link</span></div>
-          </div>
-
-          <div class="gamif-subtitle">Level Tiers (Levels 1–50)</div>
-          <div class="gamif-lvl-grid">
-            <div class="gamif-lvl-row"><span class="lvl-badge rookie sm">LV1–5</span><span class="gamif-row-text" style="color:var(--text-dim)">Rookie Wolf &mdash; 100 XP/level</span></div>
-            <div class="gamif-lvl-row"><span class="lvl-badge battle sm">LV6–10</span><span class="gamif-row-text" style="color:var(--text-dim)">Battle Wolf &mdash; 150 XP/level</span></div>
-            <div class="gamif-lvl-row"><span class="lvl-badge alpha sm">LV11–20</span><span class="gamif-row-text" style="color:var(--text-dim)">Alpha Wolf &mdash; 200 XP/level</span></div>
-            <div class="gamif-lvl-row"><span class="lvl-badge cyber sm">LV21–35</span><span class="gamif-row-text" style="color:var(--text-dim)">Cyber Wolf &mdash; 300 XP/level</span></div>
-            <div class="gamif-lvl-row"><span class="lvl-badge legend sm">LV36–50</span><span class="gamif-row-text" style="color:var(--text-dim)">Legend Wolf &mdash; 500 XP/level</span></div>
-          </div>
-
-          <div class="gamif-subtitle">All Achievements</div>
-          <div class="gamif-ach-grid">
-            ${ACHIEVEMENTS.map(a => `<div class="gamif-ach-row">
-              <span class="gamif-ach-emoji">${a.emoji}</span>
-              <span class="gamif-ach-name">${a.name}</span>
-              <span class="gamif-ach-req">${a.desc}</span>
-            </div>`).join('')}
-          </div>
-        </div>
-      </div>
-
-      <div class="ach-grid">
-        ${ACHIEVEMENTS.map(def => {
-          const earned = (d.achievements || []).find(a => a.id === def.id);
-          const dateStr = earned
-            ? new Date(earned.earnedAt).toLocaleDateString('en', { month:'short', day:'numeric', year:'numeric' })
-            : '';
-          const inlineStyle = earned
-            ? `style="--ach-color:${def.color};--ach-glow:${def.glow}"`
-            : '';
-          return `<div class="ach-card${earned ? '' : ' locked'}" ${inlineStyle}>
-            <span class="ach-emoji">${earned ? def.emoji : '🔒'}</span>
-            <div class="ach-name">${def.name}</div>
-            <div class="ach-desc">${def.desc}</div>
-            ${earned ? `<div class="ach-date">Earned ${dateStr}</div>` : ''}
-          </div>`;
-        }).join('')}
+        <button class="prof-ab-btn" onclick="goToActiveBattle()">GO TO BATTLE →</button>
       </div>`;
+    })() : '';
+
+    // Achievements grid
+    const achHtml = ACHIEVEMENTS.map(def => {
+      const earned = (d.achievements||[]).find(a=>a.id===def.id);
+      const dateStr = earned ? new Date(earned.earnedAt).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'}) : '';
+      const inlineStyle = earned ? `style="--ach-color:${def.color};--ach-glow:${def.glow}"` : '';
+      return `<div class="ach-card${earned?'':' locked'}" ${inlineStyle}>
+        <span class="ach-emoji">${earned?def.emoji:'🔒'}</span>
+        <div class="ach-name">${def.name}</div>
+        <div class="ach-desc">${def.desc}</div>
+        ${earned?`<div class="ach-date">Earned ${dateStr}</div>`:''}
+      </div>`;
+    }).join('');
+
+    // ── Render dashboard ──────────────────────────────
+    el.innerHTML = `<div class="dash-wrap">
+
+  <!-- 1. PLAYER HERO CARD -->
+  <div class="dash-hero-card">
+    <div class="dash-hero-left">
+      <div class="dash-big-avatar">${d.username.charAt(0).toUpperCase()}</div>
+      <div class="dash-hero-info">
+        <div class="dash-hero-name">${d.username.toUpperCase()}</div>
+        <div class="dash-hero-level">${lvlBadge} <span class="dash-level-name">${xpInfo.levelName}</span></div>
+        ${joined?`<div class="dash-hero-since">Member since ${joined}</div>`:''}
+        <div class="dash-hero-email">${d.email}</div>
+      </div>
+    </div>
+    <div class="dash-hero-right">
+      <div class="dash-ring-wrap">
+        <canvas id="dashChartRing" width="140" height="140"></canvas>
+        <div class="dash-ring-label">
+          <div class="dash-ring-pct">${Math.round(xpPct)}%</div>
+          <div class="dash-ring-sub">${xpInfo.level<50?`to LV${xpInfo.level+1}`:'MAX'}</div>
+        </div>
+      </div>
+      <div class="dash-ring-info">
+        <div class="dash-ring-xp-val">${(xpInfo.totalXP).toLocaleString()} XP</div>
+        <div class="dash-ring-xp-sub">${xpInfo.currentLevelXP} / ${xpInfo.nextLevelXP} to level up</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active battle banner (if any) -->
+  ${activeBattleHtml?`<div>${activeBattleHtml}</div>`:''}
+
+  <!-- 2. BALANCE + STATS STRIP -->
+  <div class="dash-balance-strip">
+    <div class="dash-bal-box wolf">
+      <div class="dash-bal-icon">🐺</div>
+      <div class="dash-bal-val">${(d.wolf??0).toLocaleString()}</div>
+      <div class="dash-bal-label">WOLF BALANCE</div>
+    </div>
+    <div class="dash-bal-box battle">
+      <div class="dash-bal-icon">⚔️</div>
+      <div class="dash-bal-val">${d.tokens.toLocaleString()}</div>
+      <div class="dash-bal-label">$BATTLE BALANCE</div>
+    </div>
+    <div class="dash-bal-box battles-count">
+      <div class="dash-bal-icon">🎮</div>
+      <div class="dash-bal-val">${d.stats.totalBattles}</div>
+      <div class="dash-bal-label">BATTLES PLAYED</div>
+    </div>
+    <div class="dash-bal-box winrate">
+      <div class="dash-bal-icon">🏆</div>
+      <div class="dash-bal-val">${winPct}%</div>
+      <div class="dash-bal-label">WIN RATE</div>
+    </div>
+  </div>
+
+  <!-- 3. CHARTS ROW -->
+  <div class="dash-charts-row">
+    <div class="dash-card dash-chart-card">
+      <div class="dash-card-title">⚔️ BATTLE TIMEFRAMES</div>
+      <div class="dash-card-sub">Distribution of battles by timeframe</div>
+      <div class="dash-donut-wrap">
+        <canvas id="dashChartDonut" height="200"></canvas>
+        ${noDonut?'<div class="dash-chart-empty">No battles yet</div>':''}
+      </div>
+      <div class="dash-donut-legend">
+        <div class="dash-legend-row"><span class="dash-legend-dot" style="background:#60a5fa"></span><span>5 min — ${tf5}</span></div>
+        <div class="dash-legend-row"><span class="dash-legend-dot" style="background:#a78bfa"></span><span>15 min — ${tf15}</span></div>
+        <div class="dash-legend-row"><span class="dash-legend-dot" style="background:#7c3aed"></span><span>30 min — ${tf30}</span></div>
+      </div>
+    </div>
+    <div class="dash-card dash-chart-card">
+      <div class="dash-card-title">📊 DAILY ACTIVITY</div>
+      <div class="dash-card-sub">Battles played — last 7 days</div>
+      <canvas id="dashChartBar" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Line chart — full width -->
+  <div class="dash-card dash-chart-full">
+    <div class="dash-card-title">📈 $BATTLE EARNINGS TREND</div>
+    <div class="dash-card-sub">$BATTLE tokens earned per day — last 7 days</div>
+    <canvas id="dashChartLine" height="100" style="margin-top:16px"></canvas>
+  </div>
+
+  <!-- 4. MINING STATUS + GAMES ACTIVITY -->
+  <div class="dash-two-col">
+    <div class="dash-card dash-mine-card">
+      <div class="dash-card-title">⛏️ MINING STATUS</div>
+      <div class="dash-mine-status ${miningActive?'active':'idle'}">
+        <div class="dash-mine-dot"></div>
+        <div class="dash-mine-state">${miningActive?'MINING ACTIVE':'READY TO MINE'}</div>
+      </div>
+      ${miningActive?`<div class="dash-mine-progress-wrap">
+        <div class="dash-mine-progress-bar"><div class="dash-mine-progress-fill" style="width:${miningPct.toFixed(1)}%"></div></div>
+        <div class="dash-mine-time">${miningTimeStr}</div>
+      </div>`:''}
+      <div class="dash-mine-stats">
+        <div class="dash-mine-stat"><div class="dash-mine-val">${(d.wolf??0).toLocaleString()}</div><div class="dash-mine-label">WOLF BALANCE</div></div>
+        <div class="dash-mine-stat"><div class="dash-mine-val">240</div><div class="dash-mine-label">WOLF / SESSION</div></div>
+      </div>
+      <button class="dash-mine-btn" onclick="goHome()">${miningActive?'⛏️ VIEW MINING':'⛏️ MINE NOW'}</button>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">🎮 GAMES ACTIVITY</div>
+      <div class="dash-games-list">
+        <div class="dash-game-row">
+          <div class="dash-game-icon">⛏️</div>
+          <div class="dash-game-info"><div class="dash-game-name">MINING</div><div class="dash-game-sub">Passive WOLF earning</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val">${(d.wolf??0).toLocaleString()}</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>
+        <div class="dash-game-row">
+          <div class="dash-game-icon">⚔️</div>
+          <div class="dash-game-info"><div class="dash-game-name">BATTLE PREDICTION</div><div class="dash-game-sub">${d.stats.totalBattles} played · ${d.stats.totalWins} wins</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val">${d.stats.totalTokens}</div><div class="dash-game-stat-label">$BATTLE</div></div>
+        </div>
+        <div class="dash-game-row soon">
+          <div class="dash-game-icon">🚀</div>
+          <div class="dash-game-info"><div class="dash-game-name">ROCKET MINER</div><div class="dash-game-sub">Arcade shooter</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>
+        <div class="dash-game-row soon">
+          <div class="dash-game-icon">🐍</div>
+          <div class="dash-game-info"><div class="dash-game-name">CRYPTO SNAKE</div><div class="dash-game-sub">Coming soon</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>
+        <div class="dash-game-row soon">
+          <div class="dash-game-icon">🧱</div>
+          <div class="dash-game-info"><div class="dash-game-name">BATTLE TETRIS</div><div class="dash-game-sub">Coming soon</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>
+        <div class="dash-game-row soon">
+          <div class="dash-game-icon">🐺</div>
+          <div class="dash-game-info"><div class="dash-game-name">WOLF RUN</div><div class="dash-game-sub">Coming soon</div></div>
+          <div class="dash-game-stats"><div class="dash-game-stat-val" style="color:#334155">—</div><div class="dash-game-stat-label">WOLF</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. RECENT ACTIVITY TABLE -->
+  <div class="dash-card">
+    <div class="dash-card-title">📋 RECENT BATTLE ACTIVITY</div>
+    <div class="dash-card-sub">Last ${Math.min(d.battles.length,20)} battles</div>
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>DATE</th><th>BATTLE</th><th>TIME</th><th>RESULT</th><th>EARNED</th></tr></thead>
+        <tbody>${histRows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 6. ACHIEVEMENTS -->
+  <div class="dash-card">
+    <div class="dash-card-title">🏅 ACHIEVEMENTS</div>
+    <div class="dash-card-sub">${(d.achievements||[]).length} / ${ACHIEVEMENTS.length} earned</div>
+    <div class="ach-grid" style="margin-top:18px">${achHtml}</div>
+  </div>
+
+  <!-- 7. DAILY MISSIONS -->
+  <div class="dash-card">
+    <div class="dash-card-title">🎯 DAILY MISSIONS</div>
+    <div class="dash-card-sub">Resets at midnight UTC</div>
+    <div class="mission-cards" style="margin-top:16px">${buildMissionCardsHtml(missions)}</div>
+  </div>
+
+  <!-- 8. WALLET & CLAIM -->
+  <div class="dash-card">
+    <div class="dash-card-title">💎 WALLET &amp; CLAIM</div>
+    <div class="dash-card-sub">Register your Solana wallet to claim $BATTLE tokens</div>
+    <div class="prof-wallet-row" style="margin-top:18px">
+      <input type="text" class="prof-wallet-input" id="walletInput"
+        placeholder="Solana wallet address (e.g. 7xKj…9mNp)"
+        value="${d.walletAddress||''}" spellcheck="false" autocomplete="off">
+      <button class="prof-wallet-save" onclick="saveWalletAddress()" id="walletSaveBtn">SAVE</button>
+    </div>
+    ${d.claimedAt
+      ? `<div class="prof-wallet-saved-badge">✅ TOKENS SENT — ${new Date(d.claimedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>`
+      : d.walletAddress
+        ? `<div class="prof-wallet-msg ok">✓ Wallet saved. You're registered for the $BATTLE airdrop.</div>`
+        : `<div class="prof-wallet-msg" id="walletSaveMsg"></div>`}
+    ${d.tokens>0&&d.walletAddress&&!d.claimedAt
+      ? `<button class="prof-claim-btn gold" style="margin-top:16px;width:100%" onclick="openClaimConfirm(${d.tokens},'${d.walletAddress.replace(/'/g,"\\'")}')">💎 CLAIM ${d.tokens} $BATTLE TOKENS</button>`
+      : d.tokens>0&&!d.walletAddress
+        ? `<button class="prof-claim-btn add-wallet" style="margin-top:16px;width:100%" onclick="document.getElementById('walletInput')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('walletInput')?.focus()">ADD WALLET TO CLAIM</button>`
+        : ''}
+  </div>
+
+  <!-- 9. REFERRAL -->
+  <div class="dash-card">
+    <div class="dash-card-title">🎁 REFERRAL PROGRAM</div>
+    <div class="dash-card-sub">You both earn 3 bonus $BATTLE tokens when a friend signs up</div>
+    <div class="ref-link-row" style="margin-top:16px">
+      <div class="ref-link-box" id="refLinkBox">${location.origin}/?ref=${d.username}</div>
+      <button class="ref-copy-btn" onclick="copyRefLink('${d.username}')">COPY LINK</button>
+    </div>
+    <div class="ref-stats-row" style="margin-top:14px">
+      <div class="ref-stat"><div class="ref-stat-val">${d.referralCount||0}</div><div class="ref-stat-label">FRIENDS REFERRED</div></div>
+      <div class="ref-stat"><div class="ref-stat-val gold">${d.referralTokens||0}</div><div class="ref-stat-label">BONUS TOKENS EARNED</div></div>
+    </div>
+  </div>
+
+</div>`;
+
+    // ── Initialize Chart.js charts ──────────────────
+    requestAnimationFrame(() => {
+      const chartTick  = { color:'#475569', font:{ size:11 } };
+      const chartGrid  = { color:'rgba(255,255,255,0.04)' };
+
+      // 1. XP Progress Ring
+      const ringEl = document.getElementById('dashChartRing');
+      if (ringEl) {
+        _profCharts.ring = new Chart(ringEl, {
+          type:'doughnut',
+          data:{ datasets:[{
+            data:[xpInfo.currentLevelXP, Math.max(0,xpInfo.nextLevelXP-xpInfo.currentLevelXP)],
+            backgroundColor:['rgba(124,58,237,0.9)','rgba(255,255,255,0.05)'],
+            borderWidth:0,
+          }]},
+          options:{
+            cutout:'76%', responsive:false,
+            animation:{ duration:900, easing:'easeOutQuart' },
+            plugins:{ legend:{display:false}, tooltip:{enabled:false} },
+          }
+        });
+      }
+
+      // 2. Battle Timeframes Donut
+      const donutEl = document.getElementById('dashChartDonut');
+      if (donutEl) {
+        _profCharts.donut = new Chart(donutEl, {
+          type:'doughnut',
+          data:{
+            labels:['5 min','15 min','30 min'],
+            datasets:[{
+              data: noDonut?[1,1,1]:[tf5,tf15,tf30],
+              backgroundColor: noDonut
+                ? ['rgba(255,255,255,0.05)','rgba(255,255,255,0.05)','rgba(255,255,255,0.05)']
+                : ['rgba(96,165,250,0.85)','rgba(167,139,250,0.85)','rgba(124,58,237,0.85)'],
+              borderWidth:0, hoverOffset:6,
+            }]
+          },
+          options:{
+            cutout:'60%', responsive:true, maintainAspectRatio:true,
+            plugins:{
+              legend:{display:false},
+              tooltip:{ enabled:!noDonut, callbacks:{ label:ctx=>` ${ctx.label}: ${ctx.parsed} battles` } },
+            },
+          }
+        });
+      }
+
+      // 3. Daily Activity Bar
+      const barEl = document.getElementById('dashChartBar');
+      if (barEl) {
+        _profCharts.bar = new Chart(barEl, {
+          type:'bar',
+          data:{
+            labels:dayLabels,
+            datasets:[{
+              label:'Battles',
+              data:battlesPerDay,
+              backgroundColor:'rgba(37,99,235,0.55)',
+              borderColor:'rgba(37,99,235,0.85)',
+              borderWidth:1, borderRadius:6,
+            }]
+          },
+          options:{
+            responsive:true, maintainAspectRatio:true,
+            scales:{
+              x:{ grid:chartGrid, ticks:chartTick },
+              y:{ grid:chartGrid, ticks:{...chartTick,stepSize:1}, beginAtZero:true },
+            },
+            plugins:{ legend:{display:false} },
+          }
+        });
+      }
+
+      // 4. Earnings Trend Line
+      const lineEl = document.getElementById('dashChartLine');
+      if (lineEl) {
+        _profCharts.line = new Chart(lineEl, {
+          type:'line',
+          data:{
+            labels:dayLabels,
+            datasets:[{
+              label:'$BATTLE Earned',
+              data:tokensPerDay,
+              borderColor:'rgba(167,139,250,0.9)',
+              backgroundColor:'rgba(124,58,237,0.08)',
+              borderWidth:2, fill:true, tension:0.4,
+              pointBackgroundColor:'rgba(167,139,250,1)',
+              pointRadius:4, pointHoverRadius:6,
+            }]
+          },
+          options:{
+            responsive:true, maintainAspectRatio:true,
+            scales:{
+              x:{ grid:chartGrid, ticks:chartTick },
+              y:{ grid:chartGrid, ticks:chartTick, beginAtZero:true },
+            },
+            plugins:{ legend:{display:false} },
+          }
+        });
+      }
+    });
+
   } catch(e) {
-    el.innerHTML = '<div class="prof-loading">Failed to load profile. Try again.</div>';
+    console.error('loadProfile error:', e);
+    el.innerHTML = '<div class="prof-loading">Failed to load dashboard. Try again.</div>';
   }
 }
 

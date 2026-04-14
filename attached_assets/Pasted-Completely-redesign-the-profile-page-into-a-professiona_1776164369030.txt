@@ -1,0 +1,24 @@
+Completely redesign the profile page into a professional player dashboard. The new dashboard should have these sections:
+
+TOP SECTION — Player card with avatar (first letter of username), username, level badge, member since date, and two large balance boxes showing WOLF balance and $BATTLE balance side by side.
+MINING STATUS — A card showing current mining session status, time remaining in the session, total WOLF mined all time, and a button to go mine if not currently mining.
+EARNINGS OVERVIEW — Four stat cards in a row: Total WOLF earned, Total $BATTLE earned, Total games played, Win rate percentage.
+GAMES ACTIVITY — A card showing how many times each game has been played and total WOLF earned per game. Show Mining, Rocket Miner, Crypto Snake, Battle Tetris, Wolf Run and Battle Prediction separately.
+RECENT ACTIVITY — A table showing the last 20 activities including mining sessions, games played, battles and conversions with date, activity type, and WOLF/BATTLE earned.
+ACHIEVEMENTS — Show all earned badges with icon and name, and locked achievements shown greyed out.
+WALLET & CLAIM SECTION — Solana wallet address field, claim button, and pending claims status.
+
+Style everything in the same dark VeloxFi theme with blue and purple accents. Make it look like a professional gaming dashboard.
+Voeg hieraan toe dat ze deze gegevens kunnen zien met tabels en cirkels. Echt een mooie proffesionele dashboard.12:59Zeg dit tegen Replit AI:
+
+Completely redesign the profile page into a professional player dashboard. The new dashboard should have these sections:
+
+TOP SECTION — Player card with avatar (first letter of username), username, level badge, member since date, and two large balance boxes showing WOLF balance and $BATTLE balance side by side.
+MINING STATUS — A card showing current mining session status, time remaining in the session, total WOLF mined all time, and a button to go mine if not currently mining.
+EARNINGS OVERVIEW — Four stat cards in a row: Total WOLF earned, Total $BATTLE earned, Total games played, Win rate percentage.
+GAMES ACTIVITY — A card showing how many times each game has been played and total WOLF earned per game. Show Mining, Rocket Miner, Crypto Snake, Battle Tetris, Wolf Run and Battle Prediction separately.
+RECENT ACTIVITY — A table showing the last 20 activities including mining sessions, games played, battles and conversions with date, activity type, and WOLF/BATTLE earned.
+ACHIEVEMENTS — Show all earned badges with icon and name, and locked achievements shown greyed out.
+WALLET & CLAIM SECTION — Solana wallet address field, claim button, and pending claims status.
+
+For the visual design use Chart.js to add: a donut chart showing the distribution of WOLF earned per game type, a line chart showing WOLF earnings over the last 7 days, a circular progress ring showing progress to next level, and a bar chart showing daily activity for the last 7 days. Make all charts match the dark VeloxFi theme with blue and purple colors. Style everything like a professional esports gaming dashboard with clean cards, subtle glows and data visualizations. Make it look impressive and modern.
