@@ -344,6 +344,21 @@ router.post("/veloxfi/game/rocket-miner/earn", requireAuth as any, async (req: a
   }
 });
 
+// ── Lightweight WOLF balance ──────────────────────────────────────────────────
+router.get("/veloxfi/wolf-balance", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const [row] = await db
+      .select({ wolf: veloxfiUsers.wolf })
+      .from(veloxfiUsers)
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ wolf: row?.wolf ?? 0 });
+  } catch (e) {
+    console.error("wolf-balance error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
 // ── Battle Tetris: save earned WOLF ──────────────────────────────────────────
 const BATTLE_TETRIS_MAX_WOLF = 120; // 1 WOLF/line, cap 120 per session
 router.post("/veloxfi/game/battle-tetris/earn", requireAuth as any, async (req: any, res) => {

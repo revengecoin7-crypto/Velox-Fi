@@ -3905,7 +3905,11 @@ function getBattleParams() {
 
 function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(coinAId&&coinBId); }
 
+let _profWolfTimer = null;
+function _clearProfWolfTimer() { if (_profWolfTimer) { clearInterval(_profWolfTimer); _profWolfTimer = null; } }
+
 function _showOnlyPage(id) {
+  if (id !== 'profilePage') _clearProfWolfTimer();
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
    'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage'].forEach(p => {
     const el = document.getElementById(p);
@@ -5713,7 +5717,7 @@ async function loadProfile() {
   <div class="dash-balance-strip">
     <div class="dash-bal-box wolf">
       <div class="dash-bal-icon">🐺</div>
-      <div class="dash-bal-val">${(d.wolf??0).toLocaleString()}</div>
+      <div class="dash-bal-val" id="profWolfBalVal">${(d.wolf??0).toLocaleString()}</div>
       <div class="dash-bal-label">WOLF BALANCE</div>
     </div>
     <div class="dash-bal-box battle">
@@ -5972,9 +5976,35 @@ async function loadProfile() {
       }
     });
 
+    // Sync currentUser.wolf from DB and refresh nav chip
+    if (currentUser) { currentUser.wolf = d.wolf ?? 0; }
+    if (typeof updateNavBalance === 'function') updateNavBalance();
+
+    // Start 30s auto-refresh of WOLF balance while on profile page
+    _clearProfWolfTimer();
+    _profWolfTimer = setInterval(refreshProfileWolf, 30000);
+
   } catch(e) {
     console.error('loadProfile error:', e);
     el.innerHTML = '<div class="prof-loading">Failed to load dashboard. Try again.</div>';
+  }
+}
+
+async function refreshProfileWolf() {
+  if (document.getElementById('profilePage')?.style.display === 'none') { _clearProfWolfTimer(); return; }
+  const session = getSession();
+  if (!session?.tok) { _clearProfWolfTimer(); return; }
+  try {
+    const res = await fetch('/api/veloxfi/wolf-balance', { headers: { Authorization: `Bearer ${session.tok}` } });
+    if (!res.ok) return;
+    const data = await res.json();
+    const wolf = data.wolf ?? 0;
+    if (currentUser) currentUser.wolf = wolf;
+    if (typeof updateNavBalance === 'function') updateNavBalance();
+    const valEl = document.getElementById('profWolfBalVal');
+    if (valEl) valEl.textContent = wolf.toLocaleString();
+  } catch (e) {
+    // silently ignore — will retry in 30s
   }
 }
 
