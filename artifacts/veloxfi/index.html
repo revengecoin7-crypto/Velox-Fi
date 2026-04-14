@@ -1342,6 +1342,58 @@
 .rmp-touch-btn.fire { background:rgba(124,58,237,.22); border-color:rgba(124,58,237,.38); font-size:.72rem; letter-spacing:.14em; }
 .rmp-touch-btn.fire:active,.rmp-touch-btn.fire.pressed { background:rgba(124,58,237,.45); }
 
+/* ── Crypto Snake Game Page ─────────────────────── */
+#cryptoSnakePage { min-height:100vh; background:#030712; }
+.cs-wrap { max-width:520px; margin:0 auto; padding:16px 12px 48px; }
+.cs-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.cs-back-btn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; color:#60a5fa; background:none; border:1px solid rgba(96,165,250,.3); border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .2s; }
+.cs-back-btn:hover { background:rgba(96,165,250,.1); border-color:#60a5fa; }
+.cs-page-title { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:900; letter-spacing:.15em; color:#fff; }
+.cs-hud { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 16px; margin-bottom:8px; }
+.cs-hud-lives { font-size:1.05rem; letter-spacing:2px; }
+.cs-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; color:#60a5fa; letter-spacing:.05em; min-width:52px; text-align:center; }
+.cs-hud-wolf { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:4px; }
+.cs-wolf-icon { font-size:1rem; }
+.cs-wolf-label { font-size:.65rem; color:#7c3aed; }
+.cs-canvas-outer { position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(124,58,237,.3); box-shadow:0 0 40px rgba(124,58,237,.12); }
+#cryptoSnakeCanvas { display:block; width:100%; }
+.cs-overlay { position:absolute; inset:0; background:rgba(3,7,18,.93); display:flex; align-items:center; justify-content:center; z-index:10; }
+.cs-overlay-icon { font-size:3rem; margin-bottom:10px; }
+.cs-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:.15em; color:#fff; margin:0 0 8px; }
+.cs-overlay-sub { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#64748b; margin:0 0 18px; }
+.cs-rules { display:flex; gap:10px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+.cs-rule { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; min-width:72px; }
+.cs-rule span:first-child { font-size:1.2rem; }
+.cs-howto { margin:0 0 16px; text-align:left; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
+.cs-howto-title { font-family:'Orbitron',sans-serif; font-size:.58rem; font-weight:700; letter-spacing:.14em; color:#475569; margin-bottom:8px; }
+.cs-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.cs-howto-row { display:flex; align-items:flex-start; gap:8px; font-family:'Rajdhani',sans-serif; font-size:.82rem; color:#94a3b8; line-height:1.35; }
+.cs-howto-icon { font-size:.95rem; flex-shrink:0; }
+.cs-howto-key { color:#a78bfa; font-weight:600; }
+.cs-overlay-content { text-align:center; padding:24px 20px; max-width:340px; max-height:90vh; overflow-y:auto; width:100%; }
+.cs-play-btn { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.12em; color:#fff; background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; }
+.cs-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
+.cs-result-wolf-display { margin:18px 0; }
+.cs-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900; color:#a78bfa; line-height:1; }
+.cs-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#64748b; letter-spacing:.1em; margin-top:4px; }
+.cs-claim-btn { font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.1em; color:#fff; background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; border-radius:12px; padding:14px 32px; cursor:pointer; transition:all .2s; width:100%; margin-bottom:14px; }
+.cs-claim-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.4); }
+.cs-claim-btn:disabled { opacity:.6; cursor:default; transform:none; }
+.cs-guest-msg { font-family:'Rajdhani',sans-serif; font-size:.98rem; color:#94a3b8; margin-bottom:10px; }
+.cs-result-actions { display:flex; gap:10px; margin-top:10px; }
+.cs-again-btn,.cs-games-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; border-radius:10px; padding:12px 0; cursor:pointer; transition:all .2s; }
+.cs-again-btn { color:#a78bfa; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); }
+.cs-again-btn:hover { background:rgba(124,58,237,.2); }
+.cs-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
+.cs-games-btn:hover { background:rgba(37,99,235,.18); }
+.cs-touch-controls { display:none; padding:12px 0 0; justify-content:center; }
+@media (pointer:coarse),(max-width:700px){ .cs-touch-controls { display:flex; } }
+.cs-dpad { display:flex; flex-direction:column; align-items:center; gap:7px; }
+.cs-dpad-row { display:flex; align-items:center; gap:7px; }
+.cs-dpad-center { width:64px; height:64px; background:rgba(255,255,255,.03); border-radius:12px; }
+.cs-dpad-btn { width:64px; height:64px; font-size:1.5rem; font-family:'Orbitron',sans-serif; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:12px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:none; transition:background .1s; display:flex; align-items:center; justify-content:center; }
+.cs-dpad-btn:active,.cs-dpad-btn.pressed { background:rgba(124,58,237,.45); }
+
 /* ── Print stylesheet ───────────────────────────── */
 @media print {
   /* ── Tell the browser to honour background colours ── */
@@ -1967,12 +2019,13 @@
         <button class="pe-play-btn" onclick="goRocketMiner()">▶ PLAY</button>
       </div>
 
-      <div class="pe-card soon">
-        <div class="pe-cs-badge">COMING SOON</div>
+      <div class="pe-card ready" onclick="goCryptoSnake()">
+        <div class="pe-live-badge">LIVE</div>
         <div class="pe-card-icon">🐍</div>
         <div class="pe-card-name">CRYPTO SNAKE</div>
-        <div class="pe-card-desc">Eat crypto coins and grow your snake</div>
-        <div class="pe-card-earn">1 WOLF / bite</div>
+        <div class="pe-card-desc">Eat $BATTLE coins and grow your snake</div>
+        <div class="pe-card-earn">1 WOLF / coin</div>
+        <button class="pe-play-btn" onclick="goCryptoSnake()">▶ PLAY</button>
       </div>
 
       <div class="pe-card soon">
@@ -2205,12 +2258,12 @@
       </div>
 
       <!-- Crypto Snake -->
-      <div class="ghub-card soon">
-        <div class="ghub-soon-badge">COMING SOON</div>
+      <div class="ghub-card ready" onclick="goCryptoSnake()">
+        <div class="ghub-play-badge">PLAY NOW</div>
         <div class="ghub-card-icon">🐍</div>
         <div class="ghub-card-name">CRYPTO SNAKE</div>
-        <div class="ghub-card-desc">Classic snake — collect tokens and grow your chain</div>
-        <div class="ghub-card-earn">Earn WOLF per token</div>
+        <div class="ghub-card-desc">Guide your snake to eat $BATTLE coins and grow</div>
+        <div class="ghub-card-earn">Up to 120 WOLF / session</div>
       </div>
 
       <!-- Battle Tetris -->
@@ -3253,7 +3306,102 @@
       <button class="rmp-touch-btn" id="rmBtnRight">▶</button>
     </div>
   </div>
-</div>
+</div><!-- /rocketMinerPage -->
+
+<!-- CRYPTO SNAKE PAGE -->
+<div id="cryptoSnakePage" style="display:none">
+  <div class="cs-wrap">
+    <div class="cs-topbar">
+      <button class="cs-back-btn" onclick="csStopGame();goGames()">← GAMES</button>
+      <div class="cs-page-title">🐍 CRYPTO SNAKE</div>
+      <div style="width:100px"></div>
+    </div>
+    <div class="cs-hud">
+      <div class="cs-hud-lives" id="csHudLives">❤️❤️❤️</div>
+      <div class="cs-hud-timer" id="csHudTimer">2:00</div>
+      <div class="cs-hud-wolf">
+        <span class="cs-wolf-icon">🐺</span>
+        <span id="csHudWolf">0</span>
+        <span class="cs-wolf-label">WOLF</span>
+      </div>
+    </div>
+    <div class="cs-canvas-outer">
+      <canvas id="cryptoSnakeCanvas" width="480" height="480"></canvas>
+      <!-- Start Screen -->
+      <div id="csStartScreen" class="cs-overlay">
+        <div class="cs-overlay-content">
+          <div class="cs-overlay-icon">🐍</div>
+          <h2 class="cs-overlay-title">CRYPTO SNAKE</h2>
+          <p class="cs-overlay-sub">Eat $BATTLE coins and grow your chain</p>
+          <div class="cs-rules">
+            <div class="cs-rule"><span>⏱</span><span>2 min game</span></div>
+            <div class="cs-rule"><span>❤️</span><span>3 lives</span></div>
+            <div class="cs-rule"><span>🪙</span><span>1 WOLF / coin</span></div>
+          </div>
+          <div class="cs-howto">
+            <div class="cs-howto-title">HOW TO PLAY</div>
+            <div class="cs-howto-rows">
+              <div class="cs-howto-row">
+                <span class="cs-howto-icon">⌨️</span>
+                <span><span class="cs-howto-key">↑ ↓ ← →</span> or <span class="cs-howto-key">W A S D</span> to steer your snake</span>
+              </div>
+              <div class="cs-howto-row">
+                <span class="cs-howto-icon">🪙</span>
+                <span>Eat <span class="cs-howto-key">gold $BATTLE coins</span> to earn WOLF and grow longer</span>
+              </div>
+              <div class="cs-howto-row">
+                <span class="cs-howto-icon">💀</span>
+                <span>Hit a <span class="cs-howto-key">wall or yourself</span> to lose a life — 3 lives before game over</span>
+              </div>
+              <div class="cs-howto-row">
+                <span class="cs-howto-icon">📱</span>
+                <span>Use the <span class="cs-howto-key">D-pad buttons</span> below on mobile</span>
+              </div>
+            </div>
+          </div>
+          <button class="cs-play-btn" onclick="csStartGame()">▶ PLAY NOW</button>
+        </div>
+      </div>
+      <!-- Result Screen -->
+      <div id="csResultScreen" class="cs-overlay" style="display:none">
+        <div class="cs-overlay-content">
+          <h2 class="cs-overlay-title" id="csResultTitle">TIME'S UP!</h2>
+          <div class="cs-result-wolf-display">
+            <div class="cs-result-wolf-num" id="csResultWolf">0</div>
+            <div class="cs-result-wolf-lbl">WOLF EARNED</div>
+          </div>
+          <div id="csClaimSection" style="display:none">
+            <button class="cs-claim-btn" id="csClaimBtn" onclick="csClaimWolf()">🐺 CLAIM WOLF</button>
+          </div>
+          <div id="csGuestSection" style="display:none">
+            <p class="cs-guest-msg">Create a free account to save your WOLF!</p>
+            <button class="cs-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+          </div>
+          <div class="cs-result-actions">
+            <button class="cs-again-btn" onclick="csRestartGame()">↺ PLAY AGAIN</button>
+            <button class="cs-games-btn" onclick="csStopGame();goGames()">GAMES</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile D-pad touch controls -->
+    <div class="cs-touch-controls">
+      <div class="cs-dpad">
+        <div style="display:flex;justify-content:center">
+          <button class="cs-dpad-btn" id="csBtnUp">▲</button>
+        </div>
+        <div class="cs-dpad-row">
+          <button class="cs-dpad-btn" id="csBtnLeft">◀</button>
+          <div class="cs-dpad-center"></div>
+          <button class="cs-dpad-btn" id="csBtnRight">▶</button>
+        </div>
+        <div style="display:flex;justify-content:center">
+          <button class="cs-dpad-btn" id="csBtnDown">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /cryptoSnakePage -->
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -3591,7 +3739,7 @@ function isBattlePage() { const {coinAId,coinBId}=getBattleParams(); return !!(c
 
 function _showOnlyPage(id) {
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','activityPage','rocketMinerPage','cryptoSnakePage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -3663,6 +3811,11 @@ function initRouter() {
     _showOnlyPage('rocketMinerPage');
     window.scrollTo(0,0);
     rmInit();
+  } else if (path === '/games/crypto-snake') {
+    setPageMeta('cryptoSnake');
+    _showOnlyPage('cryptoSnakePage');
+    window.scrollTo(0,0);
+    csInit();
   } else if (path === '/games') {
     setPageMeta('games');
     _showOnlyPage('gamesHubPage');
@@ -3770,6 +3923,11 @@ const PAGE_META = {
     title:     'Rocket Miner — Shoot Coins, Earn WOLF | VeloxFi',
     desc:      'Play Rocket Miner on VeloxFi. Shoot falling $BATTLE coins with your spaceship to earn WOLF tokens. 2-minute arcade shooter, completely free to play.',
     canonical: 'https://veloxfi.io/games/rocket-miner',
+  },
+  cryptoSnake: {
+    title:     'Crypto Snake — Eat $BATTLE Coins, Earn WOLF | VeloxFi',
+    desc:      'Play Crypto Snake on VeloxFi. Guide your snake to eat $BATTLE coins and earn WOLF tokens. Classic arcade snake with a crypto twist — free to play.',
+    canonical: 'https://veloxfi.io/games/crypto-snake',
   },
 };
 
@@ -4438,6 +4596,385 @@ function rmStopGame() {
   rmRemoveCanvasListeners();
   rmGameState = 'idle';
 }
+
+// ── Crypto Snake Game ─────────────────────────────
+const CS_W = 480, CS_H = 480;
+const CS_CELL = 20;
+const CS_COLS = CS_W / CS_CELL; // 24
+const CS_ROWS = CS_H / CS_CELL; // 24
+const CS_DURATION = 120;
+const CS_MAX_WOLF = 120;
+const CS_MOVE_INTERVAL = 8; // frames between snake moves (~7.5/sec at 60fps)
+
+let csCanvas, csCtx, csGameState = 'idle';
+let csAnimFrame = null, csTimerInterval = null;
+let csSnake = [], csDir = {x:1,y:0}, csNextDir = {x:1,y:0};
+let csCoin = null;
+let csLives = 3, csWolfEarned = 0, csTimeLeft = CS_DURATION;
+let csMoveTick = 0, csFlashTimer = 0;
+let csClaimed = false;
+let csDpadListeners = [];
+
+function goCryptoSnake() {
+  setPageMeta('cryptoSnake');
+  history.pushState(null, '', '/games/crypto-snake');
+  _showOnlyPage('cryptoSnakePage');
+  window.scrollTo(0, 0);
+  csInit();
+}
+
+function csInit() {
+  csCanvas = document.getElementById('cryptoSnakeCanvas');
+  if (!csCanvas) return;
+  csCtx = csCanvas.getContext('2d');
+  csCanvas.width = CS_W;
+  csCanvas.height = CS_H;
+  csGameState = 'idle';
+  csClaimed = false;
+  document.getElementById('csStartScreen').style.display = 'flex';
+  document.getElementById('csResultScreen').style.display = 'none';
+  csSnakeReset(3);
+  csCoin = null;
+  csLives = 3;
+  csWolfEarned = 0;
+  csTimeLeft = CS_DURATION;
+  csMoveTick = 0;
+  csFlashTimer = 0;
+  csSpawnCoin();
+  csUpdateHUD();
+  csBindDpad();
+  csDrawFrame();
+}
+
+function csSnakeReset(len) {
+  csSnake = [];
+  for (let i = 0; i < len; i++) csSnake.push({x: 6 - i, y: 12});
+  csDir = {x:1, y:0};
+  csNextDir = {x:1, y:0};
+}
+
+function csBindDpad() {
+  csDpadListeners.forEach(([el, ev, fn]) => el.removeEventListener(ev, fn));
+  csDpadListeners = [];
+  const addBtn = (id, fn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const down = (e) => { e.preventDefault(); fn(); };
+    el.addEventListener('pointerdown', down, {passive:false});
+    csDpadListeners.push([el, 'pointerdown', down]);
+  };
+  addBtn('csBtnUp',    () => { if (csDir.y !== 1)  csNextDir = {x:0,y:-1}; });
+  addBtn('csBtnDown',  () => { if (csDir.y !== -1) csNextDir = {x:0,y:1};  });
+  addBtn('csBtnLeft',  () => { if (csDir.x !== 1)  csNextDir = {x:-1,y:0}; });
+  addBtn('csBtnRight', () => { if (csDir.x !== -1) csNextDir = {x:1,y:0};  });
+}
+
+function csStartGame() {
+  document.getElementById('csStartScreen').style.display = 'none';
+  document.getElementById('csResultScreen').style.display = 'none';
+  csSnakeReset(3);
+  csCoin = null;
+  csLives = 3;
+  csWolfEarned = 0;
+  csTimeLeft = CS_DURATION;
+  csMoveTick = 0;
+  csFlashTimer = 0;
+  csClaimed = false;
+  csSpawnCoin();
+  csUpdateHUD();
+  csGameState = 'playing';
+  document.addEventListener('keydown', csOnKeyDown);
+  if (csTimerInterval) clearInterval(csTimerInterval);
+  csTimerInterval = setInterval(() => {
+    if (csGameState !== 'playing') return;
+    csTimeLeft--;
+    csUpdateHUD();
+    if (csTimeLeft <= 0) csEndGame('time');
+  }, 1000);
+  csGameLoop();
+}
+
+function csGameLoop() {
+  if (csGameState !== 'playing') return;
+  csMoveTick++;
+  if (csFlashTimer > 0) csFlashTimer--;
+  if (csMoveTick >= CS_MOVE_INTERVAL) {
+    csMoveTick = 0;
+    csMoveSnake();
+  }
+  csDrawFrame();
+  csAnimFrame = requestAnimationFrame(csGameLoop);
+}
+
+function csMoveSnake() {
+  if (csGameState !== 'playing') return;
+  csDir = {x: csNextDir.x, y: csNextDir.y};
+  const head = csSnake[0];
+  const nx = head.x + csDir.x;
+  const ny = head.y + csDir.y;
+
+  const hitWall = nx < 0 || nx >= CS_COLS || ny < 0 || ny >= CS_ROWS;
+  const hitSelf = csSnake.slice(0, -1).some(s => s.x === nx && s.y === ny);
+
+  if (hitWall || hitSelf) {
+    csLives--;
+    csFlashTimer = 18;
+    csUpdateHUD();
+    if (csLives <= 0) { csEndGame('death'); return; }
+    csSnakeReset(csSnake.length);
+    return;
+  }
+
+  const atesCoin = csCoin && csCoin.x === nx && csCoin.y === ny;
+  const newHead = {x: nx, y: ny};
+  csSnake.unshift(newHead);
+  if (atesCoin) {
+    csWolfEarned = Math.min(csWolfEarned + 1, CS_MAX_WOLF);
+    csUpdateHUD();
+    csSpawnCoin();
+  } else {
+    csSnake.pop();
+  }
+}
+
+function csSpawnCoin() {
+  const occupied = new Set(csSnake.map(s => `${s.x},${s.y}`));
+  const empties = [];
+  for (let y = 0; y < CS_ROWS; y++)
+    for (let x = 0; x < CS_COLS; x++)
+      if (!occupied.has(`${x},${y}`)) empties.push({x, y});
+  if (empties.length === 0) { csCoin = null; return; }
+  csCoin = empties[Math.floor(Math.random() * empties.length)];
+}
+
+function csDrawFrame() {
+  if (!csCtx) return;
+  const ctx = csCtx;
+
+  // Background
+  ctx.fillStyle = '#030712';
+  ctx.fillRect(0, 0, CS_W, CS_H);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x <= CS_COLS; x++) {
+    ctx.beginPath(); ctx.moveTo(x * CS_CELL, 0); ctx.lineTo(x * CS_CELL, CS_H); ctx.stroke();
+  }
+  for (let y = 0; y <= CS_ROWS; y++) {
+    ctx.beginPath(); ctx.moveTo(0, y * CS_CELL); ctx.lineTo(CS_W, y * CS_CELL); ctx.stroke();
+  }
+
+  // Red flash on death
+  if (csFlashTimer > 0) {
+    ctx.fillStyle = `rgba(239,68,68,${0.35 * csFlashTimer / 18})`;
+    ctx.fillRect(0, 0, CS_W, CS_H);
+  }
+
+  // Draw coin
+  if (csCoin) {
+    const cx = csCoin.x * CS_CELL + CS_CELL / 2;
+    const cy = csCoin.y * CS_CELL + CS_CELL / 2;
+    const r = CS_CELL / 2 - 2;
+    // Glow
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 14;
+    // Gold gradient
+    const grd = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx, cy, r);
+    grd.addColorStop(0, '#fde68a');
+    grd.addColorStop(0.55, '#f59e0b');
+    grd.addColorStop(1, '#b45309');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Coin symbol
+    ctx.fillStyle = '#78350f';
+    ctx.font = `bold ${Math.floor(CS_CELL * 0.48)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('$', cx, cy + 0.5);
+    // Shine highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(cx - r * 0.28, cy - r * 0.3, r * 0.32, r * 0.2, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw snake
+  const len = csSnake.length;
+  csSnake.forEach((seg, i) => {
+    const t = len > 1 ? i / (len - 1) : 0;
+    // Blue (#2563eb) → Purple (#7c3aed)
+    const r = Math.round(37  + (124 - 37)  * t);
+    const g = Math.round(99  + (58  - 99)  * t);
+    const b = Math.round(235 + (237 - 235) * t);
+    const px = seg.x * CS_CELL + 1;
+    const py = seg.y * CS_CELL + 1;
+    const sz = CS_CELL - 2;
+    const rad = i === 0 ? 6 : 3;
+
+    if (i === 0) { ctx.shadowColor = '#60a5fa'; ctx.shadowBlur = 10; }
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(px, py, sz, sz, rad);
+    } else {
+      ctx.rect(px, py, sz, sz);
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Eyes on head
+    if (i === 0) {
+      const hcx = seg.x * CS_CELL + CS_CELL / 2;
+      const hcy = seg.y * CS_CELL + CS_CELL / 2;
+      let e1x, e1y, e2x, e2y;
+      if (csDir.x === 1)       { e1x=hcx+5; e1y=hcy-4; e2x=hcx+5; e2y=hcy+4; }
+      else if (csDir.x === -1) { e1x=hcx-5; e1y=hcy-4; e2x=hcx-5; e2y=hcy+4; }
+      else if (csDir.y === -1) { e1x=hcx-4; e1y=hcy-5; e2x=hcx+4; e2y=hcy-5; }
+      else                     { e1x=hcx-4; e1y=hcy+5; e2x=hcx+4; e2y=hcy+5; }
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(e1x, e1y, 2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(e2x, e2y, 2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.arc(e1x, e1y, 1, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(e2x, e2y, 1, 0, Math.PI*2); ctx.fill();
+    }
+  });
+}
+
+function csUpdateHUD() {
+  const livesEl = document.getElementById('csHudLives');
+  const timerEl = document.getElementById('csHudTimer');
+  const wolfEl  = document.getElementById('csHudWolf');
+  if (livesEl) livesEl.textContent = '❤️'.repeat(Math.max(0, csLives)) + '🖤'.repeat(Math.max(0, 3 - csLives));
+  if (timerEl) {
+    const m = Math.floor(csTimeLeft / 60);
+    const s = csTimeLeft % 60;
+    timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    timerEl.style.color = csTimeLeft <= 30 ? '#ef4444' : '#60a5fa';
+  }
+  if (wolfEl) wolfEl.textContent = csWolfEarned;
+}
+
+function csOnKeyDown(e) {
+  if (csGameState !== 'playing') return;
+  switch (e.key) {
+    case 'ArrowUp':    case 'w': case 'W': if (csDir.y !== 1)  csNextDir = {x:0,y:-1}; break;
+    case 'ArrowDown':  case 's': case 'S': if (csDir.y !== -1) csNextDir = {x:0,y:1};  break;
+    case 'ArrowLeft':  case 'a': case 'A': if (csDir.x !== 1)  csNextDir = {x:-1,y:0}; break;
+    case 'ArrowRight': case 'd': case 'D': if (csDir.x !== -1) csNextDir = {x:1,y:0};  break;
+  }
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+}
+
+function csEndGame(reason) {
+  if (csGameState === 'over') return;
+  csGameState = 'over';
+  if (csTimerInterval) { clearInterval(csTimerInterval); csTimerInterval = null; }
+  if (csAnimFrame) { cancelAnimationFrame(csAnimFrame); csAnimFrame = null; }
+  document.removeEventListener('keydown', csOnKeyDown);
+  csDrawFrame();
+
+  const titleEl  = document.getElementById('csResultTitle');
+  const wolfEl   = document.getElementById('csResultWolf');
+  const claimSec = document.getElementById('csClaimSection');
+  const guestSec = document.getElementById('csGuestSection');
+  const claimBtn = document.getElementById('csClaimBtn');
+
+  if (titleEl) titleEl.textContent = reason === 'time' ? "⏱ TIME'S UP!" : '💀 GAME OVER';
+  if (wolfEl)  wolfEl.textContent  = csWolfEarned;
+  if (claimBtn) { claimBtn.disabled = false; claimBtn.textContent = '🐺 CLAIM WOLF'; }
+
+  if (currentUser && csWolfEarned > 0) {
+    if (claimSec) claimSec.style.display = 'block';
+    if (guestSec) guestSec.style.display = 'none';
+  } else if (!currentUser) {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'block';
+  } else {
+    if (claimSec) claimSec.style.display = 'none';
+    if (guestSec) guestSec.style.display = 'none';
+  }
+
+  const screen = document.getElementById('csResultScreen');
+  if (screen) screen.style.display = 'flex';
+}
+
+function csStopGame() {
+  if (csTimerInterval) { clearInterval(csTimerInterval); csTimerInterval = null; }
+  if (csAnimFrame) { cancelAnimationFrame(csAnimFrame); csAnimFrame = null; }
+  document.removeEventListener('keydown', csOnKeyDown);
+  csGameState = 'idle';
+}
+
+function csRestartGame() {
+  document.getElementById('csResultScreen').style.display = 'none';
+  csInit();
+}
+
+async function csClaimWolf() {
+  if (!currentUser || csWolfEarned <= 0 || csClaimed) return;
+  const btn = document.getElementById('csClaimBtn');
+  const session = getSession();
+  if (!session?.tok) { showToast('Session expired — please log in again.', 'error'); return; }
+
+  const ENDPOINT = '/api/veloxfi/game/crypto-snake/earn';
+  const BODY = JSON.stringify({ wolfEarned: csWolfEarned });
+  const MAX_RETRIES = 3;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (btn) { btn.disabled = true; btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`; }
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
+        body: BODY,
+      });
+      if (res.status === 400) {
+        const d = await res.json().catch(() => ({}));
+        showToast(d.error || 'Invalid claim amount.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+      if (res.status === 401) {
+        showToast('Session expired — please log in again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+
+      const data = await res.json();
+      if (data.ok) {
+        csClaimed = true;
+        try {
+          if (currentUser) currentUser.wolf = data.newWolfBalance;
+          if (typeof updateNavBalance === 'function') updateNavBalance();
+          showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        } catch (uiErr) {
+          showToast(`+${data.wolfEarned} WOLF claimed!`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        }
+        return;
+      }
+      showToast(data.error || 'Claim failed.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      return;
+    } catch (err) {
+      if (csClaimed) return;
+      if (attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, attempt * 600));
+      } else {
+        showToast('Network error after 3 attempts. Check your connection.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      }
+    }
+  }
+}
+// ── End Crypto Snake ───────────────────────────────
 
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');
