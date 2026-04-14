@@ -101,12 +101,16 @@
   .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
   /* MOBILE MENU */
-  .mobile-menu { display:none; background:rgba(5,8,15,0.98); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); padding:8px 20px 16px; position:sticky; top:60px; z-index:998; }
+  .mobile-menu { display:none; background:rgba(5,8,15,0.98); border-bottom:1px solid rgba(255,255,255,.08); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); padding:12px 16px 20px; position:sticky; top:60px; z-index:998; max-height:calc(100vh - 60px); overflow-y:auto; }
   .mobile-menu.open { display:block; }
-  .mob-menu-btn { display:block; width:100%; padding:13px 16px; margin-bottom:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Orbitron',monospace; font-size:11px; font-weight:600; letter-spacing:1px; cursor:pointer; text-align:left; transition:all 0.2s; }
+  .mob-balances { display:flex; gap:10px; margin-bottom:14px; padding:12px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:12px; }
+  .mob-bal-chip { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:.06em; flex:1; text-align:center; padding:6px 8px; border-radius:8px; }
+  .mob-bal-chip.wolf { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.2); }
+  .mob-bal-chip.battle { color:#a78bfa; background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.2); }
+  .mob-menu-btn { display:block; width:100%; padding:14px 16px; margin-bottom:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,.1); border-radius:10px; color:var(--text); font-family:'Orbitron',monospace; font-size:11px; font-weight:600; letter-spacing:1px; cursor:pointer; text-align:left; transition:all 0.2s; }
   .mob-menu-btn:last-child { margin-bottom:0; }
-  .mob-menu-btn:hover { border-color:var(--blue); color:var(--text); }
-  .mob-menu-btn.mob-register { background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(124,58,237,0.2)); border-color:rgba(37,99,235,0.4); color:var(--blue-glow); }
+  .mob-menu-btn:hover { border-color:rgba(37,99,235,.5); color:var(--text); background:rgba(37,99,235,.06); }
+  .mob-menu-btn.mob-register { background:linear-gradient(135deg,rgba(37,99,235,0.15),rgba(124,58,237,0.15)); border-color:rgba(37,99,235,0.35); color:var(--blue-glow); }
   .mob-menu-btn.mob-logout { border-color:rgba(239,68,68,0.3); color:#fca5a5; }
 
   main { position:relative; z-index:1; min-height:100vh; }
@@ -528,12 +532,12 @@
   .coin-pick-btn .pick-change.up { color:var(--green); }
   .coin-pick-btn .pick-change.down { color:var(--red); }
 
-  /* ══ MOBILE — ≤600px ══ */
-  @media(max-width:600px) {
+  /* ══ MOBILE — ≤768px ══ */
+  @media(max-width:768px) {
     /* Nav */
     nav { padding:0 16px; }
     .hamburger { display:flex; }
-    .btn-nav-login, .btn-nav-register, .btn-nav-profile, .btn-logout { display:none !important; }
+    #navRight { display:none !important; }
 
     /* Stats bar — allow wrapping */
     #statsBar { height:auto; min-height:36px; flex-wrap:wrap; padding:6px 16px; gap:4px 16px; top:60px; }
@@ -1804,7 +1808,6 @@
 .btn-nav-games:hover { background:rgba(37,99,235,.18); }
 .btn-nav-convert { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; padding:7px 13px; border-radius:8px; border:1px solid rgba(124,58,237,.4); color:#a78bfa; background:rgba(124,58,237,.08); cursor:pointer; transition:all .15s; }
 .btn-nav-convert:hover { background:rgba(124,58,237,.18); }
-@media(max-width:768px) { .nav-wolf-bal,.nav-battle-bal { display:none; } }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WR31Y72PW3"></script>
@@ -7326,7 +7329,12 @@ function renderNav() {
     <button class="btn-nav-activity" onclick="goBlog()">BLOG</button>
     <button class="btn-nav-profile" onclick="goProfile()" style="display:inline-flex;align-items:center;gap:6px;">${badge} ${currentUser.username.toUpperCase()}</button>
     <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">⚔️ GAMES</button>
+    if (mob) mob.innerHTML=`
+    <div class="mob-balances">
+      <div class="mob-bal-chip wolf">🐺 <span id="mobWolfBal">${currentUser.wolf ?? 0}</span> WOLF</div>
+      <div class="mob-bal-chip battle">⚔️ <span id="mobBattleBal">${currentUser.tokens}</span> $BATTLE</div>
+    </div>
+    <button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">⚔️ GAMES</button>
     <button class="mob-menu-btn" onclick="goConvert();closeMobileMenu()">🐺 CONVERT WOLF</button>
     <button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
     <button class="mob-menu-btn" onclick="goWhitepaper();closeMobileMenu()">📄 WHITEPAPER</button>
@@ -7342,7 +7350,8 @@ function renderNav() {
     <button class="btn-nav-activity" onclick="goBlog()">BLOG</button>
     <button class="btn-nav-login" onclick="openModal('login')">LOGIN</button>
     <button class="btn-nav-register" onclick="openModal('register')">REGISTER</button>`;
-    if (mob) mob.innerHTML=`<button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">🎮 GAMES</button>
+    if (mob) mob.innerHTML=`
+    <button class="mob-menu-btn" onclick="goGames();closeMobileMenu()">🎮 GAMES</button>
     <button class="mob-menu-btn" onclick="goActivity();closeMobileMenu()">📡 ACTIVITY</button>
     <button class="mob-menu-btn" onclick="goWhitepaper();closeMobileMenu()">📄 WHITEPAPER</button>
     <button class="mob-menu-btn" onclick="goFaq();closeMobileMenu()">❓ FAQ</button>
@@ -7356,6 +7365,10 @@ function updateNavBalance() {
   const elW = document.getElementById('navWolfBal');
   if (el && currentUser) el.textContent = currentUser.tokens;
   if (elW && currentUser) elW.textContent = currentUser.wolf ?? 0;
+  const mB = document.getElementById('mobBattleBal');
+  const mW = document.getElementById('mobWolfBal');
+  if (mB && currentUser) mB.textContent = currentUser.tokens;
+  if (mW && currentUser) mW.textContent = currentUser.wolf ?? 0;
 }
 
 function toggleMobileMenu() {
@@ -7372,6 +7385,16 @@ function closeMobileMenu() {
   btn.classList.remove('open');
   btn.setAttribute('aria-expanded', 'false');
 }
+
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.getElementById('hamburgerBtn');
+  if (menu && menu.classList.contains('open')) {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      closeMobileMenu();
+    }
+  }
+});
 
 // ── Time selector ─────────────────────────────────
 function selectTime(btn,sec) {
