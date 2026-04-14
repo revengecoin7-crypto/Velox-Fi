@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens</title>
+<title>VeloxFi — Play to Earn Crypto Games | Mine &amp; Earn Free Tokens</title>
 <meta name="description" content="Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.">
-<meta name="keywords" content="free memecoin, free memecoins, free crypto tokens, earn free crypto, free coin, free coins, memecoin battle, memecoin prediction, predict memecoins, memecoin game, crypto prediction game, earn $BATTLE, BATTLE token, Solana memecoin, pump.fun token, free Solana tokens, memecoin arena, crypto battle game, memecoin vs memecoin, predict crypto prices, free crypto game, no wallet crypto, earn crypto without investment, memecoin tournament, crypto prediction platform, Solana game, how to earn free memecoins, free memecoin prediction game, earn crypto tokens by predicting, memecoin battle prediction platform, free crypto game no wallet needed, predict which memecoin wins, earn BATTLE tokens free, Solana memecoin game 2026">
+<meta name="keywords" content="play to earn, crypto games, free crypto, earn crypto, memecoin, Solana, GameFi, tap to earn, mine crypto, free tokens, crypto arcade, earn tokens, blockchain games, free to play, crypto mining game, token mining, Solana game, meme coin game, predict memecoin, crypto prediction">
 <meta name="robots" content="index, follow">
 <meta name="author" content="VeloxFi">
 <meta name="theme-color" content="#05080f">
 <meta property="og:type" content="website">
-<meta property="og:title" content="VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens">
+<meta property="og:title" content="VeloxFi — Play to Earn Crypto Games | Mine &amp; Earn Free Tokens">
 <meta property="og:description" content="Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.">
 <meta property="og:image" content="/wolf.jpg">
 <meta property="og:url" content="https://veloxfi.io">
@@ -4164,8 +4164,9 @@ function initRouter() {
 // ── Dynamic page meta (title + description + OG) ─────────────────────────────
 const PAGE_META = {
   home: {
-    title:     'VeloxFi — Free Memecoin Battle Prediction Game | Earn $BATTLE Tokens',
+    title:     'VeloxFi — Play to Earn Crypto Games | Mine & Earn Free Tokens',
     desc:      'Play the free memecoin battle prediction game. Pick two memecoins, predict which one gains the most, and earn free $BATTLE tokens. No wallet needed. 100% free to play on Solana.',
+    keywords:  'play to earn, crypto games, free crypto, earn crypto, memecoin, Solana, GameFi, tap to earn, mine crypto, free tokens, crypto arcade, earn tokens, blockchain games, free to play, crypto mining game, token mining, Solana game, meme coin game, predict memecoin, crypto prediction',
     canonical: 'https://veloxfi.io/',
   },
   battle: {
@@ -4239,23 +4240,27 @@ const PAGE_META = {
     canonical: 'https://veloxfi.io/activity',
   },
   rocketMiner: {
-    title:     'Rocket Miner — Shoot Coins, Earn WOLF | VeloxFi',
+    title:     'Rocket Miner — Shoot Coins Earn Crypto | VeloxFi',
     desc:      'Play Rocket Miner on VeloxFi. Shoot falling $BATTLE coins with your spaceship to earn WOLF tokens. 2-minute arcade shooter, completely free to play.',
+    keywords:  'rocket game, shooter game, crypto shooter, earn crypto shooting, space shooter, arcade shooter, free shooter game, shoot to earn, crypto arcade game, earn tokens shooting',
     canonical: 'https://veloxfi.io/games/rocket-miner',
   },
   cryptoSnake: {
-    title:     'Crypto Snake — Eat $BATTLE Coins, Earn WOLF | VeloxFi',
+    title:     'Crypto Snake — Play Snake Earn Tokens | VeloxFi',
     desc:      'Play Crypto Snake on VeloxFi. Guide your snake to eat $BATTLE coins and earn WOLF tokens. Classic arcade snake with a crypto twist — free to play.',
+    keywords:  'snake game, crypto snake, snake earn crypto, classic snake, snake tokens, play snake earn, free snake game, snake crypto game, earn playing snake, snake arcade',
     canonical: 'https://veloxfi.io/games/crypto-snake',
   },
   battleTetris: {
-    title:     'Battle Tetris — Stack Blocks, Earn WOLF | VeloxFi',
+    title:     'Battle Tetris — Play Tetris Earn Crypto | VeloxFi',
     desc:      'Play Battle Tetris on VeloxFi. Stack crypto-colored blocks, clear lines and earn WOLF tokens. Classic Tetris with a cyberpunk twist — free to play.',
+    keywords:  'tetris, crypto tetris, tetris earn tokens, free tetris, tetris game earn, play tetris crypto, tetris arcade, block game earn crypto, tetris tokens, free tetris game',
     canonical: 'https://veloxfi.io/games/battle-tetris',
   },
   wolfRun: {
-    title:     'Wolf Run — Endless Runner, Earn WOLF | VeloxFi',
+    title:     'Wolf Run — Endless Runner Earn Crypto | VeloxFi',
     desc:      'Play Wolf Run on VeloxFi. Run as the VeloxFi wolf, dodge obstacles and collect $BATTLE coins to earn WOLF tokens. Free endless runner game on Solana.',
+    keywords:  'endless runner, runner game, crypto runner, wolf game, run earn crypto, endless run tokens, free runner game, platformer earn crypto, wolf run game, runner crypto',
     canonical: 'https://veloxfi.io/games/wolf-run',
   },
 };
@@ -4267,6 +4272,9 @@ function setPageMeta(key) {
   // Meta description
   const descEl = document.querySelector('meta[name="description"]');
   if (descEl) descEl.setAttribute('content', m.desc);
+  // Meta keywords
+  const kwEl = document.querySelector('meta[name="keywords"]');
+  if (kwEl && m.keywords) kwEl.setAttribute('content', m.keywords);
   // Open Graph
   const ogTitle = document.querySelector('meta[property="og:title"]');
   if (ogTitle) ogTitle.setAttribute('content', m.title);
