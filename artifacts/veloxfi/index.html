@@ -4327,28 +4327,70 @@ function rmEndGame(reason) {
 async function rmClaimWolf() {
   if (!currentUser || rmWolfEarned <= 0 || rmClaimed) return;
   const btn = document.getElementById('rmClaimBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'CLAIMING…'; }
-  try {
-    const session = getSession();
-    const res = await fetch('/api/veloxfi/game/rocket-miner/earn', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
-      body: JSON.stringify({ wolfEarned: rmWolfEarned }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      rmClaimed = true;
-      if (currentUser) currentUser.wolf = data.newWolfBalance;
-      updateNavWolfChip && updateNavWolfChip();
-      showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
-      if (btn) btn.textContent = '✓ CLAIMED!';
-    } else {
+
+  // Guard: ensure we have a valid session token before attempting
+  const session = getSession();
+  if (!session?.tok) {
+    showToast('Session expired — please log in again.', 'error');
+    return;
+  }
+
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`;
+    }
+    try {
+      const res = await fetch('/api/veloxfi/game/rocket-miner/earn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.tok}` },
+        body: JSON.stringify({ wolfEarned: rmWolfEarned }),
+      });
+
+      // 400 = bad request (no wolf earned / invalid amount) — do not retry
+      if (res.status === 400) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Invalid claim amount.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+
+      // 401 = session invalid — no point retrying
+      if (res.status === 401) {
+        showToast('Session expired — please log in again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+        return;
+      }
+
+      // Server errors (5xx) — allow retry
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+
+      const data = await res.json();
+      if (data.ok) {
+        rmClaimed = true;
+        if (currentUser) currentUser.wolf = data.newWolfBalance;
+        updateNavWolfChip && updateNavWolfChip();
+        showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+        if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        return; // success — exit
+      }
+
+      // Unexpected application error — show and bail
       showToast(data.error || 'Claim failed.', 'error');
       if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      return;
+
+    } catch (err) {
+      if (attempt < MAX_RETRIES) {
+        // Exponential back-off: 600ms, 1200ms before next attempt
+        await new Promise(r => setTimeout(r, attempt * 600));
+      } else {
+        // All retries exhausted
+        showToast('Network error after 3 attempts. Check your connection and try again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
+      }
     }
-  } catch {
-    showToast('Network error. Try again.', 'error');
-    if (btn) { btn.disabled = false; btn.textContent = '🐺 CLAIM WOLF'; }
   }
 }
 
