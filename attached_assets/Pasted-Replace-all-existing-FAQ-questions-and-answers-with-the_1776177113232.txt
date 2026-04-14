@@ -1,0 +1,25 @@
+Replace all existing FAQ questions and answers with these new ones that cover the complete VeloxFi platform including mining, games and WOLF tokens:
+Q: What is VeloxFi?
+A: VeloxFi is a free crypto earning platform on Solana. You earn WOLF tokens by mining every 4 hours, playing retro arcade games like Rocket Miner, Crypto Snake, Battle Tetris and Wolf Run, and predicting memecoin battles. Convert your WOLF tokens to $BATTLE — the real Solana token. No wallet needed. 100% free.
+Q: What are WOLF tokens?
+A: WOLF is the in-game currency of VeloxFi. You earn WOLF by mining, playing games and winning battles. WOLF has no direct monetary value — it is used exclusively to convert to $BATTLE tokens at a rate of 5,000 WOLF = 1 $BATTLE.
+Q: How does mining work?
+A: Click the MINE button on the homepage to start a mining session. You earn 1 WOLF token per minute automatically for up to 4 hours, giving you a maximum of 240 WOLF per session. After 4 hours the session ends and you need to click MINE again to start a new session.
+Q: How do I earn WOLF from games?
+A: Each game rewards 1 WOLF per action during a 2 minute session. Rocket Miner gives 1 WOLF per coin hit. Crypto Snake gives 1 WOLF per coin eaten. Battle Tetris gives 1 WOLF per line cleared. Wolf Run gives 1 WOLF per coin collected. Battle predictions give 50, 100 or 150 WOLF for winning a 5, 15 or 30 minute battle.
+Q: How do I convert WOLF to $BATTLE?
+A: Go to the CONVERT page. You need a minimum of 5,000 WOLF to convert. 5,000 WOLF = 1 $BATTLE token. Enter the amount you want to convert and submit. Make sure your Solana wallet address is saved on your profile page. Conversions are processed within 24 hours on weekdays and on Monday for weekend requests.
+Q: Is VeloxFi free to play?
+A: Yes, 100% free. No wallet needed to start. No investment required. Just create a free account with a username, email and password and start earning immediately.
+Q: What is $BATTLE token?
+A: $BATTLE is the official VeloxFi token on the Solana blockchain, live on pump.fun. Total supply is fixed at 1,000,000,000 $BATTLE with no minting after launch. Contract address: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump
+Q: How do I claim my $BATTLE tokens?
+A: Go to your profile page and save your Solana wallet address in the CLAIM section. Once you have enough $BATTLE tokens from converting WOLF, submit a claim request. Claims are processed within 24 hours on weekdays.
+Q: How do battle predictions work?
+A: Pick two memecoins from the top 10 most volatile list, choose a timeframe of 5, 15 or 30 minutes, and predict which coin gains the most percentage. If your pick wins you earn WOLF tokens. The coin list updates automatically every 5 minutes with live CoinGecko data.
+Q: How do I buy $BATTLE?
+A: Go to pump.fun and search for $BATTLE or use the contract address 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump. Connect your Solana wallet and swap SOL for $BATTLE. Not financial advice. DYOR.
+Q: What games are available?
+A: Currently available: Mining, Rocket Miner, Crypto Snake, Battle Tetris, Wolf Run and Battle Prediction. More games are added regularly. Check the GAMES page for the latest.
+Q: What is the daily missions system?
+A: Every day at midnight new missions reset. Complete missions like mining, playing games and winning battles to earn bonus WOLF tokens on top of your regular earnings.
