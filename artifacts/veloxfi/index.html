@@ -1583,6 +1583,8 @@
 .game-fs#rocketMinerPage .rmp-hud { flex-shrink: 0; margin-bottom: 4px; }
 .game-fs#rocketMinerPage .rmp-canvas-outer {
   flex: 1; min-height: 0; position: relative; overflow: hidden; border-radius: 0;
+  /* cap height: svh − ticker(32) − nav(60) − game-header(52) − btn-zone(120) */
+  max-height: calc(100svh - 264px);
 }
 .game-fs#rocketMinerPage #rocketMinerCanvas {
   display: block; width: 100%; height: 100%;
