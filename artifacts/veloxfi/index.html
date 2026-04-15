@@ -1419,13 +1419,20 @@
 .cs-again-btn:hover { background:rgba(124,58,237,.2); }
 .cs-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
 .cs-games-btn:hover { background:rgba(37,99,235,.18); }
-.cs-touch-controls { display:none; padding:14px 0 0; justify-content:center; }
-@media (pointer:coarse),(max-width:700px){ .cs-touch-controls { display:flex; } }
+.cs-touch-controls { display:none !important; }
+/* CS: game-frame wraps canvas + overlay D-pad, sized to canvas */
+.cs-game-frame { position:relative; display:block; }
+/* D-pad overlaid at bottom of canvas (touch devices only) */
+.cs-canvas-dpad { display:none; position:absolute; bottom:8px; left:50%; transform:translateX(-50%); flex-direction:column; align-items:center; gap:5px; z-index:5; pointer-events:auto; }
+@media (pointer:coarse),(max-width:700px){ .cs-canvas-dpad { display:flex; } }
+.cs-canvas-drow { display:flex; align-items:center; gap:5px; }
+.cs-canvas-dpad .cs-dpad-btn { width:56px; height:56px; font-size:1.35rem; border-radius:12px; background:rgba(124,58,237,.22); backdrop-filter:blur(3px); }
+.cs-canvas-dpad .cs-dpad-center { width:56px; height:56px; }
 @media (pointer:coarse),(max-width:700px){
   .cs-wrap { padding:6px 8px 0; }
   .cs-topbar { margin-bottom:4px; }
   .cs-hud { margin-bottom:4px; }
-  #cryptoSnakeCanvas { width:min(calc(100vw - 16px), calc(100svh - 480px)); margin:0 auto; }
+  #cryptoSnakeCanvas { width:min(calc(100vw - 16px), calc(100svh - 200px)); margin:0 auto; display:block; }
 }
 .cs-dpad { display:flex; flex-direction:column; align-items:center; gap:10px; }
 .cs-dpad-row { display:flex; align-items:center; gap:10px; }
@@ -1448,7 +1455,7 @@
   .bt-game-area { padding:6px 4px; gap:0; align-items:center; justify-content:center; }
   .bt-side-panel { display:none; }
   .bt-canvas-outer { align-self:center; }
-  #battleTetrisCanvas { height:calc(100svh - 310px); width:auto; max-height:none; max-width:calc(100vw - 8px); }
+  #battleTetrisCanvas { height:calc(100svh - 144px); width:auto; max-height:none; max-width:calc(100vw - 8px); aspect-ratio:300/600; }
 }
 .bt-panel-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:12px 10px; text-align:center; }
 .bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.5rem; font-weight:700; letter-spacing:.15em; color:#475569; margin-bottom:8px; }
@@ -1486,8 +1493,15 @@
 .bt-again-btn:hover { background:rgba(124,58,237,.2); }
 .bt-games-btn { color:#22d3ee; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25); }
 .bt-games-btn:hover { background:rgba(34,211,238,.15); }
-.bt-touch-controls { display:none; flex-shrink:0; padding:10px 16px 14px; gap:10px; flex-direction:column; align-items:center; border-top:1px solid rgba(255,255,255,.05); background:rgba(0,0,0,.18); }
-@media (pointer:coarse),(max-width:700px){ .bt-touch-controls { display:flex; } }
+.bt-touch-controls { display:none !important; }
+/* BT: canvas overlay controls (touch devices only) */
+.bt-canvas-controls { display:none; position:absolute; bottom:6px; left:50%; transform:translateX(-50%); flex-direction:column; align-items:center; gap:4px; z-index:5; pointer-events:auto; }
+@media (pointer:coarse),(max-width:700px){ .bt-canvas-controls { display:flex; } }
+.bt-canvas-row { display:flex; gap:4px; justify-content:center; }
+.bt-canvas-controls .bt-touch-btn { width:58px; height:50px; font-size:1.3rem; border-radius:10px; padding:0; background:rgba(124,58,237,.22); backdrop-filter:blur(3px); }
+.bt-canvas-controls .bt-touch-btn.rotate { font-size:.72rem; letter-spacing:.03em; background:rgba(34,211,238,.2); }
+.bt-canvas-controls .bt-touch-btn.drop { width:92px; font-size:.66rem; letter-spacing:.06em; background:rgba(239,68,68,.18); }
+.bt-canvas-controls .bt-touch-btn.soft { background:rgba(37,99,235,.2); }
 .bt-touch-row { display:flex; gap:10px; justify-content:center; }
 .bt-touch-btn { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:#fff; background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.35); border-radius:14px; padding:0; width:80px; height:80px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
 .bt-touch-btn:active,.bt-touch-btn.pressed { background:rgba(124,58,237,.55); }
@@ -1569,11 +1583,14 @@
 .game-fs#cryptoSnakePage .cs-hud { flex-shrink: 0; margin-bottom: 4px; }
 .game-fs#cryptoSnakePage .cs-canvas-outer {
   flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+  max-height: calc(100svh - 264px);
 }
 .game-fs#cryptoSnakePage #cryptoSnakeCanvas {
-  display: block; height: 100%; width: auto; max-width: 100%; aspect-ratio: 1;
+  display: block;
+  /* square canvas: side = min(available-height, available-width) */
+  height: min(calc(100svh - 264px), calc(100vw - 24px));
+  width: auto; aspect-ratio: 1;
 }
-.game-fs#cryptoSnakePage .cs-touch-controls { flex-shrink: 0; }
 /* Rocket Miner inner layout in fullscreen */
 .game-fs#rocketMinerPage .rmp-wrap {
   flex: 1; min-height: 0; display: flex; flex-direction: column;
@@ -1588,6 +1605,23 @@
 }
 .game-fs#rocketMinerPage #rocketMinerCanvas {
   display: block; width: 100%; height: 100%;
+}
+/* Battle Tetris inner layout in fullscreen */
+.game-fs#battleTetrisPage .bt-topbar { flex-shrink: 0; }
+.game-fs#battleTetrisPage .bt-game-area {
+  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+  padding: 4px 8px;
+}
+.game-fs#battleTetrisPage .bt-side-panel { display: none; }
+.game-fs#battleTetrisPage .bt-canvas-outer {
+  /* shrink-wrap the canvas so overlay buttons align with canvas edges */
+  display: block; position: relative; overflow: hidden; align-self: center;
+}
+.game-fs#battleTetrisPage #battleTetrisCanvas {
+  display: block;
+  /* svh − ticker(32) − bt-topbar(52) − game-area-padding(60) */
+  height: calc(100svh - 144px);
+  width: auto; max-width: calc(100vw - 16px); max-height: none; aspect-ratio: 300/600;
 }
 
 /* ── Print stylesheet ───────────────────────────── */
@@ -3566,7 +3600,24 @@
       </div>
     </div>
     <div class="cs-canvas-outer">
-      <canvas id="cryptoSnakeCanvas" width="480" height="480"></canvas>
+      <!-- game-frame: canvas + overlay D-pad (sized exactly to canvas) -->
+      <div class="cs-game-frame">
+        <canvas id="cryptoSnakeCanvas" width="480" height="480"></canvas>
+        <!-- D-pad overlay (touch devices only, z-index:5 above canvas, below overlays at z-index:10) -->
+        <div class="cs-canvas-dpad">
+          <div class="cs-canvas-drow">
+            <button class="cs-dpad-btn" id="csBtnUp">▲</button>
+          </div>
+          <div class="cs-canvas-drow">
+            <button class="cs-dpad-btn" id="csBtnLeft">◀</button>
+            <div class="cs-dpad-center"></div>
+            <button class="cs-dpad-btn" id="csBtnRight">▶</button>
+          </div>
+          <div class="cs-canvas-drow">
+            <button class="cs-dpad-btn" id="csBtnDown">▼</button>
+          </div>
+        </div>
+      </div>
       <!-- Start Screen -->
       <div id="csStartScreen" class="cs-overlay">
         <div class="cs-overlay-content">
@@ -3598,7 +3649,7 @@
               </div>
               <div class="cs-howto-row">
                 <span class="cs-howto-icon">📱</span>
-                <span>Use the <span class="cs-howto-key">D-pad buttons</span> below on mobile</span>
+                <span>Tap the <span class="cs-howto-key">D-pad</span> overlaid on the canvas to steer</span>
               </div>
             </div>
           </div>
@@ -3627,22 +3678,7 @@
         </div>
       </div>
     </div>
-    <!-- Mobile D-pad touch controls -->
-    <div class="cs-touch-controls">
-      <div class="cs-dpad">
-        <div style="display:flex;justify-content:center">
-          <button class="cs-dpad-btn" id="csBtnUp">▲</button>
-        </div>
-        <div class="cs-dpad-row">
-          <button class="cs-dpad-btn" id="csBtnLeft">◀</button>
-          <div class="cs-dpad-center"></div>
-          <button class="cs-dpad-btn" id="csBtnRight">▶</button>
-        </div>
-        <div style="display:flex;justify-content:center">
-          <button class="cs-dpad-btn" id="csBtnDown">▼</button>
-        </div>
-      </div>
-    </div>
+    <!-- D-pad is now inside the canvas (cs-canvas-dpad overlay) -->
   </div>
 </div><!-- /cryptoSnakePage -->
 
@@ -3660,6 +3696,19 @@
     <!-- Canvas + overlays -->
     <div class="bt-canvas-outer">
       <canvas id="battleTetrisCanvas" width="300" height="600"></canvas>
+
+      <!-- Canvas overlay controls (touch devices only, z-index:5 above canvas, below overlays at z-index:10) -->
+      <div class="bt-canvas-controls">
+        <div class="bt-canvas-row">
+          <button class="bt-touch-btn" id="btBtnLeft">◀</button>
+          <button class="bt-touch-btn rotate" id="btBtnRotate">↺ ROT</button>
+          <button class="bt-touch-btn" id="btBtnRight">▶</button>
+        </div>
+        <div class="bt-canvas-row">
+          <button class="bt-touch-btn soft" id="btBtnDown">▼</button>
+          <button class="bt-touch-btn drop" id="btBtnDrop">■ DROP</button>
+        </div>
+      </div>
 
       <!-- Start screen overlay (only shown before game starts) -->
       <div id="btStartScreen" class="bt-overlay">
@@ -3689,7 +3738,7 @@
               </div>
               <div class="bt-howto-row">
                 <span class="bt-howto-icon">📱</span>
-                <span>Use the <span class="bt-howto-key">touch buttons</span> below on mobile</span>
+                <span>Tap the <span class="bt-howto-key">◀ ↺ ▶ ▼ DROP</span> buttons overlaid on the canvas</span>
               </div>
             </div>
           </div>
@@ -3743,18 +3792,7 @@
     </div>
   </div>
 
-  <!-- Mobile touch controls (only shown on touch screens) -->
-  <div class="bt-touch-controls">
-    <div class="bt-touch-row">
-      <button class="bt-touch-btn" id="btBtnLeft">◀</button>
-      <button class="bt-touch-btn rotate" id="btBtnRotate">↺ ROT</button>
-      <button class="bt-touch-btn" id="btBtnRight">▶</button>
-    </div>
-    <div class="bt-touch-row">
-      <button class="bt-touch-btn soft" id="btBtnDown">▼</button>
-      <button class="bt-touch-btn drop" id="btBtnDrop">■ DROP</button>
-    </div>
-  </div>
+  <!-- Touch controls are now inside the canvas (bt-canvas-controls overlay) -->
 </div><!-- /battleTetrisPage -->
 
 <!-- WOLF RUN PAGE -->
