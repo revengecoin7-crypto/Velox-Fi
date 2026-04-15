@@ -1,10 +1,10 @@
-import { pgTable, varchar, integer, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, varchar, integer, doublePrecision, timestamp, text } from "drizzle-orm/pg-core";
 
 export const veloxfiUsers = pgTable("veloxfi_users", {
   username:         varchar("username", { length: 50 }).primaryKey(),
   email:            varchar("email", { length: 255 }).notNull().unique(),
   passwordHash:     text("password_hash").notNull(),
-  tokens:           integer("tokens").notNull().default(0),
+  tokens:           doublePrecision("tokens").notNull().default(0),
   wolf:             integer("wolf").notNull().default(0),
   wolfMiningStart:  timestamp("wolf_mining_start"),
   sessionToken:     text("session_token"),

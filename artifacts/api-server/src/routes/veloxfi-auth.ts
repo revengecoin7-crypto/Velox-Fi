@@ -298,16 +298,16 @@ router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) =
   try {
     const user = req.veloxfiUser;
     const amount = parseInt(req.body.amount) || 0;
-    if (amount < WOLF_PER_BATTLE || amount % WOLF_PER_BATTLE !== 0) {
-      res.status(400).json({ error: `Amount must be a multiple of ${WOLF_PER_BATTLE.toLocaleString()} WOLF.` }); return;
+    if (amount < 1) {
+      res.status(400).json({ error: "Amount must be at least 1 WOLF." }); return;
     }
     const currentWolf = user.wolf ?? 0;
     if (amount > currentWolf) {
       res.status(400).json({ error: "Insufficient WOLF balance." }); return;
     }
-    const battleEarned = Math.floor(amount / WOLF_PER_BATTLE);
+    const battleEarned     = amount / WOLF_PER_BATTLE; // fractional — e.g. 50 WOLF = 0.01 $BATTLE
     const newWolfBalance   = currentWolf - amount;
-    const newBattleBalance = user.tokens + battleEarned;
+    const newBattleBalance = (user.tokens ?? 0) + battleEarned;
     await db.update(veloxfiUsers)
       .set({ wolf: newWolfBalance, tokens: newBattleBalance })
       .where(eq(veloxfiUsers.username, user.username));
