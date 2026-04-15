@@ -1339,18 +1339,39 @@
 .rmp-again-btn:hover { background:rgba(124,58,237,.2); }
 .rmp-games-btn { color:#60a5fa; background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.3); }
 .rmp-games-btn:hover { background:rgba(37,99,235,.18); }
-.rmp-touch-controls { display:none; flex-direction:row; align-items:stretch; gap:4px; padding:8px 0 0; }
+/* In-canvas overlay move buttons (mobile only) */
+.rmp-canvas-btn {
+  display: none;
+  position: absolute;
+  bottom: 14px;
+  width: 70px;
+  height: 70px;
+  border-radius: 14px;
+  background: rgba(3,7,18,.60);
+  border: 1px solid rgba(255,255,255,.20);
+  color: #fff;
+  font-size: 1.9rem;
+  font-weight: 900;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+  transition: background .1s;
+}
+#rmBtnLeft  { left:  12px; }
+#rmBtnRight { right: 12px; }
+.rmp-canvas-btn:active, .rmp-canvas-btn.pressed { background: rgba(37,99,235,.55); border-color: rgba(37,99,235,.6); }
 @media (pointer:coarse),(max-width:700px){
-  .rmp-touch-controls { display:flex; margin:8px -12px 0; padding:0; gap:4px; }
+  .rmp-canvas-btn { display: flex; }
   .rmp-wrap { padding:6px 12px 0; }
   .rmp-topbar { margin-bottom:4px; }
   .rmp-hud { margin-bottom:4px; }
-  #rocketMinerCanvas { aspect-ratio:480/620; width:auto; height:auto; max-width:calc(100vw - 24px); max-height:calc(100svh - 330px); margin:0 auto; display:block; }
+  #rocketMinerCanvas { aspect-ratio:480/620; width:auto; height:auto; max-width:calc(100vw - 24px); max-height:calc(100svh - 220px); margin:0 auto; display:block; }
 }
-.rmp-touch-btn { flex:1; font-family:'Orbitron',sans-serif; font-size:2rem; font-weight:900; color:#fff; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.3); border-radius:0; padding:0; height:86px; min-height:86px; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; transition:background .1s; display:flex; align-items:center; justify-content:center; }
-.rmp-touch-btn:first-child { border-radius:0 0 0 0; }
-.rmp-touch-btn:last-child  { border-radius:0 0 0 0; }
-.rmp-touch-btn:active,.rmp-touch-btn.pressed { background:rgba(37,99,235,.5); }
 
 /* ── Crypto Snake Game Page ─────────────────────── */
 #cryptoSnakePage { min-height:100vh; background:#030712; }
@@ -1556,18 +1577,15 @@
 /* Rocket Miner inner layout in fullscreen */
 .game-fs#rocketMinerPage .rmp-wrap {
   flex: 1; min-height: 0; display: flex; flex-direction: column;
-  padding: 8px 12px 0; max-width: none;
+  padding: 8px 12px 4px; max-width: none;
 }
 .game-fs#rocketMinerPage .rmp-topbar { flex-shrink: 0; margin-bottom: 4px; }
 .game-fs#rocketMinerPage .rmp-hud { flex-shrink: 0; margin-bottom: 4px; }
 .game-fs#rocketMinerPage .rmp-canvas-outer {
-  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  flex: 1; min-height: 0; position: relative; overflow: hidden; border-radius: 0;
 }
 .game-fs#rocketMinerPage #rocketMinerCanvas {
-  display: block; width: 100%; height: auto; max-height: 100%; aspect-ratio: 480/620;
-}
-.game-fs#rocketMinerPage .rmp-touch-controls {
-  flex-shrink: 0; height: 86px; padding: 0; margin: 0 -12px; gap: 4px;
+  display: block; width: 100%; height: 100%;
 }
 
 /* ── Print stylesheet ───────────────────────────── */
@@ -3469,6 +3487,9 @@
     </div>
     <div class="rmp-canvas-outer">
       <canvas id="rocketMinerCanvas" width="480" height="620"></canvas>
+      <!-- In-canvas touch move buttons (mobile only) -->
+      <button class="rmp-canvas-btn" id="rmBtnLeft">◀</button>
+      <button class="rmp-canvas-btn" id="rmBtnRight">▶</button>
       <!-- Start Screen -->
       <div id="rmStartScreen" class="rmp-overlay">
         <div class="rmp-overlay-content">
@@ -3493,7 +3514,7 @@
               </div>
               <div class="rmp-howto-row">
                 <span class="rmp-howto-icon">📱</span>
-                <span>Use the <span class="rmp-howto-key">◀ ▶</span> buttons below to move · Tap the <span class="rmp-howto-key">canvas</span> to shoot</span>
+                <span>Tap <span class="rmp-howto-key">◀ ▶</span> buttons on the canvas to move · Tap <span class="rmp-howto-key">centre</span> of the canvas to shoot</span>
               </div>
             </div>
           </div>
@@ -3521,11 +3542,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <!-- Mobile touch controls -->
-    <div class="rmp-touch-controls">
-      <button class="rmp-touch-btn" id="rmBtnLeft">◀</button>
-      <button class="rmp-touch-btn" id="rmBtnRight">▶</button>
     </div>
   </div>
 </div><!-- /rocketMinerPage -->
