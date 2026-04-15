@@ -1446,16 +1446,30 @@
 .bt-back-btn { font-family:'Orbitron',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.1em; color:#60a5fa; background:none; border:1px solid rgba(96,165,250,.3); border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .2s; }
 .bt-back-btn:hover { background:rgba(96,165,250,.1); border-color:#60a5fa; }
 .bt-page-title { font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:900; letter-spacing:.15em; color:#fff; }
+/* Mobile HUD (timer / lines / wolf) — shown instead of the sidebar on small screens */
+.bt-hud { display:none; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px 16px; margin:0 8px 6px; flex-shrink:0; }
+.bt-hud-timer { font-family:'Orbitron',sans-serif; font-size:1.25rem; font-weight:900; color:#60a5fa; letter-spacing:.05em; min-width:52px; text-align:center; }
+.bt-hud-stat { font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:4px; }
+.bt-hud-stat-label { font-size:.62rem; color:#7c3aed; }
 .bt-game-area { flex:1; display:flex; align-items:center; justify-content:center; gap:14px; padding:14px 20px; overflow:hidden; }
 .bt-canvas-outer { position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(124,58,237,.45); box-shadow:0 0 60px rgba(124,58,237,.18), 0 0 120px rgba(124,58,237,.06); flex-shrink:0; display:flex; align-items:center; }
 #battleTetrisCanvas { display:block; max-height:calc(100vh - 155px); width:auto; }
 .bt-side-panel { display:flex; flex-direction:column; gap:10px; width:120px; flex-shrink:0; align-self:center; }
 @media (max-width:600px) {
   #battleTetrisPage { height:100svh; }
-  .bt-game-area { padding:6px 4px; gap:0; align-items:center; justify-content:center; }
+  .bt-hud { display:flex; }
+  .bt-game-area { padding:4px 4px; gap:0; align-items:center; justify-content:center; }
   .bt-side-panel { display:none; }
-  .bt-canvas-outer { align-self:center; }
-  #battleTetrisCanvas { height:calc(100svh - 144px); width:auto; max-height:none; max-width:calc(100vw - 8px); aspect-ratio:300/600; }
+  .bt-canvas-outer {
+    align-self:center;
+    /* button shelf: extra 120px below the game canvas so buttons don't overlap pieces */
+    padding-bottom:120px;
+  }
+  #battleTetrisCanvas {
+    /* svh − ticker(32) − topbar(52) − hud(46) − game-area-padding(16) − btn-shelf(120) */
+    height:calc(100svh - 266px);
+    width:auto; max-height:none; max-width:calc(100vw - 8px); aspect-ratio:300/600;
+  }
 }
 .bt-panel-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:12px 10px; text-align:center; }
 .bt-panel-label { font-family:'Orbitron',sans-serif; font-size:.5rem; font-weight:700; letter-spacing:.15em; color:#475569; margin-bottom:8px; }
@@ -1608,19 +1622,22 @@
 }
 /* Battle Tetris inner layout in fullscreen */
 .game-fs#battleTetrisPage .bt-topbar { flex-shrink: 0; }
+.game-fs#battleTetrisPage .bt-hud { display: flex; flex-shrink: 0; margin: 0 8px 4px; }
 .game-fs#battleTetrisPage .bt-game-area {
   flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
   padding: 4px 8px;
 }
 .game-fs#battleTetrisPage .bt-side-panel { display: none; }
 .game-fs#battleTetrisPage .bt-canvas-outer {
-  /* shrink-wrap the canvas so overlay buttons align with canvas edges */
-  display: block; position: relative; overflow: hidden; align-self: center;
+  position: relative; overflow: hidden; align-self: center;
+  display: flex; align-items: flex-start;
+  /* 120px shelf below the game canvas keeps overlay buttons clear of pieces */
+  padding-bottom: 120px;
 }
 .game-fs#battleTetrisPage #battleTetrisCanvas {
-  display: block;
-  /* svh − ticker(32) − bt-topbar(52) − game-area-padding(60) */
-  height: calc(100svh - 144px);
+  display: block; flex-shrink: 0;
+  /* svh − ticker(32) − bt-topbar(52) − bt-hud(46) − game-area-padding(16) − btn-shelf(120) */
+  height: calc(100svh - 266px);
   width: auto; max-width: calc(100vw - 16px); max-height: none; aspect-ratio: 300/600;
 }
 
@@ -3689,6 +3706,20 @@
     <button class="bt-back-btn" onclick="btStopGame();goGames()">← GAMES</button>
     <div class="bt-page-title">🧱 BATTLE TETRIS</div>
     <div style="width:100px"></div>
+  </div>
+
+  <!-- Mobile HUD: shown on small screens instead of the sidebar -->
+  <div class="bt-hud">
+    <div class="bt-hud-stat">
+      <span id="btMobileLines">0</span>
+      <span class="bt-hud-stat-label">LINES</span>
+    </div>
+    <div class="bt-hud-timer" id="btMobileTimer">2:00</div>
+    <div class="bt-hud-stat">
+      <span>🐺</span>
+      <span id="btMobileWolf">0</span>
+      <span class="bt-hud-stat-label">WOLF</span>
+    </div>
   </div>
 
   <!-- Game area: board + sidebar -->
@@ -5852,16 +5883,25 @@ function btDrawNextPiece() {
 }
 
 function btUpdateHUD() {
+  const m = Math.floor(btTimeLeft / 60), s = btTimeLeft % 60;
+  const timeStr   = `${m}:${s.toString().padStart(2,'0')}`;
+  const timerColor = btTimeLeft <= 30 ? '#ef4444' : '#60a5fa';
+
+  // Sidebar (desktop)
   const timerEl = document.getElementById('btHudTimer');
   const wolfEl  = document.getElementById('btHudWolf');
   const linesEl = document.getElementById('btHudLines');
-  if (timerEl) {
-    const m = Math.floor(btTimeLeft / 60), s = btTimeLeft % 60;
-    timerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
-    timerEl.style.color = btTimeLeft <= 30 ? '#ef4444' : '#60a5fa';
-  }
-  if (wolfEl)  wolfEl.textContent  = btWolfEarned;
-  if (linesEl) linesEl.textContent = btLinesCleared;
+  if (timerEl)  { timerEl.textContent = timeStr; timerEl.style.color = timerColor; }
+  if (wolfEl)   wolfEl.textContent  = btWolfEarned;
+  if (linesEl)  linesEl.textContent = btLinesCleared;
+
+  // Mobile HUD bar
+  const mTimerEl = document.getElementById('btMobileTimer');
+  const mWolfEl  = document.getElementById('btMobileWolf');
+  const mLinesEl = document.getElementById('btMobileLines');
+  if (mTimerEl)  { mTimerEl.textContent = timeStr; mTimerEl.style.color = timerColor; }
+  if (mWolfEl)   mWolfEl.textContent  = btWolfEarned;
+  if (mLinesEl)  mLinesEl.textContent = btLinesCleared;
 }
 
 function btOnKeyDown(e) {
