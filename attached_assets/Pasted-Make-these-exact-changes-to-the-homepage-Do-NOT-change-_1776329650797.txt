@@ -1,0 +1,86 @@
+Make these exact changes to the homepage. Do NOT change any other pages.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHANGE 1 — LOGGED-IN USERS SEE SAME NEW DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The homepage currently shows a different layout for logged-in users 
+vs guests. Logged-in users must see the SAME new sections as guests:
+- hero-v2 section: remove `display:none` so it always shows
+- tok-section (tokenomics): remove `display:none` so it always shows  
+- gv2-section (games): must show for both guest and logged-in
+- new mining section: must show for both guest and logged-in
+- The miningSection div (id="miningSection") should appear inside 
+  the mining section for logged-in users, not replace the whole page
+
+Find all JavaScript that does things like:
+  heroSection.style.display = 'none'
+  tokenSupplyBlock.style.display = 'none'
+And change them so these sections are ALWAYS visible regardless 
+of login state.
+
+For logged-in users, keep showing:
+- Their WOLF/BATTLE balance in the navbar (already works)
+- The mining widget (miningSection) inside the mining section
+- Their active battles below the games section
+- Leaderboard, achievements, missions as usual below everything
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHANGE 2 — REMOVE ALL TWITTER/X REFERENCES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Search the entire file for every mention of:
+- "twitter" or "Twitter" 
+- "x.com" or "X.com"
+- Any social button linking to x.com or twitter.com
+- The X/Twitter icon in footer, mobile menu, and anywhere else
+
+Remove ALL of them completely. Replace nowhere — just delete.
+Keep Telegram and Discord links/buttons intact.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHANGE 3 — WOLF MASCOT LOGO IN MULTIPLE PLACES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Add wolf-mascot.jpg in these 3 extra locations:
+
+A) In the NAVBAR — add a small wolf logo next to the VELOXFI text:
+<img src="/wolf-mascot.jpg" style="width:32px; height:32px; 
+  border-radius:50%; object-fit:cover; margin-right:8px;
+  border:1px solid rgba(124,58,237,0.5);" alt="VeloxFi wolf">
+
+B) In the MINING SECTION — add wolf-mascot.jpg above the mining 
+title, width 80px, centered, with purple glow drop-shadow.
+
+C) In the FOOTER — add wolf-mascot.jpg centered above the footer 
+links, width 64px, with glow effect.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHANGE 4 — USE DECORATIVES.JPG AS REAL ICON IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The decoratives.jpg contains neon gaming symbols/icons. Use it as a 
+visible decorative banner between sections, not just a subtle texture.
+
+Add this divider element between the tokenomics section and the 
+mining section:
+
+<div style="width:100%; overflow:hidden; max-height:120px; 
+  position:relative; margin:0;">
+  <img src="/decoratives.jpg" style="width:100%; height:120px; 
+    object-fit:cover; object-position:center top; opacity:0.35; 
+    display:block;">
+  <div style="position:absolute; inset:0; 
+    background:linear-gradient(to right, #05080f 0%, transparent 15%, 
+    transparent 85%, #05080f 100%);"></div>
+</div>
+
+And also add it as a divider between the mining section and the 
+games section, same style.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHANGE 5 — UPDATE WOLF→$BATTLE CONVERSION TEXT EVERYWHERE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Find every occurrence of "5,000 WOLF = 1 $BATTLE" or "5000 WOLF = 1 
+$BATTLE" in the homepage and change it to:
+"Any amount · 5,000 WOLF = 1 $BATTLE"
+
+Also in the FAQ section on the homepage, update the answer about 
+WOLF conversion to say players can convert ANY amount of WOLF, 
+not just multiples of 5,000.
