@@ -2193,11 +2193,6 @@
       <img class="hero-v2-wolf" src="/wolf-mascot.jpg" alt="VeloxFi cyber wolf mascot — memecoin battle platform on Solana">
       <h1 class="hero-v2-title">THE MEMECOIN THAT <em>FIGHTS BACK</em></h1>
       <p class="hero-v2-sub">Battle memecoins. Play games. Earn $BATTLE.</p>
-      <div class="hero-v2-price" id="heroPriceBlock">
-        <div class="hero-v2-price-label">$BATTLE LIVE PRICE</div>
-        <div class="hero-v2-price-val" id="heroPriceVal">—</div>
-        <div class="hero-v2-price-change neutral" id="heroChangeVal">loading...</div>
-      </div>
       <div class="hero-v2-btns">
         <a class="hero-v2-btn-buy" href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump" target="_blank" rel="noopener">🔥 BUY $BATTLE</a>
         <button class="hero-v2-btn-play" onclick="currentUser ? document.getElementById('miningSection').scrollIntoView({behavior:'smooth'}) : openModal('register')">🎮 PLAY FREE</button>
@@ -9015,46 +9010,6 @@ function newCopyCa() {
   }).catch(() => { showToast('Contract: ' + CA, 'info'); });
 }
 
-async function fetchBattlePrice() {
-  const priceEl = document.getElementById('heroPriceVal');
-  const changeEl = document.getElementById('heroChangeVal');
-  if (!priceEl || !changeEl) return;
-  try {
-    const CA = '3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump';
-    const url = `https://api.dexscreener.com/latest/dex/tokens/${CA}`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('no data');
-    const d = await r.json();
-    const pair = d.pairs && d.pairs[0];
-    if (!pair) throw new Error('no pair');
-    const price = parseFloat(pair.priceUsd);
-    const change = parseFloat(pair.priceChange && pair.priceChange.h24);
-    if (!isNaN(price)) {
-      priceEl.textContent = price < 0.000001
-        ? '$' + price.toFixed(10)
-        : price < 0.01
-        ? '$' + price.toFixed(8)
-        : '$' + price.toFixed(4);
-    }
-    if (!isNaN(change)) {
-      const up = change >= 0;
-      changeEl.textContent = (up ? '▲ +' : '▼ ') + change.toFixed(2) + '% (24h)';
-      changeEl.className = 'hero-v2-price-change ' + (up ? 'up' : 'down');
-    } else {
-      changeEl.textContent = 'Live on DexScreener';
-      changeEl.className = 'hero-v2-price-change neutral';
-    }
-  } catch {
-    const priceEl2 = document.getElementById('heroPriceVal');
-    const changeEl2 = document.getElementById('heroChangeVal');
-    if (priceEl2) priceEl2.textContent = 'N/A';
-    if (changeEl2) {
-      changeEl2.textContent = 'View on DexScreener ↗';
-      changeEl2.className = 'hero-v2-price-change neutral';
-    }
-  }
-}
-
 async function fetchLiveTicker() {
   const track = document.getElementById('lptTrack');
   if (!track) return;
@@ -9081,9 +9036,6 @@ async function fetchLiveTicker() {
 }
 
 (function initHomepageData() {
-  fetchBattlePrice();
-  setInterval(fetchBattlePrice, 5 * 60 * 1000);
-
   fetch('/api/veloxfi/stats').then(r => r.json()).then(data => {
     const total = 1000000000;
     const claimed = data.totalEarned || 0;
