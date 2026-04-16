@@ -9021,27 +9021,37 @@ async function fetchBattlePrice() {
   if (!priceEl || !changeEl) return;
   try {
     const CA = '3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump';
-    const url = `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${CA}&vs_currencies=usd&include_24hr_change=true`;
+    const url = `https://api.dexscreener.com/latest/dex/tokens/${CA}`;
     const r = await fetch(url);
     if (!r.ok) throw new Error('no data');
     const d = await r.json();
-    const key = Object.keys(d)[0];
-    if (!key) throw new Error('no key');
-    const price = d[key].usd;
-    const change = d[key].usd_24h_change;
-    if (price !== undefined && price !== null) {
-      priceEl.textContent = price < 0.01 ? '$' + price.toFixed(8) : '$' + price.toFixed(4);
+    const pair = d.pairs && d.pairs[0];
+    if (!pair) throw new Error('no pair');
+    const price = parseFloat(pair.priceUsd);
+    const change = parseFloat(pair.priceChange && pair.priceChange.h24);
+    if (!isNaN(price)) {
+      priceEl.textContent = price < 0.000001
+        ? '$' + price.toFixed(10)
+        : price < 0.01
+        ? '$' + price.toFixed(8)
+        : '$' + price.toFixed(4);
     }
-    if (change !== undefined && change !== null) {
-      const pct = change.toFixed(2);
+    if (!isNaN(change)) {
       const up = change >= 0;
-      changeEl.textContent = (up ? '▲ +' : '▼ ') + pct + '% (24h)';
+      changeEl.textContent = (up ? '▲ +' : '▼ ') + change.toFixed(2) + '% (24h)';
       changeEl.className = 'hero-v2-price-change ' + (up ? 'up' : 'down');
+    } else {
+      changeEl.textContent = 'Live on DexScreener';
+      changeEl.className = 'hero-v2-price-change neutral';
     }
   } catch {
-    priceEl.textContent = 'N/A';
-    changeEl.textContent = 'Price data unavailable';
-    changeEl.className = 'hero-v2-price-change neutral';
+    const priceEl2 = document.getElementById('heroPriceVal');
+    const changeEl2 = document.getElementById('heroChangeVal');
+    if (priceEl2) priceEl2.textContent = 'N/A';
+    if (changeEl2) {
+      changeEl2.textContent = 'View on DexScreener ↗';
+      changeEl2.className = 'hero-v2-price-change neutral';
+    }
   }
 }
 
