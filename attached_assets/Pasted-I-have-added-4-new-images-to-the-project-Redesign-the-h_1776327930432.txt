@@ -1,0 +1,81 @@
+I have added 4 new images to the project. Redesign the homepage (/) 
+completely using these images. Here are the exact instructions:
+
+IMAGES ADDED:
+- hero-banner.jpg (battle arena background)
+- wolf-mascot.jpg (cyber wolf chibi character)
+- battle-token.jpg ($BATTLE coin artwork)
+- decoratives.jpg (neon icons/decorative elements)
+
+HOMEPAGE STRUCTURE (top to bottom):
+
+1. NAVBAR
+- Logo "VELOXFI" left, links right (Battle, Games, Whitepaper, FAQ)
+- background: #05080f, border-bottom: 1px solid #7c3aed33
+
+2. HERO SECTION
+- Full width background image: hero-banner.jpg (cover, center)
+- Dark overlay on top: background: rgba(5,8,15,0.55)
+- Center content:
+  * Small badge: "⚡ UNIT-1 ONLINE ⚡" (purple border, purple text)
+  * wolf-mascot.jpg image, width 160px, centered, 
+    drop-shadow: 0 0 40px #7c3aed99
+  * H1: "THE MEMECOIN THAT FIGHTS BACK" 
+    (Orbitron font, 36px, white, "FIGHTS BACK" in #7c3aed)
+  * Subtitle: "Battle memecoins. Play games. Earn $BATTLE." 
+    (Rajdhani, 18px, #94a3b8)
+  * Live $BATTLE price from CoinGecko API for contract 
+    3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump
+    displayed as big green number with % change
+  * Two buttons: "🔥 BUY $BATTLE" (purple filled) 
+    and "🎮 PLAY FREE" (blue outline)
+
+3. CONTRACT ADDRESS BAR
+- Full width dark bar (#0d1117)
+- Shows: "CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump" 
+  with a COPY button
+- pump.fun link button next to it
+
+4. LIVE TICKER
+- Scrolling left animation, dark background
+- Live top memecoin prices from CoinGecko (refresh every 5 min)
+- Green for positive, red for negative
+
+5. $BATTLE TOKEN SECTION
+- Section title: "$BATTLE TOKENOMICS" (Orbitron, centered)
+- battle-token.jpg image displayed large (300px) centered
+- Below image: 6 stat cards in a grid:
+  Total Supply / Liquidity Locked / Dev Tax / 
+  Launched On / Play to Earn / Blockchain
+- background cards: #0d1117, border: 1px solid #7c3aed33
+
+6. EARN $BATTLE SECTION
+- Title: "🎮 EARN $BATTLE — 4 WAYS TO WIN"
+- Subtitle: "All games are 100% free. No wallet needed to play."
+- 4 game cards in a 2x2 grid, ALL EQUAL SIZE:
+  * 🚀 Rocket Miner — "Shoot coins, earn WOLF"
+  * 🐍 Crypto Snake — "Eat coins, grow bigger"  
+  * 🎮 Battle Tetris — "Clear lines, stack rewards"
+  * 🐺 Wolf Run — "Run, collect, dominate"
+- Each card: dark bg, purple border on hover, 
+  green "Earn WOLF" badge, Play button
+
+7. HOW IT WORKS
+- 3 steps side by side with neon numbered circles:
+  01 🎮 Play free games → earn WOLF
+  02 ⚔️ Battle memecoins → win $BATTLE  
+  03 💰 Convert WOLF → $BATTLE → profit
+- Use decoratives.jpg as subtle background element (opacity 0.08)
+
+8. FOOTER
+- Telegram / Discord / X buttons
+- "Not financial advice · DYOR · US residents excluded"
+- background: #030508
+
+GENERAL STYLE RULES:
+- Font: Orbitron for headings/numbers, Rajdhani for body text
+- Colors: background #05080f, purple #7c3aed, blue #2563eb
+- All section titles: Orbitron font, uppercase
+- Keep ALL existing backend routes and logic unchanged
+- Only modify the homepage HTML/CSS (/ route)
+- Make it fully mobile responsive
