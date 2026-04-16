@@ -2217,39 +2217,6 @@
   </div>
 
 
-  <!-- HOME LIVE BATTLE CARD — replaces game-area while a battle is running -->
-  <div id="homeLiveBattleCard" style="display:none; padding:0 20px 20px">
-    <div class="hlc-container">
-      <div class="hlc-header">
-        <span class="hlc-live-dot"></span>
-        <span class="hlc-live-label">LIVE BATTLE</span>
-        <span class="hlc-timeframe" id="hlcTimeframeLabel">—</span>
-      </div>
-      <div class="hlc-arena">
-        <div class="hlc-coin-card" id="hlcCoinA">
-          <div class="hlc-coin-logo" id="hlcLogoA"></div>
-          <div class="hlc-coin-name" id="hlcNameA">—</div>
-          <div class="hlc-coin-entry">Entry: <span id="hlcEntryA">—</span></div>
-          <div class="hlc-coin-change neutral" id="hlcChangeA">—</div>
-          <div class="hlc-pick-badge" id="hlcPickBadgeA" style="display:none">⭐ YOUR PICK</div>
-        </div>
-        <div class="hlc-center">
-          <div class="hlc-vs">⚔️</div>
-          <div class="hlc-timer" id="hlcTimer">—:——</div>
-          <div class="hlc-timer-label">REMAINING</div>
-        </div>
-        <div class="hlc-coin-card" id="hlcCoinB">
-          <div class="hlc-coin-logo" id="hlcLogoB"></div>
-          <div class="hlc-coin-name" id="hlcNameB">—</div>
-          <div class="hlc-coin-entry">Entry: <span id="hlcEntryB">—</span></div>
-          <div class="hlc-coin-change neutral" id="hlcChangeB">—</div>
-          <div class="hlc-pick-badge" id="hlcPickBadgeB" style="display:none">⭐ YOUR PICK</div>
-        </div>
-      </div>
-      <button class="hlc-back-btn" onclick="goToActiveBattle()">⚔️ BACK TO BATTLE →</button>
-    </div>
-  </div>
-
   <!-- STATS BAR — inline sticky, appears below hero -->
   <div id="statsBar">
     <div class="sb-item">
@@ -2431,6 +2398,49 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE BATTLES — logged-in only, shown below games -->
+  <div id="homeLiveBattleCard" style="display:none; padding:0 20px 28px; max-width:900px; margin:0 auto;">
+    <div class="hlc-container">
+      <div class="hlc-header">
+        <span class="hlc-live-dot"></span>
+        <span class="hlc-live-label">LIVE BATTLE</span>
+        <span class="hlc-timeframe" id="hlcTimeframeLabel">—</span>
+      </div>
+      <div class="hlc-arena">
+        <div class="hlc-coin-card" id="hlcCoinA">
+          <div class="hlc-coin-logo" id="hlcLogoA"></div>
+          <div class="hlc-coin-name" id="hlcNameA">—</div>
+          <div class="hlc-coin-entry">Entry: <span id="hlcEntryA">—</span></div>
+          <div class="hlc-coin-change neutral" id="hlcChangeA">—</div>
+          <div class="hlc-pick-badge" id="hlcPickBadgeA" style="display:none">⭐ YOUR PICK</div>
+        </div>
+        <div class="hlc-center">
+          <div class="hlc-vs">⚔️</div>
+          <div class="hlc-timer" id="hlcTimer">—:——</div>
+          <div class="hlc-timer-label">REMAINING</div>
+        </div>
+        <div class="hlc-coin-card" id="hlcCoinB">
+          <div class="hlc-coin-logo" id="hlcLogoB"></div>
+          <div class="hlc-coin-name" id="hlcNameB">—</div>
+          <div class="hlc-coin-entry">Entry: <span id="hlcEntryB">—</span></div>
+          <div class="hlc-coin-change neutral" id="hlcChangeB">—</div>
+          <div class="hlc-pick-badge" id="hlcPickBadgeB" style="display:none">⭐ YOUR PICK</div>
+        </div>
+      </div>
+      <button class="hlc-back-btn" onclick="goToActiveBattle()">⚔️ BACK TO BATTLE →</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD — homepage -->
+  <div id="homeLeaderboardSection" style="padding:40px 20px; max-width:700px; margin:0 auto;">
+    <div style="font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#64748b; text-align:center; margin-bottom:6px;">TOP EARNERS</div>
+    <div style="font-family:'Orbitron',monospace; font-size:18px; font-weight:900; color:#fff; text-align:center; margin-bottom:24px;">$BATTLE <span style="color:#7c3aed;">LEADERBOARD</span></div>
+    <table class="lb-table" style="width:100%;"><tbody id="lbBodyHome"></tbody></table>
+    <div style="text-align:center; margin-top:16px;">
+      <button onclick="goBattlePrediction()" style="font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:#7c3aed; background:none; border:1px solid rgba(124,58,237,0.3); border-radius:8px; padding:8px 20px; cursor:pointer; transition:all .2s;">VIEW FULL LEADERBOARD →</button>
     </div>
   </div>
 
@@ -4524,6 +4534,8 @@ function initRouter() {
     fetchActivityFeed();
     window.scrollTo(0,0);
   } else {
+    setPageMeta('home');
+    _applyHomeView();
     _showOnlyPage('mainPage');
   }
 }
@@ -4671,6 +4683,7 @@ function goHome() {
   window.scrollTo(0,0);
   if (currentUser) { checkActiveBattleNow(); fetchMiningStatus(); }
   fetchStatsBar();
+  renderLeaderboard();
 }
 
 function _applyHomeView() {
@@ -8845,23 +8858,31 @@ function renderActiveBattles() {
 
 // ── Leaderboard ───────────────────────────────────
 async function renderLeaderboard() {
-  const tbody=document.getElementById('lbBody'); if(!tbody) return;
+  const tbody=document.getElementById('lbBody');
+  const tbodyHome=document.getElementById('lbBodyHome');
+  if(!tbody && !tbodyHome) return;
   try {
     const res = await fetch('/api/veloxfi/leaderboard');
     if (!res.ok) throw new Error();
     const sorted = await res.json();
+    const emptyRow=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
     if (!sorted.length||sorted.every(u=>u.tokens===0)) {
-      tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`; return;
+      if(tbody) tbody.innerHTML=emptyRow;
+      if(tbodyHome) tbodyHome.innerHTML=emptyRow;
+      return;
     }
     const medals=['🥇','🥈','🥉']; const rc=['gold','silver','bronze'];
-    tbody.innerHTML=sorted.map((user,i)=>`
+    const makeRows=(list)=>list.map((user,i)=>`
       <tr class="lb-row" style="${currentUser&&user.username===currentUser.username?'background:rgba(37,99,235,0.08);':''}">
         <td class="lb-rank ${rc[i]||''}">${medals[i]||'#'+(i+1)}</td>
         <td class="lb-user" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${user.username.toUpperCase()}${currentUser&&user.username===currentUser.username?' <span style="color:var(--blue-glow);font-size:10px;">(YOU)</span>':''} ${getLevelBadgeHTML(user.xp??0,'sm')}</td>
         <td class="lb-tokens">⚔️ ${user.tokens} $BATTLE</td>
       </tr>`).join('');
+    if(tbody) tbody.innerHTML=makeRows(sorted);
+    if(tbodyHome) tbodyHome.innerHTML=makeRows(sorted.slice(0,5));
   } catch {
-    tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
+    if(tbody) tbody.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
+    if(tbodyHome) tbodyHome.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-dim);font-family:Orbitron,monospace;font-size:12px;letter-spacing:2px;">BE THE FIRST ON THE LEADERBOARD</td></tr>`;
   }
 }
 
