@@ -291,12 +291,12 @@
   .hero-note span { color:var(--blue-glow); cursor:pointer; text-decoration:underline; }
 
   /* ── HERO V2 ── */
-  .hero-v2 { position:relative; width:100%; min-height:100svh; display:flex; align-items:center; justify-content:center; background:url('/hero-banner.jpg') center/cover no-repeat; overflow:hidden; }
+  .hero-v2 { position:relative; width:100%; min-height:420px; display:flex; align-items:center; justify-content:center; background:url('/hero-banner.jpg') center/cover no-repeat; overflow:hidden; }
   .hero-v2-overlay { position:absolute; inset:0; background:rgba(5,8,15,0.58); z-index:0; }
-  .hero-v2-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:18px; text-align:center; padding:60px 24px 80px; max-width:700px; margin:0 auto; }
+  .hero-v2-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:18px; text-align:center; padding:40px 24px 48px; max-width:700px; margin:0 auto; }
   .hero-v2-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 20px; border:1px solid #7c3aed; border-radius:100px; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:3px; color:#a78bfa; }
-  .hero-v2-wolf { width:160px; height:160px; border-radius:50%; object-fit:cover; filter:drop-shadow(0 0 40px rgba(124,58,237,0.6)); animation:pulse-wolf 3s ease-in-out infinite; }
-  .hero-v2-title { font-family:'Orbitron',monospace; font-size:clamp(26px,5vw,44px); font-weight:900; color:#fff; line-height:1.2; letter-spacing:1px; margin:0; }
+  .hero-v2-wolf { width:110px; height:110px; border-radius:50%; object-fit:cover; filter:drop-shadow(0 0 40px rgba(124,58,237,0.6)); animation:pulse-wolf 3s ease-in-out infinite; }
+  .hero-v2-title { font-family:'Orbitron',monospace; font-size:clamp(20px,4vw,32px); font-weight:900; color:#fff; line-height:1.2; letter-spacing:1px; margin:0; }
   .hero-v2-title em { font-style:normal; color:#7c3aed; }
   .hero-v2-sub { font-family:'Rajdhani',sans-serif; font-size:19px; color:#94a3b8; max-width:440px; line-height:1.6; margin:0; }
   .hero-v2-price { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(5,8,15,0.6); border:1px solid rgba(124,58,237,0.3); border-radius:16px; padding:16px 32px; }
@@ -322,15 +322,6 @@
   .new-ca-pf { padding:6px 16px; background:transparent; border:1px solid rgba(37,99,235,0.4); border-radius:6px; color:#60a5fa; font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:1px; cursor:pointer; text-decoration:none; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
   .new-ca-pf:hover { background:rgba(37,99,235,0.15); }
 
-  /* ── LIVE PRICE TICKER ── */
-  .lpt-strip { background:#030508; border-bottom:1px solid rgba(124,58,237,0.12); padding:10px 0; overflow:hidden; position:relative; }
-  .lpt-track { display:inline-flex; animation:ticker 45s linear infinite; white-space:nowrap; }
-  .lpt-item { display:inline-flex; align-items:center; gap:6px; padding:0 28px; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; border-right:1px solid rgba(255,255,255,0.06); }
-  .lpt-name { color:#64748b; text-transform:uppercase; letter-spacing:1px; font-size:11px; }
-  .lpt-price { color:#e2e8f0; }
-  .lpt-change { font-size:12px; }
-  .lpt-change.up { color:#22c55e; }
-  .lpt-change.down { color:#ef4444; }
 
   /* ── TOKENOMICS ── */
   .tok-section { padding:72px 20px; text-align:center; }
@@ -353,7 +344,7 @@
   .gv2-title { font-family:'Orbitron',monospace; font-size:clamp(16px,3vw,22px); font-weight:900; color:#fff; text-align:center; margin-bottom:8px; }
   .gv2-sub { font-family:'Rajdhani',sans-serif; font-size:15px; color:#64748b; text-align:center; margin-bottom:40px; }
   .gv2-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .gv2-card { background:#0d1117; border:1px solid rgba(124,58,237,0.2); border-radius:18px; padding:36px 24px 28px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; transition:all .22s; cursor:pointer; }
+  .gv2-card { position:relative; overflow:hidden; background:#0d1117; border:1px solid rgba(124,58,237,0.2); border-radius:18px; padding:36px 24px 28px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; transition:all .22s; cursor:pointer; }
   .gv2-card:hover { border-color:#7c3aed; transform:translateY(-4px); box-shadow:0 16px 48px rgba(124,58,237,0.2); }
   .gv2-icon { font-size:44px; line-height:1; }
   .gv2-name { font-family:'Orbitron',monospace; font-size:12px; font-weight:800; letter-spacing:2px; color:#fff; }
@@ -2222,12 +2213,6 @@
     </a>
   </div>
 
-  <!-- LIVE PRICE TICKER -->
-  <div class="lpt-strip" id="lptStrip">
-    <div class="lpt-track" id="lptTrack">
-      <span class="lpt-item"><span class="lpt-name">LOADING</span> <span class="lpt-price">LIVE PRICES...</span></span>
-    </div>
-  </div>
 
   <!-- MINING SECTION — logged-in homepage -->
   <div id="miningSection">
@@ -2317,6 +2302,19 @@
       <div class="tok-eyebrow">ON-CHAIN · SOLANA</div>
       <div class="tok-title">$BATTLE TOKENOMICS</div>
       <img class="tok-img" src="/battle-token.jpg" alt="$BATTLE token coin artwork — VeloxFi memecoin on Solana">
+      <div style="max-width:500px; margin:0 auto 28px; padding:0 16px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:#64748b;">CLAIMED BY PLAYERS</span>
+          <span id="claimedPct" style="font-family:'Orbitron',monospace; font-size:10px; color:#a78bfa;">loading...</span>
+        </div>
+        <div style="background:rgba(124,58,237,0.1); border-radius:99px; height:8px; overflow:hidden; border:1px solid rgba(124,58,237,0.2);">
+          <div id="claimedBar" style="height:100%; border-radius:99px; background:linear-gradient(90deg,#2563eb,#7c3aed); width:0%; transition:width 1s ease;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:6px;">
+          <span style="font-family:'Rajdhani',sans-serif; font-size:11px; color:#334155;">0 $BATTLE</span>
+          <span style="font-family:'Rajdhani',sans-serif; font-size:11px; color:#334155;">1,000,000,000 total</span>
+        </div>
+      </div>
       <div class="tok-grid">
         <div class="tok-card">
           <div class="tok-card-label">Total Supply</div>
@@ -2346,6 +2344,33 @@
     </div>
   </div>
 
+  <!-- FREE MINING SECTION -->
+  <section style="padding:48px 20px; background:rgba(5,8,15,0.8); border-top:1px solid rgba(37,99,235,0.1); border-bottom:1px solid rgba(37,99,235,0.1);">
+    <div style="max-width:860px; margin:0 auto; text-align:center;">
+      <p style="font-family:'Orbitron',monospace; font-size:10px; letter-spacing:4px; color:#64748b; margin-bottom:8px;">FREE MINING</p>
+      <h2 style="font-family:'Orbitron',monospace; font-size:clamp(16px,3vw,22px); font-weight:900; color:#fff; margin-bottom:8px;">MINE WOLF — EARN <span style="color:#7c3aed;">$BATTLE</span></h2>
+      <p style="font-family:'Rajdhani',sans-serif; font-size:15px; color:#64748b; margin-bottom:32px;">Register for free. Mine 1 WOLF per minute. Convert to $BATTLE anytime.</p>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:600px; margin:0 auto 28px;">
+        <div style="background:#0d1117; border:1px solid rgba(37,99,235,0.2); border-radius:14px; padding:20px 12px; text-align:center;">
+          <div style="font-size:28px; margin-bottom:8px;">⛏️</div>
+          <div style="font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#2563eb;">1 WOLF</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:11px; color:#64748b; margin-top:4px;">per minute</div>
+        </div>
+        <div style="background:#0d1117; border:1px solid rgba(124,58,237,0.2); border-radius:14px; padding:20px 12px; text-align:center;">
+          <div style="font-size:28px; margin-bottom:8px;">⏱️</div>
+          <div style="font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#7c3aed;">240 WOLF</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:11px; color:#64748b; margin-top:4px;">max per session</div>
+        </div>
+        <div style="background:#0d1117; border:1px solid rgba(34,197,94,0.2); border-radius:14px; padding:20px 12px; text-align:center;">
+          <div style="font-size:28px; margin-bottom:8px;">💰</div>
+          <div style="font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#22c55e;">$BATTLE</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:11px; color:#64748b; margin-top:4px;">convert anytime</div>
+        </div>
+      </div>
+      <p style="font-family:'Rajdhani',sans-serif; font-size:13px; color:#334155;">Claim every 4 hours · No wallet needed · 5000 WOLF = 1 $BATTLE</p>
+    </div>
+  </section>
+
   <!-- EARN $BATTLE — 4 GAMES -->
   <div id="playEarnSection" class="gv2-section">
     <div class="gv2-inner">
@@ -2355,6 +2380,7 @@
       <div class="gv2-grid">
 
         <div class="gv2-card" onclick="goRocketMiner()">
+          <div style="position:absolute; inset:0; background:url('/decoratives.jpg') center/cover no-repeat; opacity:0.06; pointer-events:none; border-radius:18px;"></div>
           <div class="gv2-icon">🚀</div>
           <div class="gv2-name">ROCKET MINER</div>
           <div class="gv2-desc">Shoot coins, earn WOLF</div>
@@ -2363,6 +2389,7 @@
         </div>
 
         <div class="gv2-card" onclick="goCryptoSnake()">
+          <div style="position:absolute; inset:0; background:url('/decoratives.jpg') center/cover no-repeat; opacity:0.06; pointer-events:none; border-radius:18px;"></div>
           <div class="gv2-icon">🐍</div>
           <div class="gv2-name">CRYPTO SNAKE</div>
           <div class="gv2-desc">Eat coins, grow bigger</div>
@@ -2371,6 +2398,7 @@
         </div>
 
         <div class="gv2-card" onclick="goBattleTetris()">
+          <div style="position:absolute; inset:0; background:url('/decoratives.jpg') center/cover no-repeat; opacity:0.06; pointer-events:none; border-radius:18px;"></div>
           <div class="gv2-icon">🎮</div>
           <div class="gv2-name">BATTLE TETRIS</div>
           <div class="gv2-desc">Clear lines, stack rewards</div>
@@ -2379,6 +2407,7 @@
         </div>
 
         <div class="gv2-card" onclick="goWolfRun()">
+          <div style="position:absolute; inset:0; background:url('/decoratives.jpg') center/cover no-repeat; opacity:0.06; pointer-events:none; border-radius:18px;"></div>
           <div class="gv2-icon">🐺</div>
           <div class="gv2-name">WOLF RUN</div>
           <div class="gv2-desc">Run, collect, dominate</div>
@@ -9015,9 +9044,22 @@ async function fetchLiveTicker() {
 
 (function initHomepageData() {
   fetchBattlePrice();
-  fetchLiveTicker();
   setInterval(fetchBattlePrice, 5 * 60 * 1000);
-  setInterval(fetchLiveTicker, 5 * 60 * 1000);
+
+  fetch('/api/veloxfi/stats').then(r => r.json()).then(data => {
+    const total = 1000000000;
+    const claimed = data.totalEarned || 0;
+    const pct = Math.min((claimed / total) * 100, 100).toFixed(4);
+    const pctEl = document.getElementById('claimedPct');
+    const barEl = document.getElementById('claimedBar');
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (barEl) barEl.style.width = pct + '%';
+  }).catch(() => {
+    const pctEl = document.getElementById('claimedPct');
+    const barEl = document.getElementById('claimedBar');
+    if (pctEl) pctEl.textContent = '0.0001%';
+    if (barEl) barEl.style.width = '0.1%';
+  });
 })();
 
 // ══ ADMIN ══════════════════════════════════════════

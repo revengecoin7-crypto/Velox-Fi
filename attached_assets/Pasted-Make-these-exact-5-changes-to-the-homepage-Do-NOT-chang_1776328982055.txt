@@ -1,0 +1,126 @@
+Make these exact 5 changes to the homepage (/). Do NOT change any other 
+pages or backend logic.
+
+CHANGE 1 — HERO SECTION: MAKE IT SMALLER
+The hero section (.hero-v2) currently has min-height:100svh which makes 
+it fill the entire screen. Change it to:
+  min-height: 420px;
+  padding: 40px 24px 48px;
+The wolf image (.hero-v2-wolf) change from width:160px to width:110px.
+The title font size: change clamp(26px,5vw,44px) to clamp(20px,4vw,32px).
+
+CHANGE 2 — REMOVE THE LIVE PRICE TICKER
+Find the element with class "lpt-strip" (the scrolling live price ticker 
+bar with all the coin prices). Remove it completely from the HTML. Also 
+remove all CSS for .lpt-strip, .lpt-track, .lpt-item, .lpt-name, 
+.lpt-price, .lpt-change.
+
+CHANGE 3 — ADD CLAIMED/SUPPLY BAR TO TOKENOMICS
+In the tokenomics section (.tok-section), after the .tok-img image and 
+before the .tok-grid, add this HTML:
+
+<div style="max-width:500px; margin:0 auto 28px; padding:0 16px;">
+  <div style="display:flex; justify-content:space-between; 
+    margin-bottom:8px;">
+    <span style="font-family:'Orbitron',monospace; font-size:10px; 
+      letter-spacing:2px; color:#64748b;">CLAIMED BY PLAYERS</span>
+    <span id="claimedPct" style="font-family:'Orbitron',monospace; 
+      font-size:10px; color:#a78bfa;">loading...</span>
+  </div>
+  <div style="background:rgba(124,58,237,0.1); border-radius:99px; 
+    height:8px; overflow:hidden; border:1px solid rgba(124,58,237,0.2);">
+    <div id="claimedBar" style="height:100%; border-radius:99px; 
+      background:linear-gradient(90deg,#2563eb,#7c3aed); width:0%; 
+      transition:width 1s ease;"></div>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-top:6px;">
+    <span style="font-family:'Rajdhani',sans-serif; font-size:11px; 
+      color:#334155;">0 $BATTLE</span>
+    <span style="font-family:'Rajdhani',sans-serif; font-size:11px; 
+      color:#334155;">1,000,000,000 total</span>
+  </div>
+</div>
+
+Then add this JavaScript to fetch the real claimed amount from the 
+existing /api/stats endpoint and update the bar:
+
+fetch('/api/stats').then(r=>r.json()).then(data=>{
+  const total = 1000000000;
+  const claimed = data.totalBattleOut || 0;
+  const pct = Math.min((claimed/total)*100, 100).toFixed(4);
+  document.getElementById('claimedPct').textContent = pct+'%';
+  document.getElementById('claimedBar').style.width = pct+'%';
+}).catch(()=>{
+  document.getElementById('claimedPct').textContent = '0.0001%';
+  document.getElementById('claimedBar').style.width = '0.1%';
+});
+
+CHANGE 4 — ADD FREE MINING SECTION
+After the tokenomics section (.tok-section) and before the games section 
+(.gv2-section), insert this new mining section:
+
+<section style="padding:48px 20px; background:rgba(5,8,15,0.8); 
+  border-top:1px solid rgba(37,99,235,0.1); 
+  border-bottom:1px solid rgba(37,99,235,0.1);">
+  <div style="max-width:860px; margin:0 auto; text-align:center;">
+    <p style="font-family:'Orbitron',monospace; font-size:10px; 
+      letter-spacing:4px; color:#64748b; margin-bottom:8px;">
+      FREE MINING
+    </p>
+    <h2 style="font-family:'Orbitron',monospace; font-size:clamp(16px,3vw,22px); 
+      font-weight:900; color:#fff; margin-bottom:8px;">
+      MINE WOLF — EARN <span style="color:#7c3aed;">$BATTLE</span>
+    </h2>
+    <p style="font-family:'Rajdhani',sans-serif; font-size:15px; 
+      color:#64748b; margin-bottom:32px;">
+      Register for free. Mine 1 WOLF per minute. Convert to $BATTLE anytime.
+    </p>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); 
+      gap:16px; max-width:600px; margin:0 auto 28px;">
+      <div style="background:#0d1117; border:1px solid rgba(37,99,235,0.2); 
+        border-radius:14px; padding:20px 12px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">⛏️</div>
+        <div style="font-family:'Orbitron',monospace; font-size:14px; 
+          font-weight:700; color:#2563eb;">1 WOLF</div>
+        <div style="font-family:'Rajdhani',sans-serif; font-size:11px; 
+          color:#64748b; margin-top:4px;">per minute</div>
+      </div>
+      <div style="background:#0d1117; border:1px solid rgba(124,58,237,0.2); 
+        border-radius:14px; padding:20px 12px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">⏱️</div>
+        <div style="font-family:'Orbitron',monospace; font-size:14px; 
+          font-weight:700; color:#7c3aed;">240 WOLF</div>
+        <div style="font-family:'Rajdhani',sans-serif; font-size:11px; 
+          color:#64748b; margin-top:4px;">max per session</div>
+      </div>
+      <div style="background:#0d1117; border:1px solid rgba(34,197,94,0.2); 
+        border-radius:14px; padding:20px 12px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">💰</div>
+        <div style="font-family:'Orbitron',monospace; font-size:14px; 
+          font-weight:700; color:#22c55e;">$BATTLE</div>
+        <div style="font-family:'Rajdhani',sans-serif; font-size:11px; 
+          color:#64748b; margin-top:4px;">convert anytime</div>
+      </div>
+    </div>
+    <p style="font-family:'Rajdhani',sans-serif; font-size:13px; 
+      color:#334155;">Claim every 4 hours · No wallet needed · 
+      5000 WOLF = 1 $BATTLE</p>
+  </div>
+</section>
+
+CHANGE 5 — USE DECORATIVES.JPG AS ICONS IN GAME CARDS
+The decoratives.jpg image contains neon gaming icons/symbols. Use it as 
+a background image in each of the 4 game cards (.gv2-card). Add this to 
+each .gv2-card's inline style or in the CSS:
+
+In .gv2-card CSS add:
+  position: relative;
+  overflow: hidden;
+
+Inside each .gv2-card, add as the FIRST child element:
+  <div style="position:absolute; inset:0; 
+    background:url('/decoratives.jpg') center/cover no-repeat; 
+    opacity:0.06; pointer-events:none; border-radius:18px;"></div>
+
+This makes the decoratives image show subtly as a texture behind 
+each game card.
