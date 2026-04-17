@@ -1658,6 +1658,52 @@
 @media(pointer:coarse),(max-width:700px) { .wr-mobile-jump { display:flex; } }
 @media(max-width:520px) { .wr-overlay-content { padding:18px 16px; } .wr-overlay-title { font-size:1.2rem; } .wr-result-wolf-num { font-size:2.4rem; } #wolfRunPage { height:100svh; } }
 
+/* ── WOLF TRAP ─────────────────────────────────────────────── */
+#wolfTrapPage { height:calc(100vh - 93px); display:flex; flex-direction:column; background:#020408; overflow:hidden; }
+.wt-topbar { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(5,8,15,.9); border-bottom:1px solid rgba(124,58,237,.25); flex-shrink:0; }
+.wt-back-btn { background:none; border:1px solid rgba(124,58,237,.45); color:#a78bfa; padding:7px 14px; border-radius:7px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:700; letter-spacing:.06em; transition:.2s; }
+.wt-back-btn:hover { background:rgba(124,58,237,.2); border-color:#7c3aed; }
+.wt-page-title { font-family:'Orbitron',sans-serif; font-size:.95rem; font-weight:700; color:#a78bfa; letter-spacing:.12em; }
+.wt-hud { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:8px 14px; background:rgba(5,8,15,.8); border-bottom:1px solid rgba(124,58,237,.15); flex-shrink:0; }
+.wt-hud-cell { text-align:center; }
+.wt-hud-lbl { font-family:'Orbitron',sans-serif; font-size:.55rem; color:#7c3aed; letter-spacing:.12em; }
+.wt-hud-val { font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; color:#a78bfa; line-height:1.2; margin-top:2px; }
+.wt-hud-val.wt-hud-wolf { color:#fbbf24; }
+.wt-hud-val.wt-hud-lives { letter-spacing:1px; }
+.wt-canvas-outer { flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:6px 8px; }
+#wolfTrapCanvas { display:block; width:480px; max-width:100%; aspect-ratio:480/720; max-height:calc(100vh - 215px); border:1px solid rgba(124,58,237,.35); border-radius:8px; background:#020408; box-shadow:0 0 40px rgba(124,58,237,.12); touch-action:none; }
+.wt-overlay { position:absolute; inset:6px 8px; display:flex; align-items:center; justify-content:center; background:rgba(2,4,8,.92); border-radius:8px; z-index:5; }
+.wt-overlay-content { background:rgba(8,12,28,.98); border:1px solid rgba(124,58,237,.4); border-radius:16px; padding:24px 28px; max-width:420px; width:92%; text-align:center; box-shadow:0 0 50px rgba(124,58,237,.22); max-height:92%; overflow-y:auto; }
+.wt-overlay-icon { font-size:2.8rem; margin-bottom:6px; }
+.wt-overlay-title { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:700; color:#a78bfa; margin:0 0 5px; letter-spacing:.1em; }
+.wt-overlay-sub { color:#64748b; font-family:'Rajdhani',sans-serif; font-size:1rem; margin:0 0 14px; }
+.wt-rules { display:flex; gap:10px; justify-content:center; margin:10px 0; flex-wrap:wrap; }
+.wt-rule { display:flex; align-items:center; gap:6px; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.22); border-radius:8px; padding:6px 12px; font-family:'Rajdhani',sans-serif; font-size:.88rem; color:#c4b5fd; }
+.wt-howto { background:rgba(5,8,15,.7); border:1px solid rgba(124,58,237,.18); border-radius:10px; padding:12px 14px; margin:12px 0 18px; text-align:left; }
+.wt-howto-title { font-family:'Orbitron',sans-serif; font-size:.62rem; color:#7c3aed; letter-spacing:.12em; margin-bottom:9px; }
+.wt-howto-rows { display:flex; flex-direction:column; gap:7px; }
+.wt-howto-row { display:flex; align-items:flex-start; gap:10px; font-family:'Rajdhani',sans-serif; font-size:.86rem; color:#94a3b8; line-height:1.35; }
+.wt-howto-icon { font-size:1rem; width:20px; text-align:center; flex-shrink:0; margin-top:1px; }
+.wt-howto-key { background:rgba(124,58,237,.25); border:1px solid rgba(124,58,237,.4); border-radius:4px; padding:1px 6px; font-family:'Orbitron',sans-serif; font-size:.6rem; color:#c4b5fd; white-space:nowrap; }
+.wt-play-btn { background:linear-gradient(135deg,#7c3aed,#2563eb); border:none; color:#fff; font-family:'Orbitron',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:.12em; padding:14px 36px; border-radius:10px; cursor:pointer; transition:.2s; width:100%; }
+.wt-play-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,58,237,.5); }
+.wt-result-wolf-display { background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.25); border-radius:12px; padding:14px 24px; margin:14px 0; }
+.wt-result-wolf-num { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:700; color:#a78bfa; line-height:1; }
+.wt-result-wolf-lbl { font-family:'Rajdhani',sans-serif; font-size:.8rem; color:#64748b; letter-spacing:.12em; margin-top:3px; }
+.wt-result-stats { display:flex; gap:10px; justify-content:center; margin:8px 0 4px; flex-wrap:wrap; font-family:'Rajdhani',sans-serif; font-size:.85rem; color:#c4b5fd; }
+.wt-result-stat { background:rgba(124,58,237,.10); border:1px solid rgba(124,58,237,.22); border-radius:6px; padding:4px 10px; }
+.wt-claim-btn { background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none; color:#fff; font-family:'Orbitron',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:.1em; padding:13px 32px; border-radius:10px; cursor:pointer; transition:.2s; width:100%; margin-bottom:10px; }
+.wt-claim-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 22px rgba(124,58,237,.5); }
+.wt-claim-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.wt-guest-msg { font-family:'Rajdhani',sans-serif; color:#64748b; font-size:.95rem; margin:0 0 10px; }
+.wt-result-actions { display:flex; gap:10px; margin-top:10px; }
+.wt-again-btn,.wt-games-btn { flex:1; padding:10px; border-radius:8px; font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.06em; cursor:pointer; transition:.2s; border:none; }
+.wt-again-btn { background:rgba(124,58,237,.18); border:1px solid rgba(124,58,237,.45); color:#a78bfa; }
+.wt-again-btn:hover { background:rgba(124,58,237,.32); }
+.wt-games-btn { background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.38); color:#60a5fa; }
+.wt-games-btn:hover { background:rgba(37,99,235,.26); }
+@media(max-width:520px) { .wt-overlay-content { padding:18px 16px; } .wt-overlay-title { font-size:1.2rem; } .wt-result-wolf-num { font-size:2.4rem; } #wolfTrapPage { height:100svh; } .wt-hud-val { font-size:.95rem; } }
+
 /* ── Mobile fullscreen game overlay ─────────────── */
 .game-fs {
   position: fixed !important;
@@ -2392,6 +2438,15 @@
           <button class="gv2-play-btn" onclick="goWolfRun()">▶ PLAY NOW</button>
         </div>
 
+        <div class="gv2-card" onclick="goWolfTrap()">
+          <div style="position:absolute; inset:0; background:url('/decoratives.jpg') center/cover no-repeat; opacity:0.06; pointer-events:none; border-radius:18px;"></div>
+          <div class="gv2-icon">🪤</div>
+          <div class="gv2-name">WOLF TRAP</div>
+          <div class="gv2-desc">Nothing is what it seems</div>
+          <div class="gv2-earn">Earn WOLF</div>
+          <button class="gv2-play-btn" onclick="goWolfTrap()">▶ PLAY NOW</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -2665,6 +2720,15 @@
         <div class="ghub-card-icon">🐺</div>
         <div class="ghub-card-name">WOLF RUN</div>
         <div class="ghub-card-desc">Endless runner — dodge obstacles and collect WOLF</div>
+        <div class="ghub-card-earn">Up to 120 WOLF / session</div>
+      </div>
+
+      <!-- Wolf Trap -->
+      <div class="ghub-card ready" onclick="goWolfTrap()">
+        <div class="ghub-play-badge">PLAY NOW</div>
+        <div class="ghub-card-icon">🪤</div>
+        <div class="ghub-card-name">WOLF TRAP</div>
+        <div class="ghub-card-desc">Procedural platformer — nothing is what it seems</div>
         <div class="ghub-card-earn">Up to 120 WOLF / session</div>
       </div>
 
@@ -4047,6 +4111,74 @@
   </div>
 </div><!-- /wolfRunPage -->
 
+<!-- WOLF TRAP PAGE -->
+<div id="wolfTrapPage" style="display:none">
+  <div class="wt-topbar">
+    <button class="wt-back-btn" onclick="wtStopGame();goGames()">← GAMES</button>
+    <div class="wt-page-title">🪤 WOLF TRAP</div>
+    <div style="width:100px"></div>
+  </div>
+  <div class="wt-hud">
+    <div class="wt-hud-cell"><div class="wt-hud-lbl">LEVEL</div><div class="wt-hud-val" id="wtHudLevel">1</div></div>
+    <div class="wt-hud-cell"><div class="wt-hud-lbl">SCORE</div><div class="wt-hud-val" id="wtHudScore">0</div></div>
+    <div class="wt-hud-cell"><div class="wt-hud-lbl">WOLF</div><div class="wt-hud-val wt-hud-wolf" id="wtHudWolf">0</div></div>
+    <div class="wt-hud-cell"><div class="wt-hud-lbl">LIVES</div><div class="wt-hud-val wt-hud-lives" id="wtHudLives">❤❤❤</div></div>
+  </div>
+  <div class="wt-canvas-outer">
+    <canvas id="wolfTrapCanvas" width="480" height="720"></canvas>
+    <!-- Start Screen -->
+    <div id="wtStartScreen" class="wt-overlay">
+      <div class="wt-overlay-content">
+        <div class="wt-overlay-icon">🪤</div>
+        <h2 class="wt-overlay-title">WOLF TRAP</h2>
+        <p class="wt-overlay-sub">Climb the procedural tower — but trust nothing!</p>
+        <div class="wt-rules">
+          <div class="wt-rule"><span>♾</span><span>Infinite levels</span></div>
+          <div class="wt-rule"><span>❤</span><span>3 lives</span></div>
+          <div class="wt-rule"><span>🪙</span><span>Coins + WOLF</span></div>
+        </div>
+        <div class="wt-howto">
+          <div class="wt-howto-title">HOW TO PLAY</div>
+          <div class="wt-howto-rows">
+            <div class="wt-howto-row"><span class="wt-howto-icon">⌨</span><span><span class="wt-howto-key">←</span><span class="wt-howto-key">→</span> move • <span class="wt-howto-key">SPACE</span>/<span class="wt-howto-key">↑</span> jump</span></div>
+            <div class="wt-howto-row"><span class="wt-howto-icon">📱</span><span>Slide on <span class="wt-howto-key">left</span> half to move • tap <span class="wt-howto-key">right</span> half to jump</span></div>
+            <div class="wt-howto-row"><span class="wt-howto-icon">⭐</span><span>Reach the green <span class="wt-howto-key">GOAL</span> to clear the level</span></div>
+            <div class="wt-howto-row"><span class="wt-howto-icon">⚠</span><span>Watch for <span class="wt-howto-key">VANISH</span> tiles, <span class="wt-howto-key">FAKE</span> floors and deadly <span class="wt-howto-key">SPIKES</span></span></div>
+            <div class="wt-howto-row"><span class="wt-howto-icon">🐺</span><span>Wolf coins give <span class="wt-howto-key">+1 WOLF</span> each • clearing a level gives <span class="wt-howto-key">+level</span> WOLF</span></div>
+          </div>
+        </div>
+        <button class="wt-play-btn" onclick="wtStartGame()">▶ PLAY NOW</button>
+      </div>
+    </div>
+    <!-- Result Screen -->
+    <div id="wtResultScreen" class="wt-overlay" style="display:none">
+      <div class="wt-overlay-content">
+        <div class="wt-overlay-icon" id="wtResultIcon">💀</div>
+        <h2 class="wt-overlay-title" id="wtResultTitle">GAME OVER</h2>
+        <div class="wt-result-stats">
+          <div class="wt-result-stat">LEVEL <b id="wtResultLevel">1</b></div>
+          <div class="wt-result-stat">SCORE <b id="wtResultScore">0</b></div>
+        </div>
+        <div class="wt-result-wolf-display">
+          <div class="wt-result-wolf-num" id="wtResultWolf">0</div>
+          <div class="wt-result-wolf-lbl">WOLF EARNED</div>
+        </div>
+        <div id="wtClaimSection" style="display:none">
+          <button class="wt-claim-btn" id="wtClaimBtn" onclick="wtClaimWolf()">🐺 CLAIM WOLF</button>
+        </div>
+        <div id="wtGuestSection" style="display:none">
+          <p class="wt-guest-msg">Create a free account to save your WOLF!</p>
+          <button class="wt-play-btn" onclick="openModal('register')" style="margin-bottom:12px">CREATE FREE ACCOUNT</button>
+        </div>
+        <div class="wt-result-actions">
+          <button class="wt-again-btn" onclick="wtRestartGame()">↺ PLAY AGAIN</button>
+          <button class="wt-games-btn" onclick="wtStopGame();goGames()">GAMES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /wolfTrapPage -->
+
 <div class="toast-container" id="toastContainer"></div>
 <button id="gameFsClose" onclick="exitGameFullscreen()" aria-label="Close game" style="display:none;position:fixed;top:44px;right:12px;z-index:10001;width:42px;height:42px;border-radius:50%;background:rgba(3,7,18,.88);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.25rem;line-height:1;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 14px rgba(0,0,0,.55);backdrop-filter:blur(6px);">✕</button>
 
@@ -4426,7 +4558,7 @@ function _showOnlyPage(id) {
     document.body.style.overflow = '';
   }
   ['mainPage','gamesHubPage','gamesPage','convertPage','battlePage','teamBattlePage','whitepaperPage','faqPage','profilePage',
-   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','blogPost6','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage','wolfRunPage'].forEach(p => {
+   'blogPage','blogPost1','blogPost2','blogPost3','blogPost4','blogPost5','blogPost6','activityPage','rocketMinerPage','cryptoSnakePage','battleTetrisPage','wolfRunPage','wolfTrapPage'].forEach(p => {
     const el = document.getElementById(p);
     if (el) el.style.display = p === id ? 'block' : 'none';
   });
@@ -4512,6 +4644,13 @@ function initRouter() {
     _showOnlyPage('battleTetrisPage');
     window.scrollTo(0,0);
     btInit();
+  } else if (path === '/games/wolf-trap') {
+    setPageMeta('wolfTrap');
+    _showOnlyPage('wolfTrapPage');
+    const wtEl = document.getElementById('wolfTrapPage');
+    if (wtEl) wtEl.style.display = 'flex';
+    wtInit();
+    window.scrollTo(0,0);
   } else if (path === '/games/wolf-run') {
     setPageMeta('wolfRun');
     _showOnlyPage('wolfRunPage');
@@ -4655,6 +4794,12 @@ const PAGE_META = {
     desc:      'Play Wolf Run on VeloxFi. Run as the VeloxFi wolf, dodge obstacles and collect $BATTLE coins to earn WOLF tokens. Free endless runner game on Solana.',
     keywords:  'endless runner, runner game, crypto runner, wolf game, run earn crypto, endless run tokens, free runner game, platformer earn crypto, wolf run game, runner crypto',
     canonical: 'https://veloxfi.io/games/wolf-run',
+  },
+  wolfTrap: {
+    title:     'Wolf Trap — Procedural Platformer Earn Crypto | VeloxFi',
+    desc:      'Play Wolf Trap on VeloxFi. Climb infinite procedural platforms — but beware fake floors, vanishing tiles and deadly spikes. Earn WOLF tokens on Solana.',
+    keywords:  'platformer game, jumping game, trap platformer, procedural platformer, wolf game, climb earn crypto, free platformer crypto, wolf trap game, traps crypto',
+    canonical: 'https://veloxfi.io/games/wolf-trap',
   },
 };
 
@@ -6644,6 +6789,672 @@ function wrInit() {
   if (jb) { jb.ontouchstart = e => { e.preventDefault(); wrJump(); }; jb.onmousedown = () => wrJump(); }
 }
 // ── End Wolf Run ──────────────────────────────────────────────────────────────
+
+// ── Wolf Trap ─────────────────────────────────────────────────────────────────
+const WT_W = 480, WT_H = 720;
+const WT_FLOOR = WT_H - 40;
+const WT_PW = 28, WT_PH_BODY = 32;
+const WT_PLAT_W = 84, WT_PLAT_H = 14;
+const WT_TRAP_MSGS = ["IT'S A TRAP! 😈","GOTCHA!","TRUST NOBODY!","NICE TRY! 😂","LIES!","HA! GOTCHA!"];
+const WT_MAX_WOLF = 120;
+
+let wtCanvas = null, wtCtx = null;
+let wtAnimId = null, wtRunning = false;
+let wtLevel = 1, wtLives = 3, wtScore = 0, wtWolfEarned = 0, wtClaimed = false;
+let wtPx = 0, wtPy = 0, wtPvx = 0, wtPvy = 0, wtOnGround = false;
+let wtPDir = 1, wtPDead = false, wtPInvinc = 0, wtPWalkPhase = 0;
+let wtJumpHeld = false; // edge-trigger jump
+let wtCamY = 0, wtTargetCamY = 0;
+let wtPlatforms = [], wtCoins = [], wtParticles = [], wtFloaters = [];
+let wtWorldH = 0, wtGoalY = 0;
+let wtShake = 0;
+let wtToast = null, wtToastT = 0;
+let wtLeftDown = false, wtRightDown = false;
+let wtTouchSlideX = null, wtTouchSlideId = null;
+let wtKeyHandler = null, wtTouchStart = null, wtTouchMove = null, wtTouchEnd = null;
+
+function wtRng(seed) { let s = seed >>> 0; return function() { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function wtRange(rng, a, b) { return a + rng() * (b - a); }
+function wtPick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+
+function wtBuildLevel(level) {
+  const seed = level * 91273 + 4441;
+  const rng = wtRng(seed);
+  const count = 14 + level * 2;
+  wtWorldH = count * 55 + 300;
+  const trapRate = Math.min(0.08 + level * 0.06, 0.75);
+  wtPlatforms = [];
+  // Starting safe platform at the bottom
+  wtPlatforms.push({ x: WT_W / 2 - WT_PLAT_W / 2, y: wtWorldH - 60, w: WT_PLAT_W, h: WT_PLAT_H, type: 'normal', triggered: false, vanishT: 0, fakeT: 0, spikeT: 0, mvDir: 1, mvBaseX: 0, mvRange: 0, mvSpeed: 0 });
+  let curX = WT_W / 2, curY = wtWorldH - 60;
+  for (let i = 1; i < count; i++) {
+    const yGap = wtRange(rng, 42, 80);
+    const xJump = wtRange(rng, 55, 140);
+    const dir = rng() < 0.5 ? -1 : 1;
+    let nx = curX + dir * xJump;
+    if (nx < 12) nx = 12 + rng() * 40;
+    if (nx > WT_W - WT_PLAT_W - 12) nx = WT_W - WT_PLAT_W - 12 - rng() * 40;
+    const ny = curY - yGap;
+    let type = 'normal';
+    if (i > 2 && rng() < trapRate) {
+      const r = rng();
+      if (r < 0.22) type = 'vanish';
+      else if (r < 0.42) type = 'fake';
+      else if (r < 0.57) type = 'spike';
+      else if (r < 0.70) type = 'bouncy';
+      else if (r < 0.85) type = 'moving';
+      else type = 'normal';
+    }
+    const plat = { x: nx, y: ny, w: WT_PLAT_W, h: WT_PLAT_H, type, triggered: false, vanishT: 0, fakeT: 0, spikeT: 0, mvDir: rng() < 0.5 ? -1 : 1, mvBaseX: nx, mvRange: 40 + rng() * 60, mvSpeed: 0.6 + rng() * 0.9 };
+    wtPlatforms.push(plat);
+    curX = nx; curY = ny;
+    if (type === 'normal' && rng() < 0.45) {
+      const isWolf = rng() < 0.20;
+      wtCoins.push({ x: nx + WT_PLAT_W / 2 - 10, y: ny - 28, w: 20, h: 20, taken: false, wolf: isWolf, anim: rng() * Math.PI * 2 });
+    }
+  }
+  // GOAL platform 60px above last
+  const lastP = wtPlatforms[wtPlatforms.length - 1];
+  const gx = Math.max(12, Math.min(WT_W - WT_PLAT_W - 12, lastP.x + (rng() - 0.5) * 60));
+  const gy = lastP.y - 60;
+  wtPlatforms.push({ x: gx, y: gy, w: WT_PLAT_W, h: WT_PLAT_H, type: 'goal', triggered: false });
+  wtGoalY = gy;
+  // Spawn player on the starting platform
+  const start = wtPlatforms[0];
+  wtPx = start.x + start.w / 2 - WT_PW / 2;
+  wtPy = start.y - WT_PH_BODY;
+  wtPvx = 0; wtPvy = 0; wtOnGround = true; wtPDead = false; wtPInvinc = 60;
+  wtCoins = wtCoins.filter(()=>true); // keep generated coins
+  wtParticles = []; wtFloaters = [];
+  wtTargetCamY = wtPy - WT_H * 0.4;
+  wtCamY = Math.min(wtWorldH - WT_H, Math.max(0, wtTargetCamY));
+  wtToast = null; wtToastT = 0;
+}
+
+function wtSpawnParticles(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    wtParticles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.8) * 5, life: 28 + Math.random() * 18, color });
+  }
+}
+
+function wtAddFloater(x, y, text, color) { wtFloaters.push({ x, y, text, color, life: 50 }); }
+
+function wtShowToast(msg) { wtToast = msg; wtToastT = 90; }
+
+function wtUpdateHud() {
+  const lv = document.getElementById('wtHudLevel'); if (lv) lv.textContent = wtLevel;
+  const sc = document.getElementById('wtHudScore'); if (sc) sc.textContent = wtScore;
+  const wf = document.getElementById('wtHudWolf'); if (wf) wf.textContent = wtWolfEarned;
+  const li = document.getElementById('wtHudLives'); if (li) li.textContent = '❤'.repeat(Math.max(0, wtLives)) || '—';
+}
+
+function wtPlayerAABB() { return { x: wtPx + 4, y: wtPy, w: WT_PW - 8, h: WT_PH_BODY }; }
+
+function wtIsTrapDeadly(p) {
+  if (p.type === 'spike' && p.triggered && p.spikeT >= 8) return true;
+  return false;
+}
+
+function wtKillPlayer(reason) {
+  if (wtPDead || wtPInvinc > 0) return;
+  wtPDead = true;
+  wtShake = 14;
+  wtSpawnParticles(wtPx + WT_PW / 2, wtPy + WT_PH_BODY / 2, '#ef4444', 24);
+  wtShowToast(reason || wtPick({ next: () => Math.random() }, WT_TRAP_MSGS) || WT_TRAP_MSGS[Math.floor(Math.random() * WT_TRAP_MSGS.length)]);
+  setTimeout(() => {
+    if (!wtRunning) return;
+    wtLives--;
+    if (wtLives <= 0) { wtEndGame(); return; }
+    wtBuildLevel(wtLevel);
+    wtUpdateHud();
+  }, 700);
+}
+
+function wtNextLevel() {
+  // award
+  const bonus = wtLevel * 100;
+  wtScore += bonus;
+  const wolfBonus = wtLevel;
+  wtWolfEarned = Math.min(WT_MAX_WOLF, wtWolfEarned + wolfBonus);
+  wtAddFloater(wtPx + WT_PW / 2, wtPy, '+' + bonus + ' / +' + wolfBonus + ' WOLF', '#22c55e');
+  wtSpawnParticles(wtPx + WT_PW / 2, wtPy + 8, '#22c55e', 26);
+  wtLevel++;
+  wtBuildLevel(wtLevel);
+  wtUpdateHud();
+}
+
+function wtCheckCoins() {
+  const pb = wtPlayerAABB();
+  for (const c of wtCoins) {
+    if (c.taken) continue;
+    if (pb.x < c.x + c.w && pb.x + pb.w > c.x && pb.y < c.y + c.h && pb.y + pb.h > c.y) {
+      c.taken = true;
+      if (c.wolf) {
+        wtWolfEarned = Math.min(WT_MAX_WOLF, wtWolfEarned + 1);
+        wtScore += 50;
+        wtAddFloater(c.x + c.w / 2, c.y, '+1 🐺 +50', '#a78bfa');
+        wtSpawnParticles(c.x + c.w / 2, c.y + c.h / 2, '#a78bfa', 14);
+      } else {
+        wtScore += 10;
+        wtAddFloater(c.x + c.w / 2, c.y, '+10', '#fbbf24');
+        wtSpawnParticles(c.x + c.w / 2, c.y + c.h / 2, '#fbbf24', 10);
+      }
+      wtUpdateHud();
+    }
+  }
+}
+
+function wtUpdate() {
+  if (wtPDead) {
+    // animate camera and particles only
+    wtCamY += (wtTargetCamY - wtCamY) * 0.1;
+  } else {
+    // Horizontal input
+    let ax = 0;
+    if (wtLeftDown) ax -= 0.85;
+    if (wtRightDown) ax += 0.85;
+    if (wtTouchSlideX !== null) {
+      // map slide x to a target normalized vector around player
+      const playerScreenX = wtPx + WT_PW / 2;
+      const dx = wtTouchSlideX - playerScreenX;
+      if (Math.abs(dx) > 6) ax = dx > 0 ? 0.85 : -0.85;
+    }
+    wtPvx += ax;
+    if (ax === 0) wtPvx *= 0.76;
+    if (wtPvx > 3.8) wtPvx = 3.8;
+    if (wtPvx < -3.8) wtPvx = -3.8;
+    if (wtPvx > 0.2) wtPDir = 1; else if (wtPvx < -0.2) wtPDir = -1;
+    wtPx += wtPvx;
+    // wrap horizontally
+    if (wtPx + WT_PW < 0) wtPx = WT_W;
+    if (wtPx > WT_W) wtPx = -WT_PW;
+    // gravity
+    wtPvy += 0.4;
+    if (wtPvy > 11) wtPvy = 11;
+    const prevBottom = wtPy + WT_PH_BODY - wtPvy;
+    wtPy += wtPvy;
+    wtOnGround = false;
+
+    // Update moving platforms
+    for (const p of wtPlatforms) {
+      if (p.type === 'moving') {
+        p.x += p.mvDir * p.mvSpeed;
+        if (p.x < p.mvBaseX - p.mvRange) { p.x = p.mvBaseX - p.mvRange; p.mvDir = 1; }
+        else if (p.x > p.mvBaseX + p.mvRange) { p.x = p.mvBaseX + p.mvRange; p.mvDir = -1; }
+      }
+      if (p.type === 'vanish' && p.triggered) {
+        p.vanishT++;
+      }
+      if (p.type === 'fake' && p.triggered) {
+        p.fakeT++;
+      }
+      if (p.type === 'spike' && p.triggered) {
+        p.spikeT++;
+      }
+    }
+
+    // Collision with platforms (only top side, only when falling)
+    const pb = wtPlayerAABB();
+    for (const p of wtPlatforms) {
+      if (p.type === 'vanish' && p.vanishT >= 28) continue;
+      if (p.type === 'fake' && p.fakeT * (1000/60) >= 220) continue;
+      const px = p.x, py = p.y, pw = p.w, ph = p.h;
+      if (pb.x + pb.w > px && pb.x < px + pw) {
+        if (wtPvy >= 0 && prevBottom <= py + 1 && pb.y + pb.h >= py && pb.y + pb.h <= py + ph + 8) {
+          // landed
+          wtPy = py - WT_PH_BODY;
+          if (p.type === 'bouncy') { wtPvy = -10.8; }
+          else if (p.type === 'goal') { wtNextLevel(); return; }
+          else { wtPvy = 0; wtOnGround = true; }
+          if (p.type === 'vanish' && !p.triggered) p.triggered = true;
+          if (p.type === 'fake' && !p.triggered) { p.triggered = true; }
+          if (p.type === 'spike' && !p.triggered) { p.triggered = true; }
+          // Spike kills shortly after triggering
+          if (p.type === 'spike' && wtIsTrapDeadly(p)) { wtKillPlayer('SPIKED! 💀'); return; }
+          break;
+        }
+      }
+    }
+
+    // Late deadly check for spike when standing on it
+    for (const p of wtPlatforms) {
+      if (p.type === 'spike' && p.triggered && wtIsTrapDeadly(p)) {
+        const onTop = wtOnGround && Math.abs((wtPy + WT_PH_BODY) - p.y) < 2 && wtPx + WT_PW > p.x && wtPx < p.x + p.w;
+        if (onTop) { wtKillPlayer('SPIKED! 💀'); return; }
+      }
+    }
+
+    // Fall off below floor
+    if (wtPy > wtWorldH + 200) { wtKillPlayer('FELL!'); return; }
+
+    // Coin collection
+    wtCheckCoins();
+
+    // Camera follow
+    wtTargetCamY = wtPy - WT_H * 0.4;
+    if (wtTargetCamY < 0) wtTargetCamY = 0;
+    if (wtTargetCamY > wtWorldH - WT_H) wtTargetCamY = wtWorldH - WT_H;
+    wtCamY += (wtTargetCamY - wtCamY) * 0.1;
+
+    // Walk anim
+    if (Math.abs(wtPvx) > 0.4) wtPWalkPhase += 0.35;
+
+    // Invincibility countdown
+    if (wtPInvinc > 0) wtPInvinc--;
+  }
+
+  // Particles
+  for (const pt of wtParticles) { pt.x += pt.vx; pt.y += pt.vy; pt.vy += 0.25; pt.life--; }
+  wtParticles = wtParticles.filter(p => p.life > 0);
+  // Floaters
+  for (const f of wtFloaters) { f.y -= 0.8; f.life--; }
+  wtFloaters = wtFloaters.filter(f => f.life > 0);
+  // Coin spin
+  for (const c of wtCoins) { c.anim += 0.18; }
+  // Shake decay
+  if (wtShake > 0) wtShake *= 0.78;
+  if (wtShake < 0.2) wtShake = 0;
+  // Toast
+  if (wtToastT > 0) wtToastT--;
+}
+
+function wtDrawPlatform(ctx, p, sy) {
+  const x = p.x, y = p.y - sy, w = p.w, h = p.h;
+  if (p.type === 'vanish' && p.vanishT >= 28) return;
+  if (p.type === 'fake' && p.fakeT * (1000/60) >= 220) return;
+  ctx.save();
+  let fill = '#3b82f6', stroke = '#60a5fa', label = '';
+  if (p.type === 'vanish') { fill = '#7c3aed'; stroke = '#a78bfa'; label = 'VANISH'; }
+  else if (p.type === 'fake') { fill = '#475569'; stroke = '#64748b'; }
+  else if (p.type === 'spike') { fill = '#475569'; stroke = '#64748b'; }
+  else if (p.type === 'bouncy') { fill = '#dc2626'; stroke = '#f87171'; label = 'BOUNCE'; }
+  else if (p.type === 'moving') { fill = '#16a34a'; stroke = '#4ade80'; label = (p.mvDir > 0 ? '→' : '←'); }
+  else if (p.type === 'goal') { fill = '#16a34a'; stroke = '#86efac'; label = 'GOAL'; }
+  // glow for goal
+  if (p.type === 'goal') { ctx.shadowColor = 'rgba(34,197,94,.95)'; ctx.shadowBlur = 18; }
+  ctx.fillStyle = fill;
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = stroke; ctx.lineWidth = 2;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.shadowBlur = 0;
+  // top highlight
+  ctx.fillStyle = 'rgba(255,255,255,.18)';
+  ctx.fillRect(x + 1, y + 1, w - 2, 3);
+  // cracks for vanish/fake while triggered
+  if ((p.type === 'vanish' && p.triggered) || (p.type === 'fake' && p.triggered)) {
+    ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + 8, y + 3); ctx.lineTo(x + w * 0.4, y + h - 3);
+    ctx.moveTo(x + w * 0.55, y + 3); ctx.lineTo(x + w * 0.7, y + h - 3);
+    ctx.moveTo(x + w * 0.78, y + 4); ctx.lineTo(x + w - 8, y + h - 3);
+    ctx.stroke();
+  }
+  // spikes when revealed
+  if (p.type === 'spike' && p.triggered) {
+    const sN = 6;
+    ctx.fillStyle = '#ef4444';
+    for (let i = 0; i < sN; i++) {
+      const sx = x + 4 + i * ((w - 8) / sN);
+      const sw = (w - 8) / sN - 1;
+      ctx.beginPath();
+      ctx.moveTo(sx, y);
+      ctx.lineTo(sx + sw / 2, y - 8);
+      ctx.lineTo(sx + sw, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1;
+    for (let i = 0; i < sN; i++) {
+      const sx = x + 4 + i * ((w - 8) / sN);
+      const sw = (w - 8) / sN - 1;
+      ctx.beginPath();
+      ctx.moveTo(sx, y); ctx.lineTo(sx + sw / 2, y - 8); ctx.lineTo(sx + sw, y);
+      ctx.stroke();
+    }
+  }
+  // label
+  if (label) {
+    ctx.font = '700 8px Orbitron, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.92)';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + w / 2, y + h - 4);
+  }
+  // Goal star + label above
+  if (p.type === 'goal') {
+    ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#fde047';
+    ctx.shadowColor = 'rgba(253,224,71,.9)'; ctx.shadowBlur = 14;
+    ctx.fillText('⭐', x + w / 2, y - 8);
+    ctx.shadowBlur = 0;
+  }
+  ctx.restore();
+}
+
+function wtDrawCoin(ctx, c, sy) {
+  if (c.taken) return;
+  const cx = c.x + c.w / 2, cy = c.y + c.h / 2 - sy;
+  const sx = Math.abs(Math.cos(c.anim));
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(sx, 1);
+  if (c.wolf) {
+    ctx.fillStyle = '#a78bfa';
+    ctx.shadowColor = 'rgba(167,139,250,.9)'; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🐺', 0, 1);
+  } else {
+    ctx.fillStyle = '#fbbf24';
+    ctx.shadowColor = 'rgba(251,191,36,.85)'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#92400e'; ctx.font = '700 11px Orbitron, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🪙', 0, 1);
+  }
+  ctx.restore();
+}
+
+function wtDrawWolf(ctx, sy) {
+  const x = wtPx, y = wtPy - sy;
+  if (wtPDead) {
+    ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('💀', x + WT_PW / 2, y + WT_PH_BODY / 2);
+    return;
+  }
+  if (wtPInvinc > 0 && Math.floor(wtPInvinc / 4) % 2 === 0) return;
+  ctx.save();
+  // body (dark gray) — pixel rectangles
+  ctx.fillStyle = '#1f2937';
+  ctx.fillRect(x + 4, y + 8, WT_PW - 8, WT_PH_BODY - 12);
+  // armor (purple)
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(x + 6, y + 14, WT_PW - 12, 8);
+  // head
+  ctx.fillStyle = '#1f2937';
+  ctx.fillRect(x + 6, y, WT_PW - 12, 12);
+  // ears (pink)
+  ctx.fillStyle = '#ec4899';
+  ctx.fillRect(x + 6, y - 2, 5, 5);
+  ctx.fillRect(x + WT_PW - 11, y - 2, 5, 5);
+  // glowing eye(s)
+  ctx.fillStyle = '#22d3ee';
+  ctx.shadowColor = 'rgba(34,211,238,.95)'; ctx.shadowBlur = 8;
+  if (wtPDir > 0) { ctx.fillRect(x + WT_PW - 12, y + 4, 3, 3); }
+  else { ctx.fillRect(x + 9, y + 4, 3, 3); }
+  ctx.shadowBlur = 0;
+  // legs (animated)
+  const lp = Math.sin(wtPWalkPhase);
+  ctx.fillStyle = '#0f172a';
+  if (wtOnGround && Math.abs(wtPvx) > 0.4) {
+    ctx.fillRect(x + 6, y + WT_PH_BODY - 4 + Math.max(0, lp * 2), 6, 4);
+    ctx.fillRect(x + WT_PW - 12, y + WT_PH_BODY - 4 + Math.max(0, -lp * 2), 6, 4);
+  } else {
+    ctx.fillRect(x + 6, y + WT_PH_BODY - 4, 6, 4);
+    ctx.fillRect(x + WT_PW - 12, y + WT_PH_BODY - 4, 6, 4);
+  }
+  ctx.restore();
+}
+
+function wtDraw() {
+  if (!wtCtx) return;
+  const ctx = wtCtx;
+  const sy = wtCamY;
+  const sx = (Math.random() - 0.5) * wtShake;
+  const sYj = (Math.random() - 0.5) * wtShake;
+  ctx.save();
+  ctx.translate(sx, sYj);
+  // background
+  ctx.fillStyle = '#020408';
+  ctx.fillRect(0, 0, WT_W, WT_H);
+  // grid lines
+  ctx.strokeStyle = 'rgba(37,99,235,.10)'; ctx.lineWidth = 1;
+  const gridStep = 32;
+  const gridOffsetY = (-sy) % gridStep;
+  for (let y = gridOffsetY; y < WT_H; y += gridStep) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WT_W, y); ctx.stroke();
+  }
+  for (let x = 0; x < WT_W; x += gridStep) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, WT_H); ctx.stroke();
+  }
+  // floor band
+  const floorYscreen = wtWorldH - sy;
+  if (floorYscreen < WT_H + 40) {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, floorYscreen, WT_W, WT_H - floorYscreen + 40);
+    ctx.strokeStyle = '#334155'; ctx.beginPath();
+    ctx.moveTo(0, floorYscreen + 0.5); ctx.lineTo(WT_W, floorYscreen + 0.5); ctx.stroke();
+  }
+  // platforms
+  for (const p of wtPlatforms) wtDrawPlatform(ctx, p, sy);
+  // coins
+  for (const c of wtCoins) wtDrawCoin(ctx, c, sy);
+  // wolf
+  wtDrawWolf(ctx, sy);
+  // particles
+  for (const pt of wtParticles) {
+    ctx.globalAlpha = Math.max(0, Math.min(1, pt.life / 30));
+    ctx.fillStyle = pt.color;
+    ctx.fillRect(pt.x - 2, pt.y - sy - 2, 4, 4);
+  }
+  ctx.globalAlpha = 1;
+  // floaters
+  for (const f of wtFloaters) {
+    ctx.globalAlpha = Math.max(0, Math.min(1, f.life / 50));
+    ctx.fillStyle = f.color;
+    ctx.font = '700 13px Orbitron, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(f.text, f.x, f.y - sy);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  // toast (UI)
+  if (wtToastT > 0 && wtToast) {
+    ctx.save();
+    const a = Math.min(1, wtToastT / 30);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(220,38,38,.85)';
+    const tw = 240; const th = 36; const tx = WT_W / 2 - tw / 2; const ty = 60;
+    ctx.fillRect(tx, ty, tw, th);
+    ctx.strokeStyle = '#fca5a5'; ctx.strokeRect(tx + 0.5, ty + 0.5, tw - 1, th - 1);
+    ctx.fillStyle = '#fff'; ctx.font = '700 14px Orbitron, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(wtToast, WT_W / 2, ty + th / 2);
+    ctx.restore();
+  }
+}
+
+function wtLoop() {
+  if (!wtRunning) return;
+  wtUpdate();
+  wtDraw();
+  wtAnimId = requestAnimationFrame(wtLoop);
+}
+
+function wtJump() {
+  if (wtPDead || !wtOnGround) return;
+  wtPvy = -7.5;
+  wtOnGround = false;
+}
+
+function wtAttachInputs() {
+  wtKeyHandler = (e) => {
+    if (!wtRunning) return;
+    if (e.type === 'keydown') {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { wtLeftDown = true; e.preventDefault(); }
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { wtRightDown = true; e.preventDefault(); }
+      else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        if (!wtJumpHeld) wtJump();
+        wtJumpHeld = true; e.preventDefault();
+      }
+    } else {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') wtLeftDown = false;
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') wtRightDown = false;
+      else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') wtJumpHeld = false;
+    }
+  };
+  window.addEventListener('keydown', wtKeyHandler);
+  window.addEventListener('keyup', wtKeyHandler);
+
+  wtTouchStart = (e) => {
+    if (!wtRunning || !wtCanvas) return;
+    e.preventDefault();
+    const rect = wtCanvas.getBoundingClientRect();
+    for (const t of e.changedTouches) {
+      const lx = (t.clientX - rect.left) * (WT_W / rect.width);
+      if (lx < WT_W / 2) {
+        wtTouchSlideId = t.identifier;
+        wtTouchSlideX = lx;
+      } else {
+        wtJump();
+      }
+    }
+  };
+  wtTouchMove = (e) => {
+    if (!wtRunning || !wtCanvas) return;
+    e.preventDefault();
+    const rect = wtCanvas.getBoundingClientRect();
+    for (const t of e.changedTouches) {
+      if (t.identifier === wtTouchSlideId) {
+        wtTouchSlideX = (t.clientX - rect.left) * (WT_W / rect.width);
+      }
+    }
+  };
+  wtTouchEnd = (e) => {
+    if (!wtCanvas) return;
+    for (const t of e.changedTouches) {
+      if (t.identifier === wtTouchSlideId) { wtTouchSlideId = null; wtTouchSlideX = null; }
+    }
+  };
+  wtCanvas.addEventListener('touchstart', wtTouchStart, { passive: false });
+  wtCanvas.addEventListener('touchmove', wtTouchMove, { passive: false });
+  wtCanvas.addEventListener('touchend', wtTouchEnd);
+  wtCanvas.addEventListener('touchcancel', wtTouchEnd);
+}
+
+function wtDetachInputs() {
+  if (wtKeyHandler) { window.removeEventListener('keydown', wtKeyHandler); window.removeEventListener('keyup', wtKeyHandler); wtKeyHandler = null; }
+  if (wtCanvas && wtTouchStart) {
+    wtCanvas.removeEventListener('touchstart', wtTouchStart);
+    wtCanvas.removeEventListener('touchmove', wtTouchMove);
+    wtCanvas.removeEventListener('touchend', wtTouchEnd);
+    wtCanvas.removeEventListener('touchcancel', wtTouchEnd);
+  }
+  wtTouchStart = wtTouchMove = wtTouchEnd = null;
+  wtLeftDown = wtRightDown = false; wtJumpHeld = false;
+  wtTouchSlideId = null; wtTouchSlideX = null;
+}
+
+function wtEndGame() {
+  wtRunning = false;
+  if (wtAnimId) { cancelAnimationFrame(wtAnimId); wtAnimId = null; }
+  wtDetachInputs();
+  const sc = document.getElementById('wtResultScreen');
+  const ic = document.getElementById('wtResultIcon');
+  const ti = document.getElementById('wtResultTitle');
+  const lv = document.getElementById('wtResultLevel');
+  const sco = document.getElementById('wtResultScore');
+  const wf = document.getElementById('wtResultWolf');
+  const claimSec = document.getElementById('wtClaimSection');
+  const guestSec = document.getElementById('wtGuestSection');
+  const claimBtn = document.getElementById('wtClaimBtn');
+  if (ic) ic.textContent = '💀';
+  if (ti) ti.textContent = 'GAME OVER';
+  if (lv) lv.textContent = wtLevel;
+  if (sco) sco.textContent = wtScore;
+  if (wf) wf.textContent = wtWolfEarned;
+  if (claimBtn) { claimBtn.disabled = false; claimBtn.textContent = '🐺 CLAIM WOLF'; }
+  if (currentUser && wtWolfEarned > 0) { if (claimSec) claimSec.style.display = 'block'; if (guestSec) guestSec.style.display = 'none'; }
+  else if (!currentUser) { if (claimSec) claimSec.style.display = 'none'; if (guestSec) guestSec.style.display = 'block'; }
+  else { if (claimSec) claimSec.style.display = 'none'; if (guestSec) guestSec.style.display = 'none'; }
+  if (sc) sc.style.display = 'flex';
+}
+
+async function wtClaimWolf() {
+  if (!currentUser || wtWolfEarned <= 0 || wtClaimed) return;
+  const btn = document.getElementById('wtClaimBtn');
+  const session = getSession();
+  if (!session?.tok) { showToast('Session expired — please log in again.', 'error'); return; }
+  const ENDPOINT = '/api/veloxfi/game/wolf-trap/earn';
+  const BODY = JSON.stringify({ wolfEarned: wtWolfEarned });
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    if (btn) { btn.disabled = true; btn.textContent = attempt === 1 ? 'CLAIMING…' : `RETRYING… (${attempt}/${MAX_RETRIES})`; }
+    try {
+      const res = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${session.tok}`}, body: BODY });
+      if (res.status === 400) { const d = await res.json().catch(()=>({})); showToast(d.error||'Invalid claim.','error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return; }
+      if (res.status === 401) { showToast('Session expired — please log in again.','error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return; }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.ok) {
+        wtClaimed = true;
+        try {
+          if (currentUser) currentUser.wolf = data.newWolfBalance;
+          if (typeof updateNavBalance === 'function') updateNavBalance();
+          showToast(`+${data.wolfEarned} WOLF claimed! Balance: ${data.newWolfBalance.toLocaleString()} WOLF`, 'success');
+          if (btn) { btn.disabled = true; btn.textContent = '✓ CLAIMED!'; }
+        } catch(uiErr) { showToast(`+${data.wolfEarned} WOLF claimed!`, 'success'); if(btn){btn.disabled=true;btn.textContent='✓ CLAIMED!';} }
+        return;
+      }
+      showToast(data.error || 'Claim failed.', 'error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} return;
+    } catch(err) {
+      if (wtClaimed) return;
+      if (attempt < MAX_RETRIES) { await new Promise(r => setTimeout(r, attempt * 600)); }
+      else { showToast('Network error after 3 attempts. Try again.', 'error'); if(btn){btn.disabled=false;btn.textContent='🐺 CLAIM WOLF';} }
+    }
+  }
+}
+
+function wtStartGame() {
+  enterGameFullscreen('wolfTrapPage', () => { wtStopGame(); goGames(); });
+  wtLevel = 1; wtLives = 3; wtScore = 0; wtWolfEarned = 0; wtClaimed = false;
+  wtCoins = []; wtParticles = []; wtFloaters = []; wtShake = 0;
+  wtBuildLevel(wtLevel);
+  wtUpdateHud();
+  const start = document.getElementById('wtStartScreen'), result = document.getElementById('wtResultScreen');
+  if (start) start.style.display = 'none'; if (result) result.style.display = 'none';
+  wtRunning = true;
+  wtAttachInputs();
+  if (wtAnimId) cancelAnimationFrame(wtAnimId);
+  wtAnimId = requestAnimationFrame(wtLoop);
+}
+
+function wtRestartGame() {
+  wtRunning = false;
+  if (wtAnimId) { cancelAnimationFrame(wtAnimId); wtAnimId = null; }
+  wtDetachInputs();
+  wtStartGame();
+}
+
+function wtStopGame() {
+  wtRunning = false;
+  if (wtAnimId) { cancelAnimationFrame(wtAnimId); wtAnimId = null; }
+  wtDetachInputs();
+  exitGameFullscreen();
+}
+
+function wtInit() {
+  wtCanvas = document.getElementById('wolfTrapCanvas');
+  if (!wtCanvas) return;
+  wtCtx = wtCanvas.getContext('2d');
+  wtCanvas.width = WT_W; wtCanvas.height = WT_H;
+  wtLevel = 1; wtLives = 3; wtScore = 0; wtWolfEarned = 0; wtClaimed = false;
+  wtCoins = []; wtParticles = []; wtFloaters = []; wtPlatforms = [];
+  document.getElementById('wtStartScreen').style.display = 'flex';
+  document.getElementById('wtResultScreen').style.display = 'none';
+  wtUpdateHud();
+  // initial idle background
+  wtCtx.fillStyle = '#020408'; wtCtx.fillRect(0,0,WT_W,WT_H);
+}
+
+function goWolfTrap() {
+  setPageMeta('wolfTrap');
+  history.pushState(null, '', '/games/wolf-trap');
+  _showOnlyPage('wolfTrapPage');
+  const wtEl = document.getElementById('wolfTrapPage');
+  if (wtEl) wtEl.style.display = 'flex';
+  window.scrollTo(0, 0);
+  wtInit();
+}
+// ── End Wolf Trap ─────────────────────────────────────────────────────────────
 
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');

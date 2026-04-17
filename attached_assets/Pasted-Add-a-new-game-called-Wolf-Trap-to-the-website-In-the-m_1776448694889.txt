@@ -1,0 +1,91 @@
+Add a new game called "Wolf Trap" to the website.
+
+In the main server file, add a new route /wolftrap that serves 
+a new game page. Build the entire game as a new EJS template or 
+inline HTML page with the following specs:
+
+GAME CONCEPT:
+A platformer game where the player (a pixel wolf) must climb 
+upward by jumping on platforms to reach the GOAL (⭐) on each 
+level. Every level is procedurally generated using a seeded 
+random function based on the level number, so levels are 
+infinite and always the same for the same level number.
+
+CONTROLS:
+- Left half of screen: touch and slide finger left/right to move
+- Right half of screen: tap to jump
+- Keyboard: arrow keys to move, space/up to jump
+
+PLATFORM TYPES (6 types):
+1. NORMAL (blue) - safe to stand on
+2. VANISH (purple, labeled "VANISH") - disappears 28 frames 
+   after you land on it, show cracks when fading
+3. FAKE (gray) - looks like normal but falls through, 
+   shows cracks and disappears after 220ms
+4. SPIKE (gray) - looks like FAKE but kills player on contact,
+   reveals red spikes after triggering
+5. BOUNCY (red, labeled "BOUNCE") - launches player upward 
+   with vy = -10.8
+6. MOVING (green, labeled with arrow) - slides left and right
+
+GOAL platform: glowing green with ⭐ above it and "GOAL" label.
+When player touches GOAL: level complete, go to next level.
+
+LEVEL GENERATION:
+- Use seeded random: seed = level * 91273 + 4441
+- World height = count * 55 + 300 where count = 14 + level * 2
+- Platforms go upward with random x jumps of 55-140px 
+  and y gaps of 42-80px
+- Trap rate increases per level: min(0.08 + level * 0.06, 0.75)
+- Platform distribution: 22% vanish, 20% fake, 15% spike, 
+  13% bouncy, 15% moving, rest normal
+- No traps on first 2 platforms above start
+- Add coin (🪙) above 45% of normal platforms, 
+  wolf coin (🐺) 20% chance instead of regular coin
+- GOAL platform placed 60px above last platform
+
+CAMERA:
+- Camera follows player: targetCamY = playerY - screenHeight * 0.4
+- Smooth lerp: camY += (targetCamY - camY) * 0.1
+- Camera cannot go below floor level
+
+PHYSICS:
+- Gravity: vy += 0.4 per frame, max 11
+- Walk speed: max 3.8 left/right with 0.85 acceleration
+- Friction when no input: vx *= 0.76
+- Jump: vy = -7.5 (only when on ground, once per press)
+- Player wraps around screen edges
+
+SCORING:
+- Regular coin: +10 points
+- Wolf coin: +1 WOLF token, +50 points  
+- Level complete: +level * 100 points + level WOLF tokens
+- Wolf tokens earned are submitted to the user's balance 
+  via POST /api/wolf/earn at game end (same as other games)
+
+LIVES: 3 lives, respawn at start of level when dead
+
+UI bar at top: LEVEL | SCORE | WOLF | LIVES
+
+TRAP MESSAGES shown on death/trigger (random pick):
+"IT'S A TRAP! 😈" "GOTCHA!" "TRUST NOBODY!" 
+"NICE TRY! 😂" "LIES!" "HA! GOTCHA!"
+
+PIXEL WOLF CHARACTER:
+Draw using canvas rectangles - dark gray body with purple 
+armor, blue glowing eyes, pink ears, animated legs when moving.
+Show 💀 emoji when dead.
+
+VISUAL STYLE:
+- Background: dark #020408 with blue grid lines
+- Screen shake on death (14px, decays 0.78 per frame)
+- Particle burst on death (red) and coin collect (gold/purple)
+- Floating score text on coin collect
+- Player blinks when invincible after respawn
+
+Add the game card to the homepage games grid with:
+- Icon: 🪤
+- Name: WOLF TRAP  
+- Description: "Nothing is what it seems"
+- Same styling as other game cards
+- onclick navigates to /wolftrap
