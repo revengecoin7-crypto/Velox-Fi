@@ -9,13 +9,13 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd artifacts/veloxfi && npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+args = "pnpm install && pnpm --filter @workspace/veloxfi run dev -- --host 0.0.0.0 --port 5173"
 waitForPort = 5173
 
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["sh", "-c", "cd artifacts/veloxfi && npm install && npm run build"]
-run = ["sh", "-c", "cd artifacts/veloxfi && npm run serve"]
+build = ["sh", "-c", "pnpm install && pnpm --filter @workspace/veloxfi run build"]
+run = ["sh", "-c", "pnpm --filter @workspace/veloxfi run serve"]
 
 [agent]
 stack = "PNPM_WORKSPACE"
