@@ -1,221 +1,242 @@
-import { useLocation } from "wouter";
-import { Trophy, Medal, Wallet, Crown, Star, RotateCcw, Calendar } from "lucide-react";
+import { useMemo } from "react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MemeShell from "@/components/MemeShell";
+import { useAuth } from "@/context/AuthContext";
 
-interface Player { rank: number; address: string; battles: number; wins: number; bestCoin: string; pnl: string; }
+interface LBEntry {
+  rank: number;
+  username: string;
+  wolf: number;
+  games: number;
+  battle: number;
+  isMe: boolean;
+}
 
-const PLACEHOLDER_ROWS: Player[] = Array.from({ length: 10 }, (_, i) => ({
-  rank: i + 1, address: "— UNCLAIMED —", battles: 0, wins: 0, bestCoin: "—", pnl: "—",
-}));
+function loadLeaderboard(myId: string | undefined): LBEntry[] {
+  try {
+    const raw = localStorage.getItem("vfx_users_v2");
+    if (!raw) return [];
+    const users: Record<string, { id: string; username: string; wolf: number; battle: number; gameHistory?: unknown[] }> = JSON.parse(raw);
+    return Object.values(users)
+      .map(u => ({
+        username: u.username,
+        wolf: u.wolf || 0,
+        battle: u.battle || 0,
+        games: (u.gameHistory || []).length,
+        isMe: u.id === myId,
+      }))
+      .sort((a, b) => b.wolf - a.wolf)
+      .map((u, i) => ({ ...u, rank: i + 1 }));
+  } catch {
+    return [];
+  }
+}
 
-const PODIUM = [
-  { rank: 1, label: "CHAMPION",  color: "#f59e0b", bg: "rgba(245,158,11,0.1)",   border: "rgba(245,158,11,0.4)",   icon: <Crown className="w-5 h-5" />,  size: "text-5xl", glow: "rgba(245,158,11,0.4)"  },
-  { rank: 2, label: "RUNNER UP", color: "#9ca3af", bg: "rgba(156,163,175,0.07)", border: "rgba(156,163,175,0.25)", icon: <Medal className="w-5 h-5" />,  size: "text-4xl", glow: "rgba(156,163,175,0.2)" },
-  { rank: 3, label: "3RD PLACE", color: "#b45309", bg: "rgba(180,83,9,0.07)",    border: "rgba(180,83,9,0.28)",    icon: <Star  className="w-4 h-4" />,  size: "text-3xl", glow: "rgba(180,83,9,0.3)"   },
+const PRIZES = [
+  { rank: 1, emoji: "👑", label: "CHAMPION",  color: "#FFD93D", wolf: 5000 },
+  { rank: 2, emoji: "🥈", label: "RUNNER UP", color: "#C0C0C0", wolf: 3000 },
+  { rank: 3, emoji: "🥉", label: "3RD PLACE", color: "#CD7F32", wolf: 1000 },
 ];
 
 function rankColor(rank: number) {
-  if (rank === 1) return "#f59e0b";
-  if (rank === 2) return "#9ca3af";
-  if (rank === 3) return "#b45309";
-  return "#374151";
+  if (rank === 1) return "#FFD93D";
+  if (rank === 2) return "#b0b0b0";
+  if (rank === 3) return "#CD7F32";
+  return "#1a1a1a";
 }
 
-function PodiumCard({ entry, order }: { entry: typeof PODIUM[number]; order: number }) {
-  const isGold = entry.rank === 1;
-  return (
-    <div className="flex-1 rounded-2xl p-5 flex flex-col items-center gap-3 transition-all duration-200"
-      style={{
-        background: entry.bg,
-        border: `2px solid ${entry.border}`,
-        order,
-        minWidth: 0,
-        boxShadow: isGold ? `0 0 30px ${entry.glow}` : "none",
-      }}>
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-        style={{ background: `${entry.color}20`, border: `2px solid ${entry.color}55`, color: entry.color }}>
-        <span className="font-orbitron font-black text-2xl">#{entry.rank}</span>
-      </div>
-      <div className="w-20 h-20 rounded-full flex items-center justify-center relative"
-        style={{ background: "rgba(255,255,255,0.03)", border: `2px dashed ${entry.color}40` }}>
-        <span style={{ color: `${entry.color}40`, fontSize: "36px" }}>?</span>
-        <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
-          style={{ background: entry.color, color: "#05080f" }}>
-          {entry.icon}
-        </div>
-      </div>
-      <div className="text-center">
-        <div className="font-orbitron font-black text-sm tracking-widest mb-1" style={{ color: entry.color }}>{entry.label}</div>
-        <div className="font-orbitron text-xs tracking-widest" style={{ color: "#374151" }}>— UNCLAIMED —</div>
-      </div>
-      <div className="flex gap-4 text-center mt-1">
-        {[{ label: "BATTLES", v: "—" }, { label: "WINS", v: "—" }, { label: "PNL", v: "—" }].map(({ label, v }) => (
-          <div key={label}>
-            <div className="font-black text-base" style={{ fontFamily: "Inter, sans-serif", color: "#4b5563" }}>{v}</div>
-            <div className="font-orbitron text-gray-700" style={{ fontSize: "9px", letterSpacing: "0.12em" }}>{label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function rankBg(rank: number) {
+  if (rank === 1) return "#FFFBF0";
+  if (rank === 2) return "#f8f8f8";
+  if (rank === 3) return "#fdf6ee";
+  return "#fff";
+}
+
+function WeekCountdown() {
+  const now = new Date();
+  const nextMonday = new Date(now);
+  nextMonday.setDate(now.getDate() + (8 - now.getDay()) % 7 || 7);
+  nextMonday.setHours(0, 0, 0, 0);
+  const msLeft = nextMonday.getTime() - now.getTime();
+  const d = Math.floor(msLeft / 86400000);
+  const h = Math.floor((msLeft % 86400000) / 3600000);
+  const m = Math.floor((msLeft % 3600000) / 60000);
+  return <span>{d}d {h}h {m}m</span>;
 }
 
 export default function Leaderboard() {
   usePageMeta({
-    title: "Leaderboard — Top Battle Champions | VeloxFi",
-    description: "See the top-performing memecoins and battle champions on VeloxFi. Rankings updated in real time on Solana.",
-    canonical: "https://veloxfi.io/#/leaderboard",
+    title: "Leaderboard — Top WOLF Earners | VeloxFi Game Arena",
+    description: "See the top WOLF token earners on VeloxFi. Weekly prizes: #1 gets 5000 WOLF, #2 gets 3000 WOLF, #3 gets 1000 WOLF. Play games and mine to climb the rankings.",
+    canonical: "https://veloxfi.io/leaderboard",
   });
-  const [, navigate] = useLocation();
+
+  const { user } = useAuth();
+  const entries = useMemo(() => loadLeaderboard(user?.id), [user?.wolf]);
+  const myEntry = entries.find(e => e.isMe);
+  const top3 = entries.slice(0, 3);
+  const rest = entries.slice(3, 10);
 
   return (
     <MemeShell>
-      <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
+      <div className="max-w-4xl mx-auto px-6 py-12">
 
-        {/* ── HEADER ── */}
+        {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-orbitron tracking-widest"
-            style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.35)", color: "#f59e0b" }}>
-            <Trophy className="w-3.5 h-3.5" /> SEASON 1 RANKINGS
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-5 font-bungee text-xs text-[#1a1a1a]"
+            style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
+            🏆 SEASON 1 RANKINGS
           </div>
-          <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white leading-tight mb-3 meme-title">
-            🏆 TOP{" "}
-            <span style={{ background: "linear-gradient(135deg,#f59e0b,#ef4444)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              WARRIORS
-            </span>
+          <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
+            TOP <span style={{ color: "#FFD93D" }}>WOLVES</span>
           </h1>
-          <p className="text-gray-400 text-lg">Season 1 — The greatest memecoin battle champions 👑</p>
+          <p className="font-fredoka text-lg text-gray-600">Weekly prizes for the biggest WOLF earners 🐺</p>
         </div>
 
-        {/* ── SEASON INFO ── */}
-        <div className="flex items-center flex-wrap gap-6 p-5 rounded-2xl mb-10"
-          style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          {[
-            { icon: <Trophy className="w-3.5 h-3.5" />,    label: "SEASON",     value: "Season 1",   color: "#f59e0b" },
-            { icon: <RotateCcw className="w-3.5 h-3.5" />, label: "RESETS",     value: "Monthly",    color: "#60a5fa" },
-            { icon: <Calendar className="w-3.5 h-3.5" />,  label: "STARTS",     value: "Jun 1 2026", color: "#a78bfa" },
-            { icon: <Star className="w-3.5 h-3.5" />,      label: "PRIZE POOL", value: "TBA 💰",      color: "#34d399" },
-          ].map(({ icon, label, value, color }) => (
-            <div key={label} className="flex items-center gap-2">
-              <span style={{ color }}>{icon}</span>
-              <span className="font-orbitron text-gray-700" style={{ fontSize: "10px", letterSpacing: "0.12em" }}>{label}:</span>
-              <span className="font-black text-sm" style={{ fontFamily: "Inter, sans-serif", color }}>{value}</span>
+        {/* Weekly prize info */}
+        <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 24px", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 28 }}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="font-bungee text-base text-[#1a1a1a] mb-1">🗓️ WEEKLY RESET</p>
+              <p className="font-fredoka text-sm" style={{ color: "#666" }}>Rankings reset every Monday at 00:00 UTC</p>
+            </div>
+            <div style={{ background: "#FF9F43", border: "2px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", boxShadow: "2px 2px 0 #1a1a1a", textAlign: "center" }}>
+              <p className="font-fredoka text-xs font-bold mb-0.5" style={{ color: "#1a1a1a" }}>RESETS IN</p>
+              <p className="font-bungee text-lg" style={{ color: "#1a1a1a" }}><WeekCountdown /></p>
+            </div>
+          </div>
+        </div>
+
+        {/* Prize cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          {PRIZES.map(p => (
+            <div key={p.rank} style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 16px", boxShadow: `5px 5px 0 ${p.color}`, textAlign: "center" }}>
+              <div style={{ fontSize: 36, marginBottom: 6 }}>{p.emoji}</div>
+              <p className="font-bungee text-sm" style={{ color: p.rank === 1 ? "#FFD93D" : p.rank === 2 ? "#888" : "#CD7F32" }}>{p.label}</p>
+              <p className="font-bungee text-3xl mt-1" style={{ color: "#1a1a1a" }}>+{p.wolf.toLocaleString()}</p>
+              <p className="font-fredoka text-sm" style={{ color: "#666" }}>WOLF reward</p>
             </div>
           ))}
         </div>
 
-        {/* ── PODIUM ── */}
-        <div className="mb-4 text-center">
-          <h2 className="font-orbitron font-black text-xl text-white tracking-wider">
-            🥇 👑 PODIUM 👑 🥇
-          </h2>
-        </div>
-        <div className="flex gap-4 mb-10">
-          <PodiumCard entry={PODIUM[1]} order={1} />
-          {/* Gold — bigger */}
-          <div className="flex-[1.4] rounded-2xl p-6 flex flex-col items-center gap-3 relative overflow-hidden"
-            style={{
-              background: PODIUM[0].bg,
-              border: `2px solid ${PODIUM[0].border}`,
-              order: 2,
-              minWidth: 0,
-              boxShadow: `0 0 50px ${PODIUM[0].glow}`,
-            }}>
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.15) 0%,transparent 70%)" }} />
-            <div className="relative z-10 text-3xl animate-bounce">👑</div>
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center relative z-10"
-              style={{ background: "rgba(245,158,11,0.18)", border: "2px solid rgba(245,158,11,0.6)" }}>
-              <span className="font-orbitron font-black text-3xl" style={{ color: "#f59e0b" }}>#1</span>
-            </div>
-            <div className="w-24 h-24 rounded-full flex items-center justify-center relative z-10"
-              style={{ background: "rgba(255,255,255,0.03)", border: "2px dashed rgba(245,158,11,0.45)" }}>
-              <span style={{ color: "rgba(245,158,11,0.3)", fontSize: "44px" }}>?</span>
-              <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: "#f59e0b", color: "#05080f" }}>
-                <Crown className="w-5 h-5" />
+        {/* Podium top 3 */}
+        {entries.length === 0 ? (
+          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "48px 24px", boxShadow: "5px 5px 0 #1a1a1a", textAlign: "center", marginBottom: 24 }}>
+            <div style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
+            <h2 className="font-bungee text-2xl mb-3">NO PLAYERS YET</h2>
+            <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Be the first wolf on the leaderboard! Start playing games or mining to earn WOLF.</p>
+            <a href="/games" style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 15, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
+              🎮 PLAY NOW
+            </a>
+          </div>
+        ) : (
+          <>
+            {/* Top 3 podium */}
+            {top3.length > 0 && (
+              <div className="flex gap-4 mb-6 items-end">
+                {/* Reorder: 2nd, 1st, 3rd */}
+                {[
+                  top3[1] ?? null,
+                  top3[0] ?? null,
+                  top3[2] ?? null,
+                ].map((entry, idx) => {
+                  if (!entry) return <div key={idx} className="flex-1" />;
+                  const prize = PRIZES.find(p => p.rank === entry.rank);
+                  const isFirst = entry.rank === 1;
+                  return (
+                    <div key={entry.rank} className="flex-1"
+                      style={{
+                        background: entry.isMe ? "#d1fae5" : rankBg(entry.rank),
+                        border: `2.5px solid ${isFirst ? "#FFD93D" : "#1a1a1a"}`,
+                        borderRadius: 20,
+                        padding: isFirst ? "24px 16px" : "18px 14px",
+                        boxShadow: `${isFirst ? "6px 6px" : "4px 4px"} 0 ${rankColor(entry.rank)}`,
+                        textAlign: "center",
+                        order: idx,
+                      }}>
+                      <div style={{ fontSize: isFirst ? 40 : 30, marginBottom: 4 }}>{prize?.emoji ?? "🎯"}</div>
+                      <div className="font-bungee text-sm" style={{ color: rankColor(entry.rank) }}>{prize?.label}</div>
+                      <div className="font-bungee text-lg mt-1 truncate" style={{ color: "#1a1a1a" }}>{entry.username}</div>
+                      <div className="font-fredoka font-bold mt-1" style={{ color: "#6BCB77", fontSize: isFirst ? 22 : 16 }}>{entry.wolf.toLocaleString()} WOLF</div>
+                      <div className="font-fredoka text-xs mt-1" style={{ color: "#888" }}>{entry.games} games</div>
+                      {prize && <div className="font-bungee text-xs mt-2 px-2 py-1 rounded-lg" style={{ background: prize.color, color: "#1a1a1a", border: "1.5px solid #1a1a1a" }}>+{prize.wolf} prize</div>}
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-            <div className="text-center relative z-10">
-              <div className="font-orbitron font-black text-base tracking-widest mb-1" style={{ color: "#f59e0b" }}>
-                👑 CHAMPION
-              </div>
-              <div className="font-orbitron text-xs tracking-widest" style={{ color: "#374151" }}>— UNCLAIMED —</div>
-            </div>
-            <div className="flex gap-6 text-center relative z-10 mt-1">
-              {[{ label: "BATTLES", v: "—" }, { label: "WINS", v: "—" }, { label: "PNL", v: "—" }].map(({ label, v }) => (
-                <div key={label}>
-                  <div className="font-black text-lg" style={{ fontFamily: "Inter, sans-serif", color: "#4b5563" }}>{v}</div>
-                  <div className="font-orbitron text-gray-700" style={{ fontSize: "9px", letterSpacing: "0.12em" }}>{label}</div>
+            )}
+
+            {/* Table for ranks 4-10 */}
+            {rest.length > 0 && (
+              <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, overflow: "hidden", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 24 }}>
+                <div style={{ background: "#1a1a1a", padding: "12px 20px", display: "grid", gridTemplateColumns: "50px 1fr 120px 80px 100px", gap: 8 }}>
+                  {["RANK", "PLAYER", "WOLF EARNED", "GAMES", "$BATTLE"].map(h => (
+                    <span key={h} className="font-bungee text-xs" style={{ color: "#FFD93D" }}>{h}</span>
+                  ))}
                 </div>
-              ))}
+                {rest.map((entry, i) => (
+                  <div key={entry.rank}
+                    style={{
+                      padding: "14px 20px",
+                      display: "grid",
+                      gridTemplateColumns: "50px 1fr 120px 80px 100px",
+                      gap: 8,
+                      background: entry.isMe ? "#d1fae5" : i % 2 === 0 ? "#fff" : "#FFFBF0",
+                      borderTop: "1.5px solid #eee",
+                      alignItems: "center",
+                    }}>
+                    <span className="font-bungee text-sm" style={{ color: rankColor(entry.rank) }}>#{entry.rank}</span>
+                    <span className="font-fredoka font-bold text-sm truncate" style={{ color: entry.isMe ? "#065f46" : "#1a1a1a" }}>
+                      {entry.isMe ? "⭐ " : ""}{entry.username}
+                    </span>
+                    <span className="font-bungee text-sm" style={{ color: "#6BCB77" }}>{entry.wolf.toLocaleString()}</span>
+                    <span className="font-fredoka text-sm" style={{ color: "#888" }}>{entry.games}</span>
+                    <span className="font-fredoka text-sm" style={{ color: "#4CC9F0" }}>{entry.battle.toFixed(4)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* My rank */}
+        {user && myEntry && (
+          <div style={{ background: myEntry.rank <= 3 ? "#d1fae5" : "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 24px", boxShadow: "5px 5px 0 #6BCB77", marginBottom: 24 }}>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <p className="font-bungee text-sm mb-1" style={{ color: "#888" }}>YOUR RANK</p>
+                <div className="flex items-center gap-3">
+                  <span className="font-bungee text-4xl" style={{ color: rankColor(myEntry.rank) }}>#{myEntry.rank}</span>
+                  <div>
+                    <p className="font-bungee text-lg text-[#1a1a1a]">{user.username}</p>
+                    <p className="font-fredoka text-sm" style={{ color: "#6BCB77" }}>{myEntry.wolf.toLocaleString()} WOLF · {myEntry.games} games</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <a href="/games" style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
+                  🎮 PLAY
+                </a>
+                <a href="/mine" style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
+                  ⛏️ MINE
+                </a>
+              </div>
             </div>
           </div>
-          <PodiumCard entry={PODIUM[2]} order={3} />
-        </div>
+        )}
 
-        {/* ── TABLE ── */}
-        <div className="rounded-2xl overflow-hidden mb-10"
-          style={{ border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-          <div className="grid gap-0 text-xs font-orbitron tracking-widest py-3.5 px-6"
-            style={{ gridTemplateColumns: "56px 1fr 80px 80px 90px 100px 90px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.07)", color: "#374151" }}>
-            <span>🏆 RANK</span>
-            <span>PLAYER</span>
-            <span className="text-right">BATTLES</span>
-            <span className="text-right">WINS</span>
-            <span className="text-right">WIN RATE</span>
-            <span className="text-right hidden sm:block">BEST COIN</span>
-            <span className="text-right">PNL</span>
-          </div>
-          {PLACEHOLDER_ROWS.map((row, i) => (
-            <div key={row.rank} className="grid gap-0 py-4 px-6 transition-all cursor-default"
-              style={{
-                gridTemplateColumns: "56px 1fr 80px 80px 90px 100px 90px",
-                borderBottom: i < 9 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                background: row.rank <= 3 ? `${rankColor(row.rank)}05` : "transparent",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.03)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = row.rank <= 3 ? `${rankColor(row.rank)}05` : "transparent"; }}>
-              <span className="font-orbitron font-black text-sm flex items-center" style={{ color: rankColor(row.rank) }}>
-                {row.rank <= 3 ? (
-                  <span className="flex items-center gap-1">
-                    {row.rank === 1 && <Crown className="w-3.5 h-3.5" />}
-                    {row.rank === 2 && <Medal className="w-3.5 h-3.5" />}
-                    {row.rank === 3 && <Star  className="w-3.5 h-3.5" />}
-                    #{row.rank}
-                  </span>
-                ) : `#${row.rank}`}
-              </span>
-              <span className="flex items-center text-xs tracking-widest font-orbitron" style={{ color: "#374151" }}>{row.address}</span>
-              {["—","—","—","—","—"].map((v, vi) => (
-                <span key={vi} className={`text-right text-sm flex items-center justify-end ${vi === 3 ? "hidden sm:flex" : ""}`}
-                  style={{ fontFamily: "Inter, sans-serif", color: "#374151" }}>{v}</span>
-              ))}
+        {!user && (
+          <div className="cartoon-card-yellow p-10 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
+            <div className="text-5xl mb-3">🐺</div>
+            <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">JOIN THE COMPETITION</h2>
+            <p className="font-fredoka text-gray-600 text-base mb-6">Create an account, play games, mine WOLF, and compete for the weekly prize pool!</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="/register" className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm" style={{ textDecoration: "none" }}>CREATE ACCOUNT 🚀</a>
+              <a href="/games" className="cartoon-btn cartoon-btn-white px-10 py-4 text-sm" style={{ textDecoration: "none" }}>PLAY GAMES 🎮</a>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
-        {/* ── YOUR RANK ── */}
-        <div className="rounded-3xl p-8 flex flex-col sm:flex-row items-center gap-6"
-          style={{ background: "linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.08))", border: "2px solid rgba(124,58,237,0.25)" }}>
-          <div className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
-            <Wallet className="w-7 h-7" style={{ color: "#60a5fa" }} />
-          </div>
-          <div className="flex-1 text-center sm:text-left">
-            <div className="font-orbitron font-black text-xl text-white mb-1 tracking-wide">🎯 YOUR RANK</div>
-            <p className="text-gray-500 text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
-              Connect your wallet to see your rank, battle history, and win rate.
-              <br className="hidden sm:block" />
-              Real battles and rankings unlock at presale launch — June 1, 2026.
-            </p>
-          </div>
-          <button onClick={() => navigate("/presale")} className="btn-meme px-8 py-4 rounded-2xl text-sm flex-shrink-0"
-            style={{ background: "linear-gradient(135deg,#4ade80,#16a34a)", boxShadow: "0 0 20px rgba(74,222,128,0.3)" }}>
-            🔥 JOIN PRESALE NOW
-          </button>
-        </div>
       </div>
     </MemeShell>
   );

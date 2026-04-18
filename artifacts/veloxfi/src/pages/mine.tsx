@@ -1,20 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import MemeShell from "@/components/MemeShell";
+import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Mine() {
   const { user, startMiningSession, claimMiningReward, getMiningProgress } = useAuth();
   const [, nav] = useLocation();
   const [tick, setTick] = useState(0);
+  const [flyShow, setFlyShow] = useState(false);
+  const [flyCount, setFlyCount] = useState(0);
+  const [flyFrom, setFlyFrom] = useState({ x: 0, y: 0 });
+  const claimBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 5000);
+    const id = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
 
   const progress = getMiningProgress();
-  const fmt = (m: number) => `${Math.floor(m / 60)}h ${m % 60}m`;
+
+  function fmtCountdown(secs: number) {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    if (h > 0) return `${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+    return `${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+  }
+
+  function handleClaim() {
+    if (claimBtnRef.current) {
+      const rect = claimBtnRef.current.getBoundingClientRect();
+      setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    const earned = claimMiningReward();
+    setFlyCount(Math.min(Math.ceil(earned / 20), 12));
+    setFlyShow(true);
+  }
 
   if (!user) {
     return (
@@ -36,6 +58,14 @@ export default function Mine() {
 
   return (
     <MemeShell testId="page-mine">
+      <TokenFly
+        count={flyCount}
+        show={flyShow}
+        fromX={flyFrom.x}
+        fromY={flyFrom.y}
+        onComplete={() => { setFlyShow(false); setFlyCount(0); }}
+      />
+
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="text-center mb-8">
           <h1 className="font-bungee text-4xl mb-2" style={{ color: "#1a1a1a" }}>⛏️ WOLF MINING</h1>
@@ -82,16 +112,18 @@ export default function Mine() {
               <p className="font-fredoka text-4xl font-bold mt-2 mb-1" style={{ color: "#6BCB77" }}>
                 +{progress.wolfEarned} WOLF
               </p>
-              <p className="font-fredoka text-base mb-4" style={{ color: "#777" }}>
-                {fmt(progress.minutesLeft)} remaining in this session
+              <p className="font-bungee text-3xl mb-3" style={{ color: "#FF9F43" }}>
+                {fmtCountdown(progress.secondsLeft)}
               </p>
-              <div style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 12, height: 24, overflow: "hidden", position: "relative", marginBottom: 20 }}>
-                <div style={{ background: "linear-gradient(90deg, #6BCB77, #FFD93D)", height: "100%", width: `${progress.percentDone}%`, borderRadius: 10, transition: "width 0.5s ease" }} />
+              <p className="font-fredoka text-sm mb-4" style={{ color: "#777" }}>
+                remaining in this session
+              </p>
+              <div style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 12, height: 24, overflow: "hidden", position: "relative", marginBottom: 16 }}>
+                <div style={{ background: "linear-gradient(90deg, #6BCB77, #FFD93D)", height: "100%", width: `${progress.percentDone}%`, borderRadius: 10, transition: "width 1s ease" }} />
                 <span style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 12, color: "#1a1a1a" }}>
                   {progress.percentDone.toFixed(1)}%
                 </span>
               </div>
-              <p className="font-fredoka text-sm" style={{ color: "#888" }}>Auto-refreshes every 5 seconds · Session started successfully</p>
             </div>
           )}
 
@@ -104,10 +136,11 @@ export default function Mine() {
               </p>
               <p className="font-fredoka text-base mb-6" style={{ color: "#555" }}>Ready to claim. Start another session after claiming!</p>
               <button
-                onClick={() => claimMiningReward()}
+                ref={claimBtnRef}
+                onClick={handleClaim}
                 style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 48px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a" }}
               >
-                CLAIM {progress.wolfEarned} WOLF
+                CLAIM {progress.wolfEarned} WOLF ⬆️
               </button>
             </div>
           )}

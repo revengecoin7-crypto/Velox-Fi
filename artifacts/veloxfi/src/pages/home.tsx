@@ -14,13 +14,13 @@ const HOW_IT_WORKS = [
   {
     step: "02", icon: "⛏️",
     title: "Mine WOLF",
-    desc: "Start a mining session once every 8 hours and collect free WOLF tokens. The longer you wait, the bigger your reward. No wallet needed.",
+    desc: "Start a mining session once every 4 hours and collect free WOLF tokens. Earn up to 240 WOLF per session. No wallet needed.",
     color: "#6BCB77",
   },
   {
     step: "03", icon: "💱",
     title: "Convert to $BATTLE",
-    desc: "Saved up 5000 WOLF? Convert them to $BATTLE tokens — the real Solana coin. Enter your wallet address and we'll send them straight to you.",
+    desc: "Convert any amount of WOLF to $BATTLE tokens — the real Solana coin. 5,000 WOLF = 1 $BATTLE. Enter your wallet address and we'll send them to you.",
     color: "#FFD93D",
   },
   {
@@ -41,7 +41,7 @@ const GAMES = [
 const TICKER_ITEMS = [
   "🎮 $BATTLE NOW LIVE ON PUMP.FUN",
   "⚔️ JOIN THE GAME ARENA",
-  "🎯 MINE WOLF TOKENS EVERY 8 HOURS",
+  "🎯 MINE WOLF TOKENS EVERY 4 HOURS",
   "🐍 CRYPTO SNAKE — EARN WOLF",
   "🚀 ROCKET MINER — BLAST ASTEROIDS",
   "🏆 5000 WOLF = 1 $BATTLE",
@@ -56,6 +56,7 @@ const NAV_LINKS = [
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
   { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
+  { label: "Blog",        path: "/blog",        color: "#FF6B9D" },
   { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
   { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },
 ];

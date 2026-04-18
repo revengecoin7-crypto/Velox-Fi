@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import MemeShell from "@/components/MemeShell";
+import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
 const W = 520, H = 220;
@@ -30,7 +31,12 @@ export default function GameRunner() {
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [time, setTime] = useState(SESSION_SECS);
-  const { addWolf, user } = useAuth();
+  const [pendingWolf, setPendingWolf] = useState(0);
+  const [claimed, setClaimed] = useState(false);
+  const [flyShow, setFlyShow] = useState(false);
+  const [flyFrom, setFlyFrom] = useState({ x: 0, y: 0 });
+  const claimBtnRef = useRef<HTMLButtonElement>(null);
+  const { addGameSession, user } = useAuth();
   const [, nav] = useLocation();
 
   useEffect(() => {
@@ -38,7 +44,7 @@ export default function GameRunner() {
     const g = s.current;
     Object.assign(g, initState());
     g.running = true;
-    setScore(0); setLives(3); setTime(SESSION_SECS);
+    setScore(0); setLives(3); setTime(SESSION_SECS); setClaimed(false); setPendingWolf(0);
 
     function jump() {
       if (g.onGround) { g.wolfVY = -14; g.onGround = false; }
@@ -189,7 +195,7 @@ export default function GameRunner() {
       g.raf = requestAnimationFrame(tick);
     }
 
-    function end() { g.running = false; addWolf(g.score); setPhase("done"); }
+    function end() { g.running = false; setPendingWolf(g.score); setPhase("done"); }
     g.raf = requestAnimationFrame(tick);
 
     return () => {
@@ -204,8 +210,26 @@ export default function GameRunner() {
     <button onClick={onClick} style={{ background: color, border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 26px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>{label}</button>
   );
 
+  function handleClaim() {
+    if (claimed || pendingWolf <= 0) return;
+    if (claimBtnRef.current) {
+      const rect = claimBtnRef.current.getBoundingClientRect();
+      setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    addGameSession("runner", pendingWolf);
+    setClaimed(true);
+    setFlyShow(true);
+  }
+
   return (
     <MemeShell testId="page-game-runner">
+      <TokenFly
+        count={Math.min(pendingWolf, 10)}
+        show={flyShow}
+        fromX={flyFrom.x}
+        fromY={flyFrom.y}
+        onComplete={() => setFlyShow(false)}
+      />
       <div className="flex flex-col items-center py-8 px-4">
         <h1 className="font-bungee text-3xl mb-1" style={{ color: "#1a1a1a" }}>🐺 WOLF RUN</h1>
         <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Jump over obstacles, collect WOLF tokens!</p>
@@ -238,9 +262,20 @@ export default function GameRunner() {
           <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
             <div style={{ fontSize: 72 }}>🎉</div>
             <h2 className="font-bungee text-2xl mt-4">SESSION COMPLETE!</h2>
-            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#FF9F43" }}>+{score} WOLF</p>
-            <p className="font-fredoka text-sm mt-1 mb-6" style={{ color: "#777" }}>Added to your balance{!user ? " (login to save!)" : ""}</p>
-            <div className="flex gap-3 justify-center flex-wrap">
+            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#FF9F43" }}>+{pendingWolf} WOLF</p>
+            {!claimed && user && (
+              <>
+                <p className="font-fredoka text-sm mt-2 mb-5" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
+                <button
+                  ref={claimBtnRef}
+                  onClick={handleClaim}
+                  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 40px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 16, display: "block", width: "100%" }}
+                >CLAIM {pendingWolf} WOLF ⬆️</button>
+              </>
+            )}
+            {claimed && <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>}
+            {!user && <p className="font-fredoka text-sm mt-1 mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>}
+            <div className="flex gap-3 justify-center flex-wrap mt-2">
               {btn("PLAY AGAIN", "#FFD93D", () => setPhase("start"))}
               {btn("ALL GAMES", "#A29BFE", () => nav("/games"))}
             </div>

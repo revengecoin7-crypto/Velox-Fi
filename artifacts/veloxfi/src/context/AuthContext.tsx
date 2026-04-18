@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
+export interface GameSession {
+  id: string;
+  game: string;
+  wolf: number;
+  date: string;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -9,6 +16,11 @@ export interface User {
   lastMineSession: number | null;
   conversions: Array<{ id: string; wolf: number; battle: number; date: string; status: string }>;
   wallet: string | null;
+  gameHistory: GameSession[];
+  lastDailyReward: string | null;
+  dailyStreak: number;
+  totalMined: number;
+  totalGameWolf: number;
 }
 
 interface AuthContextType {
@@ -19,10 +31,14 @@ interface AuthContextType {
   logout: () => void;
   addWolf: (amount: number) => void;
   startMiningSession: () => void;
-  claimMiningReward: () => void;
-  getMiningProgress: () => { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number };
+  claimMiningReward: () => number;
+  getMiningProgress: () => { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number; secondsLeft: number };
   requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string }>;
   setWallet: (address: string) => void;
+  claimDailyReward: () => { ok: boolean; wolf?: number; streak?: number };
+  addGameSession: (game: string, wolf: number) => void;
+  canClaimDaily: () => boolean;
+  getDailyRewardAmount: (streak: number) => number;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,6 +57,17 @@ function saveUsers(u: Record<string, StoredUser>) {
   localStorage.setItem(USERS_KEY, JSON.stringify(u));
 }
 
+const DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
+
+export function getDailyRewardForStreak(streak: number): number {
+  const idx = Math.min(streak - 1, DAILY_REWARDS.length - 1);
+  return DAILY_REWARDS[Math.max(0, idx)];
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +79,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = users[id];
       if (u) {
         const { password: _p, ...rest } = u;
-        setUser(rest);
+        const migrated: User = {
+          gameHistory: [],
+          lastDailyReward: null,
+          dailyStreak: 0,
+          totalMined: 0,
+          totalGameWolf: 0,
+          ...rest,
+        };
+        setUser(migrated);
       }
     }
     setIsLoading(false);
@@ -75,7 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!found) return { ok: false, error: "Invalid username or password" };
     localStorage.setItem(SESSION_KEY, found.id);
     const { password: _p, ...rest } = found;
-    setUser(rest);
+    const migrated: User = {
+      gameHistory: [],
+      lastDailyReward: null,
+      dailyStreak: 0,
+      totalMined: 0,
+      totalGameWolf: 0,
+      ...rest,
+    };
+    setUser(migrated);
     return { ok: true };
   }
 
@@ -90,6 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const newUser: StoredUser = {
       id, username, email, password,
       wolf: 100, battle: 0, lastMineSession: null, conversions: [], wallet: null,
+      gameHistory: [], lastDailyReward: null, dailyStreak: 0,
+      totalMined: 0, totalGameWolf: 0,
     };
     users[id] = newUser;
     saveUsers(users);
@@ -114,34 +159,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist({ ...user, lastMineSession: Date.now() });
   }
 
-  function claimMiningReward() {
-    if (!user || !user.lastMineSession) return;
+  function claimMiningReward(): number {
+    if (!user || !user.lastMineSession) return 0;
     const elapsedMin = (Date.now() - user.lastMineSession) / 60000;
     const earned = Math.min(Math.floor(elapsedMin), 240);
-    persist({ ...user, wolf: user.wolf + earned, lastMineSession: null });
+    persist({
+      ...user,
+      wolf: user.wolf + earned,
+      lastMineSession: null,
+      totalMined: (user.totalMined || 0) + earned,
+    });
+    return earned;
   }
 
-  function getMiningProgress(): { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number } {
+  function getMiningProgress(): { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number; secondsLeft: number } {
     if (!user || !user.lastMineSession) {
-      return { active: false, wolfEarned: 0, minutesLeft: 240, percentDone: 0 };
+      return { active: false, wolfEarned: 0, minutesLeft: 240, percentDone: 0, secondsLeft: 14400 };
     }
-    const elapsedMin = (Date.now() - user.lastMineSession) / 60000;
+    const elapsedMs = Date.now() - user.lastMineSession;
+    const elapsedMin = elapsedMs / 60000;
+    const totalSecs = 240 * 60;
+    const elapsedSecs = Math.floor(elapsedMs / 1000);
     if (elapsedMin >= 240) {
-      return { active: false, wolfEarned: 240, minutesLeft: 0, percentDone: 100 };
+      return { active: false, wolfEarned: 240, minutesLeft: 0, percentDone: 100, secondsLeft: 0 };
     }
+    const secondsLeft = totalSecs - elapsedSecs;
     return {
       active: true,
       wolfEarned: Math.floor(elapsedMin),
       minutesLeft: 240 - Math.floor(elapsedMin),
       percentDone: (elapsedMin / 240) * 100,
+      secondsLeft,
     };
   }
 
   async function requestConversion(wolfAmount: number) {
     if (!user) return { ok: false, error: "Not logged in" };
-    if (wolfAmount < 5000) return { ok: false, error: "Minimum conversion is 5,000 WOLF" };
+    if (wolfAmount <= 0) return { ok: false, error: "Enter a valid WOLF amount" };
     if (user.wolf < wolfAmount) return { ok: false, error: "Insufficient WOLF balance" };
-    const battleAmount = Math.floor(wolfAmount / 5000);
+    const battleAmount = wolfAmount / 5000;
     const conv = {
       id: crypto.randomUUID(),
       wolf: wolfAmount,
@@ -158,11 +214,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist({ ...user, wallet: address });
   }
 
+  function canClaimDaily(): boolean {
+    if (!user) return false;
+    return user.lastDailyReward !== todayStr();
+  }
+
+  function getDailyRewardAmount(streak: number): number {
+    return getDailyRewardForStreak(streak);
+  }
+
+  function claimDailyReward(): { ok: boolean; wolf?: number; streak?: number } {
+    if (!user) return { ok: false };
+    if (user.lastDailyReward === todayStr()) return { ok: false };
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    const newStreak = user.lastDailyReward === yesterdayStr ? (user.dailyStreak || 0) + 1 : 1;
+    const wolfReward = getDailyRewardForStreak(newStreak);
+    persist({
+      ...user,
+      wolf: user.wolf + wolfReward,
+      lastDailyReward: todayStr(),
+      dailyStreak: newStreak,
+    });
+    return { ok: true, wolf: wolfReward, streak: newStreak };
+  }
+
+  function addGameSession(game: string, wolf: number) {
+    if (!user) return;
+    const session: GameSession = {
+      id: crypto.randomUUID(),
+      game,
+      wolf,
+      date: new Date().toISOString(),
+    };
+    persist({
+      ...user,
+      wolf: user.wolf + wolf,
+      gameHistory: [session, ...(user.gameHistory || [])].slice(0, 50),
+      totalGameWolf: (user.totalGameWolf || 0) + wolf,
+    });
+  }
+
   return (
     <AuthContext.Provider value={{
       user, isLoading, login, register, logout,
       addWolf, startMiningSession, claimMiningReward, getMiningProgress,
-      requestConversion, setWallet,
+      requestConversion, setWallet, claimDailyReward, addGameSession,
+      canClaimDaily, getDailyRewardAmount,
     }}>
       {children}
     </AuthContext.Provider>

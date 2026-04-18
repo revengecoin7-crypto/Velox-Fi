@@ -28,14 +28,22 @@ export default function Convert() {
   }
 
   const wolf = parseInt(wolfAmount) || 0;
-  const battleOut = wolf >= 5000 ? Math.floor(wolf / 5000) : 0;
+  const battleOut = wolf > 0 ? wolf / 5000 : 0;
+  const canConvert = wolf > 0 && wolf <= user.wolf;
 
   async function handleConvert() {
     if (!walletInput.trim()) { setStatus("error"); setMsg("Enter your Solana wallet address first."); return; }
+    if (!canConvert) { setStatus("error"); setMsg(wolf > user.wolf ? "Insufficient WOLF balance." : "Enter a valid WOLF amount."); return; }
     setWallet(walletInput.trim());
     const result = await requestConversion(wolf);
-    if (result?.ok) { setStatus("success"); setMsg(`Conversion requested! You'll receive ${battleOut} $BATTLE within 24 hours.`); setWolfAmount(""); }
-    else { setStatus("error"); setMsg(result?.error || "Something went wrong."); }
+    if (result?.ok) {
+      setStatus("success");
+      setMsg(`Conversion requested! You'll receive ${battleOut.toFixed(4)} $BATTLE within 24 hours.`);
+      setWolfAmount("");
+    } else {
+      setStatus("error");
+      setMsg(result?.error || "Something went wrong.");
+    }
   }
 
   return (
@@ -49,13 +57,14 @@ export default function Convert() {
         {/* Rate card */}
         <div style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 28px", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 24, textAlign: "center" }}>
           <p className="font-bungee text-2xl">5,000 WOLF = 1 $BATTLE</p>
-          <p className="font-fredoka text-sm mt-1" style={{ color: "#555" }}>Fixed rate · Processing within 24 hours weekdays</p>
+          <p className="font-fredoka text-sm mt-1" style={{ color: "#555" }}>Any amount · Processing within 24 hours weekdays</p>
         </div>
 
         {/* Balance */}
         <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 24px", boxShadow: "3px 3px 0 #1a1a1a", marginBottom: 24 }}>
           <p className="font-fredoka text-sm font-semibold" style={{ color: "#888" }}>AVAILABLE BALANCE</p>
           <p className="font-bungee text-3xl" style={{ color: "#1a1a1a" }}>{user.wolf.toLocaleString()} WOLF</p>
+          <p className="font-fredoka text-sm mt-1" style={{ color: "#6BCB77" }}>= {(user.wolf / 5000).toFixed(4)} $BATTLE max</p>
         </div>
 
         {/* Conversion form */}
@@ -67,22 +76,31 @@ export default function Convert() {
             <input
               type="number"
               value={wolfAmount}
-              onChange={e => setWolfAmount(e.target.value)}
-              min={0}
+              onChange={e => { setWolfAmount(e.target.value); setStatus("idle"); }}
+              min={1}
               max={user.wolf}
-              placeholder="Enter amount (min 5,000)"
+              placeholder="Enter any amount of WOLF"
               style={{ flex: 1, border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "12px 16px", fontFamily: "Fredoka,sans-serif", fontSize: 16, outline: "none" }}
             />
             <button
-              onClick={() => setWolfAmount(String(Math.floor(user.wolf / 5000) * 5000))}
+              onClick={() => setWolfAmount(String(user.wolf))}
               style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "0 16px", fontFamily: "Fredoka,sans-serif", fontWeight: 700, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", fontSize: 14 }}
             >MAX</button>
           </div>
 
           <div style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 12, padding: "14px 18px", marginBottom: 20, textAlign: "center" }}>
             <p className="font-fredoka text-sm" style={{ color: "#888" }}>You will receive</p>
-            <p className="font-bungee text-3xl" style={{ color: battleOut > 0 ? "#6BCB77" : "#ccc" }}>{battleOut} $BATTLE</p>
-            {wolf > 0 && wolf < 5000 && <p className="font-fredoka text-sm" style={{ color: "#FF6B6B" }}>Minimum 5,000 WOLF required</p>}
+            <p className="font-bungee text-3xl" style={{ color: canConvert ? "#6BCB77" : "#ccc" }}>
+              {battleOut > 0 ? battleOut.toFixed(4) : "0"} $BATTLE
+            </p>
+            {wolf > 0 && wolf < 5000 && (
+              <p className="font-fredoka text-xs mt-1" style={{ color: "#888" }}>
+                (partial amounts are also accepted — {(battleOut * 100).toFixed(2)}% of 1 $BATTLE)
+              </p>
+            )}
+            {wolf > user.wolf && (
+              <p className="font-fredoka text-sm mt-1" style={{ color: "#FF6B6B" }}>Insufficient balance</p>
+            )}
           </div>
 
           <label className="font-fredoka font-semibold text-sm block mb-1" style={{ color: "#1a1a1a" }}>Solana Wallet Address</label>
@@ -102,10 +120,12 @@ export default function Convert() {
 
           <button
             onClick={handleConvert}
-            disabled={battleOut === 0}
-            style={{ width: "100%", background: battleOut > 0 ? "#6BCB77" : "#ccc", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "16px", fontFamily: "Bungee,sans-serif", fontSize: 16, cursor: battleOut > 0 ? "pointer" : "not-allowed", boxShadow: battleOut > 0 ? "4px 4px 0 #1a1a1a" : "none" }}
+            disabled={!canConvert}
+            style={{ width: "100%", background: canConvert ? "#6BCB77" : "#ccc", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "16px", fontFamily: "Bungee,sans-serif", fontSize: 16, cursor: canConvert ? "pointer" : "not-allowed", boxShadow: canConvert ? "4px 4px 0 #1a1a1a" : "none", color: "#1a1a1a" }}
           >
-            CONVERT {wolf > 0 ? `${wolf.toLocaleString()} WOLF → ${battleOut} $BATTLE` : ""}
+            {canConvert
+              ? `CONVERT ${wolf.toLocaleString()} WOLF → ${battleOut.toFixed(4)} $BATTLE`
+              : "ENTER WOLF AMOUNT"}
           </button>
         </div>
 
@@ -117,7 +137,7 @@ export default function Convert() {
               {user.conversions.map(c => (
                 <div key={c.id} style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 10, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                   <div>
-                    <p className="font-fredoka font-bold text-sm">{c.wolf.toLocaleString()} WOLF → {c.battle} $BATTLE</p>
+                    <p className="font-fredoka font-bold text-sm">{c.wolf.toLocaleString()} WOLF → {Number(c.battle).toFixed(4)} $BATTLE</p>
                     <p className="font-fredoka text-xs" style={{ color: "#888" }}>{new Date(c.date).toLocaleDateString()}</p>
                   </div>
                   <span style={{ background: c.status === "pending" ? "#FFD93D" : "#6BCB77", border: "2px solid #1a1a1a", borderRadius: 8, padding: "4px 12px", fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 12 }}>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import MemeShell from "@/components/MemeShell";
+import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
 const COLS = 20, ROWS = 20, CELL = 20;
@@ -29,7 +30,12 @@ export default function GameSnake() {
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [time, setTime] = useState(SESSION_SECS);
-  const { addWolf, user } = useAuth();
+  const [pendingWolf, setPendingWolf] = useState(0);
+  const [claimed, setClaimed] = useState(false);
+  const [flyShow, setFlyShow] = useState(false);
+  const [flyFrom, setFlyFrom] = useState({ x: 0, y: 0 });
+  const claimBtnRef = useRef<HTMLButtonElement>(null);
+  const { addGameSession, user } = useAuth();
   const [, nav] = useLocation();
 
   useEffect(() => {
@@ -38,6 +44,7 @@ export default function GameSnake() {
     Object.assign(g, initState());
     g.running = true;
     setScore(0); setLives(3); setTime(SESSION_SECS);
+    setClaimed(false); setPendingWolf(0);
 
     function onKey(e: KeyboardEvent) {
       if (["ArrowUp", "w"].includes(e.key) && g.dir.y !== 1) g.nextDir = { x: 0, y: -1 };
@@ -97,11 +104,22 @@ export default function GameSnake() {
       g.raf = requestAnimationFrame(tick);
     }
 
-    function end() { g.running = false; addWolf(g.score); setPhase("done"); }
+    function end() { g.running = false; setPendingWolf(g.score); setPhase("done"); }
     g.raf = requestAnimationFrame(tick);
 
     return () => { g.running = false; cancelAnimationFrame(g.raf); document.removeEventListener("keydown", onKey); };
   }, [phase]);
+
+  function handleClaim() {
+    if (claimed || pendingWolf <= 0) return;
+    if (claimBtnRef.current) {
+      const rect = claimBtnRef.current.getBoundingClientRect();
+      setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    addGameSession("snake", pendingWolf);
+    setClaimed(true);
+    setFlyShow(true);
+  }
 
   const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
   const btn = (label: string, color: string, onClick: () => void) => (
@@ -110,6 +128,14 @@ export default function GameSnake() {
 
   return (
     <MemeShell testId="page-game-snake">
+      <TokenFly
+        count={Math.min(pendingWolf, 10)}
+        show={flyShow}
+        fromX={flyFrom.x}
+        fromY={flyFrom.y}
+        onComplete={() => setFlyShow(false)}
+      />
+
       <div className="flex flex-col items-center py-8 px-4">
         <h1 className="font-bungee text-3xl mb-1" style={{ color: "#1a1a1a" }}>🐍 CRYPTO SNAKE</h1>
         <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Eat $BATTLE coins to grow · 1 WOLF per coin</p>
@@ -142,10 +168,29 @@ export default function GameSnake() {
           <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
             <div style={{ fontSize: 72 }}>🎉</div>
             <h2 className="font-bungee text-2xl mt-4">SESSION COMPLETE!</h2>
-            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#6BCB77" }}>+{score} WOLF</p>
-            <p className="font-fredoka text-sm mt-1 mb-6" style={{ color: "#777" }}>Added to your balance{!user ? " (login to save!)" : ""}</p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              {btn("PLAY AGAIN", "#FFD93D", () => setPhase("start"))}
+            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#6BCB77" }}>+{pendingWolf} WOLF</p>
+
+            {!claimed && user && (
+              <>
+                <p className="font-fredoka text-sm mt-2 mb-5" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
+                <button
+                  ref={claimBtnRef}
+                  onClick={handleClaim}
+                  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 40px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 16, display: "block", width: "100%" }}
+                >
+                  CLAIM {pendingWolf} WOLF ⬆️
+                </button>
+              </>
+            )}
+            {claimed && (
+              <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>
+            )}
+            {!user && (
+              <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>
+            )}
+
+            <div className="flex gap-3 justify-center flex-wrap mt-2">
+              {btn("PLAY AGAIN", "#6BCB77", () => setPhase("start"))}
               {btn("ALL GAMES", "#A29BFE", () => nav("/games"))}
             </div>
           </div>

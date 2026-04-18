@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import DailyReward from "./DailyReward";
 
 const TICKER_ITEMS = [
   "🎮 MINE FREE WOLF TOKENS",
@@ -10,7 +11,7 @@ const TICKER_ITEMS = [
   "🎯 CONTRACT: 3EtQ...pump",
   "🚀 BUILT ON SOLANA",
   "💎 FREE TO PLAY · NO WALLET NEEDED",
-  "🏆 BATTLE PREDICTION ARENA",
+  "🏆 WEEKLY PRIZES FOR TOP EARNERS",
   "🔥 PLAY · EARN · CONVERT",
 ];
 
@@ -19,7 +20,6 @@ const NAV_LINKS = [
   { label: "Mine",        path: "/mine",        color: "#6BCB77" },
   { label: "Convert",     path: "/convert",     color: "#4CC9F0" },
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
-  { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
   { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
   { label: "Blog",        path: "/blog",        color: "#FF6B9D" },
@@ -62,6 +62,8 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
   return (
     <div style={{ backgroundColor: "#FFFBF0", minHeight: "100dvh", color: "#1a1a1a" }} data-testid={testId}>
       <style>{MEME_STYLES}</style>
+
+      <DailyReward />
 
       {/* ── TICKER ── */}
       <div className="w-full overflow-hidden py-2.5 relative z-50"
@@ -119,6 +121,20 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
           <div className="flex items-center gap-2">
             {user ? (
               <>
+                {/* Balance pill */}
+                <div id="balance-display" style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  background: "#fff", border: "2px solid #1a1a1a", borderRadius: 10,
+                  padding: "5px 10px", boxShadow: "2px 2px 0 #1a1a1a",
+                  fontSize: 12, fontFamily: "Bungee,sans-serif",
+                  color: "#1a1a1a",
+                }}>
+                  <span style={{ color: "#6BCB77" }}>🐺</span>
+                  <span>{user.wolf.toLocaleString()}</span>
+                  <span style={{ color: "#888", margin: "0 2px" }}>·</span>
+                  <span style={{ color: "#4CC9F0" }}>⚔️</span>
+                  <span>{user.battle.toFixed(2)}</span>
+                </div>
                 <button onClick={() => go("/profile")} style={{ background: "#6BCB77", border: "2px solid #1a1a1a", borderRadius: 10, padding: "6px 14px", fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
                   👤 {user.username}
                 </button>
@@ -149,6 +165,12 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
         {mobileOpen && (
           <div className="md:hidden" style={{ borderTop: "2.5px solid #1a1a1a", background: "#FFFBF0" }}>
             <div className="flex flex-col py-3 px-4 gap-1">
+              {user && (
+                <div style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 10, padding: "10px 14px", marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 13 }}>🐺 {user.wolf.toLocaleString()} WOLF</span>
+                  <span style={{ fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 13, color: "#4CC9F0" }}>⚔️ {user.battle.toFixed(2)} $BATTLE</span>
+                </div>
+              )}
               {NAV_LINKS.map(({ label, path, color }) => {
                 const isActive = location === path;
                 return (
@@ -209,7 +231,7 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
             </div>
 
             <div className="flex items-center flex-wrap justify-center gap-6 font-fredoka font-semibold text-sm">
-              {[["Games","/games"],["Mine","/mine"],["Convert","/convert"],["Roadmap","/roadmap"],["FAQ","/faq"],["Whitepaper","/whitepaper"]].map(([label, path]) => (
+              {[["Games","/games"],["Mine","/mine"],["Convert","/convert"],["Blog","/blog"],["Roadmap","/roadmap"],["FAQ","/faq"],["Whitepaper","/whitepaper"]].map(([label, path]) => (
                 <button key={path} onClick={() => go(path)}
                   className="transition-colors hover:text-white"
                   style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "#666" }}>
