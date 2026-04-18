@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WalletProvider } from "@/context/WalletContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { recordPageView, heartbeat } from "@/lib/analytics";
 import Home from "@/pages/home";
 import Demo from "@/pages/demo";
 import Presale from "@/pages/presale";
@@ -32,8 +33,22 @@ import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
+function Analytics() {
+  const [location] = useLocation();
+  useEffect(() => {
+    recordPageView(location);
+  }, [location]);
+  useEffect(() => {
+    const id = setInterval(() => heartbeat(location), 30_000);
+    return () => clearInterval(id);
+  }, [location]);
+  return null;
+}
+
 function Router() {
   return (
+    <>
+      <Analytics />
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/battles" component={Battles} />
@@ -62,24 +77,11 @@ function Router() {
       <Route path="/blog/:slug" component={BlogPost} />
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 
 function App() {
-  useEffect(() => {
-    /* Assign a persistent UUID to this browser if it doesn't have one yet,
-       then tell the server — server deduplicates via the UUID primary key. */
-    let vid = localStorage.getItem("vfx_visitor_id");
-    if (!vid) {
-      vid = crypto.randomUUID();
-      localStorage.setItem("vfx_visitor_id", vid);
-    }
-    fetch("/api/stats/visit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitorId: vid }),
-    }).catch(() => { /* non-critical, ignore */ });
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
