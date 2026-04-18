@@ -33,3 +33,7 @@ channel = "stable-25_05"
 [userenv.shared]
 VITE_HELIUS_RPC_URL = "https://mainnet.helius-rpc.com/?api-key=f85d3d41-9efd-40e5-846b-56f43fc8e98a"
 RESEND_API_KEY = "re_WKFsCLPb_6fVDmLZ9uuaE5wu1TfLog2Up"
+
+[[ports]]
+localPort = 24044
+externalPort = 80
