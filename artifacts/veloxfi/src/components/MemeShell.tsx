@@ -243,6 +243,16 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
             <div className="flex items-center gap-3">
               {[
                 {
+                  href: "https://x.com/Battle767629",
+                  label: "X / Twitter",
+                  bg: "#1a1a1a",
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                    </svg>
+                  ),
+                },
+                {
                   href: "https://t.me/VeloxFiOfficial",
                   label: "Telegram",
                   bg: "#6BCB77",
@@ -275,7 +285,7 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
                     border: "2px solid #444",
                     boxShadow: "2px 2px 0 #444",
                     textDecoration: "none",
-                    color: "#1a1a1a",
+                    color: label === "X / Twitter" ? "#fff" : "#1a1a1a",
                     transition: "transform 0.08s ease, box-shadow 0.08s ease",
                   }}
                   onMouseEnter={(e) => {
