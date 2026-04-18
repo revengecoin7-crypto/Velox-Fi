@@ -1,124 +1,133 @@
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MemeShell from "@/components/MemeShell";
-import { useLocation } from "wouter";
 
 const PHASES = [
-  { number: 1, label: "BUILD",            emoji: "🔥", status: "active"   as const, statusLabel: "IN PROGRESS",  color: "#2563eb", glow: "rgba(37,99,235,0.4)",  items: ["Platform development","Demo mode launch","Website live at veloxfi.io","Community building (Twitter, Telegram, Discord)"] },
-  { number: 2, label: "PRESALE",          emoji: "💰", status: "soon"     as const, statusLabel: "LIVE NOW",     color: "#4ade80", glow: "rgba(74,222,128,0.35)", items: ["$BATTLE presale opens","Early supporter rewards","OG badge distribution"] },
-  { number: 3, label: "LAUNCH",           emoji: "🚀", status: "upcoming" as const, statusLabel: "UPCOMING",     color: "#7c3aed", glow: "rgba(124,58,237,0.15)", items: ["$BATTLE token on pump.fun","First real battles live","Leaderboard Season 1 starts","Battle rewards activated","DexScreener listing"] },
-  { number: 4, label: "SCALE",            emoji: "⚔️", status: "upcoming" as const, statusLabel: "UPCOMING",     color: "#7c3aed", glow: "rgba(124,58,237,0.15)", items: ["Tournament mode","Mobile PWA app","Referral system","Influencer partnerships"] },
-  { number: 5, label: "GLOBAL EXPANSION", emoji: "🌍", status: "upcoming" as const, statusLabel: "UPCOMING",     color: "#7c3aed", glow: "rgba(124,58,237,0.15)", items: ["#1 memecoin battle platform on Solana","DAO governance","VeloxFi grants program","Global community events"] },
+  {
+    num: 1, label: "BUILD & LAUNCH", emoji: "🔥", status: "done" as const,
+    color: "#6BCB77",
+    items: ["Platform development complete","4 arcade games live (Snake, Tetris, Runner, Rocket)","$BATTLE token launched on pump.fun","Mining system live","Website live at veloxfi.io","Community started on Telegram & Discord"],
+  },
+  {
+    num: 2, label: "GROW", emoji: "📈", status: "active" as const,
+    color: "#4CC9F0",
+    items: ["Leaderboard Season 1 — top WOLF earners","More games added to the arena","Mobile-friendly experience","Referral system: earn bonus WOLF","Influencer partnerships","Community milestones & giveaways"],
+  },
+  {
+    num: 3, label: "COMPETE", emoji: "⚔️", status: "upcoming" as const,
+    color: "#FFD93D",
+    items: ["Tournament mode — weekly competitions","Live season rewards in $BATTLE","Prize pools for top players","Featured player spotlights","Community voting on new games"],
+  },
+  {
+    num: 4, label: "SCALE", emoji: "🚀", status: "upcoming" as const,
+    color: "#FF9F43",
+    items: ["DexScreener & DEX aggregator listings","Native mobile app (iOS & Android)","CEX listing pursuit","Expanded marketing campaign","Ambassador program launch"],
+  },
+  {
+    num: 5, label: "GLOBAL EXPANSION", emoji: "🌍", status: "upcoming" as const,
+    color: "#A29BFE",
+    items: ["DAO governance — community votes on features","VeloxFi grants for game developers","Multi-language platform support","Global community events","#1 crypto game arena on Solana"],
+  },
 ];
-
-const STATUS_STYLES: Record<string, { bg: string; border: string; text: string }> = {
-  active:   { bg: "rgba(37,99,235,0.2)",   border: "rgba(37,99,235,0.7)",   text: "#60a5fa" },
-  soon:     { bg: "rgba(74,222,128,0.15)",  border: "rgba(74,222,128,0.6)",  text: "#4ade80" },
-  upcoming: { bg: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.1)", text: "#6b7280" },
-};
 
 export default function Roadmap() {
   usePageMeta({
-    title: "Roadmap — VeloxFi | Platform Development Phases",
-    description: "Follow the VeloxFi roadmap from platform build to global expansion. Presale, $BATTLE launch on pump.fun, tournament mode, DAO governance, and more.",
-    canonical: "https://veloxfi.io/#/roadmap",
+    title: "Roadmap — VeloxFi Game Arena | From Launch to Global Crypto Gaming",
+    description: "Follow the VeloxFi roadmap. From our live game arena launch, to tournaments, mobile app, CEX listings, DAO governance, and becoming the #1 crypto game arena on Solana.",
+    canonical: "https://veloxfi.io/roadmap",
   });
-  const [, navigate] = useLocation();
 
   return (
     <MemeShell>
-      {/* Header */}
-      <div className="max-w-3xl mx-auto px-6 pt-14 pb-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-orbitron tracking-widest mb-6"
-          style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.4)", color: "#60a5fa" }}>
-          🗺️ VELOXFI JOURNEY
+      <div className="max-w-3xl mx-auto px-6 py-12">
+
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-5 font-bungee text-xs text-[#1a1a1a]"
+            style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
+            🗺️ VELOXFI JOURNEY
+          </div>
+          <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
+            THE <span style={{ color: "#A29BFE" }}>ROADMAP</span>
+          </h1>
+          <p className="font-fredoka text-lg text-gray-600">Our journey to #1 crypto game arena on Solana 🐺</p>
         </div>
-        <h1 className="font-orbitron font-black text-4xl md:text-6xl tracking-wider mb-4 leading-tight meme-title">
-          🗺️ THE{" "}
-          <span style={{ background: "linear-gradient(90deg,#60a5fa,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-            ROADMAP
-          </span>
-        </h1>
-        <p className="text-gray-400 text-lg">Our journey to #1 memecoin battle platform on Solana 🐺</p>
-      </div>
 
-      {/* Timeline */}
-      <div className="max-w-2xl mx-auto px-6 pb-16 relative">
-        {/* Spine */}
-        <div className="absolute left-[2.75rem] top-0 bottom-0 w-0.5"
-          style={{ background: "linear-gradient(to bottom,rgba(37,99,235,0.8) 0%,rgba(74,222,128,0.6) 20%,rgba(124,58,237,0.4) 50%,rgba(255,255,255,0.07) 100%)" }} />
+        <div className="relative">
+          {/* Vertical spine */}
+          <div className="absolute left-7 top-0 bottom-0 w-0.5 z-0"
+            style={{ background: "linear-gradient(to bottom, #6BCB77, #4CC9F0, #FFD93D, #FF9F43, #A29BFE)" }} />
 
-        <div className="flex flex-col gap-10">
-          {PHASES.map((phase, i) => {
-            const s = STATUS_STYLES[phase.status];
-            const isActive = phase.status === "active";
-            const isSoon   = phase.status === "soon";
-
-            return (
-              <div key={i} className="relative flex items-start gap-6">
-                {/* Node */}
-                <div className="relative flex-shrink-0 z-10" style={{ width: 56 }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-orbitron font-black text-xl transition-all duration-300"
+          <div className="flex flex-col gap-8 relative z-10">
+            {PHASES.map((phase) => {
+              const isDone    = phase.status === "done";
+              const isActive  = phase.status === "active";
+              const isUpcoming = phase.status === "upcoming";
+              return (
+                <div key={phase.num} className="flex gap-5 items-start">
+                  {/* Node */}
+                  <div className="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl relative"
                     style={{
-                      background: isActive ? "linear-gradient(135deg,#2563eb,#7c3aed)" : isSoon ? "linear-gradient(135deg,#4ade80,#22c55e)" : "rgba(255,255,255,0.04)",
-                      border: `2px solid ${isActive ? "#2563eb" : isSoon ? "#4ade80" : "rgba(255,255,255,0.1)"}`,
-                      color: isActive || isSoon ? "white" : "#4b5563",
-                      boxShadow: isActive ? `0 0 30px rgba(37,99,235,0.6)` : isSoon ? `0 0 30px rgba(74,222,128,0.5)` : "none",
+                      background: isDone ? phase.color : isActive ? phase.color + "44" : "#f0f0f0",
+                      border: `2.5px solid ${isDone || isActive ? phase.color : "#ddd"}`,
+                      boxShadow: isDone ? `3px 3px 0 ${phase.color}99` : isActive ? `0 0 0 4px ${phase.color}33` : "2px 2px 0 #ddd",
                     }}>
                     {phase.emoji}
+                    {isActive && (
+                      <div className="absolute inset-0 rounded-2xl animate-ping"
+                        style={{ border: `2px solid ${phase.color}66`, animationDuration: "2s" }} />
+                    )}
                   </div>
-                  {(isActive || isSoon) && (
-                    <div className="absolute inset-0 rounded-2xl animate-ping"
-                      style={{ border: `2px solid ${isActive ? "rgba(37,99,235,0.5)" : "rgba(74,222,128,0.4)"}`, animationDuration: "2.5s" }} />
-                  )}
-                </div>
 
-                {/* Card */}
-                <div className="flex-1 rounded-2xl p-5 transition-all duration-200"
-                  style={{
-                    background: isActive ? "rgba(37,99,235,0.07)" : isSoon ? "rgba(74,222,128,0.05)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${isActive ? "rgba(37,99,235,0.4)" : isSoon ? "rgba(74,222,128,0.35)" : "rgba(255,255,255,0.06)"}`,
-                    boxShadow: isActive ? "0 0 40px rgba(37,99,235,0.12)" : isSoon ? "0 0 40px rgba(74,222,128,0.1)" : "none",
-                  }}>
-                  <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-                    <h2 className="font-orbitron font-black text-lg tracking-wider"
-                      style={{ color: isActive ? "white" : isSoon ? "#d1fae5" : "#6b7280" }}>
-                      PHASE {phase.number} — {phase.label}
-                    </h2>
-                    <span className="text-xs font-orbitron font-black tracking-widest px-3 py-1 rounded-full"
-                      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.text }}>
-                      {phase.statusLabel}
-                    </span>
+                  {/* Card */}
+                  <div className="flex-1 rounded-2xl p-5 mb-2"
+                    style={{
+                      background: isDone ? phase.color + "18" : isActive ? phase.color + "10" : "#f9f9f9",
+                      border: `2.5px solid ${isDone ? phase.color : isActive ? phase.color + "88" : "#ddd"}`,
+                      boxShadow: isDone ? `4px 4px 0 ${phase.color}` : isActive ? `3px 3px 0 ${phase.color}66` : "2px 2px 0 #ddd",
+                    }}>
+                    <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                      <h2 className="font-bungee text-lg text-[#1a1a1a]">
+                        PHASE {phase.num} — {phase.label}
+                      </h2>
+                      <span className="font-bungee text-xs px-3 py-1 rounded-full"
+                        style={{
+                          background: isDone ? phase.color : isActive ? phase.color + "33" : "#f0f0f0",
+                          color: isDone ? "#fff" : isActive ? phase.color : "#aaa",
+                          border: `1.5px solid ${isDone ? phase.color : isActive ? phase.color : "#ddd"}`,
+                        }}>
+                        {isDone ? "✓ LIVE" : isActive ? "IN PROGRESS" : "UPCOMING"}
+                      </span>
+                    </div>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {phase.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <span style={{ color: isDone ? phase.color : isActive ? phase.color : "#ccc" }}>▸</span>
+                          <span className="font-fredoka text-sm" style={{ color: isDone ? "#333" : isActive ? "#444" : "#999" }}>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="flex flex-col gap-2.5">
-                    {phase.items.map((item, j) => (
-                      <li key={j} className="flex items-start gap-3 text-sm"
-                        style={{ color: isActive ? "#d1d5db" : isSoon ? "#a7f3d0" : "#4b5563" }}>
-                        <span className="flex-shrink-0 mt-0.5 text-base">
-                          {isActive ? "🔵" : isSoon ? "🟢" : "⚫"}
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* CTA */}
-      <div className="max-w-2xl mx-auto px-6 pb-16">
-        <div className="rounded-3xl p-10 text-center"
-          style={{ background: "linear-gradient(135deg,rgba(37,99,235,0.12),rgba(124,58,237,0.12))", border: "2px solid rgba(124,58,237,0.3)" }}>
+        <div className="cartoon-card-yellow p-10 text-center mt-10" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
           <div className="text-5xl mb-3">🚀</div>
-          <h2 className="font-orbitron font-black text-2xl text-white mb-3">JOIN THE JOURNEY NOW</h2>
-          <p className="text-gray-400 text-sm mb-6">Presale is LIVE — get in at the lowest price before launch</p>
-          <button onClick={() => navigate("/presale")} className="btn-meme px-10 py-4 rounded-2xl text-base"
-            style={{ background: "linear-gradient(135deg,#2563eb,#7c3aed)" }}>
-            🔥 BUY $BATTLE NOW
-          </button>
+          <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">JOIN THE JOURNEY</h2>
+          <p className="font-fredoka text-gray-600 text-base mb-6">
+            We're in Phase 2 — play games, climb the leaderboard, and be part of the early community.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/games" className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
+              PLAY NOW 🎮
+            </a>
+            <a href="/mine" className="cartoon-btn cartoon-btn-white px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
+              START MINING ⛏️
+            </a>
+          </div>
         </div>
+
       </div>
     </MemeShell>
   );

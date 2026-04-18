@@ -22,6 +22,7 @@ const NAV_LINKS = [
   { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
   { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
+  { label: "Blog",        path: "/blog",        color: "#FF6B9D" },
   { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
   { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },
 ];
