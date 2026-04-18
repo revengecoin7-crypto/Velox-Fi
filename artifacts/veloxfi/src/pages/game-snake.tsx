@@ -4,194 +4,649 @@ import MemeShell from "@/components/MemeShell";
 import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
-const COLS = 20, ROWS = 20, CELL = 20;
-const W = COLS * CELL, H = ROWS * CELL;
-const TICK_MS = 150;
+// ─── constants ───────────────────────────────────────────────
+const COLS = 22, ROWS = 20, CELL = 22;
+const W = COLS * CELL, H = ROWS * CELL;        // 484 × 440
 const SESSION_SECS = 120;
+const BASE_SPEED = 155;
+const MIN_SPEED   = 65;
+const SPEED_STEP  = 12;   // ms faster per level
+const COMBO_WINDOW = 90;  // frames to keep combo alive
+const URGENCY_SECS = 8;   // seconds without food → warning
+const HS_KEY = "vfx_snake_hs_v2";
 
 type Pt = { x: number; y: number };
+type PUType = "shield" | "diamond" | "shrink" | "slow" | "star";
 
-function rndFood(snake: Pt[]): Pt {
-  let pt: Pt;
-  do { pt = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; }
-  while (snake.some(s => s.x === pt.x && s.y === pt.y));
-  return pt;
+interface Particle { x:number;y:number;vx:number;vy:number;life:number;maxLife:number;color:string;size:number }
+interface FloatText { x:number;y:number;text:string;color:string;life:number;vy:number }
+interface PowerUp   { x:number;y:number;type:PUType;frames:number }
+
+const PU_COLOR: Record<PUType, string> = {
+  shield: "#4CC9F0", diamond: "#A29BFE",
+  shrink: "#FF9F43", slow: "#6BCB77", star: "#FFD93D",
+};
+const PU_EMOJI: Record<PUType, string> = {
+  shield: "🛡️", diamond: "💎", shrink: "🌀", slow: "⏳", star: "⭐",
+};
+const PU_LABEL: Record<PUType, string> = {
+  shield: "SHIELD!", diamond: "+5 WOLF 💎", shrink: "SHRINK!", slow: "TIME SLOW!", star: "STAR MODE! ⭐",
+};
+
+function rnd(excl: Pt[]): Pt {
+  let p: Pt;
+  do { p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; }
+  while (excl.some(e => e.x === p.x && e.y === p.y));
+  return p;
 }
 
 function initState() {
-  const snake: Pt[] = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-  return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food: rndFood(snake), score: 0, lives: 3, timeLeft: SESSION_SECS, lastTick: 0, lastSec: 0, running: false, raf: 0 };
+  const snake: Pt[] = [{ x: 11, y: 10 }, { x: 10, y: 10 }, { x: 9, y: 10 }];
+  return {
+    snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 },
+    food: rnd(snake), food2: null as Pt | null,
+    foodPulse: 0,
+    pu: null as PowerUp | null, puSpawn: 500,
+    score: 0, level: 1, lives: 3,
+    timeLeft: SESSION_SECS, lastSec: 0,
+    lastTick: 0, tickSpeed: BASE_SPEED,
+    running: false, raf: 0,
+    combo: 0, comboTimer: 0,
+    hungerTimer: 0,          // frames since last food
+    shieldOn: false, shieldTimer: 0,
+    starOn: false,   starTimer: 0,
+    slowTimer: 0,
+    invincible: 0,
+    levelFlash: 0, deathFlash: 0, starFlash: 0,
+    particles: [] as Particle[],
+    floats: [] as FloatText[],
+  };
 }
 
+// ─── component ───────────────────────────────────────────────
 export default function GameSnake() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const s = useRef(initState());
-  const [phase, setPhase] = useState<"start" | "playing" | "done">("start");
-  const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(3);
-  const [time, setTime] = useState(SESSION_SECS);
+  const canvasRef  = useRef<HTMLCanvasElement>(null);
+  const gs         = useRef(initState());
+  const [phase,    setPhase]    = useState<"start"|"playing"|"done">("start");
+  const [score,    setScore]    = useState(0);
+  const [lives,    setLives]    = useState(3);
+  const [time,     setTime]     = useState(SESSION_SECS);
+  const [level,    setLevel]    = useState(1);
+  const [combo,    setCombo]    = useState(0);
+  const [shield,   setShield]   = useState(false);
+  const [star,     setStar]     = useState(false);
+  const [urgent,   setUrgent]   = useState(false);
   const [pendingWolf, setPendingWolf] = useState(0);
-  const [claimed, setClaimed] = useState(false);
-  const [flyShow, setFlyShow] = useState(false);
-  const [flyFrom, setFlyFrom] = useState({ x: 0, y: 0 });
-  const claimBtnRef = useRef<HTMLButtonElement>(null);
+  const [claimed,  setClaimed]  = useState(false);
+  const [flyShow,  setFlyShow]  = useState(false);
+  const [flyFrom,  setFlyFrom]  = useState({ x: 0, y: 0 });
+  const [newRecord,setNewRecord]= useState(false);
+  const [highScore,setHighScore]= useState(() => parseInt(localStorage.getItem(HS_KEY)||"0"));
+  const claimRef   = useRef<HTMLButtonElement>(null);
   const { addGameSession, user } = useAuth();
   const [, nav] = useLocation();
 
+  // ── game loop ─────────────────────────────────────────────
   useEffect(() => {
     if (phase !== "playing") return;
-    const g = s.current;
+    const g = gs.current;
     Object.assign(g, initState());
     g.running = true;
-    setScore(0); setLives(3); setTime(SESSION_SECS);
-    setClaimed(false); setPendingWolf(0);
+    setScore(0); setLives(3); setTime(SESSION_SECS); setLevel(1);
+    setCombo(0); setShield(false); setStar(false); setUrgent(false);
+    setClaimed(false); setPendingWolf(0); setNewRecord(false);
 
+    // ── input ──────────────────────────────────────────────
     function onKey(e: KeyboardEvent) {
-      if (["ArrowUp", "w"].includes(e.key) && g.dir.y !== 1) g.nextDir = { x: 0, y: -1 };
-      if (["ArrowDown", "s"].includes(e.key) && g.dir.y !== -1) g.nextDir = { x: 0, y: 1 };
-      if (["ArrowLeft", "a"].includes(e.key) && g.dir.x !== 1) g.nextDir = { x: -1, y: 0 };
-      if (["ArrowRight", "d"].includes(e.key) && g.dir.x !== -1) g.nextDir = { x: 1, y: 0 };
+      if (["ArrowUp","w","W"].includes(e.key)    && g.dir.y !== 1)  g.nextDir = { x: 0, y:-1 };
+      if (["ArrowDown","s","S"].includes(e.key)  && g.dir.y !== -1) g.nextDir = { x: 0, y: 1 };
+      if (["ArrowLeft","a","A"].includes(e.key)  && g.dir.x !== 1)  g.nextDir = { x:-1, y: 0 };
+      if (["ArrowRight","d","D"].includes(e.key) && g.dir.x !== -1) g.nextDir = { x: 1, y: 0 };
       if (e.key.startsWith("Arrow")) e.preventDefault();
     }
+    let tx = 0, ty = 0;
+    function onTouchStart(e: TouchEvent) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }
+    function onTouchEnd(e: TouchEvent) {
+      const dx = e.changedTouches[0].clientX - tx;
+      const dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && g.dir.x !== -1) g.nextDir = { x: 1, y: 0 };
+        else if (dx < 0 && g.dir.x !== 1) g.nextDir = { x:-1, y: 0 };
+      } else {
+        if (dy > 0 && g.dir.y !== -1) g.nextDir = { x: 0, y: 1 };
+        else if (dy < 0 && g.dir.y !== 1) g.nextDir = { x: 0, y:-1 };
+      }
+      e.preventDefault();
+    }
     document.addEventListener("keydown", onKey);
+    const cv = canvasRef.current!;
+    cv.addEventListener("touchstart", onTouchStart, { passive: true });
+    cv.addEventListener("touchend", onTouchEnd);
 
-    function draw() {
-      const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx) return;
-      ctx.fillStyle = "#1a1a2e"; ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = "rgba(255,255,255,0.04)"; ctx.lineWidth = 0.5;
-      for (let x = 0; x <= COLS; x++) { ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, H); ctx.stroke(); }
-      for (let y = 0; y <= ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(W, y * CELL); ctx.stroke(); }
-      ctx.fillStyle = "#FFD93D";
-      ctx.beginPath(); ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 2, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#1a1a1a"; ctx.font = `bold ${CELL - 7}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText("$", g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2);
-      g.snake.forEach((p, i) => {
-        ctx.fillStyle = i === 0 ? "#6BCB77" : i % 2 === 0 ? "#4ade80" : "#22c55e";
-        ctx.beginPath(); ctx.roundRect(p.x * CELL + 1, p.y * CELL + 1, CELL - 2, CELL - 2, 4); ctx.fill();
-        if (i === 0) {
-          ctx.fillStyle = "#fff";
-          const ex = g.dir.x !== 0 ? (g.dir.x > 0 ? CELL - 7 : 3) : CELL / 2 - 4;
-          const ey1 = g.dir.y !== 0 ? (g.dir.y > 0 ? CELL - 7 : 3) : 4;
-          const ey2 = g.dir.y !== 0 ? ey1 : CELL - 8;
-          [ey1, ey2].forEach(ey => { ctx.beginPath(); ctx.arc(p.x * CELL + ex, p.y * CELL + ey, 2, 0, Math.PI * 2); ctx.fill(); });
-        }
-      });
+    // ── helpers ───────────────────────────────────────────
+    function burst(cx: number, cy: number, color: string, n = 10) {
+      for (let i = 0; i < n; i++) {
+        const a = (Math.PI * 2 * i) / n + Math.random() * 0.6;
+        const sp = 1.2 + Math.random() * 2.8;
+        g.particles.push({ x: cx, y: cy, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+          life: 35+Math.random()*20, maxLife: 55, color, size: 2.5+Math.random()*2.5 });
+      }
+    }
+    function floatText(x: number, y: number, txt: string, color: string) {
+      g.floats.push({ x, y, text: txt, color, life: 55, vy: -1.4 });
     }
 
+    // ── draw ──────────────────────────────────────────────
+    function draw(now: number) {
+      const ctx = cv.getContext("2d");
+      if (!ctx) return;
+      const t = now * 0.001;
+
+      // ── background ──
+      ctx.fillStyle = "#090914";
+      ctx.fillRect(0, 0, W, H);
+
+      // animated scanline grid
+      for (let x = 0; x <= COLS; x++) {
+        const a = 0.04 + 0.02 * Math.sin(t * 0.7 + x * 0.3);
+        ctx.strokeStyle = `rgba(80,80,255,${a})`; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(x*CELL, 0); ctx.lineTo(x*CELL, H); ctx.stroke();
+      }
+      for (let y = 0; y <= ROWS; y++) {
+        const a = 0.04 + 0.02 * Math.sin(t * 0.7 + y * 0.3);
+        ctx.strokeStyle = `rgba(80,80,255,${a})`; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(0, y*CELL); ctx.lineTo(W, y*CELL); ctx.stroke();
+      }
+
+      // ── level flash ──
+      if (g.levelFlash > 0) {
+        ctx.fillStyle = `rgba(255,150,0,${g.levelFlash/30*0.45})`;
+        ctx.fillRect(0, 0, W, H); g.levelFlash--;
+      }
+      // ── death flash ──
+      if (g.deathFlash > 0) {
+        ctx.fillStyle = `rgba(255,40,40,${g.deathFlash/20*0.55})`;
+        ctx.fillRect(0, 0, W, H); g.deathFlash--;
+      }
+      // ── star flash ──
+      if (g.starFlash > 0) {
+        ctx.fillStyle = `rgba(255,217,61,${g.starFlash/20*0.4})`;
+        ctx.fillRect(0, 0, W, H); g.starFlash--;
+      }
+      // ── urgency vignette ──
+      if (g.hungerTimer > 60 * URGENCY_SECS * 0.6) {
+        const pulse = 0.15 + 0.12 * Math.sin(t * 8);
+        const grad = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.75);
+        grad.addColorStop(0, "transparent");
+        grad.addColorStop(1, `rgba(255,40,0,${pulse})`);
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+      }
+
+      // ── food 1 ──
+      g.foodPulse = (g.foodPulse + 0.1) % (Math.PI * 2);
+      const sc1 = 0.82 + Math.sin(g.foodPulse) * 0.18;
+      drawCoin(ctx, g.food.x, g.food.y, sc1, "#FFD93D");
+
+      // ── food 2 ──
+      if (g.food2) {
+        const sc2 = 0.82 + Math.sin(g.foodPulse + 1.5) * 0.18;
+        drawCoin(ctx, g.food2.x, g.food2.y, sc2, "#FF9F43");
+      }
+
+      // ── power-up ──
+      if (g.pu) {
+        const rot = t * 2;
+        const px = g.pu.x * CELL + CELL/2, py = g.pu.y * CELL + CELL/2;
+        const col = PU_COLOR[g.pu.type];
+        ctx.save(); ctx.translate(px, py); ctx.rotate(rot);
+        ctx.shadowColor = col; ctx.shadowBlur = 18;
+        ctx.strokeStyle = col; ctx.lineWidth = 2.5;
+        // hexagon glow ring
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (Math.PI / 3) * i;
+          i === 0 ? ctx.moveTo(Math.cos(a)*(CELL/2-1), Math.sin(a)*(CELL/2-1))
+                  : ctx.lineTo(Math.cos(a)*(CELL/2-1), Math.sin(a)*(CELL/2-1));
+        }
+        ctx.closePath(); ctx.stroke(); ctx.shadowBlur = 0; ctx.restore();
+        ctx.font = `${CELL - 5}px serif`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(PU_EMOJI[g.pu.type], px, py + 1);
+        // despawn warning: blink when < 100 frames left
+        if (g.pu.frames < 100 && Math.floor(t * 8) % 2 === 0) {
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = "#fff";
+          ctx.beginPath(); ctx.arc(px, py, CELL/2, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // ── snake ──
+      const len = g.snake.length;
+      g.snake.forEach((p, i) => {
+        const isHead = i === 0;
+        const ratio = i / Math.max(len - 1, 1);
+        const cx = p.x * CELL + 1, cy = p.y * CELL + 1;
+        const cw = CELL - 2, ch = CELL - 2;
+
+        if (isHead) {
+          const hue = g.starOn ? 50 : g.shieldOn ? 195 : 145;
+          const glow = g.starOn ? "#FFD93D" : g.shieldOn ? "#4CC9F0" : "#00ff88";
+          ctx.shadowColor = glow; ctx.shadowBlur = 22;
+          ctx.fillStyle = glow;
+          ctx.beginPath(); ctx.roundRect(cx, cy, cw, ch, 6); ctx.fill();
+          ctx.shadowBlur = 0;
+          // wolf emoji head
+          ctx.font = `${CELL - 3}px serif`;
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText("🐺", p.x * CELL + CELL/2, p.y * CELL + CELL/2 + 1);
+        } else {
+          // gradient body: bright green → dark teal
+          const r = Math.round(0 + ratio * 10);
+          const g2 = Math.round(220 - ratio * 160);
+          const b = Math.round(100 - ratio * 80);
+          if (g.starOn) {
+            ctx.fillStyle = `hsl(${(i * 20 + t * 200) % 360}, 100%, 55%)`;
+          } else if (g.shieldOn) {
+            ctx.fillStyle = i % 2 === 0 ? "#4CC9F0" : "#0099cc";
+          } else {
+            ctx.fillStyle = `rgb(${r},${g2},${b})`;
+          }
+          // pulsing glow on first few segments
+          if (i < 4) {
+            const glow = g.starOn ? "#FFD93D" : g.shieldOn ? "#4CC9F0" : "#00ff88";
+            ctx.shadowColor = glow;
+            ctx.shadowBlur = Math.max(0, 12 - i * 3);
+          }
+          ctx.beginPath(); ctx.roundRect(cx, cy, cw, ch, 4); ctx.fill();
+          ctx.shadowBlur = 0;
+          // scale pattern
+          if (!g.starOn && !g.shieldOn && i > 0 && i % 2 === 0) {
+            ctx.strokeStyle = "rgba(255,255,255,0.10)";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.roundRect(cx+2, cy+2, cw-4, ch-4, 3); ctx.stroke();
+          }
+        }
+      });
+
+      // ── particles ──
+      g.particles = g.particles.filter(p => p.life > 0);
+      for (const p of g.particles) {
+        const alpha = p.life / p.maxLife;
+        ctx.globalAlpha = alpha * alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color; ctx.shadowBlur = 7;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2); ctx.fill();
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.life--;
+      }
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+      // ── floating texts ──
+      g.floats = g.floats.filter(f => f.life > 0);
+      for (const f of g.floats) {
+        ctx.globalAlpha = Math.min(1, f.life / 20);
+        ctx.fillStyle = f.color;
+        ctx.shadowColor = f.color; ctx.shadowBlur = 10;
+        ctx.font = "bold 13px 'Bungee', sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(f.text, f.x, f.y);
+        f.y += f.vy; f.life--;
+      }
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    }
+
+    function drawCoin(ctx: CanvasRenderingContext2D, gx: number, gy: number, scale: number, color: string) {
+      const cx = gx * CELL + CELL/2, cy = gy * CELL + CELL/2;
+      const r = (CELL/2 - 2) * scale;
+      ctx.shadowColor = color; ctx.shadowBlur = 16;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // inner shine
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.beginPath(); ctx.arc(cx - r*0.25, cy - r*0.3, r*0.35, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#1a1a1a";
+      ctx.font = `bold ${Math.max(8, Math.floor(r * 1.3))}px monospace`;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("$", cx, cy + 1);
+    }
+
+    // ── tick / game logic ─────────────────────────────────
     function resetSnake() {
-      g.snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      g.snake = [{ x: 11, y: 10 }, { x: 10, y: 10 }, { x: 9, y: 10 }];
       g.dir = { x: 1, y: 0 }; g.nextDir = { x: 1, y: 0 };
+      g.invincible = 80;
+      g.deathFlash = 22;
+      g.combo = 0; g.comboTimer = 0;
+      setCombo(0);
+    }
+
+    function applyPU(type: PUType) {
+      const hx = g.snake[0].x * CELL + CELL/2, hy = g.snake[0].y * CELL + CELL/2;
+      burst(hx, hy, PU_COLOR[type], 16);
+      floatText(W/2, H/2 - 30, PU_LABEL[type], PU_COLOR[type]);
+      if (type === "shield") { g.shieldOn = true; g.shieldTimer = 480; setShield(true); }
+      else if (type === "diamond") {
+        const gain = 5;
+        g.score += gain; setScore(g.score);
+        floatText(hx, hy - 14, `+${gain} WOLF`, "#A29BFE");
+      }
+      else if (type === "shrink") {
+        if (g.snake.length > 4) g.snake = g.snake.slice(0, Math.max(4, Math.floor(g.snake.length * 0.6)));
+      }
+      else if (type === "slow") { g.slowTimer = 360; }
+      else if (type === "star") { g.starOn = true; g.starTimer = 300; g.starFlash = 20; setStar(true); }
+      g.pu = null;
     }
 
     function tick(now: number) {
       if (!g.running) return;
+
+      // ── 1s timer ──
       if (!g.lastSec) g.lastSec = now;
-      if (now - g.lastSec >= 1000) { g.timeLeft--; g.lastSec = now; setTime(g.timeLeft); if (g.timeLeft <= 0) { end(); return; } }
-      if (!g.lastTick) g.lastTick = now;
-      if (now - g.lastTick >= TICK_MS) {
-        g.lastTick = now; g.dir = g.nextDir;
-        const head = { x: g.snake[0].x + g.dir.x, y: g.snake[0].y + g.dir.y };
-        if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS || g.snake.some(p => p.x === head.x && p.y === head.y)) {
-          g.lives--; setLives(g.lives); if (g.lives <= 0) { end(); return; } resetSnake();
-        } else {
-          g.snake.unshift(head);
-          if (head.x === g.food.x && head.y === g.food.y) { g.score++; setScore(g.score); g.food = rndFood(g.snake); }
-          else g.snake.pop();
+      if (now - g.lastSec >= 1000) {
+        g.timeLeft--; g.lastSec = now; setTime(g.timeLeft);
+        if (g.timeLeft <= 0) { end(); return; }
+      }
+
+      // ── per-frame timers ──
+      if (g.invincible > 0) g.invincible--;
+      if (g.shieldTimer > 0) { g.shieldTimer--; if (!g.shieldTimer) { g.shieldOn = false; setShield(false); } }
+      if (g.starTimer   > 0) { g.starTimer--;   if (!g.starTimer)   { g.starOn   = false; setStar(false);   } }
+      if (g.comboTimer  > 0) { g.comboTimer--;  if (!g.comboTimer && g.combo > 0) { g.combo = 0; setCombo(0); } }
+      if (g.slowTimer   > 0) g.slowTimer--;
+
+      g.hungerTimer++;
+      setUrgent(g.hungerTimer > 60 * URGENCY_SECS * 0.7);
+
+      // ── power-up spawn ──
+      if (!g.pu) {
+        g.puSpawn--;
+        if (g.puSpawn <= 0) {
+          if (Math.random() < 0.45) {
+            const types: PUType[] = ["shield","diamond","shrink","slow","star"];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const pos = rnd([...g.snake, g.food, ...(g.food2 ? [g.food2] : [])]);
+            g.pu = { ...pos, type, frames: 360 };
+          }
+          g.puSpawn = 400 + Math.random() * 400;
         }
       }
-      draw();
+      if (g.pu) { g.pu.frames--; if (g.pu.frames <= 0) g.pu = null; }
+
+      // ── snake tick ──
+      const effectiveSpeed = g.slowTimer > 0
+        ? Math.min(BASE_SPEED, g.tickSpeed + 55)
+        : g.starOn ? Math.max(MIN_SPEED - 10, g.tickSpeed - 30)
+        : g.tickSpeed;
+
+      if (!g.lastTick) g.lastTick = now;
+      if (now - g.lastTick >= effectiveSpeed) {
+        g.lastTick = now;
+        g.dir = g.nextDir;
+        const head = {
+          x: (g.snake[0].x + g.dir.x + COLS) % COLS, // wrap walls
+          y: (g.snake[0].y + g.dir.y + ROWS) % ROWS,
+        };
+        const hitSelf = g.snake.slice(1).some(p => p.x === head.x && p.y === head.y);
+
+        if (hitSelf && g.invincible <= 0 && !g.starOn) {
+          if (g.shieldOn) {
+            burst(head.x*CELL+CELL/2, head.y*CELL+CELL/2, "#4CC9F0", 12);
+            floatText(W/2, H/2, "🛡️ BLOCKED!", "#4CC9F0");
+            g.shieldOn = false; g.shieldTimer = 0; setShield(false);
+            resetSnake();
+          } else {
+            burst(g.snake[0].x*CELL+CELL/2, g.snake[0].y*CELL+CELL/2, "#FF4444", 20);
+            g.lives--; setLives(g.lives);
+            if (g.lives <= 0) { end(); return; }
+            resetSnake();
+          }
+        } else {
+          g.snake.unshift(head);
+
+          const eatFood1 = head.x === g.food.x && head.y === g.food.y;
+          const eatFood2 = g.food2 && head.x === g.food2.x && head.y === g.food2.y;
+
+          if (eatFood1 || eatFood2) {
+            g.combo++; g.comboTimer = COMBO_WINDOW; setCombo(g.combo);
+            g.hungerTimer = 0; setUrgent(false);
+
+            const mult = g.starOn ? 3 : Math.min(g.combo, 4);
+            const gain = mult;
+            g.score += gain; setScore(g.score);
+
+            const cx2 = head.x*CELL+CELL/2, cy2 = head.y*CELL+CELL/2;
+            const fcol = g.starOn ? "#FFD93D" : mult > 1 ? "#FF9F43" : "#6BCB77";
+            burst(cx2, cy2, fcol, 10);
+            floatText(cx2, cy2 - 10,
+              `+${gain} WOLF${mult > 1 ? ` ×${mult}!` : ""}`,
+              fcol
+            );
+
+            if (eatFood1) g.food = rnd([...g.snake, ...(g.food2 ? [g.food2] : [])]);
+            else          g.food2 = null;
+
+            // level up every 10 score
+            const newLv = Math.floor(g.score / 10) + 1;
+            if (newLv > g.level) {
+              g.level = newLv; setLevel(newLv);
+              g.tickSpeed = Math.max(MIN_SPEED, BASE_SPEED - (newLv-1)*SPEED_STEP);
+              g.levelFlash = 32;
+              burst(W/2, H/2, "#FF9F43", 22);
+              floatText(W/2, H/2 - 40, `LEVEL ${newLv} 🔥 FASTER!`, "#FF9F43");
+              // spawn second food at higher levels
+              if (newLv >= 3 && !g.food2) {
+                g.food2 = rnd([...g.snake, g.food]);
+              }
+            }
+          } else {
+            g.snake.pop();
+          }
+
+          // power-up pickup
+          if (g.pu && head.x === g.pu.x && head.y === g.pu.y) applyPU(g.pu.type);
+        }
+      }
+
+      draw(now);
       g.raf = requestAnimationFrame(tick);
     }
 
-    function end() { g.running = false; setPendingWolf(g.score); setPhase("done"); }
-    g.raf = requestAnimationFrame(tick);
+    function end() {
+      g.running = false;
+      const prev = parseInt(localStorage.getItem(HS_KEY)||"0");
+      if (g.score > prev) { localStorage.setItem(HS_KEY, String(g.score)); setHighScore(g.score); setNewRecord(true); }
+      setPendingWolf(g.score); setPhase("done");
+    }
 
-    return () => { g.running = false; cancelAnimationFrame(g.raf); document.removeEventListener("keydown", onKey); };
+    g.raf = requestAnimationFrame(tick);
+    return () => {
+      g.running = false; cancelAnimationFrame(g.raf);
+      document.removeEventListener("keydown", onKey);
+      cv.removeEventListener("touchstart", onTouchStart);
+      cv.removeEventListener("touchend", onTouchEnd);
+    };
   }, [phase]);
 
+  // ── claim handler ─────────────────────────────────────────
   function handleClaim() {
     if (claimed || pendingWolf <= 0) return;
-    if (claimBtnRef.current) {
-      const rect = claimBtnRef.current.getBoundingClientRect();
-      setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    if (claimRef.current) {
+      const r = claimRef.current.getBoundingClientRect();
+      setFlyFrom({ x: r.left + r.width/2, y: r.top + r.height/2 });
     }
     addGameSession("snake", pendingWolf);
-    setClaimed(true);
-    setFlyShow(true);
+    setClaimed(true); setFlyShow(true);
   }
 
-  const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
-  const btn = (label: string, color: string, onClick: () => void) => (
-    <button onClick={onClick} style={{ background: color, border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 26px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>{label}</button>
-  );
+  // ── D-pad press ───────────────────────────────────────────
+  function dpad(dx: number, dy: number) {
+    const g = gs.current;
+    if (dx ===  1 && g.dir.x !== -1) g.nextDir = { x: 1, y: 0 };
+    if (dx === -1 && g.dir.x !==  1) g.nextDir = { x:-1, y: 0 };
+    if (dy ===  1 && g.dir.y !== -1) g.nextDir = { x: 0, y: 1 };
+    if (dy === -1 && g.dir.y !==  1) g.nextDir = { x: 0, y:-1 };
+  }
 
+  const fmt = (t: number) => `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
+  const comboMult = Math.min(combo, 4);
+
+  // ── render ────────────────────────────────────────────────
   return (
     <MemeShell testId="page-game-snake">
-      <TokenFly
-        count={Math.min(pendingWolf, 10)}
-        show={flyShow}
-        fromX={flyFrom.x}
-        fromY={flyFrom.y}
-        onComplete={() => setFlyShow(false)}
-      />
+      <TokenFly count={Math.min(pendingWolf, 12)} show={flyShow}
+        fromX={flyFrom.x} fromY={flyFrom.y} onComplete={() => setFlyShow(false)} />
 
-      <div className="flex flex-col items-center py-8 px-4">
-        <h1 className="font-bungee text-3xl mb-1" style={{ color: "#1a1a1a" }}>🐍 CRYPTO SNAKE</h1>
-        <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Eat $BATTLE coins to grow · 1 WOLF per coin</p>
+      <div className="flex flex-col items-center py-6 px-3 gap-4">
+        <div className="text-center">
+          <h1 className="font-bungee text-3xl" style={{ color: "#1a1a1a" }}>🐺 CRYPTO SNAKE</h1>
+          <p className="font-fredoka text-sm" style={{ color: "#666" }}>
+            Eat coins · Grow bigger · Earn WOLF {highScore > 0 && `· Best: ${highScore}`}
+          </p>
+        </div>
 
+        {/* ── START ── */}
         {phase === "start" && (
-          <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
-            <div style={{ fontSize: 72 }}>🐍</div>
-            <h2 className="font-bungee text-xl mt-4 mb-3">HOW TO PLAY</h2>
-            <p className="font-fredoka text-sm mb-1" style={{ color: "#555" }}>🎮 Arrow keys or WASD to steer the snake</p>
-            <p className="font-fredoka text-sm mb-1" style={{ color: "#555" }}>💰 Eat yellow $BATTLE coins to earn WOLF</p>
-            <p className="font-fredoka text-sm mb-4" style={{ color: "#555" }}>❤️ 3 lives · ⏱️ 2 minute session</p>
-            {!user && <p className="font-fredoka text-sm mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>}
-            {btn("PLAY NOW", "#6BCB77", () => setPhase("playing"))}
-          </div>
-        )}
-
-        {phase === "playing" && (
-          <div>
-            <div className="flex justify-between items-center mb-3 gap-6" style={{ width: W }}>
-              <span className="font-fredoka font-bold text-lg">🏆 {score} WOLF</span>
-              <span className="font-fredoka font-bold text-lg">{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</span>
-              <span className="font-fredoka font-bold text-lg">⏱️ {fmt(time)}</span>
+          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 22, padding: "24px 28px", boxShadow: "6px 6px 0 #6BCB77", maxWidth: 400, width: "100%" }}>
+            <div className="text-center" style={{ fontSize: 64, marginBottom: 12 }}>🐺</div>
+            <h2 className="font-bungee text-xl text-center mb-4">HOW TO PLAY</h2>
+            <div className="flex flex-col gap-2 mb-5">
+              {[
+                ["🎮","Arrow keys / WASD · Swipe on screen"],
+                ["💰","Eat gold $ coins → earn WOLF tokens"],
+                ["🔥","Combo streak → x2, x3, x4 WOLF bonus"],
+                ["⬆️","Every 10 coins = level up + faster speed"],
+                ["🛡️","Shield — blocks one death"],
+                ["💎","Diamond — instant +5 WOLF"],
+                ["🌀","Shrink — makes snake shorter"],
+                ["⏳","Slow — buys extra time on the clock"],
+                ["⭐","Star mode — triple WOLF, pass through self!"],
+                ["❤️","3 lives · ⏱️ 2 minute session"],
+              ].map(([ic, tx]) => (
+                <div key={tx} className="flex gap-3 items-start">
+                  <span style={{ minWidth: 28, fontSize: 15 }}>{ic}</span>
+                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 14, color: "#555" }}>{tx}</span>
+                </div>
+              ))}
             </div>
-            <canvas ref={canvasRef} width={W} height={H} style={{ border: "2.5px solid #1a1a1a", borderRadius: 10, boxShadow: "5px 5px 0 #1a1a1a", display: "block" }} />
-            <p className="font-fredoka text-center text-sm mt-3" style={{ color: "#888" }}>Arrow keys or WASD to move</p>
+            {highScore > 0 && (
+              <div style={{ background: "#1a1a1a", borderRadius: 12, padding: "8px 16px", marginBottom: 14, textAlign: "center" }}>
+                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#FFD93D" }}>🏆 BEST: {highScore} WOLF</span>
+              </div>
+            )}
+            {!user && <p className="font-fredoka text-xs text-center mb-3" style={{ color: "#FF6B6B" }}>⚠️ Login to save earnings</p>}
+            <button onClick={() => setPhase("playing")}
+              style={{ width: "100%", background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a" }}>
+              PLAY NOW 🐺
+            </button>
           </div>
         )}
 
+        {/* ── PLAYING ── */}
+        {phase === "playing" && (
+          <div style={{ width: "100%", maxWidth: W + 8 }}>
+
+            {/* HUD */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 5, marginBottom: 6 }}>
+              {[
+                { label: "WOLF",  value: score,               color: "#6BCB77" },
+                { label: "LEVEL", value: level,               color: "#FF9F43" },
+                { label: "LIVES", value: "❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives)), color: "#FF6B6B" },
+                { label: "TIME",  value: fmt(time),           color: "#4CC9F0" },
+              ].map(({ label, value, color }) => (
+                <div key={label} style={{ background: "#0d0d1a", border: `2px solid ${color}`, borderRadius: 10, padding: "5px 6px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 10, color: "#666", margin: 0 }}>{label}</p>
+                  <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color, margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Status banners */}
+            <div style={{ display: "flex", gap: 5, marginBottom: 5, flexWrap: "wrap" }}>
+              {combo > 1 && (
+                <div style={{ flex: 1, background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
+                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>🔥 COMBO ×{comboMult}!</span>
+                </div>
+              )}
+              {shield && (
+                <div style={{ flex: 1, background: "#4CC9F0", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
+                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>🛡️ SHIELD ON</span>
+                </div>
+              )}
+              {star && (
+                <div style={{ flex: 1, background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
+                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>⭐ STAR MODE ×3!</span>
+                </div>
+              )}
+              {urgent && !star && (
+                <div style={{ flex: 1, background: "#FF6B6B", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
+                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>⚠️ EAT SOMETHING!</span>
+                </div>
+              )}
+            </div>
+
+            <canvas ref={canvasRef} width={W} height={H}
+              style={{ border: "2.5px solid #1a1a1a", borderRadius: 14, boxShadow: "6px 6px 0 #1a1a1a", display: "block", width: "100%", touchAction: "none" }} />
+
+            {/* D-pad for mobile */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, maxWidth: 180, margin: "12px auto 0" }}>
+              {[
+                [null,   { dx:0,  dy:-1, icon:"⬆️" }, null],
+                [{ dx:-1,dy:0, icon:"⬅️" }, null, { dx:1, dy:0, icon:"➡️" }],
+                [null,   { dx:0,  dy: 1, icon:"⬇️" }, null],
+              ].map((row, ri) => row.map((cell, ci) =>
+                cell ? (
+                  <button key={`${ri}-${ci}`}
+                    onPointerDown={(e) => { e.preventDefault(); dpad(cell.dx, cell.dy); }}
+                    style={{ aspectRatio: "1", background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 12, fontSize: 18, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", WebkitUserSelect: "none", userSelect: "none" }}>
+                    {cell.icon}
+                  </button>
+                ) : <div key={`${ri}-${ci}`} />
+              ))}
+            </div>
+            <p className="font-fredoka text-center text-xs mt-2" style={{ color: "#888" }}>Arrow keys / WASD or swipe · Walls wrap around</p>
+          </div>
+        )}
+
+        {/* ── DONE ── */}
         {phase === "done" && (
-          <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
-            <div style={{ fontSize: 72 }}>🎉</div>
-            <h2 className="font-bungee text-2xl mt-4">SESSION COMPLETE!</h2>
-            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#6BCB77" }}>+{pendingWolf} WOLF</p>
+          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 22, padding: "28px 28px", boxShadow: "6px 6px 0 #6BCB77", maxWidth: 380, width: "100%", textAlign: "center" }}>
+            <div style={{ fontSize: 72 }}>{newRecord ? "🏆" : "🎉"}</div>
+            <h2 className="font-bungee text-2xl mt-3">{newRecord ? "NEW RECORD!" : "SESSION COMPLETE!"}</h2>
+            <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 38, color: "#6BCB77", margin: "6px 0 0" }}>+{pendingWolf}</p>
+            <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 16, color: "#888", margin: "0 0 4px" }}>WOLF TOKENS</p>
+            {newRecord && (
+              <div style={{ background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 10, padding: "5px 16px", margin: "8px auto", display: "inline-block" }}>
+                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13 }}>🏆 PERSONAL BEST: {pendingWolf}</span>
+              </div>
+            )}
+            {!newRecord && highScore > 0 && (
+              <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa", margin: "4px 0 12px" }}>Best: {highScore} WOLF</p>
+            )}
 
             {!claimed && user && (
               <>
-                <p className="font-fredoka text-sm mt-2 mb-5" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
-                <button
-                  ref={claimBtnRef}
-                  onClick={handleClaim}
-                  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 40px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 16, display: "block", width: "100%" }}
-                >
+                <p className="font-fredoka text-sm mb-4 mt-3" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
+                <button ref={claimRef} onClick={handleClaim}
+                  style={{ width: "100%", background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px", fontFamily: "Bungee,sans-serif", fontSize: 17, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 12 }}>
                   CLAIM {pendingWolf} WOLF ⬆️
                 </button>
               </>
             )}
-            {claimed && (
-              <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>
-            )}
-            {!user && (
-              <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>
-            )}
+            {claimed && <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>}
+            {!user && <p className="font-fredoka text-sm mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save earnings</p>}
 
-            <div className="flex gap-3 justify-center flex-wrap mt-2">
-              {btn("PLAY AGAIN", "#6BCB77", () => setPhase("start"))}
-              {btn("ALL GAMES", "#A29BFE", () => nav("/games"))}
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button onClick={() => setPhase("start")}
+                style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 22px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>
+                PLAY AGAIN
+              </button>
+              <button onClick={() => nav("/games")}
+                style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 22px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>
+                ALL GAMES
+              </button>
             </div>
           </div>
         )}
