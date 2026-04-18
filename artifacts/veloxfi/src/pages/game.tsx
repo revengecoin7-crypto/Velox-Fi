@@ -1,37 +1,48 @@
 import MemeShell from "@/components/MemeShell";
 import { useLocation } from "wouter";
 
+const FEATURES = [
+  { emoji: "🏰", label: "Build Your Kingdom", color: "#FFD93D" },
+  { emoji: "⚔️", label: "Battle Rivals",       color: "#FF6B9D" },
+  { emoji: "🐺", label: "Train Warriors",       color: "#6BCB77" },
+  { emoji: "💰", label: "Earn $BATTLE",         color: "#4CC9F0" },
+  { emoji: "🏆", label: "Climb the Leaderboard", color: "#FF9F43" },
+  { emoji: "🚀", label: "Solana-Powered",       color: "#A29BFE" },
+];
+
 export default function Game() {
   const [, navigate] = useLocation();
 
   return (
     <MemeShell testId="game-page">
       {/* Hero */}
-      <section className="pt-16 pb-10 px-6 text-center">
-        <h1 className="meme-title font-orbitron font-black tracking-wider mb-4"
-          style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-          ⚔️ VELOXFI BATTLE KINGDOM
+      <section className="pt-14 pb-10 px-6 text-center relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bungee text-xs text-[#1a1a1a] mb-6"
+          style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
+          <span className="w-2 h-2 rounded-full bg-[#1a1a1a] animate-pulse" />
+          FREE TO PLAY
+        </div>
+
+        <h1 className="font-bungee text-[#1a1a1a] mb-4"
+          style={{ fontSize: "clamp(2rem, 6vw, 4rem)", lineHeight: 1.1 }}>
+          VELOXFI{" "}
+          <span style={{ color: "#FF6B9D" }}>BATTLE</span>{" "}
+          KINGDOM
         </h1>
-        <p className="text-gray-400 font-orbitron text-sm tracking-widest max-w-2xl mx-auto mb-8">
-          Build your empire. Train your army. Dominate the battlefield.
+        <p className="font-fredoka text-gray-500 text-xl max-w-2xl mx-auto mb-10">
+          Build your empire. Train your army. Dominate the battlefield and earn $BATTLE tokens!
         </p>
 
         {/* Features */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {[
-            { emoji: "🏰", label: "Build Your Kingdom" },
-            { emoji: "⚔️", label: "Battle Rivals" },
-            { emoji: "🐺", label: "Train Warriors" },
-            { emoji: "💰", label: "Earn $BATTLE" },
-            { emoji: "🏆", label: "Climb the Leaderboard" },
-            { emoji: "🔥", label: "Solana-Powered" },
-          ].map(({ emoji, label }) => (
+          {FEATURES.map(({ emoji, label, color }) => (
             <div key={label}
-              className="flex items-center gap-2 px-4 py-2 rounded-full font-orbitron text-xs tracking-wider"
+              className="flex items-center gap-2 px-4 py-2.5 font-fredoka font-semibold text-sm text-[#1a1a1a]"
               style={{
-                background: "rgba(37,99,235,0.12)",
-                border: "1px solid rgba(37,99,235,0.3)",
-                color: "#93c5fd",
+                background: color,
+                border: "2px solid #1a1a1a",
+                boxShadow: "3px 3px 0 #1a1a1a",
+                borderRadius: "12px",
               }}>
               <span>{emoji}</span>
               <span>{label}</span>
@@ -39,33 +50,30 @@ export default function Game() {
           ))}
         </div>
 
-        {/* PLAY NOW — top */}
+        {/* Play button */}
         <button
           onClick={() => document.getElementById("game-iframe")?.scrollIntoView({ behavior: "smooth" })}
-          className="btn-meme px-10 py-4 rounded-2xl text-base font-orbitron font-black tracking-widest mb-4"
-        >
-          ⚔️ PLAY NOW — ENTER THE KINGDOM
+          className="cartoon-btn cartoon-btn-dark px-12 py-5 text-lg mb-4"
+          style={{ borderRadius: "16px" }}>
+          PLAY NOW — ENTER THE KINGDOM
         </button>
 
-        <p className="text-gray-600 font-orbitron text-xs tracking-widest mb-4">
-          Free to play · Powered by Solana · $BATTLE rewards coming
+        <p className="font-fredoka text-gray-400 text-base">
+          Free to play · Powered by Solana · $BATTLE rewards coming soon
         </p>
       </section>
 
       {/* iframe */}
-      <section className="px-4 pb-4" id="game-iframe">
+      <section className="px-4 pb-4 relative z-10" id="game-iframe">
         <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden"
-          style={{
-            border: "1px solid rgba(124,58,237,0.35)",
-            boxShadow: "0 0 60px rgba(124,58,237,0.2), 0 0 120px rgba(37,99,235,0.1)",
-          }}>
-          {/* iframe label bar */}
-          <div className="flex items-center gap-3 px-5 py-3"
-            style={{ background: "rgba(124,58,237,0.12)", borderBottom: "1px solid rgba(124,58,237,0.25)" }}>
-            <div className="w-3 h-3 rounded-full" style={{ background: "#ef4444" }} />
-            <div className="w-3 h-3 rounded-full" style={{ background: "#f59e0b" }} />
-            <div className="w-3 h-3 rounded-full" style={{ background: "#22c55e" }} />
-            <span className="ml-2 font-orbitron text-xs tracking-widest text-gray-500">
+          style={{ border: "2.5px solid #1a1a1a", boxShadow: "8px 8px 0 #1a1a1a" }}>
+          {/* Browser bar */}
+          <div className="flex items-center gap-2 px-5 py-3"
+            style={{ background: "#FFD93D", borderBottom: "2px solid #1a1a1a" }}>
+            <div className="w-3.5 h-3.5 rounded-full" style={{ background: "#FF6B6B", border: "1.5px solid #1a1a1a" }} />
+            <div className="w-3.5 h-3.5 rounded-full" style={{ background: "#FF9F43", border: "1.5px solid #1a1a1a" }} />
+            <div className="w-3.5 h-3.5 rounded-full" style={{ background: "#6BCB77", border: "1.5px solid #1a1a1a" }} />
+            <span className="ml-3 font-fredoka text-sm font-semibold text-[#1a1a1a]">
               veloxfi-battl.replit.app
             </span>
           </div>
@@ -75,35 +83,35 @@ export default function Game() {
             title="VeloxFi Battle Kingdom"
             width="100%"
             height="800"
-            style={{ display: "block", border: "none", background: "#05080f" }}
+            style={{ display: "block", border: "none", background: "#FFFBF0" }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
             loading="lazy"
           />
         </div>
       </section>
 
-      {/* PLAY NOW — bottom + CTA */}
-      <section className="py-14 px-6 text-center">
-        <p className="text-gray-500 font-orbitron text-xs tracking-widest mb-6">
-          ⚔️ LIVE BATTLES · 🏆 LEADERBOARD REWARDS · 🐺 VELOXFI WARRIORS
-        </p>
-        <button
-          onClick={() => document.getElementById("game-iframe")?.scrollIntoView({ behavior: "smooth" })}
-          className="btn-meme px-10 py-4 rounded-2xl text-base font-orbitron font-black tracking-widest mb-10"
-        >
-          ⚔️ PLAY NOW — ENTER THE KINGDOM
-        </button>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
-          <button onClick={() => navigate("/presale")}
-            className="btn-meme px-8 py-3 rounded-xl text-sm font-orbitron font-black tracking-widest">
-            🔥 BUY $BATTLE TOKENS
-          </button>
-          <button onClick={() => navigate("/battles")}
-            className="px-8 py-3 rounded-xl text-sm font-orbitron font-black tracking-widest transition-all hover:scale-105"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9ca3af" }}>
-            ⚔️ VIEW BATTLE ARENA
-          </button>
+      {/* Bottom CTA */}
+      <section className="py-14 px-6 text-center relative z-10">
+        <div className="max-w-3xl mx-auto cartoon-card-yellow p-10"
+          style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
+          <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a] mb-3">
+            LOVE THE GAME? JOIN THE BATTLE!
+          </h2>
+          <p className="font-fredoka text-[#333] text-lg mb-6">
+            Buy $BATTLE tokens and get early access to exclusive features & rewards.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button onClick={() => navigate("/presale")}
+              className="cartoon-btn cartoon-btn-dark px-8 py-4 text-base"
+              style={{ borderRadius: "14px" }}>
+              BUY $BATTLE TOKENS
+            </button>
+            <button onClick={() => navigate("/battles")}
+              className="cartoon-btn cartoon-btn-white px-8 py-4 text-base"
+              style={{ borderRadius: "14px" }}>
+              VIEW BATTLE ARENA
+            </button>
+          </div>
         </div>
       </section>
     </MemeShell>
