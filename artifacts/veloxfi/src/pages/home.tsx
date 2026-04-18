@@ -39,14 +39,14 @@ const HOW_IT_WORKS = [
 ];
 
 const TICKER_ITEMS = [
-  "🎮 $BATTLE PRESALE LIVE",
+  "🎮 $BATTLE NOW LIVE ON PUMP.FUN",
   "⚔️ JOIN THE BATTLEFIELD",
   "🎯 MINE WOLF TOKENS EVERY 8 HOURS",
   "🐍 CRYPTO SNAKE — EARN WOLF",
   "🚀 ROCKET MINER — BLAST ASTEROIDS",
   "🏆 5000 WOLF = 1 $BATTLE",
-  "🔥 LIMITED SPOTS REMAINING",
   "💎 BUILT ON SOLANA",
+  "🔥 CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump",
 ];
 
 const NAV_LINKS = [
@@ -55,7 +55,7 @@ const NAV_LINKS = [
   { label: "Convert",     path: "/convert",     color: "#FF9F43" },
   { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
-  { label: "Presale",     path: "/presale",     color: "#A29BFE" },
+  { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
   { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
   { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },
@@ -457,7 +457,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#1a1a1a" }} />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#1a1a1a" }} />
               </span>
-              PRESALE LIVE — LIMITED SPOTS!
+              NOW LIVE ON PUMP.FUN!
             </div>
 
             {/* Title */}
@@ -475,13 +475,14 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <button
+              <a
                 data-testid="btn-hero-start-battle"
-                onClick={() => navigate("/presale")}
+                href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+                target="_blank" rel="noopener noreferrer"
                 className="cartoon-btn cartoon-btn-yellow px-10 py-4 text-base"
-                style={{ borderRadius: "16px" }}>
+                style={{ borderRadius: "16px", textDecoration: "none" }}>
                 BUY $BATTLE NOW
-              </button>
+              </a>
               <button
                 data-testid="btn-hero-view-battles"
                 onClick={() => navigate("/demo")}
@@ -492,11 +493,11 @@ export default function Home() {
             </div>
 
             {/* Mini stats */}
-            <div className="flex gap-6">
+            <div className="flex gap-4 flex-wrap">
               {[
-                { label: "PRICE",   value: "1 SOL = 100K" },
-                { label: "MIN BUY", value: "0.1 SOL" },
-                { label: "GOAL",    value: "500 SOL" },
+                { label: "CHAIN",  value: "Solana" },
+                { label: "DEX",    value: "pump.fun" },
+                { label: "SUPPLY", value: "1,000,000,000" },
               ].map((s) => (
                 <div key={s.label} className="cartoon-card text-center px-4 py-3"
                   style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
@@ -683,7 +684,7 @@ export default function Home() {
             <p className="font-fredoka text-gray-500 text-base mb-3">Season 1 just launched — your name could be here!</p>
             <button
               data-testid="btn-leaderboard-join"
-              onClick={() => navigate("/presale")}
+              onClick={() => navigate("/battles")}
               className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
               style={{ borderRadius: "12px" }}>
               ENTER THE ARENA
@@ -704,7 +705,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Presale card */}
+          {/* Buy on pump.fun card */}
           <div className="cartoon-card-orange p-8 relative transition-all duration-200 hover:-translate-y-1"
             style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
             <div className="flex items-start justify-between mb-6">
@@ -717,12 +718,15 @@ export default function Home() {
                 LIVE NOW
               </div>
             </div>
-            <div className="font-bungee text-3xl text-[#1a1a1a] mb-1">PRESALE</div>
-            <p className="font-mono-data text-sm mt-2 text-[#333]">1 SOL = 100,000 $BATTLE · Goal: 500 SOL</p>
-            <div className="mt-6 h-3 rounded-full overflow-hidden" style={{ background: "rgba(26,26,26,0.15)", border: "1.5px solid #1a1a1a" }}>
-              <div className="h-full rounded-full w-[12%]" style={{ background: "#1a1a1a" }} />
-            </div>
-            <p className="font-mono-data text-xs mt-2 text-[#333]">60 / 500 SOL raised</p>
+            <div className="font-bungee text-3xl text-[#1a1a1a] mb-1">BUY $BATTLE</div>
+            <p className="font-mono-data text-sm mt-2 text-[#333]">Live on pump.fun — trade on Solana</p>
+            <p className="font-mono-data text-xs mt-3 text-[#555] break-all">CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</p>
+            <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+              target="_blank" rel="noopener noreferrer"
+              className="mt-5 flex items-center justify-center gap-2 font-bungee text-sm px-6 py-3 rounded-xl"
+              style={{ background: "#1a1a1a", color: "white", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #555", textDecoration: "none" }}>
+              BUY ON PUMP.FUN →
+            </a>
           </div>
 
           <div className="flex flex-col gap-5">
@@ -754,36 +758,37 @@ export default function Home() {
         <div className="cartoon-card-yellow p-12 text-center relative"
           style={{ boxShadow: "8px 8px 0 #1a1a1a" }}>
           <h2 className="font-bungee text-3xl md:text-5xl text-[#1a1a1a] mb-4 leading-tight">
-            THE PRESALE IS{" "}
+            $BATTLE IS{" "}
             <span style={{ color: "#6BCB77" }}>LIVE!</span>
           </h2>
           <p className="font-fredoka text-[#333] mb-8 max-w-lg mx-auto text-xl leading-relaxed">
-            Be one of the first 100 warriors. Join the presale now and claim your OG badge.{" "}
-            <span className="font-semibold" style={{ color: "#FF6B9D" }}>Only early holders get OG status.</span>
+            Now trading on pump.fun. Buy $BATTLE, play games, mine WOLF, and dominate the arena.{" "}
+            <span className="font-semibold" style={{ color: "#FF6B9D" }}>5000 WOLF = 1 $BATTLE.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <button
+            <a
               data-testid="btn-cta-launch"
-              onClick={() => navigate("/presale")}
+              href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+              target="_blank" rel="noopener noreferrer"
               className="cartoon-btn cartoon-btn-dark px-12 py-5 text-lg"
-              style={{ borderRadius: "16px" }}>
-              BUY $BATTLE NOW
-            </button>
+              style={{ borderRadius: "16px", textDecoration: "none" }}>
+              BUY ON PUMP.FUN
+            </a>
             <button
-              onClick={() => navigate("/whitepaper")}
+              onClick={() => navigate("/games")}
               className="cartoon-btn cartoon-btn-white px-10 py-5 text-base"
               style={{ borderRadius: "16px" }}>
-              READ WHITEPAPER
+              PLAY GAMES
             </button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6">
             {[
-              { label: "PRICE", value: "1 SOL = 100K" },
-              { label: "MIN",   value: "0.1 SOL" },
-              { label: "MAX",   value: "10 SOL/wallet" },
-              { label: "GOAL",  value: "500 SOL" },
+              { label: "CHAIN",  value: "Solana" },
+              { label: "DEX",    value: "pump.fun" },
+              { label: "EARN",   value: "Mine WOLF" },
+              { label: "RATE",   value: "5000 WOLF = 1 $BATTLE" },
             ].map((s) => (
               <div key={s.label} className="cartoon-card text-center px-4 py-3" style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
                 <div className="font-mono-data font-semibold text-sm" style={{ color: "#FF6B9D" }}>{s.value}</div>

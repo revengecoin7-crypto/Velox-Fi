@@ -20,7 +20,7 @@ const NAV_LINKS = [
   { label: "Convert",     path: "/convert",     color: "#4CC9F0" },
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
   { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
-  { label: "Presale",     path: "/presale",     color: "#A29BFE" },
+  { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
   { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
   { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },

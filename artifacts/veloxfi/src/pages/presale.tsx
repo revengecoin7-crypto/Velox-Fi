@@ -1,493 +1,139 @@
-import { useState, useEffect, useCallback } from "react";
-import { useLocation } from "wouter";
-import {
-  Zap, Shield, TrendingUp, Clock, AlertTriangle,
-  Copy, Check, CheckCircle, Loader2, ExternalLink,
-} from "lucide-react";
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
-} from "@solana/web3.js";
-import ConnectWalletButton from "@/components/ConnectWalletButton";
-import { useWallet } from "@/context/WalletContext";
-import { usePageMeta } from "@/hooks/usePageMeta";
+import { useState } from "react";
+import { Copy, Check, ExternalLink, Zap, Shield, TrendingUp } from "lucide-react";
 import MemeShell from "@/components/MemeShell";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
-const PRESALE_LAUNCH    = new Date("2026-06-01T00:00:00Z").getTime();
-const TOTAL_SUPPLY      = 1_000_000_000;
-const SOL_GOAL          = 500;
-const MIN_SOL           = 0.1;
-const MAX_SOL           = 10;
-const TOKENS_PER_SOL    = 100_000;
-const RECEIVING_WALLET  = "9LQw7JXNZb97qtYcbXkcV3xUjc3ewmZdmBejQd2HiwNU";
-const RPC_ENDPOINT = `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY ?? "f85d3d41-9efd-40e5-846b-56f43fc8e98a"}`;
-const API_BASE          = "/api";
+const CA = "3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump";
+const PUMP_URL = "https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump";
 
-interface PresaleStats { totalSol: number; totalPurchases: number; solGoal: number; progressPct: number; }
-type BuyPhase = "idle" | "sending" | "saving" | "success" | "error";
-
-function pad(n: number) { return String(n).padStart(2, "0"); }
-function fmt(n: number) { return n.toLocaleString("en-US", { maximumFractionDigits: 0 }); }
-
-function useCountdown(target: number) {
-  const [diff, setDiff] = useState(() => Math.max(0, target - Date.now()));
-  useEffect(() => {
-    const t = setInterval(() => setDiff(Math.max(0, target - Date.now())), 1000);
-    return () => clearInterval(t);
-  }, [target]);
-  const days  = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins  = Math.floor((diff % 3600000) / 60000);
-  const secs  = Math.floor((diff % 60000) / 1000);
-  return { days, hours, mins, secs, over: diff === 0 };
-}
+const HOW_TO_BUY = [
+  { step: "01", title: "Get a Solana wallet", desc: "Download Phantom or Solflare and create a new wallet. Keep your seed phrase safe!", color: "#FFD93D", icon: "👛" },
+  { step: "02", title: "Buy SOL",             desc: "Buy SOL on Coinbase, Binance, or any exchange and send it to your wallet.", color: "#4CC9F0", icon: "💳" },
+  { step: "03", title: "Go to pump.fun",      desc: "Open the link below, paste the contract address, and swap SOL for $BATTLE.", color: "#FF6B9D", icon: "🚀" },
+  { step: "04", title: "Hold & earn WOLF",    desc: "Play games and mine WOLF tokens. 5000 WOLF = 1 $BATTLE. Stack up!", color: "#6BCB77", icon: "🏆" },
+];
 
 export default function Presale() {
   usePageMeta({
-    title: "Presale — Buy $BATTLE Token | VeloxFi",
-    description: "Join the $BATTLE token presale at the lowest price. $BATTLE powers the VeloxFi memecoin battle arena on Solana. 1 billion total supply launching on pump.fun.",
-    canonical: "https://veloxfi.io/#/presale",
+    title: "Buy $BATTLE — Live on pump.fun | VeloxFi",
+    description: "$BATTLE is now live on pump.fun. Buy on Solana with contract address 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump",
+    canonical: "https://veloxfi.io/buy",
   });
 
-  const [, navigate]    = useLocation();
-  const { status, address, shortAddress } = useWallet();
-  const countdown       = useCountdown(PRESALE_LAUNCH);
+  const [copied, setCopied] = useState(false);
 
-  const [stats, setStats]         = useState<PresaleStats | null>(null);
-  const [walletUsed, setWalletUsed] = useState(0);
-  const [solInput, setSolInput]   = useState("");
-  const [buyPhase, setBuyPhase]   = useState<BuyPhase>("idle");
-  const [buyError, setBuyError]   = useState("");
-  const [txSig, setTxSig]         = useState("");
-  const [copied, setCopied]       = useState(false);
-
-  const solValue  = parseFloat(solInput) || 0;
-  const tokens    = Math.floor(solValue * TOKENS_PER_SOL);
-  const remaining = Math.max(0, MAX_SOL - walletUsed);
-
-  const fetchStats = useCallback(async () => {
-    try {
-      const r = await fetch(`${API_BASE}/presale/stats`);
-      if (r.ok) setStats(await r.json());
-    } catch { /* silent */ }
-  }, []);
-
-  const fetchWalletUsed = useCallback(async (addr: string) => {
-    try {
-      const r = await fetch(`${API_BASE}/presale/wallet-total/${addr}`);
-      if (r.ok) {
-        const d = await r.json();
-        setWalletUsed(d.totalSol ?? 0);
-      }
-    } catch { /* silent */ }
-  }, []);
-
-  useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => {
-    if (address) fetchWalletUsed(address);
-    else setWalletUsed(0);
-  }, [address, fetchWalletUsed]);
-
-  function inputError(): string | null {
-    if (!solInput) return null;
-    if (solValue < MIN_SOL) return `Minimum purchase is ${MIN_SOL} SOL`;
-    if (solValue > remaining) return `Your wallet limit allows ${remaining.toFixed(4)} more SOL`;
-    if (solValue > MAX_SOL) return `Maximum is ${MAX_SOL} SOL per wallet`;
-    return null;
+  function copyCA() {
+    navigator.clipboard.writeText(CA).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   }
-
-  async function handleBuy() {
-    if (!address) return;
-    const err = inputError();
-    if (err) { setBuyError(err); return; }
-    if (solValue <= 0) { setBuyError("Enter a SOL amount"); return; }
-
-    setBuyPhase("sending");
-    setBuyError("");
-    setTxSig("");
-
-    try {
-      const provider = window.phantom?.solana ?? window.solana;
-      if (!provider) throw new Error("Phantom wallet not found");
-
-      const connection = new Connection(RPC_ENDPOINT, "confirmed");
-      const fromPubkey = new PublicKey(address);
-      const toPubkey   = new PublicKey(RECEIVING_WALLET);
-      const lamports   = Math.round(solValue * LAMPORTS_PER_SOL);
-
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("confirmed");
-
-      const tx = new Transaction({ recentBlockhash: blockhash, feePayer: fromPubkey })
-        .add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
-
-      const { signature } = await provider.signAndSendTransaction(tx);
-      await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, "confirmed");
-
-      setBuyPhase("saving");
-      const res = await fetch(`${API_BASE}/presale/purchase`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ walletAddress: address, solAmount: solValue, txSignature: signature }),
-      });
-
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error ?? "Failed to record purchase");
-      }
-
-      setTxSig(signature);
-      setBuyPhase("success");
-      setSolInput("");
-      await fetchStats();
-      await fetchWalletUsed(address);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("User rejected") || msg.includes("4001")) {
-        setBuyError("Transaction cancelled.");
-      } else {
-        setBuyError(msg || "Transaction failed. Please try again.");
-      }
-      setBuyPhase("error");
-    }
-  }
-
-  function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  const progressPct = stats ? stats.progressPct : 0;
-  const solRaised   = stats ? stats.totalSol : 0;
 
   return (
     <MemeShell>
-      <div className="max-w-2xl mx-auto px-6 pt-8 pb-24">
+      <div className="max-w-4xl mx-auto px-6 py-12">
 
-        {/* ── HEADER ── */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-xs font-orbitron tracking-widest phase-active"
-            style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.4)", color: "#a78bfa" }}>
-            <Zap className="w-3 h-3" /> 🔥 EARLY ACCESS — LIMITED SPOTS
-          </div>
-          <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-4 leading-tight meme-title">
-            🚀 $BATTLE{" "}
-            <span style={{ background: "linear-gradient(135deg,#2563eb,#7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              PRESALE
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 font-bungee text-xs text-[#1a1a1a]"
+            style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#1a1a1a" }} />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#1a1a1a" }} />
             </span>
+            LIVE ON PUMP.FUN
+          </div>
+          <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
+            BUY <span style={{ color: "#FF9F43" }}>$BATTLE</span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-sm mx-auto">
-            Get in early — lowest price before pump.fun launch 🐺
+          <p className="font-fredoka text-lg text-gray-600 max-w-xl mx-auto">
+            $BATTLE is live on Solana via pump.fun. Copy the contract address below or click the button to buy directly.
           </p>
         </div>
 
-        {/* ── COUNTDOWN ── */}
-        <div className="rounded-2xl p-6 mb-5 text-center"
-          style={{ background: "linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.08))", border: "2px solid rgba(124,58,237,0.25)", boxShadow: "0 0 30px rgba(124,58,237,0.08)" }}>
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Clock className="w-4 h-4 text-blue-400" />
-            <span className="font-orbitron text-xs tracking-widest text-gray-500">⏰ PRESALE OPENS IN</span>
-          </div>
-          <div className="flex items-center justify-center gap-3 md:gap-6">
-            {[
-              { val: pad(countdown.days),  label: "DAYS"  },
-              { val: pad(countdown.hours), label: "HOURS" },
-              { val: pad(countdown.mins),  label: "MINS"  },
-              { val: pad(countdown.secs),  label: "SECS"  },
-            ].map(({ val, label }, i) => (
-              <div key={label} className="flex items-center gap-3 md:gap-6">
-                {i > 0 && <span className="font-orbitron font-black text-3xl" style={{ color: "rgba(124,58,237,0.5)" }}>:</span>}
-                <div className="text-center">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl flex items-center justify-center font-black text-2xl md:text-3xl tabular-nums"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontFamily: "Inter, sans-serif", color: "#e2e8f0" }}>
-                    {val}
-                  </div>
-                  <div className="text-gray-700 text-xs font-orbitron tracking-widest mt-1.5">{label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-gray-700 text-xs font-orbitron tracking-widest mt-4">🗓️ JUN 1, 2026 · 00:00 UTC</p>
-        </div>
-
-        {/* ── PROGRESS ── */}
-        <div className="rounded-2xl p-6 mb-5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-orbitron text-xs tracking-widest text-gray-500">📊 PRESALE PROGRESS</span>
-            <span className="font-orbitron text-xs tracking-widest" style={{ color: "#60a5fa" }}>
-              {solRaised.toFixed(4)} / {SOL_GOAL} SOL
-            </span>
-          </div>
-          <div className="h-4 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.06)" }}>
-            <div className="h-full rounded-full transition-all duration-1000 relative overflow-hidden"
-              style={{ width: progressPct > 0 ? `${progressPct}%` : "2px", background: "linear-gradient(90deg,#2563eb,#7c3aed)", minWidth: "2px" }}>
-              <div className="absolute inset-0"
-                style={{ background: "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.25) 50%,transparent 100%)", animation: "shimmer 2s infinite" }} />
-            </div>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="font-orbitron text-gray-700 tracking-widest">{progressPct.toFixed(2)}% FILLED</span>
-            <span className="font-orbitron text-gray-700 tracking-widest">GOAL: {SOL_GOAL} SOL</span>
+        {/* Contract address card */}
+        <div className="cartoon-card p-8 mb-8 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
+          <div className="font-bungee text-sm text-gray-500 mb-3">CONTRACT ADDRESS (CA)</div>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <code className="font-mono-data text-sm md:text-base text-[#1a1a1a] break-all"
+              style={{ background: "#f5f0e0", border: "2px solid #1a1a1a", borderRadius: "10px", padding: "10px 16px" }}>
+              {CA}
+            </code>
+            <button onClick={copyCA}
+              className="flex items-center gap-2 font-bungee text-sm px-4 py-3 rounded-xl flex-shrink-0"
+              style={{ background: copied ? "#6BCB77" : "#FFD93D", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? "COPIED!" : "COPY"}
+            </button>
           </div>
         </div>
 
-        {/* ── PURCHASE BOX ── */}
-        <div className="rounded-2xl p-6 mb-5"
-          style={{ background: "rgba(37,99,235,0.06)", border: "2px solid rgba(37,99,235,0.3)", boxShadow: "0 0 20px rgba(37,99,235,0.06)" }}>
-          <h2 className="font-orbitron font-bold text-sm tracking-widest text-white mb-5 flex items-center gap-2">
-            <span>⚔️</span> BUY $BATTLE TOKENS
-          </h2>
-
-          {buyPhase === "success" ? (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                style={{ background: "rgba(52,211,153,0.15)", border: "2px solid rgba(52,211,153,0.5)" }}>
-                <CheckCircle className="w-8 h-8" style={{ color: "#34d399" }} />
-              </div>
-              <h3 className="font-orbitron font-black text-xl text-white mb-2">🎉 PURCHASE CONFIRMED!</h3>
-              <p className="text-gray-400 text-sm mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
-                Your $BATTLE tokens have been reserved. They will be delivered after the pump.fun launch.
-              </p>
-              {txSig && (
-                <a href={`https://solscan.io/tx/${txSig}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-orbitron tracking-widest transition-opacity hover:opacity-80"
-                  style={{ color: "#60a5fa" }}>
-                  VIEW ON SOLSCAN <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-              <button onClick={() => setBuyPhase("idle")}
-                className="mt-5 w-full py-3 rounded-xl font-orbitron text-xs tracking-widest transition-all duration-200"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9ca3af", cursor: "pointer" }}>
-                BUY MORE
-              </button>
-            </div>
-          ) : status !== "connected" ? (
-            <div className="text-center py-4">
-              <div className="text-4xl mb-3">👛</div>
-              <p className="text-gray-500 text-sm mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
-                Connect your Phantom wallet to participate in the presale.
-              </p>
-              <ConnectWalletButton className="w-full justify-center py-4" />
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-4 text-xs font-orbitron tracking-widest">
-                <span className="text-gray-500">RATE</span>
-                <span style={{ color: "#a78bfa" }}>1 SOL = {fmt(TOKENS_PER_SOL)} $BATTLE</span>
-              </div>
-              <div className="flex items-center justify-between mb-5 text-xs font-orbitron tracking-widest">
-                <span className="text-gray-500">LIMITS</span>
-                <span style={{ color: "#6b7280" }}>Min {MIN_SOL} SOL · Max {MAX_SOL} SOL / wallet</span>
-              </div>
-
-              {walletUsed > 0 && (
-                <div className="flex items-center justify-between mb-4 px-3 py-2 rounded-lg text-xs font-orbitron tracking-widest"
-                  style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)" }}>
-                  <span style={{ color: "#9ca3af" }}>YOUR WALLET USED</span>
-                  <span style={{ color: "#a78bfa" }}>{walletUsed.toFixed(4)} SOL · {remaining.toFixed(4)} remaining</span>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <label className="block text-xs font-orbitron tracking-widest text-gray-500 mb-2">YOU PAY (SOL)</label>
-                <div className="relative">
-                  <input type="number" min={MIN_SOL} max={remaining} step="0.01"
-                    value={solInput}
-                    onChange={(e) => { setSolInput(e.target.value); setBuyError(""); setBuyPhase("idle"); }}
-                    placeholder="0.10"
-                    className="w-full px-4 py-4 rounded-xl text-white text-lg font-bold outline-none transition-all duration-200"
-                    style={{ background: "rgba(255,255,255,0.04)", border: `2px solid ${inputError() ? "rgba(239,68,68,0.5)" : "rgba(37,99,235,0.3)"}`, fontFamily: "Inter, sans-serif", appearance: "none" }} />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-orbitron tracking-wider" style={{ color: "#60a5fa" }}>SOL</span>
-                </div>
-                {inputError() && <p className="mt-1.5 text-xs" style={{ color: "#f87171", fontFamily: "Inter, sans-serif" }}>{inputError()}</p>}
-              </div>
-
-              <div className="flex items-center justify-between px-4 py-4 rounded-xl mb-5"
-                style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.25)" }}>
-                <div>
-                  <div className="text-xs font-orbitron tracking-widest text-gray-500 mb-1">YOU RECEIVE</div>
-                  <div className="text-2xl font-black" style={{ color: tokens > 0 ? "#a78bfa" : "#374151", fontFamily: "Inter, sans-serif" }}>
-                    {tokens > 0 ? fmt(tokens) : "0"}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-orbitron tracking-widest text-gray-600 mb-1">TOKEN</div>
-                  <div className="font-orbitron font-black text-lg text-white">$BATTLE</div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 mb-5">
-                {[0.1, 0.5, 1, Math.min(5, remaining), Math.min(remaining, MAX_SOL)].filter((v, i, arr) => v > 0 && arr.indexOf(v) === i).map((v) => (
-                  <button key={v} onClick={() => { setSolInput(String(v)); setBuyError(""); }}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-orbitron tracking-widest transition-all duration-150 hover:opacity-80"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", cursor: "pointer" }}>
-                    {v} SOL
-                  </button>
-                ))}
-              </div>
-
-              {buyPhase === "error" && buyError && (
-                <div className="flex items-start gap-2 px-4 py-3 rounded-lg mb-4 text-sm"
-                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171", fontFamily: "Inter, sans-serif" }}>
-                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  {buyError}
-                </div>
-              )}
-
-              <button onClick={handleBuy}
-                disabled={buyPhase === "sending" || buyPhase === "saving" || !!inputError() || solValue <= 0 || remaining <= 0}
-                className="w-full py-5 rounded-2xl font-orbitron font-black tracking-wider text-base flex items-center justify-center gap-2 btn-meme"
-                style={{
-                  background: remaining <= 0 ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg,#2563eb,#7c3aed)",
-                  border: "none",
-                  color: remaining <= 0 ? "#4b5563" : "white",
-                  cursor: (buyPhase === "sending" || buyPhase === "saving" || !!inputError() || solValue <= 0 || remaining <= 0) ? "not-allowed" : "pointer",
-                  opacity: (buyPhase === "sending" || buyPhase === "saving" || !!inputError() || solValue <= 0) ? 0.75 : 1,
-                  boxShadow: remaining > 0 ? "0 0 25px rgba(37,99,235,0.35)" : "none",
-                }}>
-                {buyPhase === "sending" ? <><Loader2 className="w-4 h-4 animate-spin" /> SENDING TRANSACTION...</>
-                  : buyPhase === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> CONFIRMING...</>
-                  : remaining <= 0 ? "WALLET LIMIT REACHED"
-                  : <>⚔️ BUY $BATTLE NOW</>}
-              </button>
-
-              <p className="text-center text-xs font-orbitron tracking-widest mt-3" style={{ color: "#374151" }}>
-                Tokens delivered after pump.fun launch · {shortAddress}
-              </p>
-
-              <div className="flex items-start gap-2.5 mt-4 px-4 py-3 rounded-xl"
-                style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.2)" }}>
-                <span className="text-base flex-shrink-0 mt-px">⚠️</span>
-                <p className="text-xs leading-relaxed" style={{ color: "#d1a84b", fontFamily: "Inter, sans-serif" }}>
-                  If Phantom shows a security warning, click{" "}
-                  <span style={{ color: "#fbbf24", fontWeight: 700 }}>Proceed anyway (unsafe)</span>
-                  {" "}— this warning appears for all new dApps and will be resolved soon.{" "}
-                  <span style={{ color: "#fbbf24", fontWeight: 600 }}>VeloxFi is safe to use.</span>
-                </p>
-              </div>
-            </div>
-          )}
+        {/* Buy button */}
+        <div className="text-center mb-12">
+          <a href={PUMP_URL} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 font-bungee text-lg px-12 py-5 rounded-2xl"
+            style={{ background: "#FF9F43", border: "2.5px solid #1a1a1a", boxShadow: "5px 5px 0 #1a1a1a", color: "#1a1a1a", textDecoration: "none" }}>
+            <span>BUY ON PUMP.FUN</span>
+            <ExternalLink className="w-5 h-5" />
+          </a>
         </div>
 
-        {/* ── TOKEN INFO ── */}
-        <div className="rounded-2xl p-6 mb-5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <h2 className="font-orbitron font-bold text-sm tracking-widest text-white mb-5 flex items-center gap-2">
-            <span>💰</span> TOKEN INFO
-          </h2>
-          <div className="space-y-3">
-            {[
-              { label: "Token",          value: "$BATTLE",                        highlight: true  },
-              { label: "Total Supply",   value: TOTAL_SUPPLY.toLocaleString(),    highlight: false },
-              { label: "Presale Price",  value: `1 SOL = ${fmt(TOKENS_PER_SOL)} $BATTLE`, highlight: false },
-              { label: "Min Purchase",   value: `${MIN_SOL} SOL`,                 highlight: false },
-              { label: "Max Per Wallet", value: `${MAX_SOL} SOL`,                 highlight: false },
-              { label: "Presale Goal",   value: `${SOL_GOAL} SOL`,                highlight: false },
-              { label: "Network",        value: "Solana",                         highlight: false },
-            ].map(({ label, value, highlight }) => (
-              <div key={label} className="flex items-center justify-between py-2.5"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <span className="text-gray-500 text-xs font-orbitron tracking-wider">{label}</span>
-                <span className="text-sm font-bold" style={{ fontFamily: "Inter, sans-serif", color: highlight ? "#a78bfa" : "#e2e8f0" }}>
-                  {value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── ALLOCATION ── */}
-        <div className="rounded-2xl p-6 mb-5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <h2 className="font-orbitron font-bold text-sm tracking-widest text-white mb-5 flex items-center gap-2">
-            <span>📊</span> TOKEN ALLOCATION
-          </h2>
-          <div className="space-y-3">
-            {[
-              { label: "Public market",             pct: 60, color: "#2563eb" },
-              { label: "Platform reserves",         pct: 20, color: "#7c3aed" },
-              { label: "Community & marketing",     pct: 10, color: "#0ea5e9" },
-              { label: "Developer (locked 1 year)", pct: 10, color: "#6366f1" },
-            ].map(({ label, pct, color }) => (
-              <div key={label}>
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span className="font-orbitron text-gray-500 tracking-widest">{label}</span>
-                  <span style={{ color, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>{pct}%</span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── WHY GET IN EARLY ── */}
-        <div className="rounded-2xl p-6 mb-5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <h2 className="font-orbitron font-bold text-sm tracking-widest text-white mb-5 flex items-center gap-2">
-            <span>🔥</span> WHY GET IN EARLY
-          </h2>
-          <div className="space-y-3">
-            {[
-              { icon: <TrendingUp className="w-4 h-4" style={{ color: "#34d399" }} />, title: "Lowest Entry Price",     desc: "Presale price is the cheapest you'll ever get $BATTLE" },
-              { icon: <Shield    className="w-4 h-4" style={{ color: "#60a5fa" }} />, title: "OG Warrior Badge",        desc: "First 100 buyers get an exclusive on-chain OG badge"    },
-              { icon: <Zap       className="w-4 h-4" style={{ color: "#a78bfa" }} />, title: "Battle Arena Priority",   desc: "Early holders get first access to create battles at launch" },
-            ].map(({ icon, title, desc }) => (
-              <div key={title} className="flex gap-4">
-                <div className="w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center mt-0.5"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                  {icon}
-                </div>
-                <div>
-                  <div className="text-white text-sm font-medium mb-0.5" style={{ fontFamily: "Inter, sans-serif" }}>{title}</div>
-                  <div className="text-gray-500 text-xs" style={{ fontFamily: "Inter, sans-serif" }}>{desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── SHARE ── */}
-        <div className="mb-5 space-y-3">
-          <button onClick={handleCopyLink}
-            className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: copied ? "#34d399" : "#9ca3af", cursor: "pointer" }}>
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            <span className="font-orbitron tracking-widest text-xs">{copied ? "🎉 LINK COPIED!" : "🔗 SHARE PRESALE LINK"}</span>
-          </button>
-        </div>
-
-        {/* ── SOCIALS ── */}
-        <div className="rounded-xl p-4 mb-5 flex items-center justify-center gap-6 flex-wrap"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-          <span className="text-gray-600 text-xs font-orbitron tracking-widest">FOLLOW FOR UPDATES</span>
+        {/* Token info cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-14">
           {[
-            { label: "Discord",      href: "https://discord.gg/u2UhxuTd",     color: "#a78bfa" },
-            { label: "Telegram",     href: "https://t.me/VeloxFiOfficial",    color: "#34d399" },
-          ].map(({ label, href, color }) => (
-            <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-              className="text-xs font-orbitron tracking-widest transition-opacity hover:opacity-80" style={{ color }}>
-              {label}
-            </a>
+            { icon: <Zap className="w-6 h-6 text-[#1a1a1a]" />, label: "Total Supply", value: "1,000,000,000", color: "#4CC9F0" },
+            { icon: <Shield className="w-6 h-6 text-[#1a1a1a]" />, label: "Blockchain", value: "Solana", color: "#6BCB77" },
+            { icon: <TrendingUp className="w-6 h-6 text-[#1a1a1a]" />, label: "Listed on", value: "pump.fun", color: "#FF6B9D" },
+          ].map((card) => (
+            <div key={card.label} className="cartoon-card p-6 text-center transition-all duration-200 hover:-translate-y-1"
+              style={{ boxShadow: "4px 4px 0 #1a1a1a" }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+                style={{ background: card.color, border: "2px solid #1a1a1a" }}>
+                {card.icon}
+              </div>
+              <div className="font-bungee text-lg text-[#1a1a1a]">{card.value}</div>
+              <div className="font-fredoka text-sm text-gray-500 mt-1">{card.label}</div>
+            </div>
           ))}
         </div>
 
-        {/* ── DISCLAIMER ── */}
-        <div className="rounded-xl p-4 flex gap-3"
-          style={{ background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
-          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#fbbf24" }} />
-          <p className="text-xs leading-relaxed" style={{ color: "#9ca3af", fontFamily: "Inter, sans-serif" }}>
-            <span style={{ color: "#fbbf24", fontWeight: 600 }}>Not financial advice.</span>{" "}
-            Cryptocurrency investments involve significant risk. Participate at your own risk.
-            VeloxFi and its contributors are not responsible for any financial losses.
-            Always do your own research before investing.
-          </p>
+        {/* How to buy */}
+        <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-6 text-center">HOW TO BUY</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
+          {HOW_TO_BUY.map(({ step, title, desc, color, icon }) => (
+            <div key={step} className="cartoon-card p-6 transition-all duration-200 hover:-translate-y-1"
+              style={{ boxShadow: "4px 4px 0 #1a1a1a" }}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                  style={{ background: color, border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}>
+                  {icon}
+                </div>
+                <div>
+                  <div className="font-bungee text-xs text-gray-400">STEP {step}</div>
+                  <div className="font-bungee text-sm text-[#1a1a1a]">{title}</div>
+                </div>
+              </div>
+              <p className="font-fredoka text-sm text-gray-600 leading-relaxed">{desc}</p>
+            </div>
+          ))}
         </div>
+
+        {/* Also earn WOLF */}
+        <div className="cartoon-card-yellow p-8 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
+          <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">EARN MORE $BATTLE</h3>
+          <p className="font-fredoka text-[#333] text-lg mb-6 max-w-md mx-auto">
+            Play games and mine WOLF tokens for free. Convert <strong>5000 WOLF = 1 $BATTLE</strong> whenever you're ready.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/games" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
+              PLAY GAMES
+            </a>
+            <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
+              START MINING
+            </a>
+          </div>
+        </div>
+
       </div>
     </MemeShell>
   );
