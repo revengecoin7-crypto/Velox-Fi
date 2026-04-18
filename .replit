@@ -1,18 +1,4 @@
-modules = ["nodejs-24", "postgresql-16"]
-
-[[artifacts]]
-id = "artifacts/api-server"
-
-[[artifacts]]
-id = "artifacts/mockup-sandbox"
-
-[deployment]
-router = "application"
-deploymentTarget = "autoscale"
-
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
+modules = ["nodejs-24"]
 
 [workflows]
 runButton = "VeloxFi"
@@ -25,6 +11,11 @@ author = "agent"
 task = "shell.exec"
 args = "cd artifacts/veloxfi && npm install && npm run dev -- --host 0.0.0.0 --port 5173"
 waitForPort = 5173
+
+[deployment]
+deploymentTarget = "cloudrun"
+build = ["sh", "-c", "cd artifacts/veloxfi && npm install && npm run build"]
+run = ["sh", "-c", "cd artifacts/veloxfi && npm run serve"]
 
 [agent]
 stack = "PNPM_WORKSPACE"
