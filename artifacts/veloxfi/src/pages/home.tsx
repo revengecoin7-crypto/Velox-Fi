@@ -1,46 +1,46 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Clock, Menu, X, Zap, Trophy, Shield, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, Gamepad2, Pickaxe, ArrowRightLeft, Trophy } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
-const BATTLES = [
+const HOW_IT_WORKS = [
   {
-    id: 1,
-    coinA: { name: "PEPE",   ticker: "PEPE",   change: +18.4, icon: "🐸" },
-    coinB: { name: "DOGE",   ticker: "DOGE",   change: -6.2,  icon: "🐕" },
-    volume: "$1.24M",
-    endsIn: 3 * 60 + 42,
+    step: "01", icon: "🎮",
+    title: "Play games",
+    desc: "Jump into Crypto Snake, Battle Tetris, Wolf Run or Rocket Miner. Every game session earns you WOLF tokens — the more you play, the more you earn.",
+    color: "#4CC9F0",
+  },
+  {
+    step: "02", icon: "⛏️",
+    title: "Mine WOLF",
+    desc: "Start a mining session once every 8 hours and collect free WOLF tokens. The longer you wait, the bigger your reward. No wallet needed.",
+    color: "#6BCB77",
+  },
+  {
+    step: "03", icon: "💱",
+    title: "Convert to $BATTLE",
+    desc: "Saved up 5000 WOLF? Convert them to $BATTLE tokens — the real Solana coin. Enter your wallet address and we'll send them straight to you.",
     color: "#FFD93D",
   },
   {
-    id: 2,
-    coinA: { name: "BONK",   ticker: "BONK",   change: +31.7, icon: "🔨" },
-    coinB: { name: "WIF",    ticker: "WIF",    change: -14.5, icon: "🎩" },
-    volume: "$876K",
-    endsIn: 8 * 60 + 15,
+    step: "04", icon: "🏆",
+    title: "Dominate the arena",
+    desc: "Climb the leaderboard, flex your balance, and become the top wolf in the VeloxFi arena. Season rewards go to the biggest earners.",
     color: "#FF6B9D",
-  },
-  {
-    id: 3,
-    coinA: { name: "BOME",   ticker: "BOME",   change: -3.1,  icon: "💣" },
-    coinB: { name: "POPCAT", ticker: "POPCAT", change: +22.9, icon: "😺" },
-    volume: "$2.1M",
-    endsIn: 14 * 60 + 58,
-    color: "#4CC9F0",
   },
 ];
 
-const HOW_IT_WORKS = [
-  { step: "01", title: "Get your wallet",    desc: "Buy $BATTLE tokens and connect Phantom to the VeloxFi arena.", color: "#FFD93D",  icon: "👛" },
-  { step: "02", title: "Create your coin",   desc: "Launch your memecoin directly on VeloxFi — no external tools needed.", color: "#FF6B9D", icon: "🪙" },
-  { step: "03", title: "Challenge a rival",  desc: "Challenge another coin to a battle — pick 1h to 7 days duration.", color: "#6BCB77", icon: "⚔️" },
-  { step: "04", title: "Win the spoils",     desc: "Highest % price surge wins. Victor earns 30% of the loser's tokens.", color: "#4CC9F0", icon: "🏆" },
+const GAMES = [
+  { name: "Crypto Snake",   path: "/games/snake",   emoji: "🐍", color: "#6BCB77", desc: "Eat coins, grow bigger, earn WOLF" },
+  { name: "Battle Tetris",  path: "/games/tetris",  emoji: "🟦", color: "#4CC9F0", desc: "Clear lines, earn WOLF per level"  },
+  { name: "Wolf Run",       path: "/games/runner",  emoji: "🐺", color: "#FFD93D", desc: "Run, jump, collect WOLF coins"      },
+  { name: "Rocket Miner",   path: "/games/rocket",  emoji: "🚀", color: "#FF9F43", desc: "Shoot asteroids, earn WOLF"        },
 ];
 
 const TICKER_ITEMS = [
   "🎮 $BATTLE NOW LIVE ON PUMP.FUN",
-  "⚔️ JOIN THE BATTLEFIELD",
+  "⚔️ JOIN THE GAME ARENA",
   "🎯 MINE WOLF TOKENS EVERY 8 HOURS",
   "🐍 CRYPTO SNAKE — EARN WOLF",
   "🚀 ROCKET MINER — BLAST ASTEROIDS",
@@ -53,7 +53,6 @@ const NAV_LINKS = [
   { label: "Games",       path: "/games",       color: "#4CC9F0" },
   { label: "Mine",        path: "/mine",        color: "#6BCB77" },
   { label: "Convert",     path: "/convert",     color: "#FF9F43" },
-  { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
   { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
@@ -83,157 +82,21 @@ function Confetti() {
     <div className="fixed inset-0 pointer-events-none z-[999]" aria-hidden="true">
       {CONFETTI_PIECES.map((p) => (
         <div key={p.id} style={{
-          position: "absolute",
-          left: p.x, top: "-20px",
-          width: p.size, height: p.size,
-          background: p.color,
-          borderRadius: p.shape,
-          border: "1.5px solid rgba(26,26,26,0.4)",
+          position: "absolute", left: p.x, top: "-20px",
+          width: p.size, height: p.size, background: p.color,
+          borderRadius: p.shape, border: "1.5px solid rgba(26,26,26,0.4)",
           animation: `confettiFall ${p.dur} ease-in forwards`,
-          animationDelay: p.delay,
-          opacity: 0.95,
+          animationDelay: p.delay, opacity: 0.95,
         }} />
       ))}
     </div>
   );
 }
 
-function CountdownTimer({ seconds }: { seconds: number }) {
-  const [remaining, setRemaining] = useState(seconds);
-  useEffect(() => {
-    const id = setInterval(() => setRemaining((p) => (p > 0 ? p - 1 : 0)), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const m = Math.floor(remaining / 60).toString().padStart(2, "0");
-  const s = (remaining % 60).toString().padStart(2, "0");
-  return (
-    <div className="flex items-center gap-1.5 font-mono-data text-sm font-semibold" style={{ color: "#1a1a1a" }}>
-      <Clock className="w-3.5 h-3.5" />
-      <span>{m}:{s}</span>
-    </div>
-  );
-}
-
-function BattleCard({ battle }: { battle: typeof BATTLES[0] }) {
-  const [pctA, setPctA] = useState(55);
-  useEffect(() => {
-    const spread = battle.coinA.change - battle.coinB.change;
-    setPctA(50 + Math.min(Math.max(spread * 1.2, -40), 40));
-  }, [battle]);
-  const pctB = 100 - pctA;
-  const aWins = battle.coinA.change > battle.coinB.change;
-
-  return (
-    <div
-      data-testid={`battle-card-${battle.id}`}
-      className="cartoon-card p-5 relative transition-all duration-200 hover:-translate-y-1"
-      style={{ boxShadow: "6px 6px 0px #1a1a1a" }}
-    >
-      {/* Live badge */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="font-bungee text-xs px-3 py-1 rounded-full text-[#1a1a1a]"
-          style={{ background: battle.color, border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}>
-          LIVE
-        </span>
-        <CountdownTimer seconds={battle.endsIn} />
-      </div>
-
-      {/* Coins */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className={`flex-1 text-center rounded-xl p-3 transition-colors ${aWins ? "ring-2 ring-[#1a1a1a]" : ""}`}
-          style={{ background: aWins ? battle.color + "33" : "#f5f5f5" }}>
-          <div className="text-4xl mb-1">{battle.coinA.icon}</div>
-          <div className="font-bungee text-sm text-[#1a1a1a]">{battle.coinA.ticker}</div>
-          <div className="font-mono-data text-xs font-semibold mt-0.5"
-            style={{ color: battle.coinA.change >= 0 ? "#16a34a" : "#dc2626" }}>
-            {battle.coinA.change >= 0 ? "+" : ""}{battle.coinA.change}%
-          </div>
-          {aWins && <div className="font-bungee text-xs mt-1" style={{ color: "#1a1a1a" }}>WINNING!</div>}
-        </div>
-
-        <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bungee text-white text-sm"
-          style={{ background: "#FF6B6B", border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}>
-          VS
-        </div>
-
-        <div className={`flex-1 text-center rounded-xl p-3 transition-colors ${!aWins ? "ring-2 ring-[#1a1a1a]" : ""}`}
-          style={{ background: !aWins ? battle.color + "33" : "#f5f5f5" }}>
-          <div className="text-4xl mb-1">{battle.coinB.icon}</div>
-          <div className="font-bungee text-sm text-[#1a1a1a]">{battle.coinB.ticker}</div>
-          <div className="font-mono-data text-xs font-semibold mt-0.5"
-            style={{ color: battle.coinB.change >= 0 ? "#16a34a" : "#dc2626" }}>
-            {battle.coinB.change >= 0 ? "+" : ""}{battle.coinB.change}%
-          </div>
-          {!aWins && <div className="font-bungee text-xs mt-1" style={{ color: "#1a1a1a" }}>WINNING!</div>}
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="h-3 rounded-full overflow-hidden mb-3" style={{ background: "#e5e5e5", border: "1.5px solid #1a1a1a" }}>
-        <div className="h-full flex">
-          <div className="transition-all duration-1000 rounded-l-full"
-            style={{ width: `${pctA}%`, background: "#6BCB77" }} />
-          <div className="transition-all duration-1000 rounded-r-full"
-            style={{ width: `${pctB}%`, background: "#FF6B9D" }} />
-        </div>
-      </div>
-
-      <div className="flex justify-between text-xs mb-4">
-        <span className="font-mono-data font-semibold" style={{ color: "#16a34a" }}>{pctA.toFixed(0)}%</span>
-        <span className="font-fredoka text-gray-500">VOL {battle.volume}</span>
-        <span className="font-mono-data font-semibold" style={{ color: "#FF6B9D" }}>{pctB.toFixed(0)}%</span>
-      </div>
-
-      <button
-        data-testid={`btn-battle-vote-${battle.id}`}
-        className="cartoon-btn cartoon-btn-dark w-full py-3 text-sm"
-        style={{ borderRadius: "12px" }}>
-        JOIN BATTLE
-      </button>
-    </div>
-  );
-}
-
-function CoinFightScene() {
-  const [frame, setFrame] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setFrame((f) => (f + 1) % 4), 600);
-    return () => clearInterval(id);
-  }, []);
-  const flashes = ["💥", "⚡", "💢", "✨"];
-
-  return (
-    <div className="relative flex items-center justify-center gap-4 md:gap-12 py-8">
-      <div className="flex flex-col items-center gap-3" style={{ animation: "coinBobA 1.2s ease-in-out infinite" }}>
-        <div className="text-7xl md:text-9xl">🐸</div>
-        <div className="font-bungee text-[#1a1a1a] text-base">PEPE</div>
-        <div className="font-mono-data text-sm font-bold" style={{ color: "#16a34a" }}>+24.7%</div>
-      </div>
-
-      <div className="flex flex-col items-center gap-2">
-        <div className="text-4xl md:text-6xl" style={{ animation: "battleFlash 0.6s steps(1) infinite" }}>
-          {flashes[frame]}
-        </div>
-        <div className="font-bungee text-white text-xl md:text-2xl px-5 py-2.5 rounded-2xl"
-          style={{ background: "#FF6B6B", border: "2.5px solid #1a1a1a", boxShadow: "4px 4px 0 #1a1a1a" }}>
-          VS
-        </div>
-        <div className="font-bungee text-xs" style={{ color: "#FF9F43", animation: "wiggle 1s ease-in-out infinite" }}>BATTLE LIVE!</div>
-      </div>
-
-      <div className="flex flex-col items-center gap-3" style={{ animation: "coinBobB 1.2s ease-in-out infinite" }}>
-        <div className="text-7xl md:text-9xl">🐕</div>
-        <div className="font-bungee text-[#1a1a1a] text-base">DOGE</div>
-        <div className="font-mono-data text-sm font-bold" style={{ color: "#dc2626" }}>-8.3%</div>
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
   usePageMeta({
-    title: "VeloxFi — Memecoin Battle Platform on Solana",
-    description: "The first memecoin battle arena on Solana. Create your coin, challenge rivals, and win. Highest % price surge wins. $BATTLE token presale live now.",
+    title: "VeloxFi — Play Games, Earn WOLF, Win $BATTLE on Solana",
+    description: "The VeloxFi game arena on Solana. Play Crypto Snake, Battle Tetris, Wolf Run and Rocket Miner. Mine WOLF tokens and convert to $BATTLE.",
     canonical: "https://veloxfi.io",
   });
 
@@ -256,22 +119,6 @@ export default function Home() {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes coinBobA {
-          0%, 100% { transform: translateY(0px) rotate(-4deg); }
-          50%       { transform: translateY(-18px) rotate(4deg); }
-        }
-        @keyframes coinBobB {
-          0%, 100% { transform: translateY(-10px) rotate(4deg); }
-          50%       { transform: translateY(10px) rotate(-4deg); }
-        }
-        @keyframes battleFlash {
-          0%, 100% { transform: scale(1) rotate(0deg); }
-          50%       { transform: scale(1.3) rotate(8deg); }
-        }
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-4deg); }
-          50%       { transform: rotate(4deg); }
-        }
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50%       { transform: translateY(-14px); }
@@ -287,6 +134,10 @@ export default function Home() {
         @keyframes badgePulse {
           0%, 100% { box-shadow: 3px 3px 0 #1a1a1a; transform: translate(0,0); }
           50%       { box-shadow: 5px 5px 0 #1a1a1a; transform: translate(-2px,-2px); }
+        }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-4deg); }
+          50%       { transform: rotate(4deg); }
         }
         .rainbow-text-anim {
           background: linear-gradient(90deg, #FF6B6B, #FF9F43, #FFD93D, #6BCB77, #4CC9F0, #A29BFE, #FF6B9D, #FF6B6B);
@@ -312,13 +163,13 @@ export default function Home() {
       </div>
 
       {/* ── NAV ── */}
-      <nav data-testid="nav"
-        className="sticky top-0 z-40"
+      <nav data-testid="nav" className="sticky top-0 z-40"
         style={{ backgroundColor: "#FFFBF0", borderBottom: "2.5px solid #1a1a1a", boxShadow: "0 4px 0 #1a1a1a" }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <a href="/" data-testid="nav-logo" className="flex items-center gap-2.5">
-            <img src="/favicon.jpg" alt="VeloxFi" className="w-9 h-9 rounded-xl object-cover"
-              style={{ border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }} />
+            <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-9 h-9 rounded-xl object-cover"
+              style={{ border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
             <span className="font-bungee text-xl text-[#1a1a1a] tracking-wide">VELOXFI</span>
           </a>
 
@@ -326,20 +177,14 @@ export default function Home() {
             {NAV_LINKS.map(({ label, path, color }) => {
               const isActive = location === path;
               return (
-                <button key={path}
-                  data-testid={`nav-link-${path.replace("/", "")}`}
-                  onClick={() => navGo(path)}
+                <button key={path} onClick={() => navGo(path)}
                   className="text-sm font-fredoka font-semibold transition-all duration-100"
                   style={{
-                    background: isActive ? color : "transparent",
-                    color: "#1a1a1a",
+                    background: isActive ? color : "transparent", color: "#1a1a1a",
                     border: isActive ? "2px solid #1a1a1a" : "2px solid transparent",
                     boxShadow: isActive ? "2px 2px 0 #1a1a1a" : "none",
-                    borderRadius: "10px",
-                    padding: "4px 12px",
-                    cursor: "pointer",
-                    fontWeight: isActive ? 700 : 500,
-                    opacity: isActive ? 1 : 0.65,
+                    borderRadius: "10px", padding: "4px 12px", cursor: "pointer",
+                    fontWeight: isActive ? 700 : 500, opacity: isActive ? 1 : 0.65,
                   }}>
                   {label}
                 </button>
@@ -368,8 +213,7 @@ export default function Home() {
                 Login / Register
               </button>
             )}
-            <button data-testid="btn-mobile-menu"
-              onClick={() => setMobileOpen((o) => !o)}
+            <button onClick={() => setMobileOpen((o) => !o)}
               className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}
               aria-label="Toggle menu">
@@ -381,20 +225,13 @@ export default function Home() {
         {mobileOpen && (
           <div className="md:hidden" style={{ borderTop: "2.5px solid #1a1a1a", background: "#FFFBF0" }}>
             <div className="flex flex-col py-3 px-4 gap-1">
-              {NAV_LINKS.map(({ label, path, color }) => {
-                const isActive = location === path;
-                return (
-                  <button key={path} onClick={() => navGo(path)}
-                    className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
-                    style={{
-                      background: isActive ? color : "transparent",
-                      border: isActive ? "2px solid #1a1a1a" : "2px solid transparent",
-                      cursor: "pointer", color: "#1a1a1a", fontWeight: isActive ? 700 : 500,
-                    }}>
-                    {label}
-                  </button>
-                );
-              })}
+              {NAV_LINKS.map(({ label, path, color }) => (
+                <button key={path} onClick={() => navGo(path)}
+                  className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
+                  style={{ background: "transparent", border: "2px solid transparent", cursor: "pointer", color: "#1a1a1a" }}>
+                  {label}
+                </button>
+              ))}
               <div style={{ borderTop: "1.5px solid #e5e5e5", marginTop: "4px", paddingTop: "8px" }}>
                 {user ? (
                   <>
@@ -442,15 +279,12 @@ export default function Home() {
       </div>
 
       {/* ── HERO ── */}
-      <section ref={heroRef} data-testid="hero-section"
-        className="relative z-10 overflow-hidden"
+      <section ref={heroRef} data-testid="hero-section" className="relative z-10 overflow-hidden"
         style={{ minHeight: "calc(100dvh - 110px)" }}>
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 pt-12 pb-16 md:pt-16 md:pb-20">
 
-          {/* LEFT: Text */}
+          {/* LEFT */}
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-2xl">
-
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 font-bungee text-xs text-[#1a1a1a]"
               style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", animation: "badgePulse 1.8s ease-in-out infinite", boxShadow: "3px 3px 0 #1a1a1a" }}>
               <span className="relative flex h-2.5 w-2.5">
@@ -460,47 +294,39 @@ export default function Home() {
               NOW LIVE ON PUMP.FUN!
             </div>
 
-            {/* Title */}
             <h1 className="font-bungee leading-none mb-4" data-testid="hero-title"
               style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}>
-              <span className="block text-[#1a1a1a]">LET YOUR</span>
-              <span className="block rainbow-text-anim">MEMECOIN</span>
-              <span className="block text-[#1a1a1a]">GO TO WAR</span>
+              <span className="block text-[#1a1a1a]">PLAY GAMES.</span>
+              <span className="block rainbow-text-anim">EARN WOLF.</span>
+              <span className="block text-[#1a1a1a]">WIN $BATTLE.</span>
             </h1>
 
             <p className="font-fredoka text-lg md:text-xl max-w-lg mb-8 leading-relaxed" style={{ color: "#555" }}>
-              The first on-chain memecoin battle arena on Solana. Pit your coin against rivals, back the winner, and claim the spoils.{" "}
-              <span className="font-semibold" style={{ color: "#FF6B9D" }}>Highest % price surge wins.</span>
+              The VeloxFi game arena on Solana. Play 4 arcade games, mine WOLF tokens every 8 hours, and convert{" "}
+              <span className="font-semibold" style={{ color: "#FF6B9D" }}>5000 WOLF = 1 $BATTLE.</span>
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <a
-                data-testid="btn-hero-start-battle"
-                href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
-                target="_blank" rel="noopener noreferrer"
+              <button onClick={() => navGo("/games")}
                 className="cartoon-btn cartoon-btn-yellow px-10 py-4 text-base"
-                style={{ borderRadius: "16px", textDecoration: "none" }}>
-                BUY $BATTLE NOW
-              </a>
-              <button
-                data-testid="btn-hero-view-battles"
-                onClick={() => navigate("/demo")}
-                className="cartoon-btn cartoon-btn-white px-10 py-4 text-base"
                 style={{ borderRadius: "16px" }}>
-                VIEW BATTLES
+                PLAY NOW 🎮
               </button>
+              <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+                target="_blank" rel="noopener noreferrer"
+                className="cartoon-btn cartoon-btn-white px-10 py-4 text-base"
+                style={{ borderRadius: "16px", textDecoration: "none" }}>
+                BUY $BATTLE
+              </a>
             </div>
 
-            {/* Mini stats */}
             <div className="flex gap-4 flex-wrap">
               {[
-                { label: "CHAIN",  value: "Solana" },
+                { label: "CHAIN",  value: "Solana"   },
                 { label: "DEX",    value: "pump.fun" },
-                { label: "SUPPLY", value: "1,000,000,000" },
+                { label: "EARN",   value: "Mine WOLF" },
               ].map((s) => (
-                <div key={s.label} className="cartoon-card text-center px-4 py-3"
-                  style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
+                <div key={s.label} className="cartoon-card text-center px-4 py-3" style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
                   <div className="font-mono-data font-semibold text-sm" style={{ color: "#FF6B9D" }}>{s.value}</div>
                   <div className="font-bungee text-xs mt-0.5" style={{ color: "#1a1a1a", fontSize: "0.6rem" }}>{s.label}</div>
                 </div>
@@ -509,21 +335,16 @@ export default function Home() {
           </div>
 
           {/* RIGHT: Wolf mascot */}
-          <div className="flex-shrink-0 flex items-center justify-center w-full md:w-auto"
-            style={{ maxWidth: "560px" }}>
+          <div className="flex-shrink-0 flex items-center justify-center w-full md:w-auto" style={{ maxWidth: "520px" }}>
             <div style={{ animation: "float 4s ease-in-out infinite", position: "relative" }}>
               <img
-                src="/favicon.jpg"
+                src="/wolf-cyber.jpg"
                 alt="VeloxFi Wolf Warrior"
                 className="w-full rounded-3xl object-cover"
-                style={{
-                  maxHeight: "600px",
-                  border: "3px solid #1a1a1a",
-                  boxShadow: "10px 10px 0px #1a1a1a",
-                }}
+                style={{ maxHeight: "580px", border: "3px solid #1a1a1a", boxShadow: "10px 10px 0px #1a1a1a" }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }}
               />
-              {/* floating emoji decorations */}
-              <div style={{ position: "absolute", top: "-20px", right: "-20px", fontSize: "2.5rem", animation: "wiggle 1.5s ease-in-out infinite" }}>⚔️</div>
+              <div style={{ position: "absolute", top: "-20px", right: "-20px", fontSize: "2.5rem", animation: "wiggle 1.5s ease-in-out infinite" }}>⚡</div>
               <div style={{ position: "absolute", bottom: "-20px", left: "-20px", fontSize: "2rem", animation: "wiggle 2s ease-in-out infinite reverse" }}>🏆</div>
             </div>
           </div>
@@ -531,17 +352,16 @@ export default function Home() {
       </section>
 
       {/* ── STATS BAR ── */}
-      <section data-testid="stats-section" className="py-8 px-6 relative z-10"
+      <section className="py-8 px-6 relative z-10"
         style={{ borderTop: "2.5px solid #1a1a1a", borderBottom: "2.5px solid #1a1a1a", background: "#1a1a1a" }}>
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-5">
           {[
-            { value: "0",  label: "Battles Fought", color: "#FFD93D" },
-            { value: "$0", label: "Total Volume",   color: "#FF6B9D" },
-            { value: "0",  label: "Coins Created",  color: "#4CC9F0" },
+            { value: "4",    label: "Games Available", color: "#4CC9F0" },
+            { value: "8h",   label: "Mine Interval",   color: "#6BCB77" },
+            { value: "5K",   label: "WOLF per $BATTLE", color: "#FFD93D" },
           ].map((s) => (
-            <div key={s.label} data-testid={`stat-card-${s.label.replace(/\s+/g, "-").toLowerCase()}`}
-              className="text-center px-4 py-5 rounded-2xl"
-              style={{ background: s.color, border: "2.5px solid #FFD93D", boxShadow: "4px 4px 0 #FFD93D22" }}>
+            <div key={s.label} className="text-center px-4 py-5 rounded-2xl"
+              style={{ background: s.color, border: "2.5px solid rgba(255,255,255,0.2)", boxShadow: "4px 4px 0 rgba(255,255,255,0.1)" }}>
               <div className="font-bungee text-2xl md:text-3xl text-[#1a1a1a]">{s.value}</div>
               <div className="font-fredoka text-sm font-semibold mt-1 text-[#1a1a1a]">{s.label}</div>
             </div>
@@ -549,53 +369,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── BATTLE ARENA DEMO ── */}
+      {/* ── GAMES SHOWCASE ── */}
       <section className="max-w-5xl mx-auto px-6 py-16 relative z-10">
-        <div className="text-center mb-6">
+        <div className="text-center mb-10">
           <h2 className="font-bungee text-3xl md:text-4xl text-[#1a1a1a] mb-2">
-            THE{" "}
-            <span style={{ color: "#FF6B9D" }}>BATTLE ARENA</span>
+            THE <span style={{ color: "#4CC9F0" }}>GAME ARENA</span>
           </h2>
-          <p className="font-fredoka text-gray-500 text-lg">Watch coins fight it out in real-time!</p>
+          <p className="font-fredoka text-gray-500 text-lg">4 games, all earning WOLF — pick your weapon</p>
         </div>
 
-        <div className="cartoon-card p-6 md:p-10"
-          style={{ boxShadow: "8px 8px 0 #1a1a1a" }}>
-          <CoinFightScene />
-        </div>
-      </section>
-
-      {/* ── LIVE BATTLES ── */}
-      <section data-testid="live-battles-section" className="max-w-5xl mx-auto px-6 pb-16 relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a]">
-              LIVE <span style={{ color: "#6BCB77" }}>BATTLES</span>
-            </h2>
-            <p className="font-fredoka text-gray-500 mt-1">Real-time memecoin combat</p>
-          </div>
-          <div className="font-bungee text-xs px-3 py-1.5 rounded-full text-[#1a1a1a] flex items-center gap-2"
-            style={{ background: "#6BCB77", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}>
-            <span className="w-2 h-2 rounded-full bg-[#1a1a1a] animate-pulse" />
-            3 LIVE
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {BATTLES.map((battle) => (
-            <BattleCard key={battle.id} battle={battle} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {GAMES.map((game) => (
+            <button key={game.path} onClick={() => navGo(game.path)}
+              className="cartoon-card p-6 text-left transition-all duration-200 hover:-translate-y-2 cursor-pointer w-full"
+              style={{ boxShadow: "6px 6px 0 #1a1a1a", background: "white" }}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+                  style={{ background: game.color, border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
+                  {game.emoji}
+                </div>
+                <div>
+                  <div className="font-bungee text-lg text-[#1a1a1a]">{game.name}</div>
+                  <div className="font-fredoka text-sm text-gray-500 mt-0.5">{game.desc}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 font-bungee text-sm"
+                style={{ color: game.color }}>
+                <Gamepad2 className="w-4 h-4" style={{ color: "#1a1a1a" }} />
+                <span style={{ color: "#1a1a1a" }}>PLAY & EARN WOLF →</span>
+              </div>
+            </button>
           ))}
         </div>
 
-        <div className="text-center mt-10">
-          <button
-            data-testid="btn-view-all-battles"
-            onClick={() => navigate("/demo")}
-            className="cartoon-btn cartoon-btn-purple px-10 py-4 text-sm"
+        <div className="text-center mt-8">
+          <button onClick={() => navGo("/games")}
+            className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm"
             style={{ borderRadius: "14px" }}>
-            VIEW ALL BATTLES
+            VIEW ALL GAMES
           </button>
-          <p className="font-fredoka text-gray-400 text-sm mt-4">Demo battles — real battles launching soon</p>
         </div>
       </section>
 
@@ -605,21 +417,13 @@ export default function Home() {
           <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a] mb-2">
             HOW IT <span style={{ color: "#4CC9F0" }}>WORKS</span>
           </h2>
-          <p className="font-fredoka text-gray-500 text-lg">Four steps from zero to glory</p>
+          <p className="font-fredoka text-gray-500 text-lg">From zero to $BATTLE in four steps</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {HOW_IT_WORKS.map((step) => (
-            <div
-              key={step.step}
-              data-testid={`step-card-${step.step}`}
-              className="p-6 relative transition-all duration-200 hover:-translate-y-1"
-              style={{
-                background: step.color,
-                border: "2.5px solid #1a1a1a",
-                boxShadow: "6px 6px 0 #1a1a1a",
-                borderRadius: "16px",
-              }}>
+            <div key={step.step} className="p-6 relative transition-all duration-200 hover:-translate-y-1"
+              style={{ background: step.color, border: "2.5px solid #1a1a1a", boxShadow: "6px 6px 0 #1a1a1a", borderRadius: "16px" }}>
               <div className="text-4xl mb-3">{step.icon}</div>
               <div className="font-bungee text-xs text-[#1a1a1a] mb-1 opacity-60">STEP {step.step}</div>
               <h3 className="font-bungee text-lg text-[#1a1a1a] mb-2">{step.title}</h3>
@@ -629,18 +433,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── LEADERBOARD PREVIEW ── */}
+      {/* ── TOP WARRIORS ── */}
       <section data-testid="leaderboard-section" className="max-w-5xl mx-auto px-6 pb-16 relative z-10">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a]">
               TOP <span style={{ color: "#FFD93D" }}>WARRIORS</span>
             </h2>
-            <p className="font-fredoka text-gray-500 mt-1">Season 1 — be the first to claim a spot!</p>
+            <p className="font-fredoka text-gray-500 mt-1">Players with the most WOLF tokens earned</p>
           </div>
-          <button
-            data-testid="btn-view-leaderboard"
-            onClick={() => navigate("/leaderboard")}
+          <button onClick={() => navigate("/leaderboard")}
             className="cartoon-btn cartoon-btn-yellow px-5 py-2.5 text-xs"
             style={{ borderRadius: "10px" }}>
             FULL LEADERBOARD
@@ -648,46 +450,44 @@ export default function Home() {
         </div>
 
         <div className="cartoon-card overflow-hidden" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 font-bungee text-xs text-gray-400"
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 font-bungee text-gray-400"
             style={{ background: "#f5f0e0", borderBottom: "2px solid #1a1a1a", fontSize: "0.6rem" }}>
             <div className="col-span-1">RANK</div>
             <div className="col-span-5">PLAYER</div>
-            <div className="col-span-2 text-right">BATTLES</div>
-            <div className="col-span-2 text-right">WIN RATE</div>
-            <div className="col-span-2 text-right">PNL</div>
+            <div className="col-span-3 text-right">WOLF EARNED</div>
+            <div className="col-span-3 text-right">$BATTLE WON</div>
           </div>
 
           {[
-            { rank: 1, medal: "🥇", bg: "#FFD93D" },
-            { rank: 2, medal: "🥈", bg: "#f5f5f5" },
-            { rank: 3, medal: "🥉", bg: "#f5f5f5" },
+            { rank: 1, medal: "🥇" },
+            { rank: 2, medal: "🥈" },
+            { rank: 3, medal: "🥉" },
           ].map((row) => (
-            <div key={row.rank} data-testid={`leaderboard-row-${row.rank}`}
-              className="grid grid-cols-12 gap-4 px-6 py-4 items-center"
+            <div key={row.rank} className="grid grid-cols-12 gap-4 px-6 py-4 items-center"
               style={{ background: row.rank === 1 ? "#FFD93D22" : "white", borderBottom: "1.5px solid #eee" }}>
               <div className="col-span-1 text-2xl">{row.medal}</div>
               <div className="col-span-5 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-bungee text-gray-400 text-xs"
-                  style={{ background: "#f5f0e0", border: "2px solid #ddd" }}>?</div>
+                  style={{ background: "#f5f0e0", border: "2px solid #ddd" }}>
+                  <img src="/wolf-cyber.jpg" alt="" className="w-full h-full rounded-full object-cover opacity-30"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                </div>
                 <div>
                   <div className="font-bungee text-sm text-gray-400">— UNCLAIMED —</div>
                   <div className="font-fredoka text-xs text-gray-400 mt-0.5">Rank #{row.rank} Open</div>
                 </div>
               </div>
-              <div className="col-span-2 text-right font-bungee text-sm text-gray-300">—</div>
-              <div className="col-span-2 text-right font-bungee text-sm text-gray-300">—</div>
-              <div className="col-span-2 text-right font-bungee text-sm text-gray-300">—</div>
+              <div className="col-span-3 text-right font-bungee text-sm text-gray-300">—</div>
+              <div className="col-span-3 text-right font-bungee text-sm text-gray-300">—</div>
             </div>
           ))}
 
           <div className="px-6 py-6 text-center" style={{ background: "#f5f0e0" }}>
-            <p className="font-fredoka text-gray-500 text-base mb-3">Season 1 just launched — your name could be here!</p>
-            <button
-              data-testid="btn-leaderboard-join"
-              onClick={() => navigate("/battles")}
+            <p className="font-fredoka text-gray-500 text-base mb-3">Season 1 just started — play games and claim the #1 spot!</p>
+            <button onClick={() => navigate("/games")}
               className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
               style={{ borderRadius: "12px" }}>
-              ENTER THE ARENA
+              START PLAYING
             </button>
           </div>
         </div>
@@ -705,11 +505,10 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Buy on pump.fun card */}
           <div className="cartoon-card-orange p-8 relative transition-all duration-200 hover:-translate-y-1"
             style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
             <div className="flex items-start justify-between mb-6">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
                 <Trophy className="w-6 h-6 text-[#1a1a1a]" />
               </div>
@@ -724,7 +523,7 @@ export default function Home() {
             <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
               target="_blank" rel="noopener noreferrer"
               className="mt-5 flex items-center justify-center gap-2 font-bungee text-sm px-6 py-3 rounded-xl"
-              style={{ background: "#1a1a1a", color: "white", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #555", textDecoration: "none" }}>
+              style={{ background: "#1a1a1a", color: "white", border: "2px solid #1a1a1a", textDecoration: "none" }}>
               BUY ON PUMP.FUN →
             </a>
           </div>
@@ -732,22 +531,22 @@ export default function Home() {
           <div className="flex flex-col gap-5">
             <div className="cartoon-card-sky p-7 relative transition-all duration-200 hover:-translate-y-1 flex-1"
               style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center text-2xl"
+              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
-                <Zap className="w-5 h-5 text-[#1a1a1a]" />
+                <Pickaxe className="w-5 h-5 text-[#1a1a1a]" />
               </div>
-              <div className="font-bungee text-2xl text-[#1a1a1a] tabular-nums">1,000,000,000</div>
-              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">Total Supply</div>
+              <div className="font-bungee text-2xl text-[#1a1a1a]">MINE WOLF</div>
+              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">Free tokens every 8 hours</div>
             </div>
 
             <div className="cartoon-card-lime p-7 relative transition-all duration-200 hover:-translate-y-1 flex-1"
               style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center text-2xl"
+              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
-                <Shield className="w-5 h-5 text-[#1a1a1a]" />
+                <ArrowRightLeft className="w-5 h-5 text-[#1a1a1a]" />
               </div>
-              <div className="font-bungee text-2xl text-[#1a1a1a]">SOLANA</div>
-              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">Built on SOL</div>
+              <div className="font-bungee text-2xl text-[#1a1a1a]">5K WOLF</div>
+              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">= 1 $BATTLE token</div>
             </div>
           </div>
         </div>
@@ -755,38 +554,42 @@ export default function Home() {
 
       {/* ── CTA BANNER ── */}
       <section data-testid="cta-section" className="max-w-5xl mx-auto px-6 pb-20 relative z-10">
-        <div className="cartoon-card-yellow p-12 text-center relative"
+        <div className="cartoon-card-yellow p-12 text-center relative overflow-hidden"
           style={{ boxShadow: "8px 8px 0 #1a1a1a" }}>
-          <h2 className="font-bungee text-3xl md:text-5xl text-[#1a1a1a] mb-4 leading-tight">
+
+          {/* Wolf image decoration */}
+          <div className="absolute right-0 top-0 bottom-0 w-48 hidden md:block overflow-hidden rounded-r-2xl opacity-20">
+            <img src="/wolf-cyber.jpg" alt="" className="w-full h-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
+          </div>
+
+          <h2 className="font-bungee text-3xl md:text-5xl text-[#1a1a1a] mb-4 leading-tight relative z-10">
             $BATTLE IS{" "}
             <span style={{ color: "#6BCB77" }}>LIVE!</span>
           </h2>
-          <p className="font-fredoka text-[#333] mb-8 max-w-lg mx-auto text-xl leading-relaxed">
-            Now trading on pump.fun. Buy $BATTLE, play games, mine WOLF, and dominate the arena.{" "}
+          <p className="font-fredoka text-[#333] mb-8 max-w-lg mx-auto text-xl leading-relaxed relative z-10">
+            Now trading on pump.fun. Play games, mine WOLF, and dominate the arena.{" "}
             <span className="font-semibold" style={{ color: "#FF6B9D" }}>5000 WOLF = 1 $BATTLE.</span>
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <a
-              data-testid="btn-cta-launch"
-              href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 relative z-10">
+            <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
               target="_blank" rel="noopener noreferrer"
               className="cartoon-btn cartoon-btn-dark px-12 py-5 text-lg"
               style={{ borderRadius: "16px", textDecoration: "none" }}>
               BUY ON PUMP.FUN
             </a>
-            <button
-              onClick={() => navigate("/games")}
+            <button onClick={() => navigate("/games")}
               className="cartoon-btn cartoon-btn-white px-10 py-5 text-base"
               style={{ borderRadius: "16px" }}>
               PLAY GAMES
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 relative z-10">
             {[
-              { label: "CHAIN",  value: "Solana" },
-              { label: "DEX",    value: "pump.fun" },
+              { label: "CHAIN",  value: "Solana"    },
+              { label: "DEX",    value: "pump.fun"  },
               { label: "EARN",   value: "Mine WOLF" },
               { label: "RATE",   value: "5000 WOLF = 1 $BATTLE" },
             ].map((s) => (
@@ -802,24 +605,25 @@ export default function Home() {
       {/* ── FOOTER ── */}
       <footer data-testid="footer" style={{ background: "#1a1a1a", borderTop: "2.5px solid #1a1a1a" }}>
         <div className="max-w-5xl mx-auto px-6 py-10">
-
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-2.5">
-              <img src="/favicon.jpg" alt="VeloxFi" className="w-8 h-8 rounded-xl object-cover"
-                style={{ border: "2px solid #FFD93D" }} />
+              <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-8 h-8 rounded-xl object-cover"
+                style={{ border: "2px solid #FFD93D" }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
               <span className="font-bungee text-lg tracking-wide" style={{ color: "#FFD93D" }}>VELOXFI</span>
-              <span className="font-fredoka text-sm ml-1" style={{ color: "#555" }}>Battle Arena</span>
+              <span className="font-fredoka text-sm ml-1" style={{ color: "#555" }}>Game Arena</span>
             </div>
 
             <div className="flex items-center flex-wrap justify-center gap-6 font-fredoka font-semibold text-sm">
               {[
-                { label: "Roadmap",    path: "/roadmap",    testId: "footer-link-roadmap" },
-                { label: "FAQ",        path: "/faq",        testId: "footer-link-faq" },
-                { label: "Terms",      path: "/terms",      testId: "footer-link-terms" },
-                { label: "Privacy",    path: "/privacy",    testId: "footer-link-privacy" },
-                { label: "Whitepaper", path: "/whitepaper", testId: "footer-link-whitepaper" },
-              ].map(({ label, path, testId }) => (
-                <button key={path} data-testid={testId} onClick={() => navigate(path)}
+                { label: "Games",      path: "/games"      },
+                { label: "Roadmap",    path: "/roadmap"    },
+                { label: "FAQ",        path: "/faq"        },
+                { label: "Terms",      path: "/terms"      },
+                { label: "Privacy",    path: "/privacy"    },
+                { label: "Whitepaper", path: "/whitepaper" },
+              ].map(({ label, path }) => (
+                <button key={path} onClick={() => navigate(path)}
                   className="hover:text-white transition-colors"
                   style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "#666" }}>
                   {label}
@@ -852,15 +656,6 @@ export default function Home() {
                     width: "38px", height: "38px", borderRadius: "10px",
                     background: bg, border: "2px solid #444", boxShadow: "2px 2px 0 #444",
                     textDecoration: "none", color: "#1a1a1a",
-                    transition: "transform 0.08s ease, box-shadow 0.08s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.transform = "translate(-1px,-1px)"; el.style.boxShadow = "3px 3px 0 #444";
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.transform = "translate(0,0)"; el.style.boxShadow = "2px 2px 0 #444";
                   }}>
                   {icon}
                 </a>
@@ -870,7 +665,7 @@ export default function Home() {
 
           <div className="border-t pt-6 text-center" style={{ borderColor: "#333" }}>
             <p className="text-sm font-fredoka" style={{ color: "#555" }}>
-              © 2026 VeloxFi · Built on Solana · Not financial advice
+              © 2026 VeloxFi · Game Arena on Solana · Not financial advice
             </p>
           </div>
         </div>

@@ -83,8 +83,9 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
         }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <a href="/" data-testid="nav-logo" className="flex items-center gap-2.5">
-            <img src="/favicon.jpg" alt="VeloxFi" className="w-9 h-9 rounded-xl object-cover"
-              style={{ border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }} />
+            <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-9 h-9 rounded-xl object-cover"
+              style={{ border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
             <span className="font-bungee text-xl text-[#1a1a1a] tracking-wide">VELOXFI</span>
           </a>
 
@@ -199,10 +200,11 @@ export default function MemeShell({ children, testId }: { children: ReactNode; t
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-2.5">
-              <img src="/favicon.jpg" alt="VeloxFi" className="w-8 h-8 rounded-xl object-cover"
-                style={{ border: "2px solid #FFD93D" }} />
+              <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-8 h-8 rounded-xl object-cover"
+                style={{ border: "2px solid #FFD93D" }}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
               <span className="font-bungee text-lg tracking-wide" style={{ color: "#FFD93D" }}>VELOXFI</span>
-              <span className="font-fredoka text-sm ml-1" style={{ color: "#555" }}>Battle Arena</span>
+              <span className="font-fredoka text-sm ml-1" style={{ color: "#555" }}>Game Arena</span>
             </div>
 
             <div className="flex items-center flex-wrap justify-center gap-6 font-fredoka font-semibold text-sm">
