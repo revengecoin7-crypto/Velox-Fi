@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Clock, Menu, X, Zap, Trophy, Shield } from "lucide-react";
-import ConnectWalletButton from "@/components/ConnectWalletButton";
+import { Clock, Menu, X, Zap, Trophy, Shield, User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const BATTLES = [
@@ -41,21 +41,21 @@ const HOW_IT_WORKS = [
 const TICKER_ITEMS = [
   "🎮 $BATTLE PRESALE LIVE",
   "⚔️ JOIN THE BATTLEFIELD",
-  "💰 1 SOL = 100,000 $BATTLE",
-  "🎯 PRESALE GOAL: 500 SOL",
-  "🚀 BUILT ON SOLANA",
-  "💎 MIN BUY: 0.1 SOL",
-  "🏆 OG BADGE FOR EARLY WARRIORS",
+  "🎯 MINE WOLF TOKENS EVERY 8 HOURS",
+  "🐍 CRYPTO SNAKE — EARN WOLF",
+  "🚀 ROCKET MINER — BLAST ASTEROIDS",
+  "🏆 5000 WOLF = 1 $BATTLE",
   "🔥 LIMITED SPOTS REMAINING",
+  "💎 BUILT ON SOLANA",
 ];
 
 const NAV_LINKS = [
-  { label: "Battles",     path: "/battles",     color: "#6BCB77" },
+  { label: "Games",       path: "/games",       color: "#4CC9F0" },
+  { label: "Mine",        path: "/mine",        color: "#6BCB77" },
+  { label: "Convert",     path: "/convert",     color: "#FF9F43" },
+  { label: "Battles",     path: "/battles",     color: "#FF6B9D" },
   { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
-  { label: "Create Coin", path: "/create",      color: "#FF6B9D" },
-  { label: "Demo",        path: "/demo",        color: "#A29BFE" },
-  { label: "Game",        path: "/game",        color: "#4CC9F0" },
-  { label: "Presale",     path: "/presale",     color: "#FF9F43" },
+  { label: "Presale",     path: "/presale",     color: "#A29BFE" },
   { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
   { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
   { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },
@@ -237,6 +237,7 @@ export default function Home() {
     canonical: "https://veloxfi.io",
   });
 
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [, navigate] = useLocation();
   const heroRef = useRef<HTMLDivElement>(null);
@@ -347,7 +348,26 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3">
-            <ConnectWalletButton />
+            {user ? (
+              <>
+                <button onClick={() => navGo("/profile")}
+                  className="flex items-center gap-1.5 text-sm font-fredoka font-semibold px-4 py-2 rounded-xl"
+                  style={{ background: "#6BCB77", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
+                  <User className="w-4 h-4" />{user.username}
+                </button>
+                <button onClick={logout}
+                  className="flex items-center gap-1 text-sm font-fredoka font-semibold px-3 py-2 rounded-xl"
+                  style={{ background: "#FF6B6B", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "white" }}>
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <button onClick={() => navGo("/login")}
+                className="text-sm font-fredoka font-semibold px-4 py-2 rounded-xl"
+                style={{ background: "#FFD93D", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
+                Login / Register
+              </button>
+            )}
             <button data-testid="btn-mobile-menu"
               onClick={() => setMobileOpen((o) => !o)}
               className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center"
@@ -375,6 +395,28 @@ export default function Home() {
                   </button>
                 );
               })}
+              <div style={{ borderTop: "1.5px solid #e5e5e5", marginTop: "4px", paddingTop: "8px" }}>
+                {user ? (
+                  <>
+                    <button onClick={() => navGo("/profile")}
+                      className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
+                      style={{ background: "#6BCB77", border: "2px solid #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
+                      Profile ({user.username})
+                    </button>
+                    <button onClick={() => { logout(); setMobileOpen(false); }}
+                      className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl mt-1"
+                      style={{ background: "#FF6B6B", border: "2px solid #1a1a1a", cursor: "pointer", color: "white" }}>
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => navGo("/login")}
+                    className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
+                    style={{ background: "#FFD93D", border: "2px solid #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
+                    Login / Register
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
