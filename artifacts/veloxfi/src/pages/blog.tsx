@@ -28,7 +28,7 @@ export const BLOG_POSTS = [
   {
     slug: "how-to-buy-battle-token-pump-fun",
     title: "How to Buy $BATTLE Token on pump.fun — Step-by-Step 2026",
-    description: "Learn how to buy $BATTLE token on pump.fun. Step-by-step guide: set up Phantom wallet, buy SOL, and purchase $BATTLE (CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump) on Solana.",
+    description: "Learn how to buy $BATTLE token on pump.fun. Step-by-step guide: set up Phantom wallet, buy SOL, and purchase $BATTLE (CA: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump) on Solana.",
     date: "2026-04-05",
     readTime: "4 min",
     emoji: "💰",

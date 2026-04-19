@@ -36,12 +36,12 @@ const FAQS = [
   },
   {
     q: "What is $BATTLE token?",
-    a: "$BATTLE is a real Solana token launched on pump.fun. Contract address: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump. Total supply: 1 billion. You can buy it directly on pump.fun or earn it through WOLF.",
+    a: "$BATTLE is a real Solana token launched on pump.fun. Contract address: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump. Total supply: 1 billion. You can buy it directly on pump.fun or earn it through WOLF.",
     color: "#FF9F43", emoji: "⚔️",
   },
   {
     q: "How do I buy $BATTLE directly?",
-    a: "Go to pump.fun and search for the contract address: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump. You need a Phantom wallet with SOL to buy it. Or use the Buy $BATTLE link in our navigation.",
+    a: "Go to pump.fun and search for the contract address: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump. You need a Phantom wallet with SOL to buy it. Or use the Buy $BATTLE link in our navigation.",
     color: "#A29BFE", emoji: "🛒",
   },
   {

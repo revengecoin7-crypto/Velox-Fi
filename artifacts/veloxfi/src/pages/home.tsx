@@ -46,7 +46,7 @@ const TICKER_ITEMS = [
   "🚀 ROCKET MINER — BLAST ASTEROIDS",
   "🏆 5000 WOLF = 1 $BATTLE",
   "💎 BUILT ON SOLANA",
-  "🔥 CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump",
+  "🔥 CA: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump",
 ];
 
 const NAV_LINKS = [
@@ -313,7 +313,7 @@ export default function Home() {
                 style={{ borderRadius: "16px" }}>
                 PLAY NOW 🎮
               </button>
-              <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+              <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
                 target="_blank" rel="noopener noreferrer"
                 className="cartoon-btn cartoon-btn-white px-10 py-4 text-base"
                 style={{ borderRadius: "16px", textDecoration: "none" }}>
@@ -520,8 +520,8 @@ export default function Home() {
             </div>
             <div className="font-bungee text-3xl text-[#1a1a1a] mb-1">BUY $BATTLE</div>
             <p className="font-mono-data text-sm mt-2 text-[#333]">Live on pump.fun — trade on Solana</p>
-            <p className="font-mono-data text-xs mt-3 text-[#555] break-all">CA: 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</p>
-            <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+            <p className="font-mono-data text-xs mt-3 text-[#555] break-all">CA: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</p>
+            <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
               target="_blank" rel="noopener noreferrer"
               className="mt-5 flex items-center justify-center gap-2 font-bungee text-sm px-6 py-3 rounded-xl"
               style={{ background: "#1a1a1a", color: "white", border: "2px solid #1a1a1a", textDecoration: "none" }}>
@@ -574,7 +574,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 relative z-10">
-            <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump"
+            <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
               target="_blank" rel="noopener noreferrer"
               className="cartoon-btn cartoon-btn-dark px-12 py-5 text-lg"
               style={{ borderRadius: "16px", textDecoration: "none" }}>

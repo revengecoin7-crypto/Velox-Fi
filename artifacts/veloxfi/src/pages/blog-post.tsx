@@ -95,7 +95,7 @@ const CONTENT: Record<string, () => JSX.Element> = {
     <div className="prose-velox">
       <h2>What is $BATTLE Token?</h2>
       <p>$BATTLE is the native token of the VeloxFi game arena, built on the Solana blockchain. It launched on pump.fun and is freely tradeable. Total supply: 1,000,000,000 tokens.</p>
-      <p><strong>Contract Address (CA):</strong> <code>3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</code></p>
+      <p><strong>Contract Address (CA):</strong> <code>HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</code></p>
 
       <h2>Step 1 — Get a Phantom Wallet</h2>
       <p>To buy $BATTLE on Solana you need a Solana-compatible wallet. <strong>Phantom</strong> is the most popular choice:</p>
@@ -117,7 +117,7 @@ const CONTENT: Record<string, () => JSX.Element> = {
 
       <h2>Step 3 — Buy on pump.fun</h2>
       <ol>
-        <li>Go to <a href="https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump" target="_blank" rel="noopener noreferrer">pump.fun</a></li>
+        <li>Go to <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump" target="_blank" rel="noopener noreferrer">pump.fun</a></li>
         <li>Connect your Phantom wallet (click "Connect Wallet" in the top right)</li>
         <li>Enter the amount of SOL you want to spend</li>
         <li>Click "Buy" and confirm in Phantom</li>
@@ -171,7 +171,7 @@ const CONTENT: Record<string, () => JSX.Element> = {
       </ul>
 
       <h2>Start Playing on VeloxFi Today</h2>
-      <p>VeloxFi is live now. Register for free, earn WOLF by playing 4 arcade games, mine passively every 8 hours, and convert to $BATTLE. The contract address is <code>3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump</code> and $BATTLE trades on pump.fun.</p>
+      <p>VeloxFi is live now. Register for free, earn WOLF by playing 4 arcade games, mine passively every 8 hours, and convert to $BATTLE. The contract address is <code>HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</code> and $BATTLE trades on pump.fun.</p>
     </div>
   ),
 

@@ -3,8 +3,8 @@ import { Copy, Check, ExternalLink, Zap, Shield, TrendingUp } from "lucide-react
 import MemeShell from "@/components/MemeShell";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
-const CA = "3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump";
-const PUMP_URL = "https://pump.fun/coin/3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump";
+const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
+const PUMP_URL = "https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
 
 const HOW_TO_BUY = [
   { step: "01", title: "Get a Solana wallet", desc: "Download Phantom or Solflare and create a new wallet. Keep your seed phrase safe!", color: "#FFD93D", icon: "👛" },
@@ -16,7 +16,7 @@ const HOW_TO_BUY = [
 export default function Presale() {
   usePageMeta({
     title: "Buy $BATTLE — Live on pump.fun | VeloxFi",
-    description: "$BATTLE is now live on pump.fun. Buy on Solana with contract address 3EtQQDUrNyVzNyfrPap8RHTstJiM7J5a4fNbJqsjpump",
+    description: "$BATTLE is now live on pump.fun. Buy on Solana with contract address HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump",
     canonical: "https://veloxfi.io/buy",
   });
 
