@@ -35,6 +35,10 @@ VITE_HELIUS_RPC_URL = "https://mainnet.helius-rpc.com/?api-key=f85d3d41-9efd-40e
 RESEND_API_KEY = "re_WKFsCLPb_6fVDmLZ9uuaE5wu1TfLog2Up"
 
 [[ports]]
+localPort = 5173
+externalPort = 5173
+
+[[ports]]
 localPort = 8080
 externalPort = 8080
 
