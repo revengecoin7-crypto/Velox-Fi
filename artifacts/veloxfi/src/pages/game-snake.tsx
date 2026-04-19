@@ -70,7 +70,7 @@ export default function GameSnake() {
   const [phase,    setPhase]    = useState<"start"|"playing"|"done">("start");
   const [score,    setScore]    = useState(0);
   const [lives,    setLives]    = useState(3);
-  const [time,     setTime]     = useState(SESSION_SECS);
+  const [time,     setTime]     = useState(0);
   const [level,    setLevel]    = useState(1);
   const [combo,    setCombo]    = useState(0);
   const [shield,   setShield]   = useState(false);
