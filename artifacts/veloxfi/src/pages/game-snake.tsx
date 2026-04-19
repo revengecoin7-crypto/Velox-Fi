@@ -5,9 +5,9 @@ import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
 // ─── constants ───────────────────────────────────────────────
-const COLS = 22, ROWS = 20, CELL = 22;
-const W = COLS * CELL, H = ROWS * CELL;        // 484 × 440
-const SESSION_SECS = 120;
+const COLS = 26, ROWS = 22, CELL = 28;
+const W = COLS * CELL, H = ROWS * CELL;        // 728 × 616
+const CLAIM_THRESHOLD = 15;
 const BASE_SPEED = 155;
 const MIN_SPEED   = 65;
 const SPEED_STEP  = 12;   // ms faster per level
@@ -41,14 +41,14 @@ function rnd(excl: Pt[]): Pt {
 }
 
 function initState() {
-  const snake: Pt[] = [{ x: 11, y: 10 }, { x: 10, y: 10 }, { x: 9, y: 10 }];
+  const snake: Pt[] = [{ x: 13, y: 11 }, { x: 12, y: 11 }, { x: 11, y: 11 }];
   return {
     snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 },
     food: rnd(snake), food2: null as Pt | null,
     foodPulse: 0,
     pu: null as PowerUp | null, puSpawn: 500,
     score: 0, level: 1, lives: 3,
-    timeLeft: SESSION_SECS, lastSec: 0,
+    timeLeft: 0, lastSec: 0,
     lastTick: 0, tickSpeed: BASE_SPEED,
     running: false, raf: 0,
     combo: 0, comboTimer: 0,
@@ -92,7 +92,7 @@ export default function GameSnake() {
     const g = gs.current;
     Object.assign(g, initState());
     g.running = true;
-    setScore(0); setLives(3); setTime(SESSION_SECS); setLevel(1);
+    setScore(0); setLives(3); setTime(0); setLevel(1);
     setCombo(0); setShield(false); setStar(false); setUrgent(false);
     setClaimed(false); setPendingWolf(0); setNewRecord(false);
 
@@ -314,7 +314,7 @@ export default function GameSnake() {
 
     // ── tick / game logic ─────────────────────────────────
     function resetSnake() {
-      g.snake = [{ x: 11, y: 10 }, { x: 10, y: 10 }, { x: 9, y: 10 }];
+      g.snake = [{ x: 13, y: 11 }, { x: 12, y: 11 }, { x: 11, y: 11 }];
       g.dir = { x: 1, y: 0 }; g.nextDir = { x: 1, y: 0 };
       g.invincible = 80;
       g.deathFlash = 22;
@@ -346,8 +346,7 @@ export default function GameSnake() {
       // ── 1s timer ──
       if (!g.lastSec) g.lastSec = now;
       if (now - g.lastSec >= 1000) {
-        g.timeLeft--; g.lastSec = now; setTime(g.timeLeft);
-        if (g.timeLeft <= 0) { end(); return; }
+        g.timeLeft++; g.lastSec = now; setTime(g.timeLeft);
       }
 
       // ── per-frame timers ──
@@ -521,9 +520,10 @@ export default function GameSnake() {
                 ["🛡️","Shield — blocks one death"],
                 ["💎","Diamond — instant +5 WOLF"],
                 ["🌀","Shrink — makes snake shorter"],
-                ["⏳","Slow — buys extra time on the clock"],
+                ["⏳","Slow — temporarily reduces speed"],
                 ["⭐","Star mode — triple WOLF, pass through self!"],
-                ["❤️","3 lives · ⏱️ 2 minute session"],
+                ["❤️","3 lives · No time limit — play as long as you can!"],
+                ["🎯",`Score at least ${CLAIM_THRESHOLD} WOLF to claim your earnings`],
               ].map(([ic, tx]) => (
                 <div key={tx} className="flex gap-3 items-start">
                   <span style={{ minWidth: 28, fontSize: 15 }}>{ic}</span>
@@ -554,7 +554,7 @@ export default function GameSnake() {
                 { label: "WOLF",  value: score,               color: "#6BCB77" },
                 { label: "LEVEL", value: level,               color: "#FF9F43" },
                 { label: "LIVES", value: "❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives)), color: "#FF6B6B" },
-                { label: "TIME",  value: fmt(time),           color: "#4CC9F0" },
+                { label: "PLAYED",  value: fmt(time),           color: "#4CC9F0" },
               ].map(({ label, value, color }) => (
                 <div key={label} style={{ background: "#0d0d1a", border: `2px solid ${color}`, borderRadius: 10, padding: "5px 6px", textAlign: "center" }}>
                   <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 10, color: "#666", margin: 0 }}>{label}</p>
@@ -585,6 +585,19 @@ export default function GameSnake() {
                   <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>⚠️ EAT SOMETHING!</span>
                 </div>
               )}
+            </div>
+
+            {/* Claim progress bar */}
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: score >= CLAIM_THRESHOLD ? "#6BCB77" : "#aaa" }}>
+                  {score >= CLAIM_THRESHOLD ? "✅ Claim unlocked!" : `🎯 ${score}/${CLAIM_THRESHOLD} WOLF to unlock claim`}
+                </span>
+                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#6BCB77" }}>{score} WOLF</span>
+              </div>
+              <div style={{ background: "#0d0d1a", border: "2px solid #1a1a1a", borderRadius: 8, height: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (score / CLAIM_THRESHOLD) * 100)}%`, background: score >= CLAIM_THRESHOLD ? "#6BCB77" : "#FFD93D", borderRadius: 6, transition: "width 0.3s" }} />
+              </div>
             </div>
 
             <canvas ref={canvasRef} width={W} height={H}
@@ -626,7 +639,7 @@ export default function GameSnake() {
               <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa", margin: "4px 0 12px" }}>Best: {highScore} WOLF</p>
             )}
 
-            {!claimed && user && (
+            {!claimed && user && pendingWolf >= CLAIM_THRESHOLD && (
               <>
                 <p className="font-fredoka text-sm mb-4 mt-3" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
                 <button ref={claimRef} onClick={handleClaim}
@@ -634,6 +647,12 @@ export default function GameSnake() {
                   CLAIM {pendingWolf} WOLF ⬆️
                 </button>
               </>
+            )}
+            {!claimed && user && pendingWolf < CLAIM_THRESHOLD && (
+              <div style={{ background: "#FF6B6B20", border: "2px solid #FF6B6B", borderRadius: 12, padding: "12px 16px", margin: "12px 0", textAlign: "center" }}>
+                <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#FF6B6B", margin: 0 }}>❌ SCORE TOO LOW TO CLAIM</p>
+                <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666", margin: "4px 0 0" }}>Need at least {CLAIM_THRESHOLD} WOLF · You scored {pendingWolf}</p>
+              </div>
             )}
             {claimed && <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>}
             {!user && <p className="font-fredoka text-sm mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save earnings</p>}
