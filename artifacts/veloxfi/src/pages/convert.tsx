@@ -34,7 +34,7 @@ export default function Convert() {
   async function handleConvert() {
     if (!walletInput.trim()) { setStatus("error"); setMsg("Enter your Solana wallet address first."); return; }
     if (!canConvert) { setStatus("error"); setMsg(wolf > user.wolf ? "Insufficient WOLF balance." : "Enter a valid WOLF amount."); return; }
-    setWallet(walletInput.trim());
+    await setWallet(walletInput.trim());
     const result = await requestConversion(wolf);
     if (result?.ok) {
       setStatus("success");
@@ -128,26 +128,6 @@ export default function Convert() {
               : "ENTER WOLF AMOUNT"}
           </button>
         </div>
-
-        {/* History */}
-        {user.conversions.length > 0 && (
-          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 24, boxShadow: "5px 5px 0 #1a1a1a" }}>
-            <h3 className="font-bungee text-lg mb-4">CONVERSION HISTORY</h3>
-            <div className="flex flex-col gap-3">
-              {user.conversions.map(c => (
-                <div key={c.id} style={{ background: "#FFFBF0", border: "2px solid #1a1a1a", borderRadius: 10, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                  <div>
-                    <p className="font-fredoka font-bold text-sm">{c.wolf.toLocaleString()} WOLF → {Number(c.battle).toFixed(4)} $BATTLE</p>
-                    <p className="font-fredoka text-xs" style={{ color: "#888" }}>{new Date(c.date).toLocaleDateString()}</p>
-                  </div>
-                  <span style={{ background: c.status === "pending" ? "#FFD93D" : "#6BCB77", border: "2px solid #1a1a1a", borderRadius: 8, padding: "4px 12px", fontFamily: "Fredoka,sans-serif", fontWeight: 700, fontSize: 12 }}>
-                    {c.status.toUpperCase()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <p className="font-fredoka text-xs text-center mt-6" style={{ color: "#aaa" }}>
           $BATTLE tokens are claimable via Solana wallet. Processing: 24 hrs weekdays, Monday for weekend requests.

@@ -28,12 +28,12 @@ export default function Mine() {
     return `${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
   }
 
-  function handleClaim() {
+  async function handleClaim() {
     if (claimBtnRef.current) {
       const rect = claimBtnRef.current.getBoundingClientRect();
       setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     }
-    const earned = claimMiningReward();
+    const earned = await claimMiningReward();
     setFlyCount(Math.min(Math.ceil(earned / 20), 12));
     setFlyShow(true);
   }
@@ -54,7 +54,7 @@ export default function Mine() {
     );
   }
 
-  const canClaim = !progress.active && user.lastMineSession !== null && progress.wolfEarned > 0;
+  const canClaim = !progress.active && user.wolfMiningStart !== null && progress.wolfEarned > 0;
 
   return (
     <MemeShell testId="page-mine">
@@ -88,7 +88,7 @@ export default function Mine() {
 
         {/* Mining card */}
         <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "28px", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 24 }}>
-          {!progress.active && user.lastMineSession === null && (
+          {!progress.active && user.wolfMiningStart === null && (
             <div className="text-center">
               <div style={{ fontSize: 80, marginBottom: 16 }}>⛏️</div>
               <h2 className="font-bungee text-2xl mb-3">START MINING</h2>
@@ -97,7 +97,7 @@ export default function Mine() {
                 No wallet needed — just click and earn!
               </p>
               <button
-                onClick={() => startMiningSession()}
+                onClick={() => { void startMiningSession(); }}
                 style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 48px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a" }}
               >
                 START MINING

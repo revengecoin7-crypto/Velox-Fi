@@ -1,219 +1,298 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
-export interface GameSession {
-  id: string;
-  game: string;
-  wolf: number;
-  date: string;
+// ── API helpers ───────────────────────────────────────────────────────────────
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+
+function apiUrl(path: string) {
+  return `${API_BASE}/api${path}`;
 }
 
+async function apiFetch<T = unknown>(
+  path: string,
+  options: RequestInit = {},
+  token?: string | null,
+): Promise<{ ok: boolean; data: T; status: number }> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  try {
+    const r = await fetch(apiUrl(path), {
+      ...options,
+      headers: { ...headers, ...(options.headers as Record<string, string> ?? {}) },
+    });
+    let data: T;
+    try { data = await r.json(); } catch { data = null as unknown as T; }
+    return { ok: r.ok, data, status: r.status };
+  } catch {
+    return { ok: false, data: null as unknown as T, status: 0 };
+  }
+}
+
+// ── Session storage ───────────────────────────────────────────────────────────
+const SESSION_KEY = "vfx_session_v3";
+const DAILY_KEY   = "vfx_daily_v3";
+
+interface StoredSession { token: string; username: string; }
+function loadSession(): StoredSession | null {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch { return null; }
+}
+function saveSession(s: StoredSession) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+interface DailyData { lastDailyReward: string | null; dailyStreak: number; }
+function loadDaily(): DailyData {
+  try { return { lastDailyReward: null, dailyStreak: 0, ...JSON.parse(localStorage.getItem(DAILY_KEY) || "{}") }; }
+  catch { return { lastDailyReward: null, dailyStreak: 0 }; }
+}
+function saveDaily(d: DailyData) { localStorage.setItem(DAILY_KEY, JSON.stringify(d)); }
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
+const MINING_DURATION_MS  = 4 * 60 * 60 * 1000;
+const MAX_WOLF_PER_SESSION = 240;
+
+export function getDailyRewardForStreak(streak: number): number {
+  return DAILY_REWARDS[Math.min(Math.max(0, streak - 1), DAILY_REWARDS.length - 1)];
+}
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 export interface User {
-  id: string;
   username: string;
   email: string;
   wolf: number;
   battle: number;
-  lastMineSession: number | null;
-  conversions: Array<{ id: string; wolf: number; battle: number; date: string; status: string }>;
   wallet: string | null;
-  gameHistory: GameSession[];
+  wolfMiningStart: number | null;
   lastDailyReward: string | null;
   dailyStreak: number;
-  totalMined: number;
-  totalGameWolf: number;
+  // legacy compat fields used by some pages
+  id?: string;
+  lastMineSession?: number | null;
+  conversions?: never[];
+  gameHistory?: never[];
+  totalMined?: number;
+  totalGameWolf?: number;
+}
+
+interface MiningProgress {
+  active: boolean;
+  wolfEarned: number;
+  minutesLeft: number;
+  percentDone: number;
+  secondsLeft: number;
 }
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
-  login: (usernameOrEmail: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (username: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (username: string, email: string, password: string, referredBy?: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
-  addWolf: (amount: number) => void;
-  startMiningSession: () => void;
-  claimMiningReward: () => number;
-  getMiningProgress: () => { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number; secondsLeft: number };
+  refreshUser: () => Promise<void>;
+  // Mining
+  startMiningSession: () => Promise<void>;
+  claimMiningReward: () => Promise<number>;
+  getMiningProgress: () => MiningProgress;
+  // Games
+  addGameSession: (game: string, wolfEarned: number) => Promise<void>;
+  earnWolfFromGame: (game: string, wolfEarned: number) => Promise<{ ok: boolean; error?: string }>;
+  // Convert
   requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string }>;
-  setWallet: (address: string) => void;
-  claimDailyReward: () => { ok: boolean; wolf?: number; streak?: number };
-  addGameSession: (game: string, wolf: number) => void;
+  // Wallet
+  setWallet: (address: string) => Promise<void>;
+  // Daily
   canClaimDaily: () => boolean;
   getDailyRewardAmount: (streak: number) => number;
+  claimDailyReward: () => { ok: boolean; wolf?: number; streak?: number };
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const USERS_KEY = "vfx_users_v2";
-const SESSION_KEY = "vfx_session_v2";
-
-type StoredUser = User & { password: string };
-
-function loadUsers(): Record<string, StoredUser> {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
-  catch { return {}; }
+// ── Build user object from API response ───────────────────────────────────────
+function buildUser(api: Record<string, unknown>, daily: DailyData): User {
+  const wolfMiningStart = api.wolfMiningStart
+    ? new Date(api.wolfMiningStart as string).getTime()
+    : null;
+  return {
+    username:        String(api.username ?? ""),
+    email:           String(api.email ?? ""),
+    wolf:            Number(api.wolf ?? 0),
+    battle:          Number(api.tokens ?? api.battle ?? 0),
+    wallet:          (api.walletAddress as string) ?? null,
+    wolfMiningStart,
+    lastMineSession: wolfMiningStart,
+    lastDailyReward: daily.lastDailyReward,
+    dailyStreak:     daily.dailyStreak,
+    id:              String(api.username ?? ""),
+    conversions:     [],
+    gameHistory:     [],
+    totalMined:      0,
+    totalGameWolf:   0,
+  };
 }
 
-function saveUsers(u: Record<string, StoredUser>) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(u));
-}
-
-const DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
-
-export function getDailyRewardForStreak(streak: number): number {
-  const idx = Math.min(streak - 1, DAILY_REWARDS.length - 1);
-  return DAILY_REWARDS[Math.max(0, idx)];
-}
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
+// ── Provider ──────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user,      setUser]      = useState<User | null>(null);
+  const [token,     setToken]     = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Restore session on mount
   useEffect(() => {
-    const id = localStorage.getItem(SESSION_KEY);
-    if (id) {
-      const users = loadUsers();
-      const u = users[id];
-      if (u) {
-        const { password: _p, ...rest } = u;
-        const migrated: User = {
-          gameHistory: [],
-          lastDailyReward: null,
-          dailyStreak: 0,
-          totalMined: 0,
-          totalGameWolf: 0,
-          ...rest,
-        };
-        setUser(migrated);
+    const session = loadSession();
+    if (!session) { setIsLoading(false); return; }
+
+    const daily = loadDaily();
+    apiFetch<Record<string, unknown>>("/veloxfi/me", {}, session.token).then(({ ok, data }) => {
+      if (ok && data?.username) {
+        setToken(session.token);
+        setUser(buildUser(data, daily));
+      } else {
+        clearSession();
       }
-    }
-    setIsLoading(false);
+    }).finally(() => setIsLoading(false));
   }, []);
 
-  function persist(updated: User) {
-    const users = loadUsers();
-    const existing = users[updated.id];
-    if (!existing) return;
-    users[updated.id] = { ...existing, ...updated };
-    saveUsers(users);
-    setUser(updated);
+  async function refreshUser() {
+    if (!token) return;
+    const daily = loadDaily();
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/me", {}, token);
+    if (ok && data?.username) setUser(buildUser(data, daily));
+    else { clearSession(); setToken(null); setUser(null); }
   }
 
-  async function login(usernameOrEmail: string, password: string) {
-    const users = loadUsers();
-    const found = Object.values(users).find(
-      u => (u.username === usernameOrEmail || u.email === usernameOrEmail) && u.password === password
-    );
-    if (!found) return { ok: false, error: "Invalid username or password" };
-    localStorage.setItem(SESSION_KEY, found.id);
-    const { password: _p, ...rest } = found;
-    const migrated: User = {
-      gameHistory: [],
-      lastDailyReward: null,
-      dailyStreak: 0,
-      totalMined: 0,
-      totalGameWolf: 0,
-      ...rest,
-    };
-    setUser(migrated);
+  async function login(username: string, password: string) {
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+    if (!ok) return { ok: false, error: (data as any)?.error || "Login failed" };
+
+    const tok = String(data.token);
+    saveSession({ token: tok, username: String(data.username) });
+    setToken(tok);
+
+    const daily = loadDaily();
+    // Fetch full profile (login response may lack wolfMiningStart etc.)
+    const me = await apiFetch<Record<string, unknown>>("/veloxfi/me", {}, tok);
+    setUser(buildUser(me.ok ? me.data : data, daily));
     return { ok: true };
   }
 
-  async function register(username: string, email: string, password: string) {
-    if (!username.trim() || !email.trim() || !password) return { ok: false, error: "All fields required" };
-    const users = loadUsers();
-    if (Object.values(users).some(u => u.username === username))
-      return { ok: false, error: "Username already taken" };
-    if (Object.values(users).some(u => u.email === email))
-      return { ok: false, error: "Email already registered" };
-    const id = crypto.randomUUID();
-    const newUser: StoredUser = {
-      id, username, email, password,
-      wolf: 100, battle: 0, lastMineSession: null, conversions: [], wallet: null,
-      gameHistory: [], lastDailyReward: null, dailyStreak: 0,
-      totalMined: 0, totalGameWolf: 0,
-    };
-    users[id] = newUser;
-    saveUsers(users);
-    localStorage.setItem(SESSION_KEY, id);
-    const { password: _p, ...rest } = newUser;
-    setUser(rest);
+  async function register(username: string, email: string, password: string, referredBy?: string) {
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/register", {
+      method: "POST",
+      body: JSON.stringify({ username, email, password, referredBy }),
+    });
+    if (!ok) return { ok: false, error: (data as any)?.error || "Registration failed" };
+
+    const tok = String(data.token);
+    saveSession({ token: tok, username: String(data.username) });
+    setToken(tok);
+    setUser(buildUser(data, loadDaily()));
     return { ok: true };
   }
 
   function logout() {
-    localStorage.removeItem(SESSION_KEY);
+    clearSession();
+    setToken(null);
     setUser(null);
   }
 
-  function addWolf(amount: number) {
-    if (!user) return;
-    persist({ ...user, wolf: user.wolf + amount });
-  }
+  // ── Mining ────────────────────────────────────────────────────────────────
+  function getMiningProgress(): MiningProgress {
+    const start = user?.wolfMiningStart ?? null;
+    if (!start) return { active: false, wolfEarned: 0, minutesLeft: 240, percentDone: 0, secondsLeft: 14400 };
 
-  function startMiningSession() {
-    if (!user) return;
-    persist({ ...user, lastMineSession: Date.now() });
-  }
-
-  function claimMiningReward(): number {
-    if (!user || !user.lastMineSession) return 0;
-    const elapsedMin = (Date.now() - user.lastMineSession) / 60000;
-    const earned = Math.min(Math.floor(elapsedMin), 240);
-    persist({
-      ...user,
-      wolf: user.wolf + earned,
-      lastMineSession: null,
-      totalMined: (user.totalMined || 0) + earned,
-    });
-    return earned;
-  }
-
-  function getMiningProgress(): { active: boolean; wolfEarned: number; minutesLeft: number; percentDone: number; secondsLeft: number } {
-    if (!user || !user.lastMineSession) {
-      return { active: false, wolfEarned: 0, minutesLeft: 240, percentDone: 0, secondsLeft: 14400 };
-    }
-    const elapsedMs = Date.now() - user.lastMineSession;
+    const elapsedMs  = Date.now() - start;
     const elapsedMin = elapsedMs / 60000;
-    const totalSecs = 240 * 60;
-    const elapsedSecs = Math.floor(elapsedMs / 1000);
+    const totalSecs  = 240 * 60;
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+
     if (elapsedMin >= 240) {
-      return { active: false, wolfEarned: 240, minutesLeft: 0, percentDone: 100, secondsLeft: 0 };
+      return { active: false, wolfEarned: MAX_WOLF_PER_SESSION, minutesLeft: 0, percentDone: 100, secondsLeft: 0 };
     }
-    const secondsLeft = totalSecs - elapsedSecs;
     return {
-      active: true,
-      wolfEarned: Math.floor(elapsedMin),
-      minutesLeft: 240 - Math.floor(elapsedMin),
-      percentDone: (elapsedMin / 240) * 100,
-      secondsLeft,
+      active:       true,
+      wolfEarned:   Math.floor(elapsedMin),
+      minutesLeft:  240 - Math.floor(elapsedMin),
+      percentDone:  (elapsedMin / 240) * 100,
+      secondsLeft:  totalSecs - elapsedSec,
     };
   }
 
+  async function startMiningSession() {
+    if (!token) return;
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/mining/start", { method: "POST" }, token);
+    if (ok && data.wolfMiningStart) {
+      setUser(u => u ? { ...u, wolfMiningStart: new Date(data.wolfMiningStart as string).getTime(), lastMineSession: new Date(data.wolfMiningStart as string).getTime() } : u);
+    }
+  }
+
+  async function claimMiningReward(): Promise<number> {
+    if (!token) return 0;
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/mining/claim", { method: "POST" }, token);
+    if (!ok) return 0;
+    const wolfEarned = Number(data.wolfEarned ?? 0);
+    setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf), wolfMiningStart: null, lastMineSession: null } : u);
+    return wolfEarned;
+  }
+
+  // ── Games ─────────────────────────────────────────────────────────────────
+  const GAME_API_MAP: Record<string, string> = {
+    snake:  "crypto-snake",
+    tetris: "battle-tetris",
+    rocket: "rocket-miner",
+    runner: "wolf-run",
+    trap:   "wolf-trap",
+  };
+
+  async function earnWolfFromGame(game: string, wolfEarned: number) {
+    if (!token) return { ok: false, error: "Not logged in" };
+    const endpoint = GAME_API_MAP[game] ?? game;
+    const { ok, data } = await apiFetch<Record<string, unknown>>(
+      `/veloxfi/game/${endpoint}/earn`,
+      { method: "POST", body: JSON.stringify({ wolfEarned }) },
+      token,
+    );
+    if (ok) {
+      setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf) } : u);
+    }
+    return ok ? { ok: true } : { ok: false, error: (data as any)?.error || "Error saving WOLF" };
+  }
+
+  // Alias kept for legacy callers
+  async function addGameSession(game: string, wolfEarned: number) {
+    await earnWolfFromGame(game, wolfEarned);
+  }
+
+  // ── Convert ───────────────────────────────────────────────────────────────
   async function requestConversion(wolfAmount: number) {
-    if (!user) return { ok: false, error: "Not logged in" };
-    if (wolfAmount <= 0) return { ok: false, error: "Enter a valid WOLF amount" };
-    if (user.wolf < wolfAmount) return { ok: false, error: "Insufficient WOLF balance" };
-    const battleAmount = wolfAmount / 5000;
-    const conv = {
-      id: crypto.randomUUID(),
-      wolf: wolfAmount,
-      battle: battleAmount,
-      date: new Date().toISOString(),
-      status: "pending",
-    };
-    persist({ ...user, wolf: user.wolf - wolfAmount, conversions: [conv, ...user.conversions] });
-    return { ok: true };
+    if (!token) return { ok: false, error: "Not logged in" };
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/convert-wolf", {
+      method: "POST",
+      body: JSON.stringify({ amount: wolfAmount }),
+    }, token);
+    if (ok) {
+      setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf), battle: Number(data.newBattleBalance ?? u.battle) } : u);
+    }
+    return ok ? { ok: true } : { ok: false, error: (data as any)?.error || "Conversion failed" };
   }
 
-  function setWallet(address: string) {
-    if (!user) return;
-    persist({ ...user, wallet: address });
+  // ── Wallet ────────────────────────────────────────────────────────────────
+  async function setWallet(address: string) {
+    if (!token) return;
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/profile/wallet", {
+      method: "PUT",
+      body: JSON.stringify({ walletAddress: address }),
+    }, token);
+    if (ok) {
+      setUser(u => u ? { ...u, wallet: String((data as any).walletAddress ?? address) } : u);
+    }
   }
 
+  // ── Daily reward (localStorage only) ─────────────────────────────────────
   function canClaimDaily(): boolean {
     if (!user) return false;
     return user.lastDailyReward !== todayStr();
@@ -226,42 +305,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function claimDailyReward(): { ok: boolean; wolf?: number; streak?: number } {
     if (!user) return { ok: false };
     if (user.lastDailyReward === todayStr()) return { ok: false };
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().slice(0, 10);
     const newStreak = user.lastDailyReward === yesterdayStr ? (user.dailyStreak || 0) + 1 : 1;
     const wolfReward = getDailyRewardForStreak(newStreak);
-    persist({
-      ...user,
-      wolf: user.wolf + wolfReward,
-      lastDailyReward: todayStr(),
-      dailyStreak: newStreak,
-    });
-    return { ok: true, wolf: wolfReward, streak: newStreak };
-  }
 
-  function addGameSession(game: string, wolf: number) {
-    if (!user) return;
-    const session: GameSession = {
-      id: crypto.randomUUID(),
-      game,
-      wolf,
-      date: new Date().toISOString(),
-    };
-    persist({
-      ...user,
-      wolf: user.wolf + wolf,
-      gameHistory: [session, ...(user.gameHistory || [])].slice(0, 50),
-      totalGameWolf: (user.totalGameWolf || 0) + wolf,
-    });
+    const daily: DailyData = { lastDailyReward: todayStr(), dailyStreak: newStreak };
+    saveDaily(daily);
+    setUser(u => u ? { ...u, wolf: u.wolf + wolfReward, lastDailyReward: todayStr(), dailyStreak: newStreak } : u);
+    return { ok: true, wolf: wolfReward, streak: newStreak };
   }
 
   return (
     <AuthContext.Provider value={{
-      user, isLoading, login, register, logout,
-      addWolf, startMiningSession, claimMiningReward, getMiningProgress,
-      requestConversion, setWallet, claimDailyReward, addGameSession,
-      canClaimDaily, getDailyRewardAmount,
+      user, token, isLoading,
+      login, register, logout, refreshUser,
+      startMiningSession, claimMiningReward, getMiningProgress,
+      addGameSession, earnWolfFromGame,
+      requestConversion,
+      setWallet,
+      canClaimDaily, getDailyRewardAmount, claimDailyReward,
     }}>
       {children}
     </AuthContext.Provider>

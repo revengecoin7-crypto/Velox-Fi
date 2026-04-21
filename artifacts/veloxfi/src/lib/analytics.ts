@@ -28,7 +28,8 @@ export function getSessionId(): string {
 // ── record a page view ──────────────────────────────────────
 export function recordPageView(page: string) {
   const sid = getSessionId();
-  const uid = localStorage.getItem("vfx_session_v2") || null;
+  const sessionRaw = localStorage.getItem("vfx_session_v3");
+  const uid = sessionRaw ? (() => { try { return JSON.parse(sessionRaw)?.username ?? null; } catch { return null; } })() : null;
 
   try {
     const raw = localStorage.getItem(EVENTS_KEY);

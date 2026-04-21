@@ -476,7 +476,7 @@ export default function GameSnake() {
       const r = claimRef.current.getBoundingClientRect();
       setFlyFrom({ x: r.left + r.width/2, y: r.top + r.height/2 });
     }
-    addGameSession("snake", pendingWolf);
+    void addGameSession("snake", pendingWolf);
     setClaimed(true); setFlyShow(true);
   }
 

@@ -219,7 +219,7 @@ export default function GameRocket() {
       const rect = claimBtnRef.current.getBoundingClientRect();
       setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     }
-    addGameSession("rocket", pendingWolf);
+    void addGameSession("rocket", pendingWolf);
     setClaimed(true);
     setFlyShow(true);
   }

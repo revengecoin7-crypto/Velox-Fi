@@ -1,35 +1,16 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MemeShell from "@/components/MemeShell";
 import { useAuth } from "@/context/AuthContext";
 
-interface LBEntry {
-  rank: number;
-  username: string;
-  wolf: number;
-  games: number;
-  battle: number;
-  isMe: boolean;
-}
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 
-function loadLeaderboard(myId: string | undefined): LBEntry[] {
-  try {
-    const raw = localStorage.getItem("vfx_users_v2");
-    if (!raw) return [];
-    const users: Record<string, { id: string; username: string; wolf: number; battle: number; gameHistory?: unknown[] }> = JSON.parse(raw);
-    return Object.values(users)
-      .map(u => ({
-        username: u.username,
-        wolf: u.wolf || 0,
-        battle: u.battle || 0,
-        games: (u.gameHistory || []).length,
-        isMe: u.id === myId,
-      }))
-      .sort((a, b) => b.wolf - a.wolf)
-      .map((u, i) => ({ ...u, rank: i + 1 }));
-  } catch {
-    return [];
-  }
+interface LBEntry {
+  rank:     number;
+  username: string;
+  wolf:     number;
+  tokens:   number;
+  isMe:     boolean;
 }
 
 const PRIZES = [
@@ -44,7 +25,6 @@ function rankColor(rank: number) {
   if (rank === 3) return "#CD7F32";
   return "#1a1a1a";
 }
-
 function rankBg(rank: number) {
   if (rank === 1) return "#FFFBF0";
   if (rank === 2) return "#f8f8f8";
@@ -72,10 +52,29 @@ export default function Leaderboard() {
   });
 
   const { user } = useAuth();
-  const entries = useMemo(() => loadLeaderboard(user?.id), [user?.wolf]);
+  const [entries, setEntries] = useState<LBEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/veloxfi/leaderboard`)
+      .then(r => r.json())
+      .then((data: { username: string; tokens: number; wolf?: number }[]) => {
+        const sorted = [...data].sort((a, b) => (b.wolf ?? 0) - (a.wolf ?? 0));
+        setEntries(sorted.map((u, i) => ({
+          rank:     i + 1,
+          username: u.username,
+          wolf:     u.wolf ?? 0,
+          tokens:   u.tokens ?? 0,
+          isMe:     u.username === user?.username,
+        })));
+      })
+      .catch(() => setEntries([]))
+      .finally(() => setLoading(false));
+  }, [user?.username]);
+
+  const top3   = entries.slice(0, 3);
+  const rest   = entries.slice(3, 10);
   const myEntry = entries.find(e => e.isMe);
-  const top3 = entries.slice(0, 3);
-  const rest = entries.slice(3, 10);
 
   return (
     <MemeShell>
@@ -119,8 +118,11 @@ export default function Leaderboard() {
           ))}
         </div>
 
-        {/* Podium top 3 */}
-        {entries.length === 0 ? (
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <p className="font-bungee text-xl text-[#1a1a1a]">LOADING...</p>
+          </div>
+        ) : entries.length === 0 ? (
           <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "48px 24px", boxShadow: "5px 5px 0 #1a1a1a", textAlign: "center", marginBottom: 24 }}>
             <div style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
             <h2 className="font-bungee text-2xl mb-3">NO PLAYERS YET</h2>
@@ -134,12 +136,7 @@ export default function Leaderboard() {
             {/* Top 3 podium */}
             {top3.length > 0 && (
               <div className="flex gap-4 mb-6 items-end">
-                {/* Reorder: 2nd, 1st, 3rd */}
-                {[
-                  top3[1] ?? null,
-                  top3[0] ?? null,
-                  top3[2] ?? null,
-                ].map((entry, idx) => {
+                {[top3[1] ?? null, top3[0] ?? null, top3[2] ?? null].map((entry, idx) => {
                   if (!entry) return <div key={idx} className="flex-1" />;
                   const prize = PRIZES.find(p => p.rank === entry.rank);
                   const isFirst = entry.rank === 1;
@@ -158,7 +155,6 @@ export default function Leaderboard() {
                       <div className="font-bungee text-sm" style={{ color: rankColor(entry.rank) }}>{prize?.label}</div>
                       <div className="font-bungee text-lg mt-1 truncate" style={{ color: "#1a1a1a" }}>{entry.username}</div>
                       <div className="font-fredoka font-bold mt-1" style={{ color: "#6BCB77", fontSize: isFirst ? 22 : 16 }}>{entry.wolf.toLocaleString()} WOLF</div>
-                      <div className="font-fredoka text-xs mt-1" style={{ color: "#888" }}>{entry.games} games</div>
                       {prize && <div className="font-bungee text-xs mt-2 px-2 py-1 rounded-lg" style={{ background: prize.color, color: "#1a1a1a", border: "1.5px solid #1a1a1a" }}>+{prize.wolf} prize</div>}
                     </div>
                   );
@@ -169,8 +165,8 @@ export default function Leaderboard() {
             {/* Table for ranks 4-10 */}
             {rest.length > 0 && (
               <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, overflow: "hidden", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 24 }}>
-                <div style={{ background: "#1a1a1a", padding: "12px 20px", display: "grid", gridTemplateColumns: "50px 1fr 120px 80px 100px", gap: 8 }}>
-                  {["RANK", "PLAYER", "WOLF EARNED", "GAMES", "$BATTLE"].map(h => (
+                <div style={{ background: "#1a1a1a", padding: "12px 20px", display: "grid", gridTemplateColumns: "50px 1fr 140px 100px", gap: 8 }}>
+                  {["RANK", "PLAYER", "WOLF BALANCE", "$BATTLE"].map(h => (
                     <span key={h} className="font-bungee text-xs" style={{ color: "#FFD93D" }}>{h}</span>
                   ))}
                 </div>
@@ -179,7 +175,7 @@ export default function Leaderboard() {
                     style={{
                       padding: "14px 20px",
                       display: "grid",
-                      gridTemplateColumns: "50px 1fr 120px 80px 100px",
+                      gridTemplateColumns: "50px 1fr 140px 100px",
                       gap: 8,
                       background: entry.isMe ? "#d1fae5" : i % 2 === 0 ? "#fff" : "#FFFBF0",
                       borderTop: "1.5px solid #eee",
@@ -190,8 +186,7 @@ export default function Leaderboard() {
                       {entry.isMe ? "⭐ " : ""}{entry.username}
                     </span>
                     <span className="font-bungee text-sm" style={{ color: "#6BCB77" }}>{entry.wolf.toLocaleString()}</span>
-                    <span className="font-fredoka text-sm" style={{ color: "#888" }}>{entry.games}</span>
-                    <span className="font-fredoka text-sm" style={{ color: "#4CC9F0" }}>{entry.battle.toFixed(4)}</span>
+                    <span className="font-fredoka text-sm" style={{ color: "#4CC9F0" }}>{entry.tokens.toFixed(4)}</span>
                   </div>
                 ))}
               </div>
@@ -209,30 +204,26 @@ export default function Leaderboard() {
                   <span className="font-bungee text-4xl" style={{ color: rankColor(myEntry.rank) }}>#{myEntry.rank}</span>
                   <div>
                     <p className="font-bungee text-lg text-[#1a1a1a]">{user.username}</p>
-                    <p className="font-fredoka text-sm" style={{ color: "#6BCB77" }}>{myEntry.wolf.toLocaleString()} WOLF · {myEntry.games} games</p>
+                    <p className="font-fredoka text-sm" style={{ color: "#6BCB77" }}>{myEntry.wolf.toLocaleString()} WOLF</p>
                   </div>
                 </div>
               </div>
               <div className="flex gap-3">
-                <a href="/games" style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
-                  🎮 PLAY
-                </a>
-                <a href="/mine" style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
-                  ⛏️ MINE
-                </a>
+                <a href="/games" style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>🎮 PLAY</a>
+                <a href="/mine"  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>⛏️ MINE</a>
               </div>
             </div>
           </div>
         )}
 
         {!user && (
-          <div className="cartoon-card-yellow p-10 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-            <div className="text-5xl mb-3">🐺</div>
+          <div style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "40px 24px", boxShadow: "6px 6px 0 #1a1a1a", textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🐺</div>
             <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">JOIN THE COMPETITION</h2>
-            <p className="font-fredoka text-gray-600 text-base mb-6">Create an account, play games, mine WOLF, and compete for the weekly prize pool!</p>
+            <p className="font-fredoka text-gray-700 text-base mb-6">Create an account, play games, mine WOLF, and compete for the weekly prize pool!</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/register" className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm" style={{ textDecoration: "none" }}>CREATE ACCOUNT 🚀</a>
-              <a href="/games" className="cartoon-btn cartoon-btn-white px-10 py-4 text-sm" style={{ textDecoration: "none" }}>PLAY GAMES 🎮</a>
+              <a href="/register" style={{ background: "#1a1a1a", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 14, textDecoration: "none", color: "#fff", boxShadow: "4px 4px 0 #333" }}>CREATE ACCOUNT 🚀</a>
+              <a href="/games"    style={{ background: "#fff",    border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 14, textDecoration: "none", color: "#1a1a1a", boxShadow: "4px 4px 0 #333" }}>PLAY GAMES 🎮</a>
             </div>
           </div>
         )}

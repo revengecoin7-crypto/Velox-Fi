@@ -123,8 +123,12 @@ router.post("/veloxfi/login", async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) { res.status(400).json({ error: "Missing credentials." }); return; }
 
-    const [user] = await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.username, username)).limit(1);
-    if (!user) { res.status(401).json({ error: "Username not found." }); return; }
+    // Support login by username or email
+    const isEmail = username.includes("@");
+    const [user] = isEmail
+      ? await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.email, username)).limit(1)
+      : await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.username, username)).limit(1);
+    if (!user) { res.status(401).json({ error: "Account not found." }); return; }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) { res.status(401).json({ error: "Incorrect password." }); return; }
@@ -206,6 +210,26 @@ router.put("/veloxfi/profile/wallet", requireAuth as any, async (req: any, res) 
     }
     await db.update(veloxfiUsers).set({ walletAddress: trimmed }).where(eq(veloxfiUsers.username, req.veloxfiUser.username));
     res.json({ ok: true, walletAddress: trimmed });
+  } catch (e) {
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.get("/veloxfi/me", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    const meXPInfo = getXPInfo(user.xp ?? 0);
+    res.json({
+      username: user.username,
+      email: user.email,
+      tokens: user.tokens ?? 0,
+      wolf: user.wolf ?? 0,
+      walletAddress: user.walletAddress ?? null,
+      wolfMiningStart: user.wolfMiningStart ?? null,
+      xp: user.xp ?? 0,
+      level: meXPInfo.level,
+      levelName: meXPInfo.levelName,
+    });
   } catch (e) {
     res.status(500).json({ error: "Server error." });
   }

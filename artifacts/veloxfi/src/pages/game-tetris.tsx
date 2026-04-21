@@ -180,7 +180,7 @@ export default function GameTetris() {
       const rect = claimBtnRef.current.getBoundingClientRect();
       setFlyFrom({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     }
-    addGameSession("tetris", pendingWolf);
+    void addGameSession("tetris", pendingWolf);
     setClaimed(true);
     setFlyShow(true);
   }

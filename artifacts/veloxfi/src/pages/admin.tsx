@@ -1,57 +1,54 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Shield, Eye, EyeOff, RefreshCw, LogOut, Download, Check, Users, Gamepad2, Pickaxe, ArrowRightLeft, TrendingUp, Clock, Activity } from "lucide-react";
+import { Eye, EyeOff, RefreshCw, LogOut, Download, Check, X, Users, ArrowRightLeft, TrendingUp, Activity } from "lucide-react";
 import { getEvents, getLiveSessions, type PageEvent } from "@/lib/analytics";
 
 // ── constants ──────────────────────────────────────────────
-const ADMIN_PW  = "veloxfi2025";
-const AUTH_KEY  = "vfx_admin_auth";
-const USERS_KEY = "vfx_users_v2";
+const AUTH_KEY = "vfx_admin_auth";
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+const ADMIN_PW = "veloxfi2025";
 
 // ── types ──────────────────────────────────────────────────
-interface StoredUser {
-  id: string;
-  username: string;
-  email: string;
-  wolf: number;
-  battle: number;
-  lastMineSession: number | null;
-  conversions: Conversion[];
-  wallet: string | null;
-  gameHistory?: GameSession[];
-  lastDailyReward?: string | null;
-  dailyStreak?: number;
-  totalMined?: number;
-  totalGameWolf?: number;
-  password: string;
+interface ApiUser {
+  username: string; email: string; tokens: number; createdAt: string;
+  walletAddress: string | null; claimedAt: string | null;
+  totalBattles: number; totalTokensEarned: number; wolf?: number;
 }
-interface Conversion {
-  id: string; wolf: number; battle: number; date: string; status: string;
-  username?: string; email?: string; wallet?: string; userId?: string;
+interface ApiClaim {
+  id: number; username: string; walletAddress: string; amount: number;
+  requestedAt: string; paidAt: string | null;
 }
-interface GameSession { id: string; game: string; wolf: number; date: string; }
+interface AdminStats {
+  totalUsers: number; battlesAllTime: number; tokensAllTime: number;
+  battlesToday: number; tokensToday: number;
+  users: ApiUser[]; recentBattles: unknown[]; dailyBattles: unknown[];
+}
 
 // ── helpers ────────────────────────────────────────────────
-function loadUsers(): StoredUser[] {
-  try { return Object.values(JSON.parse(localStorage.getItem(USERS_KEY) || "{}")); }
-  catch { return []; }
-}
-
-function saveUser(u: StoredUser) {
-  try {
-    const users = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    users[u.id] = u;
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch { /* ignore */ }
-}
-
 function fmt(n: number) { return n.toLocaleString(); }
-function dateStr(iso: string) { return new Date(iso).toLocaleString("nl-NL"); }
+function dateStr(iso: string) { try { return new Date(iso).toLocaleString("nl-NL"); } catch { return iso; } }
 function shortWallet(w: string | null) {
   if (!w) return "—";
   return w.length > 12 ? `${w.slice(0, 6)}…${w.slice(-4)}` : w;
 }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+async function adminFetch<T>(path: string, options: RequestInit = {}): Promise<{ ok: boolean; data: T }> {
+  try {
+    const r = await fetch(`${API_BASE}/api${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": ADMIN_PW,
+        ...(options.headers ?? {}),
+      },
+    });
+    const data = await r.json();
+    return { ok: r.ok, data };
+  } catch {
+    return { ok: false, data: null as unknown as T };
+  }
+}
 
 const PAGE_LABELS: Record<string, string> = {
   "/": "Home", "/games": "Games", "/games/snake": "Snake",
@@ -97,14 +94,17 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [loading, setLoading] = useState(false);
   const [, nav] = useLocation();
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      if (pw === ADMIN_PW) { sessionStorage.setItem(AUTH_KEY, "1"); onLogin(); }
-      else { setErr("Incorrect password"); }
-      setLoading(false);
-    }, 500);
+    const { ok } = await adminFetch("/veloxfi/admin/verify", {
+      method: "POST",
+      headers: { "x-admin-password": pw },
+      body: JSON.stringify({ password: pw }),
+    });
+    setLoading(false);
+    if (ok) { sessionStorage.setItem(AUTH_KEY, "1"); onLogin(); }
+    else setErr("Incorrect password");
   }
 
   return (
@@ -142,108 +142,87 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 // ── main dashboard ─────────────────────────────────────────
 export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "1");
-  const [, nav] = useLocation();
+  const [stats,  setStats]  = useState<AdminStats | null>(null);
+  const [claims, setClaims] = useState<ApiClaim[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
+  const [tab, setTab] = useState<"overview" | "claims" | "users" | "traffic" | "activity">("overview");
 
-  // ── stats state ──
-  const [tick, setTick] = useState(0);
-  const [tab, setTab] = useState<"overview" | "conversions" | "users" | "traffic" | "activity">("overview");
-
-  useEffect(() => {
-    if (!authed) return;
-    const id = setInterval(() => setTick(t => t + 1), 5000);
-    return () => clearInterval(id);
-  }, [authed]);
-
-  const refresh = useCallback(() => setTick(t => t + 1), []);
-
-  // ── computed data ──
-  const users    = loadUsers();
-  const events   = getEvents();
-  const liveSess = getLiveSessions();
+  const events    = getEvents();
+  const liveSess  = getLiveSessions();
   const liveCount = Object.keys(liveSess).length;
-
-  const now = Date.now();
-  const msDay  = 86400000;
-  const msWeek = 7 * msDay;
-
-  const eventsToday  = events.filter(e => now - e.ts < msDay);
-  const eventsWeek   = events.filter(e => now - e.ts < msWeek);
-  const uniqueSids   = new Set(events.map(e => e.sid)).size;
-  const uniqueToday  = new Set(eventsToday.map(e => e.sid)).size;
-
-  // users
-  const usersToday = users.filter(u => {
-    const conv = u.conversions?.[0];
-    return conv ? false : true; // rough: no good join date stored, use first-seen from events
-  });
-  const totalWolf   = users.reduce((s, u) => s + (u.wolf || 0), 0);
-  const totalGames  = users.reduce((s, u) => s + (u.gameHistory?.length || 0), 0);
-  const totalMined  = users.reduce((s, u) => s + (u.totalMined || 0), 0);
-
-  // conversions (all, across all users, enriched with user info)
-  const allConversions: Conversion[] = [];
-  for (const u of users) {
-    for (const c of u.conversions || []) {
-      allConversions.push({ ...c, username: u.username, email: u.email, wallet: u.wallet || undefined, userId: u.id });
-    }
-  }
-  allConversions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const pendingConv = allConversions.filter(c => c.status === "pending");
-  const totalBattleReq = allConversions.reduce((s, c) => s + c.battle, 0);
-
-  // page view breakdown
+  const now       = Date.now();
+  const msDay     = 86400000;
+  const msWeek    = 7 * msDay;
+  const eventsToday = events.filter(e => now - e.ts < msDay);
+  const eventsWeek  = events.filter(e => now - e.ts < msWeek);
+  const uniqueSids  = new Set(events.map(e => e.sid)).size;
+  const uniqueToday = new Set(eventsToday.map(e => e.sid)).size;
+  const recentEvents = [...events].reverse().slice(0, 30);
   const pageBreakdown: Record<string, number> = {};
-  for (const e of events) {
-    pageBreakdown[e.page] = (pageBreakdown[e.page] || 0) + 1;
-  }
+  for (const e of events) pageBreakdown[e.page] = (pageBreakdown[e.page] || 0) + 1;
   const topPages = Object.entries(pageBreakdown).sort((a, b) => b[1] - a[1]).slice(0, 12);
 
-  // recent events (last 30)
-  const recentEvents = [...events].reverse().slice(0, 30);
+  const loadData = useCallback(async () => {
+    if (!authed) return;
+    setLoadingData(true);
+    const [statsRes, claimsRes] = await Promise.all([
+      adminFetch<AdminStats>("/veloxfi/admin/stats"),
+      adminFetch<ApiClaim[]>("/veloxfi/admin/claims"),
+    ]);
+    if (statsRes.ok && statsRes.data) setStats(statsRes.data);
+    if (claimsRes.ok && Array.isArray(claimsRes.data)) setClaims(claimsRes.data);
+    setLoadingData(false);
+  }, [authed]);
 
-  // users new today (based on events with uid)
-  const newUserIdsToday = new Set(eventsToday.filter(e => e.uid).map(e => e.uid));
+  useEffect(() => {
+    void loadData();
+    const id = setInterval(() => void loadData(), 30000);
+    return () => clearInterval(id);
+  }, [loadData]);
 
-  // mark conversion completed
-  function markDone(userId: string, convId: string) {
-    const raw = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    const u: StoredUser = raw[userId];
-    if (!u) return;
-    u.conversions = u.conversions.map(c => c.id === convId ? { ...c, status: "completed" } : c);
-    raw[userId] = u;
-    localStorage.setItem(USERS_KEY, JSON.stringify(raw));
-    refresh();
+  async function markPaid(id: number) {
+    await adminFetch(`/veloxfi/admin/claims/${id}/paid`, { method: "PUT" });
+    void loadData();
   }
 
-  // csv export conversions
-  function exportConvCsv() {
-    const header = ["Date", "Username", "Email", "Wallet", "WOLF", "$BATTLE", "Status"];
-    const rows = allConversions.map(c => [
-      dateStr(c.date), c.username, c.email, c.wallet || "", c.wolf, c.battle.toFixed(4), c.status
+  async function markUnpaid(id: number) {
+    await adminFetch(`/veloxfi/admin/claims/${id}/paid`, { method: "DELETE" });
+    void loadData();
+  }
+
+  function exportClaimsCsv() {
+    const header = ["ID", "Username", "Wallet", "Amount (WOLF)", "Requested", "Paid"];
+    const rows = claims.map(c => [
+      c.id, c.username, c.walletAddress, c.amount,
+      dateStr(c.requestedAt), c.paidAt ? dateStr(c.paidAt) : "PENDING",
     ]);
     const csv = [header, ...rows].map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url; a.download = `veloxfi-conversions-${todayStr()}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `veloxfi-claims-${todayStr()}.csv`;
+    a.click();
   }
 
   function exportUsersCsv() {
-    const header = ["Username", "Email", "WOLF", "$BATTLE Req", "Games", "Mined", "Streak", "Wallet"];
-    const rows = users.map(u => [
-      u.username, u.email, u.wolf, allConversions.filter(c => c.userId === u.id).reduce((s,c)=>s+c.battle,0).toFixed(4),
-      u.gameHistory?.length || 0, u.totalMined || 0, u.dailyStreak || 0, u.wallet || ""
+    if (!stats?.users) return;
+    const header = ["Username", "Email", "Tokens ($BATTLE)", "Wallet", "Created", "Battles", "Tokens Earned"];
+    const rows = stats.users.map(u => [
+      u.username, u.email, u.tokens.toFixed(4), u.walletAddress || "",
+      dateStr(u.createdAt), u.totalBattles, u.totalTokensEarned,
     ]);
     const csv = [header, ...rows].map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url; a.download = `veloxfi-users-${todayStr()}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `veloxfi-users-${todayStr()}.csv`;
+    a.click();
   }
 
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+
+  const pendingClaims = claims.filter(c => !c.paidAt);
+  const users = stats?.users ?? [];
 
   const tabStyle = (active: boolean, color: string) => ({
     background: active ? color : "#fff",
@@ -259,25 +238,26 @@ export default function Admin() {
     <div style={{ minHeight: "100vh", background: "#FFFBF0", color: "#1a1a1a" }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: "#1a1a1a", borderBottom: "2.5px solid #1a1a1a", padding: "0" }}>
+      <div style={{ background: "#1a1a1a", borderBottom: "2.5px solid #1a1a1a" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 28 }}>🛡️</span>
             <div>
               <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 18, color: "#FFD93D", margin: 0 }}>VELOXFI ADMIN</p>
-              <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#666", margin: 0 }}>Dashboard · Auto-refresh 5s</p>
+              <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#666", margin: 0 }}>Dashboard · Live database data</p>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {/* Live indicator */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#6BCB77", border: "2px solid #6BCB77", borderRadius: 20, padding: "5px 14px" }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff", animation: "pulse 1.5s infinite" }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff" }} />
               <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12, color: "#fff" }}>{liveCount} LIVE</span>
             </div>
-            <button onClick={refresh} style={{ background: "#FFD93D", border: "2px solid #FFD93D", borderRadius: 10, padding: "6px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
-              <RefreshCw size={14} /> REFRESH
+            <button onClick={() => void loadData()} disabled={loadingData}
+              style={{ background: "#FFD93D", border: "2px solid #FFD93D", borderRadius: 10, padding: "6px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
+              <RefreshCw size={14} /> {loadingData ? "…" : "REFRESH"}
             </button>
-            <button onClick={() => { sessionStorage.removeItem(AUTH_KEY); setAuthed(false); }} style={{ background: "#FF6B6B", border: "2px solid #FF6B6B", borderRadius: 10, padding: "6px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={() => { sessionStorage.removeItem(AUTH_KEY); setAuthed(false); }}
+              style={{ background: "#FF6B6B", border: "2px solid #FF6B6B", borderRadius: 10, padding: "6px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", gap: 6 }}>
               <LogOut size={14} /> LOGOUT
             </button>
           </div>
@@ -288,27 +268,27 @@ export default function Admin() {
 
         {/* ── TOP STATS ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
-          <StatTile label="Live Visitors" value={liveCount} sub="Right now on site" color="#6BCB77" icon={<Activity size={20} />} />
-          <StatTile label="Visitors Today" value={uniqueToday} sub="Unique sessions" color="#4CC9F0" icon={<Eye size={20} />} />
-          <StatTile label="Total Visitors" value={fmt(uniqueSids)} sub="All-time unique sessions" color="#A29BFE" icon={<Users size={20} />} />
-          <StatTile label="Page Views" value={fmt(events.length)} sub={`Today: ${fmt(eventsToday.length)}`} color="#FF9F43" icon={<TrendingUp size={20} />} />
-          <StatTile label="Registered Users" value={users.length} sub={`~${newUserIdsToday.size} active today`} color="#FFD93D" icon={<Users size={20} />} />
-          <StatTile label="Total WOLF" value={fmt(totalWolf)} sub="Across all wallets" color="#6BCB77" icon={<Pickaxe size={20} />} />
-          <StatTile label="Pending Conv." value={pendingConv.length} sub="Awaiting $BATTLE send" color="#FF6B6B" icon={<ArrowRightLeft size={20} />} />
-          <StatTile label="$BATTLE Req." value={totalBattleReq.toFixed(2)} sub="Total requested" color="#A29BFE" icon={<ArrowRightLeft size={20} />} />
+          <StatTile label="Live Visitors"    value={liveCount}           sub="Right now on site"       color="#6BCB77" icon={<Activity size={20} />} />
+          <StatTile label="Visitors Today"   value={uniqueToday}         sub="Unique sessions"         color="#4CC9F0" icon={<Eye size={20} />} />
+          <StatTile label="Total Visitors"   value={fmt(uniqueSids)}     sub="All-time unique"         color="#A29BFE" icon={<Users size={20} />} />
+          <StatTile label="Page Views"       value={fmt(events.length)}  sub={`Today: ${eventsToday.length}`} color="#FF9F43" icon={<TrendingUp size={20} />} />
+          <StatTile label="Registered Users" value={stats?.totalUsers ?? "—"} sub="In database"      color="#FFD93D" icon={<Users size={20} />} />
+          <StatTile label="Battles All Time" value={stats ? fmt(stats.battlesAllTime) : "—"} sub={`Today: ${stats?.battlesToday ?? 0}`} color="#6BCB77" icon={<Activity size={20} />} />
+          <StatTile label="Pending Claims"   value={pendingClaims.length} sub="Awaiting WOLF send"   color="#FF6B6B" icon={<ArrowRightLeft size={20} />} />
+          <StatTile label="Total Claims"     value={claims.length}       sub="All WOLF claims"        color="#A29BFE" icon={<ArrowRightLeft size={20} />} />
         </div>
 
-        {/* ── PENDING CONVERSIONS ALERT ── */}
-        {pendingConv.length > 0 && (
+        {/* ── PENDING CLAIMS ALERT ── */}
+        {pendingClaims.length > 0 && (
           <div style={{ background: "#FF6B6B", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "14px 20px", marginBottom: 20, boxShadow: "4px 4px 0 #1a1a1a", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 24 }}>⚠️</span>
               <div>
-                <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 15, color: "#fff", margin: 0 }}>{pendingConv.length} CONVERSION{pendingConv.length !== 1 ? "S" : ""} NEED ATTENTION</p>
-                <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Send $BATTLE tokens and mark as completed</p>
+                <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 15, color: "#fff", margin: 0 }}>{pendingClaims.length} CLAIM{pendingClaims.length !== 1 ? "S" : ""} NEED ATTENTION</p>
+                <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Send WOLF tokens and mark as paid</p>
               </div>
             </div>
-            <button onClick={() => setTab("conversions")} style={{ background: "#fff", border: "2px solid #1a1a1a", borderRadius: 10, padding: "8px 18px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", color: "#FF6B6B" }}>
+            <button onClick={() => setTab("claims")} style={{ background: "#fff", border: "2px solid #1a1a1a", borderRadius: 10, padding: "8px 18px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", color: "#FF6B6B" }}>
               VIEW NOW →
             </button>
           </div>
@@ -322,12 +302,8 @@ export default function Admin() {
               {Object.entries(liveSess).map(([sid, s]) => (
                 <div key={sid} style={{ background: "#FFFBF0", border: "1.5px solid #6BCB77", borderRadius: 8, padding: "5px 12px", display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#6BCB77" }} />
-                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#1a1a1a" }}>
-                    {PAGE_LABELS[s.page] || s.page}
-                  </span>
-                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 11, color: "#aaa" }}>
-                    {Math.round((Date.now() - s.ts) / 1000)}s ago
-                  </span>
+                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{PAGE_LABELS[s.page] || s.page}</span>
+                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 11, color: "#aaa" }}>{Math.round((Date.now() - s.ts) / 1000)}s ago</span>
                 </div>
               ))}
             </div>
@@ -336,26 +312,26 @@ export default function Admin() {
 
         {/* ── TABS ── */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
-          <button onClick={() => setTab("overview")}    style={tabStyle(tab === "overview",    "#FFD93D")}>📊 Overview</button>
-          <button onClick={() => setTab("conversions")} style={tabStyle(tab === "conversions", "#FF6B6B")}>🔄 Conversions {pendingConv.length > 0 && `(${pendingConv.length})`}</button>
-          <button onClick={() => setTab("users")}       style={tabStyle(tab === "users",       "#6BCB77")}>👥 Users</button>
-          <button onClick={() => setTab("traffic")}     style={tabStyle(tab === "traffic",     "#4CC9F0")}>📈 Traffic</button>
-          <button onClick={() => setTab("activity")}    style={tabStyle(tab === "activity",    "#A29BFE")}>⏱️ Activity</button>
+          <button onClick={() => setTab("overview")} style={tabStyle(tab === "overview", "#FFD93D")}>📊 Overview</button>
+          <button onClick={() => setTab("claims")}   style={tabStyle(tab === "claims",   "#FF6B6B")}>🪙 Claims {pendingClaims.length > 0 && `(${pendingClaims.length})`}</button>
+          <button onClick={() => setTab("users")}    style={tabStyle(tab === "users",    "#6BCB77")}>👥 Users</button>
+          <button onClick={() => setTab("traffic")}  style={tabStyle(tab === "traffic",  "#4CC9F0")}>📈 Traffic</button>
+          <button onClick={() => setTab("activity")} style={tabStyle(tab === "activity", "#A29BFE")}>⏱️ Activity</button>
         </div>
 
         {/* ═══════════════ OVERVIEW TAB ═══════════════ */}
         {tab === "overview" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
 
-            {/* Game stats */}
             <Card>
-              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🎮 GAME STATS</p>
+              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>📊 PLATFORM STATS</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { label: "Total game sessions", value: fmt(totalGames) },
-                  { label: "Total WOLF from games", value: fmt(users.reduce((s,u) => s+(u.totalGameWolf||0),0)) },
-                  { label: "Total WOLF mined", value: fmt(totalMined) },
-                  { label: "Avg WOLF per user", value: users.length > 0 ? Math.round(totalWolf / users.length) : 0 },
+                  { label: "Total registered users", value: stats?.totalUsers ?? "—" },
+                  { label: "Battles all time",        value: stats ? fmt(stats.battlesAllTime) : "—" },
+                  { label: "Battles today",           value: stats?.battlesToday ?? "—" },
+                  { label: "Tokens distributed",      value: stats ? fmt(stats.tokensAllTime) : "—" },
+                  { label: "Tokens today",            value: stats?.tokensToday ?? "—" },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: "#FFFBF0", borderRadius: 8, border: "1.5px solid #eee" }}>
                     <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666" }}>{label}</span>
@@ -365,43 +341,32 @@ export default function Admin() {
               </div>
             </Card>
 
-            {/* Most popular games */}
             <Card>
-              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🏆 POPULAR GAMES</p>
-              {(() => {
-                const gameCounts: Record<string, number> = {};
-                for (const u of users) for (const g of u.gameHistory || []) gameCounts[g.game] = (gameCounts[g.game]||0)+1;
-                const sorted = Object.entries(gameCounts).sort((a,b) => b[1]-a[1]);
-                const icons: Record<string, string> = { snake:"🐍", tetris:"🧱", runner:"🐺", rocket:"🚀" };
-                if (sorted.length === 0) return <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa" }}>No games played yet</p>;
-                return (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {sorted.map(([game, count]) => (
-                      <div key={game}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                          <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{icons[game]||"🎮"} {game.charAt(0).toUpperCase()+game.slice(1)}</span>
-                          <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#6BCB77" }}>{count}</span>
-                        </div>
-                        <div style={{ background: "#f0f0f0", borderRadius: 6, height: 8, overflow: "hidden" }}>
-                          <div style={{ width: `${(count / (sorted[0][1]||1)) * 100}%`, background: "#6BCB77", height: "100%", borderRadius: 6, transition: "width 0.5s" }} />
-                        </div>
+              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🥇 TOP TOKEN HOLDERS</p>
+              {users.length === 0
+                ? <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa" }}>No users yet</p>
+                : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {[...users].sort((a, b) => b.tokens - a.tokens).slice(0, 5).map((u, i) => (
+                      <div key={u.username} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: i === 0 ? "#FFFBF0" : "transparent", borderRadius: 8, border: i === 0 ? "1.5px solid #FFD93D" : "none" }}>
+                        <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, color: ["#FFD93D", "#888", "#CD7F32"][i] || "#aaa", minWidth: 20 }}>#{i + 1}</span>
+                        <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, flex: 1, fontWeight: 700 }}>{u.username}</span>
+                        <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#6BCB77" }}>{u.tokens.toFixed(2)} $B</span>
                       </div>
                     ))}
                   </div>
-                );
-              })()}
+                )
+              }
             </Card>
 
-            {/* Conversion summary */}
             <Card>
-              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>💱 CONVERSION SUMMARY</p>
+              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🪙 CLAIMS SUMMARY</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { label: "Total conversions", value: allConversions.length },
-                  { label: "Pending", value: pendingConv.length, color: "#FF6B6B" },
-                  { label: "Completed", value: allConversions.filter(c=>c.status==="completed").length, color: "#6BCB77" },
-                  { label: "Total WOLF converted", value: fmt(allConversions.reduce((s,c)=>s+c.wolf,0)) },
-                  { label: "Total $BATTLE requested", value: totalBattleReq.toFixed(4) },
+                  { label: "Total claims",           value: claims.length },
+                  { label: "Pending",                value: pendingClaims.length, color: "#FF6B6B" },
+                  { label: "Paid",                   value: claims.filter(c => c.paidAt).length, color: "#6BCB77" },
+                  { label: "Total WOLF claimed",     value: fmt(claims.reduce((s, c) => s + c.amount, 0)) },
                 ].map(({ label, value, color }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: "#FFFBF0", borderRadius: 8, border: "1.5px solid #eee" }}>
                     <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666" }}>{label}</span>
@@ -411,84 +376,55 @@ export default function Admin() {
               </div>
             </Card>
 
-            {/* Top earners */}
-            <Card>
-              <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🥇 TOP WOLF EARNERS</p>
-              {users.length === 0
-                ? <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa" }}>No users yet</p>
-                : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {[...users].sort((a,b) => b.wolf-a.wolf).slice(0,5).map((u, i) => (
-                      <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: i===0 ? "#FFFBF0" : "transparent", borderRadius: 8, border: i===0 ? "1.5px solid #FFD93D" : "none" }}>
-                        <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, color: ["#FFD93D","#888","#CD7F32"][i]||"#aaa", minWidth: 20 }}>#{i+1}</span>
-                        <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, flex: 1, fontWeight: 700 }}>{u.username}</span>
-                        <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#6BCB77" }}>{fmt(u.wolf)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )
-              }
-            </Card>
           </div>
         )}
 
-        {/* ═══════════════ CONVERSIONS TAB ═══════════════ */}
-        {tab === "conversions" && (
+        {/* ═══════════════ CLAIMS TAB ═══════════════ */}
+        {tab === "claims" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
               <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 16, margin: 0 }}>
-                🔄 ALL CONVERSIONS ({allConversions.length})
-                {pendingConv.length > 0 && <span style={{ marginLeft: 10, color: "#FF6B6B" }}>· {pendingConv.length} PENDING</span>}
+                🪙 ALL CLAIMS ({claims.length})
+                {pendingClaims.length > 0 && <span style={{ marginLeft: 10, color: "#FF6B6B" }}>· {pendingClaims.length} PENDING</span>}
               </p>
-              {allConversions.length > 0 && (
-                <button onClick={exportConvCsv} style={{ background: "#4CC9F0", border: "2px solid #1a1a1a", borderRadius: 10, padding: "7px 16px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
+              {claims.length > 0 && (
+                <button onClick={exportClaimsCsv} style={{ background: "#4CC9F0", border: "2px solid #1a1a1a", borderRadius: 10, padding: "7px 16px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
                   <Download size={14} /> EXPORT CSV
                 </button>
               )}
             </div>
 
-            {allConversions.length === 0 ? (
-              <Card>
-                <div style={{ textAlign: "center", padding: "40px 0" }}>
-                  <div style={{ fontSize: 56, marginBottom: 12 }}>🔄</div>
-                  <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 18, color: "#1a1a1a" }}>NO CONVERSIONS YET</p>
-                  <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 14, color: "#888" }}>Conversion requests will appear here when users convert WOLF to $BATTLE.</p>
-                </div>
-              </Card>
+            {claims.length === 0 ? (
+              <Card><div style={{ textAlign: "center", padding: "40px 0" }}><div style={{ fontSize: 56 }}>🪙</div><p style={{ fontFamily: "Bungee,sans-serif", fontSize: 18 }}>NO CLAIMS YET</p></div></Card>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {allConversions.map(c => (
-                  <div key={c.id} style={{ background: "#fff", border: `2.5px solid ${c.status === "pending" ? "#FF6B6B" : "#6BCB77"}`, borderRadius: 16, padding: "16px 20px", boxShadow: `4px 4px 0 ${c.status === "pending" ? "#FF6B6B" : "#6BCB77"}`, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
-                    {/* Status badge */}
-                    <div style={{ minWidth: 90, textAlign: "center", background: c.status === "pending" ? "#FF6B6B" : "#6BCB77", border: "2px solid #1a1a1a", borderRadius: 8, padding: "4px 10px" }}>
-                      <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#fff", margin: 0 }}>{c.status.toUpperCase()}</p>
+                {claims.map(c => (
+                  <div key={c.id} style={{ background: "#fff", border: `2.5px solid ${!c.paidAt ? "#FF6B6B" : "#6BCB77"}`, borderRadius: 16, padding: "16px 20px", boxShadow: `4px 4px 0 ${!c.paidAt ? "#FF6B6B" : "#6BCB77"}`, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+                    <div style={{ minWidth: 90, textAlign: "center", background: !c.paidAt ? "#FF6B6B" : "#6BCB77", border: "2px solid #1a1a1a", borderRadius: 8, padding: "4px 10px" }}>
+                      <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#fff", margin: 0 }}>{c.paidAt ? "PAID" : "PENDING"}</p>
                     </div>
-                    {/* Info */}
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 15, margin: "0 0 2px" }}>
-                        {c.wolf.toLocaleString()} WOLF → {Number(c.battle).toFixed(4)} $BATTLE
+                        {fmt(c.amount)} WOLF
                       </p>
-                      <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666", margin: 0 }}>
-                        👤 {c.username} · 📧 {c.email}
-                      </p>
-                      <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#888", margin: "2px 0 0" }}>
-                        🕐 {dateStr(c.date)}
-                      </p>
+                      <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666", margin: 0 }}>👤 {c.username}</p>
+                      <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#888", margin: "2px 0 0" }}>🕐 {dateStr(c.requestedAt)}</p>
                     </div>
-                    {/* Wallet */}
                     <div style={{ minWidth: 160 }}>
                       <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 11, color: "#888", margin: "0 0 2px" }}>SEND TO WALLET:</p>
-                      <p style={{ fontFamily: "monospace", fontSize: 13, color: c.wallet ? "#1a1a1a" : "#FF6B6B", margin: 0, wordBreak: "break-all" }}>
-                        {c.wallet || "⚠️ NO WALLET SET"}
-                      </p>
+                      <p style={{ fontFamily: "monospace", fontSize: 12, color: "#1a1a1a", margin: 0, wordBreak: "break-all" }}>{c.walletAddress}</p>
                     </div>
-                    {/* Action */}
-                    {c.status === "pending" && c.userId && (
-                      <button onClick={() => markDone(c.userId!, c.id)}
-                        style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 10, padding: "8px 16px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
-                        <Check size={14} /> MARK DONE
-                      </button>
-                    )}
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {!c.paidAt ? (
+                        <button onClick={() => void markPaid(c.id)} style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 10, padding: "8px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", color: "#1a1a1a", display: "flex", alignItems: "center", gap: 5 }}>
+                          <Check size={14} /> MARK PAID
+                        </button>
+                      ) : (
+                        <button onClick={() => void markUnpaid(c.id)} style={{ background: "#f0f0f0", border: "2px solid #ccc", borderRadius: 10, padding: "8px 14px", fontFamily: "Bungee,sans-serif", fontSize: 12, cursor: "pointer", color: "#888", display: "flex", alignItems: "center", gap: 5 }}>
+                          <X size={14} /> UNPAY
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -516,29 +452,22 @@ export default function Admin() {
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ background: "#1a1a1a" }}>
-                        {["USERNAME","EMAIL","WOLF","$BATTLE REQ","GAMES","MINED","STREAK","WALLET"].map(h => (
+                        {["USERNAME", "EMAIL", "$BATTLE", "WALLET", "REGISTERED", "BATTLES"].map(h => (
                           <th key={h} style={{ padding: "12px 14px", fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#FFD93D", textAlign: "left", whiteSpace: "nowrap" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {[...users].sort((a,b) => b.wolf-a.wolf).map((u, i) => {
-                        const userBattle = allConversions.filter(c => c.userId === u.id).reduce((s,c)=>s+c.battle,0);
-                        return (
-                          <tr key={u.id} style={{ borderBottom: "1.5px solid #eee", background: i%2===0?"#fff":"#FFFBF0" }}>
-                            <td style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 13 }}>{u.username}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666" }}>{u.email}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#6BCB77" }}>{fmt(u.wolf)}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#A29BFE" }}>{userBattle.toFixed(4)}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{u.gameHistory?.length||0}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{u.totalMined||0}</td>
-                            <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>
-                              {u.dailyStreak ? `🔥 ${u.dailyStreak}d` : "—"}
-                            </td>
-                            <td style={{ padding: "10px 14px", fontFamily: "monospace", fontSize: 12, color: u.wallet ? "#1a1a1a" : "#ccc" }}>{shortWallet(u.wallet)}</td>
-                          </tr>
-                        );
-                      })}
+                      {[...users].sort((a, b) => b.tokens - a.tokens).map((u, i) => (
+                        <tr key={u.username} style={{ borderBottom: "1.5px solid #eee", background: i % 2 === 0 ? "#fff" : "#FFFBF0" }}>
+                          <td style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 13 }}>{u.username}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666" }}>{u.email}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#6BCB77" }}>{u.tokens.toFixed(4)}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "monospace", fontSize: 12, color: u.walletAddress ? "#1a1a1a" : "#ccc" }}>{shortWallet(u.walletAddress)}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#888" }}>{dateStr(u.createdAt)}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{u.totalBattles}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -550,18 +479,16 @@ export default function Admin() {
         {/* ═══════════════ TRAFFIC TAB ═══════════════ */}
         {tab === "traffic" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
-
-            {/* Period stats */}
             <Card>
               <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>📅 PERIOD STATS</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { label: "Page views today",      value: fmt(eventsToday.length) },
-                  { label: "Unique visitors today",  value: fmt(uniqueToday) },
-                  { label: "Page views this week",   value: fmt(eventsWeek.length) },
-                  { label: "Unique visitors week",   value: fmt(new Set(eventsWeek.map(e=>e.sid)).size) },
-                  { label: "All-time page views",    value: fmt(events.length) },
-                  { label: "All-time unique visitors",value: fmt(uniqueSids) },
+                  { label: "Page views today",         value: fmt(eventsToday.length) },
+                  { label: "Unique visitors today",    value: fmt(uniqueToday) },
+                  { label: "Page views this week",     value: fmt(eventsWeek.length) },
+                  { label: "Unique visitors week",     value: fmt(new Set(eventsWeek.map(e => e.sid)).size) },
+                  { label: "All-time page views",      value: fmt(events.length) },
+                  { label: "All-time unique visitors", value: fmt(uniqueSids) },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: "#FFFBF0", borderRadius: 8, border: "1.5px solid #eee" }}>
                     <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666" }}>{label}</span>
@@ -571,14 +498,13 @@ export default function Admin() {
               </div>
             </Card>
 
-            {/* Top pages */}
             <Card>
               <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>🗂️ TOP PAGES (all time)</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {topPages.map(([page, count]) => (
                   <div key={page}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                      <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#1a1a1a" }}>{PAGE_LABELS[page] || page}</span>
+                      <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{PAGE_LABELS[page] || page}</span>
                       <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12, color: "#4CC9F0" }}>{fmt(count)}</span>
                     </div>
                     <div style={{ background: "#f0f0f0", borderRadius: 6, height: 7, overflow: "hidden" }}>
@@ -586,18 +512,16 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
-                {topPages.length === 0 && <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa" }}>No data yet — visit some pages first</p>}
+                {topPages.length === 0 && <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa" }}>No data yet</p>}
               </div>
             </Card>
 
-            {/* Hourly today (last 24h) */}
             <Card style={{ gridColumn: "1 / -1" }}>
               <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 14, marginBottom: 14 }}>📊 HOURLY PAGE VIEWS (last 24h)</p>
               {(() => {
                 const hours: number[] = Array(24).fill(0);
-                const now2 = Date.now();
                 for (const e of events) {
-                  const age = now2 - e.ts;
+                  const age = now - e.ts;
                   if (age > msDay) continue;
                   const hr = 23 - Math.floor(age / 3600000);
                   if (hr >= 0 && hr < 24) hours[hr]++;
@@ -608,7 +532,7 @@ export default function Admin() {
                     {hours.map((count, i) => (
                       <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%" }}>
                         <div style={{ flex: 1, display: "flex", alignItems: "flex-end", width: "100%" }}>
-                          <div style={{ width: "100%", background: count > 0 ? "#4CC9F0" : "#f0f0f0", borderRadius: "3px 3px 0 0", height: `${(count / max) * 100}%`, minHeight: count > 0 ? 4 : 0, transition: "height 0.3s" }} title={`${count} views`} />
+                          <div style={{ width: "100%", background: count > 0 ? "#4CC9F0" : "#f0f0f0", borderRadius: "3px 3px 0 0", height: `${(count / max) * 100}%`, minHeight: count > 0 ? 4 : 0 }} title={`${count} views`} />
                         </div>
                         {i % 4 === 0 && <div style={{ fontFamily: "Fredoka,sans-serif", fontSize: 9, color: "#aaa", marginTop: 2 }}>{23 - i}h</div>}
                       </div>
@@ -632,29 +556,21 @@ export default function Admin() {
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ background: "#1a1a1a" }}>
-                          {["TIME","PAGE","SESSION","USER"].map(h => (
+                          {["TIME", "PAGE", "SESSION"].map(h => (
                             <th key={h} style={{ padding: "10px 14px", fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#FFD93D", textAlign: "left" }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {recentEvents.map((e: PageEvent, i) => {
-                          const user2 = e.uid ? users.find(u => u.id === e.uid) : null;
                           const age = Math.round((Date.now() - e.ts) / 1000);
                           return (
-                            <tr key={i} style={{ borderBottom: "1.5px solid #eee", background: i%2===0?"#fff":"#FFFBF0" }}>
+                            <tr key={i} style={{ borderBottom: "1.5px solid #eee", background: i % 2 === 0 ? "#fff" : "#FFFBF0" }}>
                               <td style={{ padding: "8px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 12, color: "#888" }}>
-                                {age < 60 ? `${age}s ago` : age < 3600 ? `${Math.round(age/60)}m ago` : new Date(e.ts).toLocaleTimeString("nl-NL")}
+                                {age < 60 ? `${age}s ago` : age < 3600 ? `${Math.round(age / 60)}m ago` : new Date(e.ts).toLocaleTimeString("nl-NL")}
                               </td>
-                              <td style={{ padding: "8px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#1a1a1a" }}>
-                                {PAGE_LABELS[e.page] || e.page}
-                              </td>
-                              <td style={{ padding: "8px 14px", fontFamily: "monospace", fontSize: 11, color: "#aaa" }}>
-                                {e.sid.slice(0, 8)}…
-                              </td>
-                              <td style={{ padding: "8px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>
-                                {user2 ? <span style={{ color: "#6BCB77", fontWeight: 700 }}>👤 {user2.username}</span> : <span style={{ color: "#ccc" }}>—</span>}
-                              </td>
+                              <td style={{ padding: "8px 14px", fontFamily: "Fredoka,sans-serif", fontSize: 13 }}>{PAGE_LABELS[e.page] || e.page}</td>
+                              <td style={{ padding: "8px 14px", fontFamily: "monospace", fontSize: 11, color: "#aaa" }}>{e.sid.slice(0, 8)}…</td>
                             </tr>
                           );
                         })}

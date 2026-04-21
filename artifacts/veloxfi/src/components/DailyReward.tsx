@@ -25,7 +25,7 @@ export default function DailyReward() {
       const t = setTimeout(() => setVisible(true), 1200);
       return () => clearTimeout(t);
     }
-  }, [user?.id]);
+  }, [user?.username]);
 
   if (!visible || !user) return null;
 
