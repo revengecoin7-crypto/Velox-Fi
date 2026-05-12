@@ -22,6 +22,8 @@ import GameSnake from "@/pages/game-snake";
 import GameTetris from "@/pages/game-tetris";
 import GameRunner from "@/pages/game-runner";
 import GameRocket from "@/pages/game-rocket";
+import GamePump from "@/pages/game-pump";
+import GameHowl from "@/pages/game-howl";
 import Mine from "@/pages/mine";
 import Convert from "@/pages/convert";
 import Login from "@/pages/login";
@@ -68,6 +70,8 @@ function Router() {
       <Route path="/games/tetris" component={GameTetris} />
       <Route path="/games/runner" component={GameRunner} />
       <Route path="/games/rocket" component={GameRocket} />
+      <Route path="/games/pump" component={GamePump} />
+      <Route path="/games/howl" component={GameHowl} />
       <Route path="/mine" component={Mine} />
       <Route path="/convert" component={Convert} />
       <Route path="/login" component={Login} />

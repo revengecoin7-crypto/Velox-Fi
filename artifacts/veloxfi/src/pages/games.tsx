@@ -74,6 +74,7 @@ export default function GamesPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
 
             {/* Howl & Hunt */}
+            <Link href="/games/howl" style={{ textDecoration: "none" }}>
             <div className="card" style={{ padding: 0, overflow: "hidden", cursor: "pointer" }}>
               <div style={{ background: "var(--ink)", color: "white", padding: 28, minHeight: 380, display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", right: -40, top: -20, width: 360, height: 360, opacity: 0.7 }}>
@@ -106,8 +107,10 @@ export default function GamesPage() {
                 </div>
               </div>
             </div>
+            </Link>
 
             {/* Pump Pulse */}
+            <Link href="/games/pump" style={{ textDecoration: "none" }}>
             <div className="card" style={{ padding: 0, overflow: "hidden", cursor: "pointer" }}>
               <div style={{ background: "var(--cyan)", padding: 24, minHeight: 380, display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
                 <div>
@@ -133,6 +136,7 @@ export default function GamesPage() {
                 <button className="btn lg ink" style={{ width: "100%", justifyContent: "center" }}>Open chart →</button>
               </div>
             </div>
+            </Link>
           </div>
 
           {/* ── CLASSIC GAMES ── */}
