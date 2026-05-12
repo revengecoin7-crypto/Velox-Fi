@@ -549,48 +549,34 @@ export default function GameSnake() {
 
         {/* ── PLAYING ── */}
         {phase === "playing" && (
-          <div style={{ width: "100%", maxWidth: W + 8 }}>
-            {/* HUD */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 8 }}>
-              {[
-                { label: "WOLF", value: score, color: "var(--lime)" },
-                { label: "LEVEL", value: level, color: "var(--cyan)" },
-                { label: "LIVES", value: "❤️".repeat(lives) + "🖤".repeat(Math.max(0, 3 - lives)), color: "var(--tomato)" },
-                { label: "TIME", value: fmt(time), color: "var(--magenta)" },
-              ].map(({ label, value, color }) => (
-                <div key={label} style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${color}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
-                  <div className="mono" style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{label}</div>
-                  <div className="display tabular" style={{ fontSize: 14, color }}>{value}</div>
-                </div>
-              ))}
-            </div>
-            {/* Status banners */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
-              {combo > 1 && <div className="pill yellow" style={{ fontSize: 11 }}>🔥 COMBO ×{comboMult}</div>}
-              {shield && <div className="pill cyan" style={{ fontSize: 11 }}>🛡 SHIELD ON</div>}
-              {star && <div className="pill yellow" style={{ fontSize: 11 }}>⭐ STAR ×3</div>}
-              {urgent && !star && <div className="pill" style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}>⚠ EAT SOMETHING</div>}
+          <div style={{ width: "100%", position: "relative" }}>
+            {/* Claim bar at top of canvas */}
+            <div style={{ padding: "8px 12px 4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                {combo > 1 && <span className="mono" style={{ fontSize: 10, color: "var(--yellow)", background: "rgba(255,204,43,0.15)", padding: "2px 6px", borderRadius: 4 }}>🔥 COMBO ×{comboMult}</span>}
+                {shield && <span className="mono" style={{ fontSize: 10, color: "var(--cyan)", background: "rgba(8,209,242,0.15)", padding: "2px 6px", borderRadius: 4 }}>🛡 SHIELD</span>}
+                {star && <span className="mono" style={{ fontSize: 10, color: "var(--yellow)", background: "rgba(255,204,43,0.15)", padding: "2px 6px", borderRadius: 4 }}>⭐ STAR ×3</span>}
+                {urgent && !star && <span className="mono" style={{ fontSize: 10, color: "var(--tomato)", background: "rgba(255,90,74,0.15)", padding: "2px 6px", borderRadius: 4 }}>⚠ EAT</span>}
+              </div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <span className="mono" style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>{"❤️".repeat(lives)}{"🖤".repeat(Math.max(0, 3 - lives))}</span>
+                <span className="mono" style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>⏱ {fmt(time)}</span>
+              </div>
             </div>
             {/* Claim bar */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span className="mono" style={{ fontSize: 11, color: score >= CLAIM_THRESHOLD ? "var(--lime)" : "rgba(255,255,255,0.4)" }}>
-                  {score >= CLAIM_THRESHOLD ? "✓ Claim unlocked!" : `${score}/${CLAIM_THRESHOLD} to unlock claim`}
-                </span>
-                <span className="display tabular" style={{ fontSize: 11, color: "var(--lime)" }}>{score} WOLF</span>
-              </div>
-              <div className="bar"><div className="bar-fill" style={{ width: `${Math.min(100, (score / CLAIM_THRESHOLD) * 100)}%`, background: score >= CLAIM_THRESHOLD ? "var(--lime)" : "var(--yellow)" }} /></div>
+            <div style={{ height: 3, background: "rgba(255,255,255,0.05)", marginBottom: 2 }}>
+              <div style={{ height: "100%", width: `${Math.min(100, (score / CLAIM_THRESHOLD) * 100)}%`, background: score >= CLAIM_THRESHOLD ? "var(--lime)" : "var(--cyan)", transition: "width 0.3s" }} />
             </div>
 
             <canvas ref={canvasRef} width={W} height={H}
-              style={{ border: "2.5px solid rgba(8,209,242,0.4)", borderRadius: 14, display: "block", width: "100%", touchAction: "none" }} />
+              style={{ display: "block", width: "100%", touchAction: "none" }} />
 
             {/* D-pad mobile */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, maxWidth: 160, margin: "14px auto 0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, maxWidth: 160, margin: "12px auto", padding: "0 16px 12px" }}>
               {[[null, { dx:0,dy:-1,icon:"↑" }, null],[{ dx:-1,dy:0,icon:"←" }, null, { dx:1,dy:0,icon:"→" }],[null, { dx:0,dy:1,icon:"↓" }, null]].map((row, ri) =>
                 row.map((cell, ci) => cell ? (
                   <button key={`${ri}-${ci}`} onPointerDown={(e) => { e.preventDefault(); dpad(cell.dx, cell.dy); }}
-                    className="btn" style={{ aspectRatio: "1", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", padding: 0, background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.3)", color: "white", boxShadow: "none" }}>
+                    style={{ aspectRatio: "1", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, color: "white", cursor: "pointer" }}>
                     {cell.icon}
                   </button>
                 ) : <div key={`${ri}-${ci}`} />)

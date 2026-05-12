@@ -233,14 +233,12 @@ export default function GameTetris() {
 
         {phase === "playing" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, width: W }}>
-              <div className="row" style={{ gap: 8 }}>
-                <span className="display tabular" style={{ fontSize: 20, color: "var(--lime)" }}>{score} WOLF</span>
-              </div>
-              <span className="mono" style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>⏱ {fmt(time)}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px 6px" }}>
+              <span className="display tabular" style={{ fontSize: 20, color: "var(--lime)" }}>{score} WOLF</span>
+              <span className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>⏱ {fmt(time)}</span>
             </div>
-            <canvas ref={canvasRef} width={W} height={H} style={{ border: "2px solid rgba(8,209,242,0.4)", borderRadius: 10, display: "block" }} />
-            <div className="mono" style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>↑ Rotate · ← → Move · ↓ Drop</div>
+            <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%" }} />
+            <div className="mono" style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.3)", padding: "8px 0" }}>↑ Rotate · ← → Move · ↓ Drop</div>
           </div>
         )}
 

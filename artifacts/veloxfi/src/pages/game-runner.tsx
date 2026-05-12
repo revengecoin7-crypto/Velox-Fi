@@ -268,13 +268,13 @@ export default function GameRunner() {
 
         {phase === "playing" && (
           <div style={{ width: "100%" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, maxWidth: W }}>
-              <div className="display tabular" style={{ fontSize: 20, color: "var(--yellow)" }}>{score} WOLF</div>
-              <div className="mono" style={{ fontSize: 14, color: "rgba(255,255,255,0.7)" }}>{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</div>
-              <div className="mono" style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>⏱ {fmt(time)}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px 6px" }}>
+              <span className="display tabular" style={{ fontSize: 20, color: "var(--yellow)" }}>{score} WOLF</span>
+              <span className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</span>
+              <span className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>⏱ {fmt(time)}</span>
             </div>
-            <canvas ref={canvasRef} width={W} height={H} style={{ border: "2px solid rgba(255,204,43,0.4)", borderRadius: 10, display: "block", maxWidth: "100%" }} />
-            <div className="mono" style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>Space / ↑ to jump · Tap on mobile</div>
+            <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", maxWidth: "100%" }} />
+            <div className="mono" style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.3)", padding: "8px 0" }}>Space / ↑ to jump · Tap on mobile</div>
           </div>
         )}
 

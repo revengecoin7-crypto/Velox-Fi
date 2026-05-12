@@ -79,8 +79,10 @@ export default function GameShell({
           {/* ── main: game + sidebar ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 18, alignItems: "flex-start" }}>
 
-            {/* game area */}
-            <div>{children}</div>
+            {/* game area — dark container */}
+            <div style={{ background: "var(--ink)", border: "3px solid var(--ink)", borderRadius: 22, overflow: "hidden", boxShadow: "var(--shadow-hard-lg)" }}>
+              {children}
+            </div>
 
             {/* right sidebar */}
             {side ? (
