@@ -1,234 +1,172 @@
-import { useEffect, useState } from "react";
-import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
-import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import { Sidebar } from "@/components/Sidebar";
 
-const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
-
-interface LBEntry {
-  rank:     number;
-  username: string;
-  wolf:     number;
-  tokens:   number;
-  isMe:     boolean;
-}
-
-const PRIZES = [
-  { rank: 1, emoji: "👑", label: "CHAMPION",  color: "#FFD93D", wolf: 5000 },
-  { rank: 2, emoji: "🥈", label: "RUNNER UP", color: "#C0C0C0", wolf: 3000 },
-  { rank: 3, emoji: "🥉", label: "3RD PLACE", color: "#CD7F32", wolf: 1000 },
+const LEADERS = [
+  { rank: 1, name: "alphawolf.sol", lvl: 38, badge: "Alpha Hunter", mined: 141890, wins: 284, streak: 21, total: 241890, delta: 12, you: false },
+  { rank: 2, name: "moonwolf42", lvl: 31, badge: "Plasma Wolf", mined: 98210, wins: 201, streak: 14, total: 184210, delta: 5, you: false },
+  { rank: 3, name: "pumpqueen.sol", lvl: 28, badge: "Pack Leader", mined: 84440, wins: 178, streak: 18, total: 156440, delta: -2, you: false },
+  { rank: 4, name: "fangmaster", lvl: 25, badge: "Hunter Rig", mined: 72100, wins: 142, streak: 9, total: 128900, delta: 8, you: false },
+  { rank: 5, name: "shibakid", lvl: 22, badge: "Wolf Pup", mined: 61200, wins: 98, streak: 7, total: 108400, delta: 3, you: false },
+  { rank: 6, name: "cryptobaby", lvl: 19, badge: "Rookie Wolf", mined: 52100, wins: 76, streak: 5, total: 94200, delta: -1, you: false },
+  { rank: 7, name: "wolfkid.sol", lvl: 14, badge: "Rookie Wolf", mined: 2840, wins: 12, streak: 7, total: 4820, delta: 8, you: true },
 ];
 
-function rankColor(rank: number) {
-  if (rank === 1) return "#FFD93D";
-  if (rank === 2) return "#b0b0b0";
-  if (rank === 3) return "#CD7F32";
-  return "#1a1a1a";
-}
-function rankBg(rank: number) {
-  if (rank === 1) return "#FFFBF0";
-  if (rank === 2) return "#f8f8f8";
-  if (rank === 3) return "#fdf6ee";
-  return "#fff";
-}
+const PODIUM = [
+  { rank: 2, name: "moonwolf42", amount: "184,210 BATTLE", color: "var(--cyan)", height: 220 },
+  { rank: 1, name: "alphawolf.sol", amount: "241,890 BATTLE", color: "var(--yellow)", height: 260, crown: true },
+  { rank: 3, name: "pumpqueen.sol", amount: "156,440 BATTLE", color: "var(--magenta)", height: 190 },
+];
 
-function WeekCountdown() {
-  const now = new Date();
-  const nextMonday = new Date(now);
-  nextMonday.setDate(now.getDate() + (8 - now.getDay()) % 7 || 7);
-  nextMonday.setHours(0, 0, 0, 0);
-  const msLeft = nextMonday.getTime() - now.getTime();
-  const d = Math.floor(msLeft / 86400000);
-  const h = Math.floor((msLeft % 86400000) / 3600000);
-  const m = Math.floor((msLeft % 3600000) / 60000);
-  return <span>{d}d {h}h {m}m</span>;
-}
+const HALL_OF_FAME = [
+  { title: "Biggest single win", name: "alphawolf.sol", value: "12,840 BATTLE", icon: "⚡", color: "var(--yellow)" },
+  { title: "Longest streak", name: "moonwolf42", value: "42 days 🔥", icon: "🔥", color: "var(--tomato)" },
+  { title: "First miner", name: "agent_zero", value: "Genesis Wolf", icon: "🐺", color: "var(--lime)" },
+];
 
-export default function Leaderboard() {
-  usePageMeta({
-    title: "Leaderboard — Top WOLF Earners | VeloxFi Game Arena",
-    description: "See the top WOLF token earners on VeloxFi. Weekly prizes: #1 gets 5000 WOLF, #2 gets 3000 WOLF, #3 gets 1000 WOLF. Play games and mine to climb the rankings.",
-    canonical: "https://veloxfi.io/leaderboard",
-  });
-
-  const { user } = useAuth();
-  const [entries, setEntries] = useState<LBEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/veloxfi/leaderboard`)
-      .then(r => r.json())
-      .then((data: { username: string; tokens: number; wolf?: number }[]) => {
-        const sorted = [...data].sort((a, b) => (b.wolf ?? 0) - (a.wolf ?? 0));
-        setEntries(sorted.map((u, i) => ({
-          rank:     i + 1,
-          username: u.username,
-          wolf:     u.wolf ?? 0,
-          tokens:   u.tokens ?? 0,
-          isMe:     u.username === user?.username,
-        })));
-      })
-      .catch(() => setEntries([]))
-      .finally(() => setLoading(false));
-  }, [user?.username]);
-
-  const top3   = entries.slice(0, 3);
-  const rest   = entries.slice(3, 10);
-  const myEntry = entries.find(e => e.isMe);
+export default function LeaderboardPage() {
+  const [period, setPeriod] = useState("weekly");
+  const [category, setCategory] = useState("total");
 
   return (
-    <MemeShell>
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="app-shell">
+      <Sidebar />
+      <main style={{ minWidth: 0 }}>
+        <div className="app-main" style={{ display: "flex", flexDirection: "column", gap: 26 }}>
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-5 font-bungee text-xs text-[#1a1a1a]"
-            style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
-            🏆 SEASON 1 RANKINGS
+          {/* Top bar */}
+          <div className="topbar">
+            <div className="crumb">Home / <b>Leaderboard</b></div>
+            <div className="display" style={{ fontSize: 28, lineHeight: 1, flex: 1 }}>The Pack rankings.</div>
+            <span className="pill yellow">Top 100 split 50,000 BATTLE weekly</span>
           </div>
-          <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
-            TOP <span style={{ color: "#FFD93D" }}>WOLVES</span>
-          </h1>
-          <p className="font-fredoka text-lg text-gray-600">Weekly prizes for the biggest WOLF earners 🐺</p>
-        </div>
 
-        {/* Weekly prize info */}
-        <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 24px", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 28 }}>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
-            <div>
-              <p className="font-bungee text-base text-[#1a1a1a] mb-1">🗓️ WEEKLY RESET</p>
-              <p className="font-fredoka text-sm" style={{ color: "#666" }}>Rankings reset every Monday at 00:00 UTC</p>
+          {/* Filters */}
+          <div className="row" style={{ gap: 12, flexWrap: "wrap" }}>
+            <div className="tabs">
+              {[["daily", "Today"], ["weekly", "This week"], ["monthly", "Month"], ["all", "All-time"]].map(([id, label]) => (
+                <div key={id} className={`tab${period === id ? " active" : ""}`} onClick={() => setPeriod(id)}>{label}</div>
+              ))}
             </div>
-            <div style={{ background: "#FF9F43", border: "2px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", boxShadow: "2px 2px 0 #1a1a1a", textAlign: "center" }}>
-              <p className="font-fredoka text-xs font-bold mb-0.5" style={{ color: "#1a1a1a" }}>RESETS IN</p>
-              <p className="font-bungee text-lg" style={{ color: "#1a1a1a" }}><WeekCountdown /></p>
+            <div className="grow" />
+            <div className="tabs">
+              {[["total", "Total BATTLE"], ["mining", "Mining"], ["games", "Games"], ["streak", "Streak"]].map(([id, label]) => (
+                <div key={id} className={`tab${category === id ? " active" : ""}`} onClick={() => setCategory(id)}>{label}</div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Prize cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          {PRIZES.map(p => (
-            <div key={p.rank} style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 16px", boxShadow: `5px 5px 0 ${p.color}`, textAlign: "center" }}>
-              <div style={{ fontSize: 36, marginBottom: 6 }}>{p.emoji}</div>
-              <p className="font-bungee text-sm" style={{ color: p.rank === 1 ? "#FFD93D" : p.rank === 2 ? "#888" : "#CD7F32" }}>{p.label}</p>
-              <p className="font-bungee text-3xl mt-1" style={{ color: "#1a1a1a" }}>+{p.wolf.toLocaleString()}</p>
-              <p className="font-fredoka text-sm" style={{ color: "#666" }}>WOLF reward</p>
-            </div>
-          ))}
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "48px 0" }}>
-            <p className="font-bungee text-xl text-[#1a1a1a]">LOADING...</p>
-          </div>
-        ) : entries.length === 0 ? (
-          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "48px 24px", boxShadow: "5px 5px 0 #1a1a1a", textAlign: "center", marginBottom: 24 }}>
-            <div style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
-            <h2 className="font-bungee text-2xl mb-3">NO PLAYERS YET</h2>
-            <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Be the first wolf on the leaderboard! Start playing games or mining to earn WOLF.</p>
-            <a href="/games" style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 15, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>
-              🎮 PLAY NOW
-            </a>
-          </div>
-        ) : (
-          <>
-            {/* Top 3 podium */}
-            {top3.length > 0 && (
-              <div className="flex gap-4 mb-6 items-end">
-                {[top3[1] ?? null, top3[0] ?? null, top3[2] ?? null].map((entry, idx) => {
-                  if (!entry) return <div key={idx} className="flex-1" />;
-                  const prize = PRIZES.find(p => p.rank === entry.rank);
-                  const isFirst = entry.rank === 1;
-                  return (
-                    <div key={entry.rank} className="flex-1"
-                      style={{
-                        background: entry.isMe ? "#d1fae5" : rankBg(entry.rank),
-                        border: `2.5px solid ${isFirst ? "#FFD93D" : "#1a1a1a"}`,
-                        borderRadius: 20,
-                        padding: isFirst ? "24px 16px" : "18px 14px",
-                        boxShadow: `${isFirst ? "6px 6px" : "4px 4px"} 0 ${rankColor(entry.rank)}`,
-                        textAlign: "center",
-                        order: idx,
-                      }}>
-                      <div style={{ fontSize: isFirst ? 40 : 30, marginBottom: 4 }}>{prize?.emoji ?? "🎯"}</div>
-                      <div className="font-bungee text-sm" style={{ color: rankColor(entry.rank) }}>{prize?.label}</div>
-                      <div className="font-bungee text-lg mt-1 truncate" style={{ color: "#1a1a1a" }}>{entry.username}</div>
-                      <div className="font-fredoka font-bold mt-1" style={{ color: "#6BCB77", fontSize: isFirst ? 22 : 16 }}>{entry.wolf.toLocaleString()} WOLF</div>
-                      {prize && <div className="font-bungee text-xs mt-2 px-2 py-1 rounded-lg" style={{ background: prize.color, color: "#1a1a1a", border: "1.5px solid #1a1a1a" }}>+{prize.wolf} prize</div>}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Table for ranks 4-10 */}
-            {rest.length > 0 && (
-              <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, overflow: "hidden", boxShadow: "5px 5px 0 #1a1a1a", marginBottom: 24 }}>
-                <div style={{ background: "#1a1a1a", padding: "12px 20px", display: "grid", gridTemplateColumns: "50px 1fr 140px 100px", gap: 8 }}>
-                  {["RANK", "PLAYER", "WOLF BALANCE", "$BATTLE"].map(h => (
-                    <span key={h} className="font-bungee text-xs" style={{ color: "#FFD93D" }}>{h}</span>
-                  ))}
+          {/* ── PODIUM ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 18, alignItems: "flex-end" }}>
+            {PODIUM.map((p) => (
+              <div key={p.rank} className="card" style={{ background: p.color, display: "flex", flexDirection: "column", alignItems: "center", padding: "22px 18px", minHeight: p.height, justifyContent: "flex-end" }}>
+                {p.crown && <div style={{ fontSize: 32, marginBottom: 8 }}>👑</div>}
+                <div style={{ width: 64, height: 64, borderRadius: 18, overflow: "hidden", border: "3px solid var(--ink)", boxShadow: "3px 3px 0 0 var(--ink)", marginBottom: 12, background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)" }}>
+                  <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
                 </div>
-                {rest.map((entry, i) => (
-                  <div key={entry.rank}
-                    style={{
-                      padding: "14px 20px",
-                      display: "grid",
-                      gridTemplateColumns: "50px 1fr 140px 100px",
-                      gap: 8,
-                      background: entry.isMe ? "#d1fae5" : i % 2 === 0 ? "#fff" : "#FFFBF0",
-                      borderTop: "1.5px solid #eee",
-                      alignItems: "center",
-                    }}>
-                    <span className="font-bungee text-sm" style={{ color: rankColor(entry.rank) }}>#{entry.rank}</span>
-                    <span className="font-fredoka font-bold text-sm truncate" style={{ color: entry.isMe ? "#065f46" : "#1a1a1a" }}>
-                      {entry.isMe ? "⭐ " : ""}{entry.username}
-                    </span>
-                    <span className="font-bungee text-sm" style={{ color: "#6BCB77" }}>{entry.wolf.toLocaleString()}</span>
-                    <span className="font-fredoka text-sm" style={{ color: "#4CC9F0" }}>{entry.tokens.toFixed(4)}</span>
-                  </div>
-                ))}
+                <div className="display tabular" style={{ fontSize: 48, lineHeight: 1 }}>#{p.rank}</div>
+                <div style={{ fontWeight: 700, fontSize: 14, marginTop: 4 }}>{p.name}</div>
+                <div className="display tabular" style={{ fontSize: 16, marginTop: 6 }}>{p.amount}</div>
               </div>
-            )}
-          </>
-        )}
+            ))}
+          </div>
 
-        {/* My rank */}
-        {user && myEntry && (
-          <div style={{ background: myEntry.rank <= 3 ? "#d1fae5" : "#fff", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "20px 24px", boxShadow: "5px 5px 0 #6BCB77", marginBottom: 24 }}>
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <p className="font-bungee text-sm mb-1" style={{ color: "#888" }}>YOUR RANK</p>
-                <div className="flex items-center gap-3">
-                  <span className="font-bungee text-4xl" style={{ color: rankColor(myEntry.rank) }}>#{myEntry.rank}</span>
+          {/* ── YOUR POSITION ── */}
+          <div className="card ink" style={{ padding: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.08) 1.2px, transparent 1.2px)", backgroundSize: "14px 14px" }} />
+            <div className="row" style={{ position: "relative", gap: 18 }}>
+              <div className="display tabular" style={{ fontSize: 64, color: "var(--cyan)", lineHeight: 1 }}>#142</div>
+              <div style={{ width: 56, height: 56, borderRadius: 16, overflow: "hidden", border: "2.5px solid rgba(255,255,255,0.3)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0 }}>
+                <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
+              </div>
+              <div style={{ flex: 1, color: "white" }}>
+                <div className="display" style={{ fontSize: 22 }}>You · wolfkid.sol</div>
+                <div className="row" style={{ gap: 14, marginTop: 6 }}>
+                  <span className="mono" style={{ fontSize: 12, color: "var(--cyan)" }}>4,280 XP</span>
+                  <span className="mono" style={{ fontSize: 12, color: "var(--magenta)" }}>+8 ranks this week</span>
+                  <span className="mono" style={{ fontSize: 12, color: "var(--lime)" }}>52 ranks to top 100</span>
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div className="mono" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>TOTAL EARNED · WEEK</div>
+                <div className="display tabular" style={{ fontSize: 28, color: "white" }}>4,820 BATTLE</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── TABLE ── */}
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="row" style={{ padding: "14px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)", fontSize: 11, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700, gap: 0 }}>
+              <div style={{ width: 70 }}>Rank</div>
+              <div style={{ flex: 2 }}>Wolf</div>
+              <div style={{ flex: 1, textAlign: "right" }}>Mined</div>
+              <div style={{ flex: 1, textAlign: "right" }}>Wins</div>
+              <div style={{ flex: 1, textAlign: "right" }}>Streak</div>
+              <div style={{ flex: 1.2, textAlign: "right" }}>Total</div>
+              <div style={{ width: 80, textAlign: "right" }}>Δ Week</div>
+            </div>
+            {LEADERS.map((l, i) => (
+              <div key={i} className="row" style={{ padding: "12px 22px", borderBottom: i < LEADERS.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: l.you ? "var(--cream-soft)" : "var(--paper)", gap: 0 }}>
+                <div style={{ width: 70 }}>
+                  <div className="display tabular" style={{ fontSize: 22 }}>
+                    {l.rank <= 3 ? ["🥇", "🥈", "🥉"][l.rank - 1] : `#${l.rank}`}
+                  </div>
+                </div>
+                <div className="row" style={{ flex: 2 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 9, overflow: "hidden", border: "2px solid var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0, marginRight: 10 }}>
+                    <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
+                  </div>
                   <div>
-                    <p className="font-bungee text-lg text-[#1a1a1a]">{user.username}</p>
-                    <p className="font-fredoka text-sm" style={{ color: "#6BCB77" }}>{myEntry.wolf.toLocaleString()} WOLF</p>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{l.name} {l.you && <span className="pill cyan" style={{ fontSize: 9, padding: "1px 5px", marginLeft: 6 }}>YOU</span>}</div>
+                    <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>LVL {l.lvl} · {l.badge}</div>
                   </div>
                 </div>
+                <div style={{ flex: 1, textAlign: "right" }} className="mono">{l.mined.toLocaleString()}</div>
+                <div style={{ flex: 1, textAlign: "right" }} className="mono">{l.wins}</div>
+                <div style={{ flex: 1, textAlign: "right" }}>
+                  <span className="pill" style={{ background: l.streak >= 14 ? "var(--tomato)" : l.streak >= 7 ? "var(--yellow)" : "var(--cream)", color: l.streak >= 14 ? "white" : "var(--ink)", fontSize: 11, padding: "2px 7px" }}>
+                    🔥 {l.streak}d
+                  </span>
+                </div>
+                <div style={{ flex: 1.2, textAlign: "right" }} className="display tabular">{l.total.toLocaleString()}</div>
+                <div style={{ width: 80, textAlign: "right" }}>
+                  <span className="mono" style={{ color: l.delta >= 0 ? "#2A9D3C" : "var(--tomato)", fontSize: 12, fontWeight: 700 }}>
+                    {l.delta >= 0 ? "▲" : "▼"} {Math.abs(l.delta)}
+                  </span>
+                </div>
               </div>
-              <div className="flex gap-3">
-                <a href="/games" style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>🎮 PLAY</a>
-                <a href="/mine"  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "10px 20px", fontFamily: "Bungee,sans-serif", fontSize: 13, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a" }}>⛏️ MINE</a>
-              </div>
+            ))}
+          </div>
+
+          {/* ── WEEKLY PAYOUT ── */}
+          <div>
+            <div className="section-title"><div><div className="eyebrow">Weekly distribution</div><h2>Top wolves eat first</h2></div></div>
+            <div className="grid-4">
+              {[["#1", "15,000 BATTLE", "var(--yellow)"], ["#2", "10,000 BATTLE", "var(--cyan)"], ["#3", "7,500 BATTLE", "var(--magenta)"], ["#4-100", "500 BATTLE each", "var(--paper)"]].map(([rank, prize, color]) => (
+                <div className="card" key={String(rank)} style={{ background: String(color), textAlign: "center" }}>
+                  <div className="display tabular" style={{ fontSize: 36 }}>{rank}</div>
+                  <div className="display tabular" style={{ fontSize: 20, marginTop: 8 }}>{prize}</div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-        {!user && (
-          <div style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 20, padding: "40px 24px", boxShadow: "6px 6px 0 #1a1a1a", textAlign: "center" }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🐺</div>
-            <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">JOIN THE COMPETITION</h2>
-            <p className="font-fredoka text-gray-700 text-base mb-6">Create an account, play games, mine WOLF, and compete for the weekly prize pool!</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/register" style={{ background: "#1a1a1a", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 14, textDecoration: "none", color: "#fff", boxShadow: "4px 4px 0 #333" }}>CREATE ACCOUNT 🚀</a>
-              <a href="/games"    style={{ background: "#fff",    border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px 36px", fontFamily: "Bungee,sans-serif", fontSize: 14, textDecoration: "none", color: "#1a1a1a", boxShadow: "4px 4px 0 #333" }}>PLAY GAMES 🎮</a>
+          {/* ── HALL OF FAME ── */}
+          <div>
+            <div className="section-title"><div><div className="eyebrow">Legends</div><h2>Hall of fame</h2></div></div>
+            <div className="grid-3">
+              {HALL_OF_FAME.map((h) => (
+                <div className="card" key={h.title} style={{ background: h.color }}>
+                  <div style={{ fontSize: 32, marginBottom: 10 }}>{h.icon}</div>
+                  <div className="mono" style={{ fontSize: 10, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1 }}>{h.title}</div>
+                  <div className="display" style={{ fontSize: 22, marginTop: 4 }}>{h.name}</div>
+                  <div style={{ fontSize: 14, marginTop: 6, fontWeight: 600 }}>{h.value}</div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-      </div>
-    </MemeShell>
+        </div>
+      </main>
+    </div>
   );
 }

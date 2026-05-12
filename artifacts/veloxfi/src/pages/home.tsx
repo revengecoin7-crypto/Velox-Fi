@@ -1,684 +1,463 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
-import { Menu, X, User, LogOut, Gamepad2, Pickaxe, ArrowRightLeft, Trophy } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { usePageMeta } from "@/hooks/usePageMeta";
+import { Link } from "wouter";
+import { Sidebar } from "@/components/Sidebar";
 
-const HOW_IT_WORKS = [
-  {
-    step: "01", icon: "🎮",
-    title: "Play games",
-    desc: "Jump into Crypto Snake, Battle Tetris, Wolf Run or Rocket Miner. Every game session earns you WOLF tokens — the more you play, the more you earn.",
-    color: "#4CC9F0",
-  },
-  {
-    step: "02", icon: "⛏️",
-    title: "Mine WOLF",
-    desc: "Start a mining session once every 4 hours and collect free WOLF tokens. Earn up to 240 WOLF per session. No wallet needed.",
-    color: "#6BCB77",
-  },
-  {
-    step: "03", icon: "💱",
-    title: "Convert to $BATTLE",
-    desc: "Convert any amount of WOLF to $BATTLE tokens — the real Solana coin. 5,000 WOLF = 1 $BATTLE. Enter your wallet address and we'll send them to you.",
-    color: "#FFD93D",
-  },
-  {
-    step: "04", icon: "🏆",
-    title: "Dominate the arena",
-    desc: "Climb the leaderboard, flex your balance, and become the top wolf in the VeloxFi arena. Season rewards go to the biggest earners.",
-    color: "#FF6B9D",
-  },
-];
-
-const GAMES = [
-  { name: "Crypto Snake",   path: "/games/snake",   emoji: "🐍", color: "#6BCB77", desc: "Eat coins, grow bigger, earn WOLF" },
-  { name: "Battle Tetris",  path: "/games/tetris",  emoji: "🟦", color: "#4CC9F0", desc: "Clear lines, earn WOLF per level"  },
-  { name: "Wolf Run",       path: "/games/runner",  emoji: "🐺", color: "#FFD93D", desc: "Run, jump, collect WOLF coins"      },
-  { name: "Rocket Miner",   path: "/games/rocket",  emoji: "🚀", color: "#FF9F43", desc: "Shoot asteroids, earn WOLF"        },
-];
-
+// ── Ticker data ──
 const TICKER_ITEMS = [
-  "🎮 $BATTLE NOW LIVE ON PUMP.FUN",
-  "⚔️ JOIN THE GAME ARENA",
-  "🎯 MINE WOLF TOKENS EVERY 4 HOURS",
-  "🐍 CRYPTO SNAKE — EARN WOLF",
-  "🚀 ROCKET MINER — BLAST ASTEROIDS",
-  "🏆 5000 WOLF = 1 $BATTLE",
-  "💎 BUILT ON SOLANA",
-  "🔥 CA: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump",
+  { label: "$BATTLE", val: "$0.00428", delta: "+12.6%", dir: "up" },
+  { label: "HOLDERS", val: "14,902", delta: "+341 24h", dir: "up" },
+  { label: "VOL 24h", val: "$1.84M", delta: "+22.1%", dir: "up" },
+  { label: "MCAP", val: "$4.28M", delta: "+12.6%", dir: "up" },
+  { label: "MINERS ONLINE", val: "3,217", delta: "LIVE", dir: "up" },
+  { label: "GAMES PLAYED", val: "218,440", delta: "+1,212", dir: "up" },
+  { label: "NEXT HALVING", val: "in 13d 04h", delta: "", dir: "" },
+  { label: "SOL", val: "$184.21", delta: "-0.4%", dir: "down" },
 ];
 
-const NAV_LINKS = [
-  { label: "Games",       path: "/games",       color: "#4CC9F0" },
-  { label: "Mine",        path: "/mine",        color: "#6BCB77" },
-  { label: "Convert",     path: "/convert",     color: "#FF9F43" },
-  { label: "Leaderboard", path: "/leaderboard", color: "#FFD93D" },
-  { label: "Buy $BATTLE", path: "/presale",     color: "#FF9F43" },
-  { label: "Whitepaper",  path: "/whitepaper",  color: "#6BCB77" },
-  { label: "Blog",        path: "/blog",        color: "#FF6B9D" },
-  { label: "FAQ",         path: "/faq",         color: "#FF6B6B" },
-  { label: "Roadmap",     path: "/roadmap",     color: "#A29BFE" },
-];
-
-const CONFETTI_COLORS = ["#FFD93D", "#FF6B9D", "#6BCB77", "#4CC9F0", "#FF9F43", "#A29BFE", "#FF6B6B"];
-const CONFETTI_PIECES = Array.from({ length: 50 }, (_, i) => ({
-  id: i,
-  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-  x: `${Math.random() * 100}%`,
-  size: `${7 + Math.random() * 8}px`,
-  delay: `${Math.random() * 1.5}s`,
-  dur: `${2.2 + Math.random() * 2}s`,
-  shape: i % 3 === 0 ? "50%" : i % 3 === 1 ? "3px" : "0%",
-}));
-
-function Confetti() {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 5000);
-    return () => clearTimeout(t);
-  }, []);
-  if (!visible) return null;
+function Ticker() {
+  const items = [...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <div className="fixed inset-0 pointer-events-none z-[999]" aria-hidden="true">
-      {CONFETTI_PIECES.map((p) => (
-        <div key={p.id} style={{
-          position: "absolute", left: p.x, top: "-20px",
-          width: p.size, height: p.size, background: p.color,
-          borderRadius: p.shape, border: "1.5px solid rgba(26,26,26,0.4)",
-          animation: `confettiFall ${p.dur} ease-in forwards`,
-          animationDelay: p.delay, opacity: 0.95,
-        }} />
-      ))}
+    <div className="ticker">
+      <div className="ticker-track">
+        {items.map((t, i) => (
+          <div className="ticker-item" key={i}>
+            <span className="label">{t.label}</span>
+            <span className="val">{t.val}</span>
+            {t.delta && <span className={`val ${t.dir}`}>{t.delta}</span>}
+            <span style={{ opacity: 0.3 }}>•</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-export default function Home() {
-  usePageMeta({
-    title: "VeloxFi — Play Games, Earn WOLF, Win $BATTLE on Solana",
-    description: "The VeloxFi game arena on Solana. Play Crypto Snake, Battle Tetris, Wolf Run and Rocket Miner. Mine WOLF tokens and convert to $BATTLE.",
-    canonical: "https://veloxfi.io",
-  });
+const GAMES = [
+  { id: "snake", name: "Crypto Snake", tag: "CLASSIC · SOLO", boost: 1.5, bg: "#C7F75F", dark: false, barColor: "var(--ink)", isNew: false, href: "/games/snake" },
+  { id: "tetris", name: "Battle Tetris", tag: "1v1 · COMPETITIVE", boost: 2.4, bg: "var(--magenta)", dark: true, barColor: "var(--cyan)", isNew: false, href: "/games/tetris" },
+  { id: "wolfrun", name: "Wolf Run", tag: "ENDLESS RUNNER", boost: 1.8, bg: "#FFB02E", dark: false, barColor: "var(--magenta)", isNew: false, href: "/games/runner" },
+  { id: "rocket", name: "Rocket Miner", tag: "CRASH GAME", boost: 3.2, bg: "#0B0B1A", dark: true, barColor: "var(--cyan)", isNew: false, href: "/games/rocket" },
+  { id: "howlhunt", name: "Howl & Hunt", tag: "BATTLE ROYALE · 10P", boost: 4.0, bg: "#1F1B2E", dark: true, barColor: "var(--lime)", isNew: true, href: "/games" },
+  { id: "pump", name: "Pump Pulse", tag: "60s PREDICT", boost: 2.8, bg: "var(--cyan)", dark: false, barColor: "var(--magenta)", isNew: true, href: "/games" },
+];
 
-  const { user, logout } = useAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [, navigate] = useLocation();
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  function navGo(path: string) {
-    setMobileOpen(false);
-    navigate(path);
-  }
-
-  const location = "/";
-
+function GameMiniArt({ id }: { id: string }) {
+  const style: React.CSSProperties = { position: "absolute", inset: 0, opacity: 0.85 };
+  if (id === "snake") return (
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <path d="M10 30 Q 60 20, 80 50 T 150 60 T 190 90" stroke="var(--ink)" strokeWidth="14" fill="none" strokeLinecap="round" />
+      <circle cx="190" cy="90" r="12" fill="var(--ink)" />
+      <circle cx="194" cy="86" r="3" fill="var(--magenta)" />
+      <circle cx="40" cy="80" r="6" fill="var(--magenta)" stroke="var(--ink)" strokeWidth="2" />
+    </svg>
+  );
+  if (id === "tetris") return (
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <g stroke="var(--ink)" strokeWidth="2">
+        <rect x="20" y="60" width="20" height="20" fill="var(--cyan)" />
+        <rect x="40" y="60" width="20" height="20" fill="var(--cyan)" />
+        <rect x="60" y="60" width="20" height="20" fill="var(--cyan)" />
+        <rect x="80" y="60" width="20" height="20" fill="var(--cyan)" />
+        <rect x="120" y="40" width="20" height="20" fill="var(--yellow)" />
+        <rect x="140" y="40" width="20" height="20" fill="var(--yellow)" />
+        <rect x="120" y="60" width="20" height="20" fill="var(--yellow)" />
+        <rect x="140" y="60" width="20" height="20" fill="var(--yellow)" />
+      </g>
+    </svg>
+  );
+  if (id === "wolfrun") return (
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <path d="M0 90 L 200 90" stroke="var(--ink)" strokeWidth="3" />
+      <rect x="40" y="60" width="20" height="30" fill="var(--ink)" />
+      <rect x="80" y="40" width="40" height="50" fill="var(--ink)" />
+      <rect x="140" y="70" width="20" height="20" fill="var(--ink)" />
+      <circle cx="170" cy="70" r="12" fill="var(--paper)" stroke="var(--ink)" strokeWidth="2.5" />
+    </svg>
+  );
+  if (id === "rocket") return (
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <path d="M10 100 Q 80 100, 100 60 T 190 10" stroke="var(--cyan)" strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d="M170 30 L 190 10 L 180 30 Z" fill="var(--magenta)" stroke="var(--ink)" strokeWidth="2" />
+      <circle cx="40" cy="92" r="3" fill="var(--cyan)" />
+      <circle cx="80" cy="80" r="3" fill="var(--cyan)" />
+      <circle cx="120" cy="50" r="3" fill="var(--cyan)" />
+    </svg>
+  );
+  if (id === "howlhunt") return (
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <g stroke="var(--lime)" strokeWidth="2" fill="none">
+        <rect x="14" y="14" width="172" height="92" rx="6" />
+        {Array.from({ length: 9 }).map((_, i) => <line key={i} x1={14 + i * 19} y1="14" x2={14 + i * 19} y2="106" opacity="0.3" />)}
+        {Array.from({ length: 5 }).map((_, i) => <line key={i} x1="14" y1={14 + i * 19} x2="186" y2={14 + i * 19} opacity="0.3" />)}
+      </g>
+      <circle cx="60" cy="60" r="6" fill="var(--lime)" />
+      <circle cx="120" cy="80" r="6" fill="var(--magenta)" />
+      <circle cx="150" cy="40" r="6" fill="var(--cyan)" />
+    </svg>
+  );
   return (
-    <div style={{ backgroundColor: "#FFFBF0", minHeight: "100dvh", color: "#1a1a1a", overflowX: "hidden" }}>
-      <style>{`
-        @keyframes marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-14px); }
-        }
-        @keyframes confettiFall {
-          0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
-          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-        @keyframes rainbowShift {
-          0%   { background-position: 0% center; }
-          100% { background-position: 300% center; }
-        }
-        @keyframes badgePulse {
-          0%, 100% { box-shadow: 3px 3px 0 #1a1a1a; transform: translate(0,0); }
-          50%       { box-shadow: 5px 5px 0 #1a1a1a; transform: translate(-2px,-2px); }
-        }
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-4deg); }
-          50%       { transform: rotate(4deg); }
-        }
-        .rainbow-text-anim {
-          background: linear-gradient(90deg, #FF6B6B, #FF9F43, #FFD93D, #6BCB77, #4CC9F0, #A29BFE, #FF6B9D, #FF6B6B);
-          background-size: 300% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: rainbowShift 3s linear infinite;
-        }
-      `}</style>
+    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
+      <g stroke="var(--ink)" strokeWidth="2.5">
+        <rect x="20" y="60" width="14" height="40" fill="var(--lime)" />
+        <rect x="40" y="40" width="14" height="60" fill="var(--lime)" />
+        <rect x="60" y="50" width="14" height="50" fill="var(--tomato)" />
+        <rect x="80" y="30" width="14" height="70" fill="var(--lime)" />
+        <rect x="100" y="20" width="14" height="80" fill="var(--lime)" />
+        <rect x="120" y="45" width="14" height="55" fill="var(--tomato)" />
+        <rect x="140" y="25" width="14" height="75" fill="var(--lime)" />
+        <rect x="160" y="15" width="14" height="85" fill="var(--lime)" />
+      </g>
+    </svg>
+  );
+}
 
-      <Confetti />
+function TokenDonut() {
+  const segments = [
+    { v: 60, c: "var(--cyan)" },
+    { v: 18, c: "var(--magenta)" },
+    { v: 14, c: "var(--yellow)" },
+    { v: 8, c: "var(--lime)" },
+  ];
+  const r = 56, cx = 70, cy = 70, sw = 24;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" style={{ flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--ink-soft)" strokeWidth={sw} />
+      {segments.map((d, i) => {
+        const dashLen = (d.v / 100) * circumference;
+        const dashOffset = -offset;
+        offset += dashLen;
+        return (
+          <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={d.c} strokeWidth={sw}
+            strokeDasharray={`${dashLen} ${circumference}`}
+            strokeDashoffset={dashOffset}
+            transform={`rotate(-90 ${cx} ${cy})`} />
+        );
+      })}
+      <circle cx={cx} cy={cy} r={r - sw / 2 - 1} fill="none" stroke="var(--ink)" strokeWidth="2" />
+      <circle cx={cx} cy={cy} r={r + sw / 2 + 1} fill="none" stroke="var(--ink)" strokeWidth="2" />
+      <text x={cx} y={cy - 4} textAnchor="middle" fontFamily="Bagel Fat One" fontSize="16" fill="white">BATTLE</text>
+      <text x={cx} y={cy + 12} textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="rgba(255,255,255,0.6)">1B SUPPLY</text>
+    </svg>
+  );
+}
 
-      {/* ── TICKER ── */}
-      <div className="w-full overflow-hidden py-2.5 relative z-50"
-        style={{ background: "#FFD93D", borderBottom: "2.5px solid #1a1a1a" }}>
-        <div className="flex gap-16 whitespace-nowrap font-bungee text-xs text-[#1a1a1a]"
-          style={{ animation: "marquee 24s linear infinite", width: "max-content" }}>
-          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-            <span key={i} className="flex-shrink-0">{item}</span>
-          ))}
-        </div>
-      </div>
+export default function Home() {
+  return (
+    <div className="app-shell">
+      <Sidebar />
+      <main style={{ minWidth: 0 }}>
+        <div className="app-main" style={{ display: "flex", flexDirection: "column", gap: 64 }}>
 
-      {/* ── NAV ── */}
-      <nav data-testid="nav" className="sticky top-0 z-40"
-        style={{ backgroundColor: "#FFFBF0", borderBottom: "2.5px solid #1a1a1a", boxShadow: "0 4px 0 #1a1a1a" }}>
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <a href="/" data-testid="nav-logo" className="flex items-center gap-2.5">
-            <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-9 h-9 rounded-xl object-cover"
-              style={{ border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}
-              onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
-            <span className="font-bungee text-xl text-[#1a1a1a] tracking-wide">VELOXFI</span>
-          </a>
+          {/* ── HERO ── */}
+          <section style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 36, alignItems: "center", position: "relative", paddingTop: 12 }}>
+            <div className="sticker float-y" style={{ position: "absolute", top: -6, left: "52%", background: "var(--cyan)", zIndex: 3, transform: "rotate(-8deg)" }}>FAIR LAUNCH</div>
+            <div className="sticker wiggle" style={{ position: "absolute", top: 40, right: -4, background: "var(--magenta)", color: "white", zIndex: 3 }}>NO PRESALE</div>
+            <div className="sticker" style={{ position: "absolute", bottom: -12, left: "46%", background: "var(--lime)", zIndex: 3, transform: "rotate(4deg)" }}>SOLANA ⚡</div>
 
-          <div className="hidden md:flex items-center gap-2">
-            {NAV_LINKS.map(({ label, path, color }) => {
-              const isActive = location === path;
-              return (
-                <button key={path} onClick={() => navGo(path)}
-                  className="text-sm font-fredoka font-semibold transition-all duration-100"
-                  style={{
-                    background: isActive ? color : "transparent", color: "#1a1a1a",
-                    border: isActive ? "2px solid #1a1a1a" : "2px solid transparent",
-                    boxShadow: isActive ? "2px 2px 0 #1a1a1a" : "none",
-                    borderRadius: "10px", padding: "4px 12px", cursor: "pointer",
-                    fontWeight: isActive ? 700 : 500, opacity: isActive ? 1 : 0.65,
-                  }}>
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {user ? (
-              <>
-                <button onClick={() => navGo("/profile")}
-                  className="flex items-center gap-1.5 text-sm font-fredoka font-semibold px-4 py-2 rounded-xl"
-                  style={{ background: "#6BCB77", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
-                  <User className="w-4 h-4" />{user.username}
-                </button>
-                <button onClick={logout}
-                  className="flex items-center gap-1 text-sm font-fredoka font-semibold px-3 py-2 rounded-xl"
-                  style={{ background: "#FF6B6B", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "white" }}>
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </>
-            ) : (
-              <button onClick={() => navGo("/login")}
-                className="text-sm font-fredoka font-semibold px-4 py-2 rounded-xl"
-                style={{ background: "#FFD93D", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
-                Login / Register
-              </button>
-            )}
-            <button onClick={() => setMobileOpen((o) => !o)}
-              className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}
-              aria-label="Toggle menu">
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {mobileOpen && (
-          <div className="md:hidden" style={{ borderTop: "2.5px solid #1a1a1a", background: "#FFFBF0" }}>
-            <div className="flex flex-col py-3 px-4 gap-1">
-              {NAV_LINKS.map(({ label, path, color }) => (
-                <button key={path} onClick={() => navGo(path)}
-                  className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
-                  style={{ background: "transparent", border: "2px solid transparent", cursor: "pointer", color: "#1a1a1a" }}>
-                  {label}
-                </button>
-              ))}
-              <div style={{ borderTop: "1.5px solid #e5e5e5", marginTop: "4px", paddingTop: "8px" }}>
-                {user ? (
-                  <>
-                    <button onClick={() => navGo("/profile")}
-                      className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
-                      style={{ background: "#6BCB77", border: "2px solid #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
-                      Profile ({user.username})
-                    </button>
-                    <button onClick={() => { logout(); setMobileOpen(false); }}
-                      className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl mt-1"
-                      style={{ background: "#FF6B6B", border: "2px solid #1a1a1a", cursor: "pointer", color: "white" }}>
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <button onClick={() => navGo("/login")}
-                    className="w-full text-left py-3 px-4 text-sm font-fredoka font-semibold rounded-xl"
-                    style={{ background: "#FFD93D", border: "2px solid #1a1a1a", cursor: "pointer", color: "#1a1a1a" }}>
-                    Login / Register
-                  </button>
-                )}
+            <div>
+              <div className="row" style={{ gap: 8, marginBottom: 18 }}>
+                <span className="pill dot">LIVE ON PUMP.FUN</span>
+                <span className="pill" style={{ background: "var(--cream)" }}>v2 — Pack mode just dropped</span>
+              </div>
+              <h1 className="display" style={{ fontSize: 90, lineHeight: 0.92, margin: 0 }}>
+                MINE.<br />PLAY.<br /><span style={{ color: "var(--magenta)" }}>HOWL.</span>
+              </h1>
+              <p style={{ fontSize: 18, lineHeight: 1.45, maxWidth: 520, marginTop: 22, color: "var(--ink-soft)" }}>
+                Veloxfi is the cyber-wolf meme coin on Solana. Mine <b>$BATTLE</b> every day, sharpen your fangs in six arcade games, and climb the pack on a leaderboard that pays in real tokens. No presale. No team allocation. Just the wolves.
+              </p>
+              <div className="row" style={{ marginTop: 26, gap: 12, flexWrap: "wrap" }}>
+                <Link href="/register" className="btn lg magenta">Join the pack →</Link>
+                <Link href="/mine" className="btn lg primary">⛏ Start mining</Link>
+                <button className="btn lg ghost">▶ Watch 60s intro</button>
+              </div>
+              <div className="row" style={{ marginTop: 28, gap: 10, flexWrap: "wrap" }}>
+                <div className="pill" style={{ maxWidth: 260, overflow: "hidden" }}>
+                  <span className="mono" style={{ fontSize: 10 }}>CA</span>
+                  <span className="mono" style={{ fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>HAytudteq...DpumP</span>
+                </div>
+                <a className="btn sm" href="https://pump.fun" target="_blank" rel="noreferrer">P pump.fun</a>
+                <a className="btn sm" href="#">𝕏 X</a>
+                <a className="btn sm" href="#">✈ Telegram</a>
+                <a className="btn sm" href="#">Discord</a>
               </div>
             </div>
-          </div>
-        )}
-      </nav>
 
-      {/* ── FLOATING BG SHAPES ── */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {[
-          { x: "4%",  y: "20%", s: "38px", c: "#FFD93D", circle: true,  d: "0s",   dur: "4s"   },
-          { x: "91%", y: "25%", s: "26px", c: "#FF6B9D", circle: false, d: "1s",   dur: "5s"   },
-          { x: "2%",  y: "65%", s: "22px", c: "#4CC9F0", circle: true,  d: "2s",   dur: "3.5s" },
-          { x: "94%", y: "70%", s: "34px", c: "#6BCB77", circle: false, d: "0.5s", dur: "4.5s" },
-          { x: "48%", y: "7%",  s: "18px", c: "#A29BFE", circle: true,  d: "1.5s", dur: "5.5s" },
-          { x: "77%", y: "89%", s: "28px", c: "#FF9F43", circle: true,  d: "3s",   dur: "4s"   },
-        ].map((s, i) => (
-          <div key={i} style={{
-            position: "absolute", left: s.x, top: s.y, width: s.s, height: s.s,
-            background: s.c, borderRadius: s.circle ? "50%" : "6px",
-            border: "2px solid rgba(26,26,26,0.25)", opacity: 0.2,
-            animation: `float ${s.dur} ease-in-out infinite`, animationDelay: s.d,
-          }} />
-        ))}
-      </div>
-
-      {/* ── HERO ── */}
-      <section ref={heroRef} data-testid="hero-section" className="relative z-10 overflow-hidden"
-        style={{ minHeight: "calc(100dvh - 110px)" }}>
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 pt-12 pb-16 md:pt-16 md:pb-20">
-
-          {/* LEFT */}
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 font-bungee text-xs text-[#1a1a1a]"
-              style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", animation: "badgePulse 1.8s ease-in-out infinite", boxShadow: "3px 3px 0 #1a1a1a" }}>
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#1a1a1a" }} />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#1a1a1a" }} />
-              </span>
-              NOW LIVE ON PUMP.FUN!
+            <div style={{ position: "relative" }}>
+              <div className="mascot-frame" style={{ aspectRatio: "1/1" }}>
+                <img src="/mascot.jpg" alt="Velox cyber wolf" />
+                <div className="gloss" />
+                <div style={{ position: "absolute", top: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between" }}>
+                  <div className="mono" style={{ fontSize: 11, color: "var(--cyan)", textShadow: "0 0 8px var(--cyan)" }}>
+                    <div>VELOX :: AGENT_07</div>
+                    <div style={{ opacity: 0.7, marginTop: 2 }}>STATUS / ONLINE</div>
+                  </div>
+                  <div className="mono" style={{ fontSize: 11, color: "var(--magenta)", textShadow: "0 0 8px var(--magenta)", textAlign: "right" }}>
+                    <div>HASH ↑ 2.4 KH/s</div>
+                    <div style={{ opacity: 0.7, marginTop: 2 }}>PACK / ALPHA</div>
+                  </div>
+                </div>
+                <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                  <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--cyan)", borderRadius: 10, padding: "6px 10px" }}>
+                    <div className="mono" style={{ fontSize: 10, color: "var(--cyan)" }}>RIG POWER</div>
+                    <div className="display" style={{ fontSize: 18, color: "white" }}>LVL 14</div>
+                  </div>
+                  <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--magenta)", borderRadius: 10, padding: "6px 10px" }}>
+                    <div className="mono" style={{ fontSize: 10, color: "var(--magenta)" }}>CLAIMABLE</div>
+                    <div className="display" style={{ fontSize: 18, color: "white" }}>4,280 BATTLE</div>
+                  </div>
+                </div>
+              </div>
+              <div className="float-y" style={{ position: "absolute", top: -22, right: -22, zIndex: 4 }}>
+                <div className="card yellow" style={{ width: 96, height: 96, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div className="display" style={{ fontSize: 24, lineHeight: 0.9 }}>$BATTLE</div>
+                    <div className="mono" style={{ fontSize: 9, marginTop: 4 }}>SOLANA</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ position: "absolute", bottom: -16, left: -22, zIndex: 4, transform: "rotate(-8deg)" }}>
+                <div className="card cyan" style={{ padding: "10px 14px" }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Total mined</div>
+                  <div className="display tabular" style={{ fontSize: 22 }}>892M BATTLE</div>
+                </div>
+              </div>
             </div>
+          </section>
 
-            <h1 className="font-bungee leading-none mb-4" data-testid="hero-title"
-              style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}>
-              <span className="block text-[#1a1a1a]">PLAY GAMES.</span>
-              <span className="block rainbow-text-anim">EARN WOLF.</span>
-              <span className="block text-[#1a1a1a]">WIN $BATTLE.</span>
-            </h1>
+          {/* ── TICKER ── */}
+          <div style={{ margin: "0 -36px" }}><Ticker /></div>
 
-            <p className="font-fredoka text-lg md:text-xl max-w-lg mb-8 leading-relaxed" style={{ color: "#555" }}>
-              The VeloxFi game arena on Solana. Play 4 arcade games, mine WOLF tokens every 8 hours, and convert{" "}
-              <span className="font-semibold" style={{ color: "#FF6B9D" }}>5000 WOLF = 1 $BATTLE.</span>
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <button onClick={() => navGo("/games")}
-                className="cartoon-btn cartoon-btn-yellow px-10 py-4 text-base"
-                style={{ borderRadius: "16px" }}>
-                PLAY NOW 🎮
-              </button>
-              <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
-                target="_blank" rel="noopener noreferrer"
-                className="cartoon-btn cartoon-btn-white px-10 py-4 text-base"
-                style={{ borderRadius: "16px", textDecoration: "none" }}>
-                BUY $BATTLE
-              </a>
-            </div>
-
-            <div className="flex gap-4 flex-wrap">
+          {/* ── STATS ── */}
+          <section>
+            <div className="grid-4">
               {[
-                { label: "CHAIN",  value: "Solana"   },
-                { label: "DEX",    value: "pump.fun" },
-                { label: "EARN",   value: "Mine WOLF" },
+                { label: "Holders", value: "14,902", sub: "+341 in 24h", color: "var(--paper)" },
+                { label: "Total mined", value: "892M", sub: "of 1B max supply", color: "var(--cyan)" },
+                { label: "Market cap", value: "$4.28M", sub: "+12.6% · 24h", color: "var(--paper)" },
+                { label: "Active miners", value: "3,217", sub: "online right now", color: "var(--lime)" },
               ].map((s) => (
-                <div key={s.label} className="cartoon-card text-center px-4 py-3" style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
-                  <div className="font-mono-data font-semibold text-sm" style={{ color: "#FF6B9D" }}>{s.value}</div>
-                  <div className="font-bungee text-xs mt-0.5" style={{ color: "#1a1a1a", fontSize: "0.6rem" }}>{s.label}</div>
+                <div className="card" key={s.label} style={{ background: s.color }}>
+                  <div className="stat-label">{s.label}</div>
+                  <div className="stat-num tabular">{s.value}</div>
+                  <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{s.sub}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* RIGHT: Wolf mascot */}
-          <div className="flex-shrink-0 flex items-center justify-center w-full md:w-auto" style={{ maxWidth: "520px" }}>
-            <div style={{ animation: "float 4s ease-in-out infinite", position: "relative" }}>
-              <img
-                src="/wolf-cyber.jpg"
-                alt="VeloxFi Wolf Warrior"
-                className="w-full rounded-3xl object-cover"
-                style={{ maxHeight: "580px", border: "3px solid #1a1a1a", boxShadow: "10px 10px 0px #1a1a1a" }}
-                onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }}
-              />
-              <div style={{ position: "absolute", top: "-20px", right: "-20px", fontSize: "2.5rem", animation: "wiggle 1.5s ease-in-out infinite" }}>⚡</div>
-              <div style={{ position: "absolute", bottom: "-20px", left: "-20px", fontSize: "2rem", animation: "wiggle 2s ease-in-out infinite reverse" }}>🏆</div>
+          {/* ── HOW IT WORKS ── */}
+          <section>
+            <div className="section-title">
+              <div><div className="eyebrow">How it works</div><h2>Three steps to the pack</h2></div>
+              <div className="grow" />
+              <div className="sticker" style={{ background: "var(--lime)" }}>100% on-chain</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS BAR ── */}
-      <section className="py-8 px-6 relative z-10"
-        style={{ borderTop: "2.5px solid #1a1a1a", borderBottom: "2.5px solid #1a1a1a", background: "#1a1a1a" }}>
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-5">
-          {[
-            { value: "4",    label: "Games Available", color: "#4CC9F0" },
-            { value: "8h",   label: "Mine Interval",   color: "#6BCB77" },
-            { value: "5K",   label: "WOLF per $BATTLE", color: "#FFD93D" },
-          ].map((s) => (
-            <div key={s.label} className="text-center px-4 py-5 rounded-2xl"
-              style={{ background: s.color, border: "2.5px solid rgba(255,255,255,0.2)", boxShadow: "4px 4px 0 rgba(255,255,255,0.1)" }}>
-              <div className="font-bungee text-2xl md:text-3xl text-[#1a1a1a]">{s.value}</div>
-              <div className="font-fredoka text-sm font-semibold mt-1 text-[#1a1a1a]">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── GAMES SHOWCASE ── */}
-      <section className="max-w-5xl mx-auto px-6 py-16 relative z-10">
-        <div className="text-center mb-10">
-          <h2 className="font-bungee text-3xl md:text-4xl text-[#1a1a1a] mb-2">
-            THE <span style={{ color: "#4CC9F0" }}>GAME ARENA</span>
-          </h2>
-          <p className="font-fredoka text-gray-500 text-lg">4 games, all earning WOLF — pick your weapon</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {GAMES.map((game) => (
-            <button key={game.path} onClick={() => navGo(game.path)}
-              className="cartoon-card p-6 text-left transition-all duration-200 hover:-translate-y-2 cursor-pointer w-full"
-              style={{ boxShadow: "6px 6px 0 #1a1a1a", background: "white" }}>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
-                  style={{ background: game.color, border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
-                  {game.emoji}
-                </div>
-                <div>
-                  <div className="font-bungee text-lg text-[#1a1a1a]">{game.name}</div>
-                  <div className="font-fredoka text-sm text-gray-500 mt-0.5">{game.desc}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 font-bungee text-sm"
-                style={{ color: game.color }}>
-                <Gamepad2 className="w-4 h-4" style={{ color: "#1a1a1a" }} />
-                <span style={{ color: "#1a1a1a" }}>PLAY & EARN WOLF →</span>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div className="text-center mt-8">
-          <button onClick={() => navGo("/games")}
-            className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm"
-            style={{ borderRadius: "14px" }}>
-            VIEW ALL GAMES
-          </button>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
-      <section data-testid="how-it-works-section" className="max-w-5xl mx-auto px-6 pb-16 relative z-10">
-        <div className="text-center mb-10">
-          <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a] mb-2">
-            HOW IT <span style={{ color: "#4CC9F0" }}>WORKS</span>
-          </h2>
-          <p className="font-fredoka text-gray-500 text-lg">From zero to $BATTLE in four steps</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {HOW_IT_WORKS.map((step) => (
-            <div key={step.step} className="p-6 relative transition-all duration-200 hover:-translate-y-1"
-              style={{ background: step.color, border: "2.5px solid #1a1a1a", boxShadow: "6px 6px 0 #1a1a1a", borderRadius: "16px" }}>
-              <div className="text-4xl mb-3">{step.icon}</div>
-              <div className="font-bungee text-xs text-[#1a1a1a] mb-1 opacity-60">STEP {step.step}</div>
-              <h3 className="font-bungee text-lg text-[#1a1a1a] mb-2">{step.title}</h3>
-              <p className="font-fredoka text-[#333] text-base leading-relaxed">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── TOP WARRIORS ── */}
-      <section data-testid="leaderboard-section" className="max-w-5xl mx-auto px-6 pb-16 relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a]">
-              TOP <span style={{ color: "#FFD93D" }}>WARRIORS</span>
-            </h2>
-            <p className="font-fredoka text-gray-500 mt-1">Players with the most WOLF tokens earned</p>
-          </div>
-          <button onClick={() => navigate("/leaderboard")}
-            className="cartoon-btn cartoon-btn-yellow px-5 py-2.5 text-xs"
-            style={{ borderRadius: "10px" }}>
-            FULL LEADERBOARD
-          </button>
-        </div>
-
-        <div className="cartoon-card overflow-hidden" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 font-bungee text-gray-400"
-            style={{ background: "#f5f0e0", borderBottom: "2px solid #1a1a1a", fontSize: "0.6rem" }}>
-            <div className="col-span-1">RANK</div>
-            <div className="col-span-5">PLAYER</div>
-            <div className="col-span-3 text-right">WOLF EARNED</div>
-            <div className="col-span-3 text-right">$BATTLE WON</div>
-          </div>
-
-          {[
-            { rank: 1, medal: "🥇" },
-            { rank: 2, medal: "🥈" },
-            { rank: 3, medal: "🥉" },
-          ].map((row) => (
-            <div key={row.rank} className="grid grid-cols-12 gap-4 px-6 py-4 items-center"
-              style={{ background: row.rank === 1 ? "#FFD93D22" : "white", borderBottom: "1.5px solid #eee" }}>
-              <div className="col-span-1 text-2xl">{row.medal}</div>
-              <div className="col-span-5 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bungee text-gray-400 text-xs"
-                  style={{ background: "#f5f0e0", border: "2px solid #ddd" }}>
-                  <img src="/wolf-cyber.jpg" alt="" className="w-full h-full rounded-full object-cover opacity-30"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                </div>
-                <div>
-                  <div className="font-bungee text-sm text-gray-400">— UNCLAIMED —</div>
-                  <div className="font-fredoka text-xs text-gray-400 mt-0.5">Rank #{row.rank} Open</div>
-                </div>
-              </div>
-              <div className="col-span-3 text-right font-bungee text-sm text-gray-300">—</div>
-              <div className="col-span-3 text-right font-bungee text-sm text-gray-300">—</div>
-            </div>
-          ))}
-
-          <div className="px-6 py-6 text-center" style={{ background: "#f5f0e0" }}>
-            <p className="font-fredoka text-gray-500 text-base mb-3">Season 1 just started — play games and claim the #1 spot!</p>
-            <button onClick={() => navigate("/games")}
-              className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
-              style={{ borderRadius: "12px" }}>
-              START PLAYING
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── $BATTLE TOKEN ── */}
-      <section data-testid="token-section" className="max-w-5xl mx-auto px-6 pb-16 relative z-10">
-        <div className="text-center mb-10">
-          <h2 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a] mb-2">
-            THE{" "}
-            <span className="rainbow-text-anim">$BATTLE</span>{" "}
-            TOKEN
-          </h2>
-          <p className="font-fredoka text-gray-500 text-lg">The fuel of the VeloxFi arena</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="cartoon-card-orange p-8 relative transition-all duration-200 hover:-translate-y-1"
-            style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
-                <Trophy className="w-6 h-6 text-[#1a1a1a]" />
-              </div>
-              <div className="font-bungee text-xs px-3 py-1 rounded-full text-[#1a1a1a]"
-                style={{ background: "#6BCB77", border: "2px solid #1a1a1a", boxShadow: "2px 2px 0 #1a1a1a" }}>
-                LIVE NOW
-              </div>
-            </div>
-            <div className="font-bungee text-3xl text-[#1a1a1a] mb-1">BUY $BATTLE</div>
-            <p className="font-mono-data text-sm mt-2 text-[#333]">Live on pump.fun — trade on Solana</p>
-            <p className="font-mono-data text-xs mt-3 text-[#555] break-all">CA: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</p>
-            <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
-              target="_blank" rel="noopener noreferrer"
-              className="mt-5 flex items-center justify-center gap-2 font-bungee text-sm px-6 py-3 rounded-xl"
-              style={{ background: "#1a1a1a", color: "white", border: "2px solid #1a1a1a", textDecoration: "none" }}>
-              BUY ON PUMP.FUN →
-            </a>
-          </div>
-
-          <div className="flex flex-col gap-5">
-            <div className="cartoon-card-sky p-7 relative transition-all duration-200 hover:-translate-y-1 flex-1"
-              style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
-                <Pickaxe className="w-5 h-5 text-[#1a1a1a]" />
-              </div>
-              <div className="font-bungee text-2xl text-[#1a1a1a]">MINE WOLF</div>
-              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">Free tokens every 8 hours</div>
-            </div>
-
-            <div className="cartoon-card-lime p-7 relative transition-all duration-200 hover:-translate-y-1 flex-1"
-              style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-              <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.4)", border: "2px solid #1a1a1a" }}>
-                <ArrowRightLeft className="w-5 h-5 text-[#1a1a1a]" />
-              </div>
-              <div className="font-bungee text-2xl text-[#1a1a1a]">5K WOLF</div>
-              <div className="font-fredoka text-sm font-semibold mt-1 text-[#333]">= 1 $BATTLE token</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BANNER ── */}
-      <section data-testid="cta-section" className="max-w-5xl mx-auto px-6 pb-20 relative z-10">
-        <div className="cartoon-card-yellow p-12 text-center relative overflow-hidden"
-          style={{ boxShadow: "8px 8px 0 #1a1a1a" }}>
-
-          {/* Wolf image decoration */}
-          <div className="absolute right-0 top-0 bottom-0 w-48 hidden md:block overflow-hidden rounded-r-2xl opacity-20">
-            <img src="/wolf-cyber.jpg" alt="" className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
-          </div>
-
-          <h2 className="font-bungee text-3xl md:text-5xl text-[#1a1a1a] mb-4 leading-tight relative z-10">
-            $BATTLE IS{" "}
-            <span style={{ color: "#6BCB77" }}>LIVE!</span>
-          </h2>
-          <p className="font-fredoka text-[#333] mb-8 max-w-lg mx-auto text-xl leading-relaxed relative z-10">
-            Now trading on pump.fun. Play games, mine WOLF, and dominate the arena.{" "}
-            <span className="font-semibold" style={{ color: "#FF6B9D" }}>5000 WOLF = 1 $BATTLE.</span>
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 relative z-10">
-            <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump"
-              target="_blank" rel="noopener noreferrer"
-              className="cartoon-btn cartoon-btn-dark px-12 py-5 text-lg"
-              style={{ borderRadius: "16px", textDecoration: "none" }}>
-              BUY ON PUMP.FUN
-            </a>
-            <button onClick={() => navigate("/games")}
-              className="cartoon-btn cartoon-btn-white px-10 py-5 text-base"
-              style={{ borderRadius: "16px" }}>
-              PLAY GAMES
-            </button>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-6 relative z-10">
-            {[
-              { label: "CHAIN",  value: "Solana"    },
-              { label: "DEX",    value: "pump.fun"  },
-              { label: "EARN",   value: "Mine WOLF" },
-              { label: "RATE",   value: "5000 WOLF = 1 $BATTLE" },
-            ].map((s) => (
-              <div key={s.label} className="cartoon-card text-center px-4 py-3" style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
-                <div className="font-mono-data font-semibold text-sm" style={{ color: "#FF6B9D" }}>{s.value}</div>
-                <div className="font-bungee text-[#1a1a1a]" style={{ fontSize: "0.6rem" }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer data-testid="footer" style={{ background: "#1a1a1a", borderTop: "2.5px solid #1a1a1a" }}>
-        <div className="max-w-5xl mx-auto px-6 py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-2.5">
-              <img src="/wolf-cyber.jpg" alt="VeloxFi" className="w-8 h-8 rounded-xl object-cover"
-                style={{ border: "2px solid #FFD93D" }}
-                onError={(e) => { (e.target as HTMLImageElement).src = "/wolf.jpg"; }} />
-              <span className="font-bungee text-lg tracking-wide" style={{ color: "#FFD93D" }}>VELOXFI</span>
-              <span className="font-fredoka text-sm ml-1" style={{ color: "#555" }}>Game Arena</span>
-            </div>
-
-            <div className="flex items-center flex-wrap justify-center gap-6 font-fredoka font-semibold text-sm">
+            <div className="grid-3">
               {[
-                { label: "Games",      path: "/games"      },
-                { label: "Roadmap",    path: "/roadmap"    },
-                { label: "FAQ",        path: "/faq"        },
-                { label: "Terms",      path: "/terms"      },
-                { label: "Privacy",    path: "/privacy"    },
-                { label: "Whitepaper", path: "/whitepaper" },
-              ].map(({ label, path }) => (
-                <button key={path} onClick={() => navigate(path)}
-                  className="hover:text-white transition-colors"
-                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "#666" }}>
-                  {label}
-                </button>
+                { n: "01", t: "Connect your wallet", d: "Phantom, Solflare, or e-mail. No KYC. Your wolf avatar is generated on the fly.", c: "var(--paper)", icon: "👛" },
+                { n: "02", t: "Mine + play daily", d: "Spin up your rig for passive mining, then play arcade games to multiply your hash rate.", c: "var(--cyan)", icon: "⛏" },
+                { n: "03", t: "Claim straight to wallet", d: "Every 24h you can claim $BATTLE to your wallet. No bridges. No fees beyond Solana.", c: "var(--magenta)", icon: "💰" },
+              ].map((s) => (
+                <div className="card" key={s.n} style={{ background: s.c, color: s.c === "var(--magenta)" ? "white" : "var(--ink)" }}>
+                  <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
+                    <div className="display tabular" style={{ fontSize: 36 }}>{s.n}</div>
+                    <div style={{ width: 44, height: 44, border: "2.5px solid var(--ink)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)", fontSize: 20 }}>{s.icon}</div>
+                  </div>
+                  <div className="display" style={{ fontSize: 22, lineHeight: 1.1 }}>{s.t}</div>
+                  <div style={{ fontSize: 14, marginTop: 8, opacity: 0.85 }}>{s.d}</div>
+                </div>
               ))}
             </div>
+          </section>
 
-            <div className="flex items-center gap-3">
+          {/* ── GAMES ── */}
+          <section>
+            <div className="section-title">
+              <div><div className="eyebrow">The game den</div><h2>Six ways to multiply your hash</h2></div>
+              <div className="grow" />
+              <Link href="/games" className="btn">Open game den →</Link>
+            </div>
+            <div className="grid-3">
+              {GAMES.map((g) => (
+                <Link href={g.href} key={g.id} style={{ textDecoration: "none" }}>
+                  <div className="card" style={{ padding: 0, overflow: "hidden", cursor: "pointer" }}>
+                    <div style={{ background: g.bg, height: 160, padding: 16, position: "relative", borderBottom: "2.5px solid var(--ink)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
+                      <GameMiniArt id={g.id} />
+                      {g.isNew && <div style={{ position: "absolute", top: 12, right: 12 }}><span className="pill magenta" style={{ fontSize: 10 }}>NEW</span></div>}
+                      <div style={{ position: "relative", zIndex: 2 }}>
+                        <div className="display" style={{ fontSize: 22, lineHeight: 1, color: g.dark ? "white" : "var(--ink)" }}>{g.name}</div>
+                        <div className="mono" style={{ fontSize: 10, marginTop: 4, color: g.dark ? "rgba(255,255,255,0.7)" : "var(--mute)" }}>{g.tag}</div>
+                      </div>
+                    </div>
+                    <div style={{ padding: 14 }}>
+                      <div className="row" style={{ justifyContent: "space-between" }}>
+                        <div style={{ fontSize: 12, color: "var(--mute)" }}>Hash boost</div>
+                        <div className="display" style={{ fontSize: 16 }}>×{g.boost}</div>
+                      </div>
+                      <div className="bar" style={{ marginTop: 8 }}>
+                        <div className="bar-fill" style={{ width: `${g.boost * 20}%`, background: g.barColor }} />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* ── TOKENOMICS ── */}
+          <section>
+            <div className="section-title"><div><div className="eyebrow">Tokenomics</div><h2>Fair from day one</h2></div></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 18 }}>
+              <div className="card ink" style={{ padding: 28 }}>
+                <div className="row" style={{ gap: 18, alignItems: "center" }}>
+                  <TokenDonut />
+                  <div style={{ flex: 1 }}>
+                    <div className="mono" style={{ fontSize: 11, color: "var(--cyan)" }}>MAX SUPPLY</div>
+                    <div className="display tabular" style={{ fontSize: 36, lineHeight: 1, marginTop: 6 }}>1,000,000,000</div>
+                    <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>$BATTLE · SPL · Solana mainnet</div>
+                    <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+                      {[["Mining rewards", 60, "var(--cyan)"], ["Liquidity pool (LP)", 18, "var(--magenta)"], ["Game prize pool", 14, "var(--yellow)"], ["Community treasury", 8, "var(--lime)"]].map(([n, p, c]) => (
+                        <div key={String(n)} className="row" style={{ gap: 10 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: 2, background: String(c), flexShrink: 0 }} />
+                          <div style={{ flex: 1, fontSize: 13 }}>{String(n)}</div>
+                          <div className="display tabular" style={{ fontSize: 16 }}>{p}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[["0% tax", "No buy / sell tax. Forever.", "🌿"], ["LP burned", "Liquidity locked permanently on day one.", "🔥"], ["Contract renounced", "Mint authority revoked. Nobody can change the rules.", "🛡"]].map(([t, d, icon]) => (
+                  <div className="card cream" key={String(t)}>
+                    <div className="row" style={{ justifyContent: "space-between" }}>
+                      <div className="display" style={{ fontSize: 22 }}>{t}</div>
+                      <span style={{ fontSize: 22 }}>{icon}</span>
+                    </div>
+                    <div style={{ fontSize: 13, marginTop: 4 }}>{String(d)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── ROADMAP ── */}
+          <section>
+            <div className="section-title"><div><div className="eyebrow">Pack milestones</div><h2>The hunt so far</h2></div></div>
+            <div className="card" style={{ padding: 26 }}>
+              <div style={{ position: "relative", display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 18 }}>
+                <div style={{ position: "absolute", left: 14, right: 14, top: 13, height: 0, borderTop: "2px dashed rgba(11,11,26,0.12)", zIndex: 0 }} />
+                {[
+                  { q: "Q1", t: "Howl begins", items: ["Pump.fun launch", "Mining v1", "10k holders", "DEXTools listing"], done: true },
+                  { q: "Q2", t: "Game den opens", items: ["4 arcade games", "Leaderboard", "Daily quests", "Web app v2"], done: true },
+                  { q: "Q3", t: "Pack mode", items: ["Multiplayer raids", "2 new games", "Mobile beta", "$BATTLE staking"], done: false, now: true },
+                  { q: "Q4", t: "CEX & NFT", items: ["Tier-1 CEX listing", "Wolf NFT mint", "Cross-chain bridge", "Partnerships"], done: false },
+                  { q: "Q1+", t: "Veloxverse", items: ["Open world game", "Wolf DAO", "Merch drop", "IRL meetups"], done: false },
+                ].map((r) => (
+                  <div key={r.q} style={{ position: "relative", zIndex: 1 }}>
+                    <div className="row" style={{ marginBottom: 12 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 99, background: r.done ? "var(--lime)" : (r.now ? "var(--magenta)" : "var(--paper)"), border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", color: r.now ? "white" : "var(--ink)", flexShrink: 0, fontSize: 12, fontWeight: 700 }}>
+                        {r.done ? "✓" : r.q}
+                      </div>
+                      {r.now && <span className="pill magenta" style={{ fontSize: 10 }}>NOW</span>}
+                    </div>
+                    <div className="display" style={{ fontSize: 16, lineHeight: 1.1, marginBottom: 8 }}>{r.t}</div>
+                    <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+                      {r.items.map((it) => <li key={it} style={{ fontSize: 12, color: r.done ? "var(--mute)" : "var(--ink)", textDecoration: r.done ? "line-through" : "none" }}>· {it}</li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── COMMUNITY ── */}
+          <section>
+            <div className="card magenta" style={{ padding: 36, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(var(--ink) 1.2px, transparent 1.2px)", backgroundSize: "14px 14px", opacity: 0.12 }} />
+              <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 30, alignItems: "center" }}>
+                <div>
+                  <div className="eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>The pack</div>
+                  <h2 className="display" style={{ fontSize: 48, lineHeight: 1, color: "white", margin: "6px 0 14px" }}>14,902 wolves and counting.</h2>
+                  <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)" }}>Drop into the den. Memes, alpha, daily quests, and weekly $BATTLE raffles for active members.</p>
+                  <div className="row" style={{ gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+                    <button className="btn lg yellow">🎮 Join Discord</button>
+                    <button className="btn lg primary">✈ Telegram</button>
+                    <button className="btn lg">𝕏 Follow on X</button>
+                  </div>
+                </div>
+                <div style={{ position: "relative", height: 280 }}>
+                  {([[0, 0, 80], [60, 30, 64], [-20, 70, 70], [80, 110, 56], [-30, 150, 60], [50, 170, 50], [120, 50, 50]] as number[][]).map(([x, y, s], i) => (
+                    <div key={i} style={{ position: "absolute", left: "50%", top: 0, transform: `translate(${x - s / 2}px, ${y}px) rotate(${(i % 2 ? -1 : 1) * 6}deg)` }}>
+                      <div style={{ width: s, height: s, borderRadius: s * 0.28, overflow: "hidden", border: "2.5px solid var(--ink)", boxShadow: "2px 2px 0 0 var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)" }}>
+                        <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── FAQ ── */}
+          <section>
+            <div className="section-title"><div><div className="eyebrow">FAQ</div><h2>Quick answers</h2></div></div>
+            <div className="grid-2">
               {[
-                {
-                  href: "https://x.com/Battle767629", label: "X / Twitter", bg: "#1a1a1a",
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-                    </svg>
-                  ),
-                },
-                {
-                  href: "https://t.me/VeloxFiOfficial", label: "Telegram", bg: "#6BCB77",
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-                    </svg>
-                  ),
-                },
-                {
-                  href: "https://discord.gg/u2UhxuTd", label: "Discord", bg: "#A29BFE",
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-                    </svg>
-                  ),
-                },
-              ].map(({ href, label, bg, icon }) => (
-                <a key={href} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    width: "38px", height: "38px", borderRadius: "10px",
-                    background: bg, border: "2px solid #444", boxShadow: "2px 2px 0 #444",
-                    textDecoration: "none", color: label === "X / Twitter" ? "#fff" : "#1a1a1a",
-                  }}>
-                  {icon}
-                </a>
+                ["Do I need to buy $BATTLE to start?", "No. Anyone can register with a wallet or email and start mining for free. Buying $BATTLE boosts your hash rate and unlocks higher tiers."],
+                ["How is mining different from buying?", "Mining gives you daily passive $BATTLE based on your rig level. Buying lets you skip the grind and gives you tradeable tokens immediately."],
+                ["Is this audited?", "The token contract is a standard SPL. The mint authority is revoked and LP is burned. A full audit of the game backend is scheduled for Q3."],
+                ["Where can I buy?", "Pump.fun (linked above), Raydium, Jupiter aggregator, or directly via the wallet inside Veloxfi."],
+              ].map(([q, a]) => (
+                <div className="card" key={String(q)}>
+                  <div className="display" style={{ fontSize: 18, marginBottom: 6 }}>{q}</div>
+                  <div style={{ fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.5 }}>{a}</div>
+                </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="border-t pt-6 text-center" style={{ borderColor: "#333" }}>
-            <p className="text-sm font-fredoka" style={{ color: "#555" }}>
-              © 2026 VeloxFi · Game Arena on Solana · Not financial advice
-            </p>
-          </div>
+          {/* ── FOOTER ── */}
+          <footer style={{ borderTop: "2.5px solid var(--ink)", paddingTop: 26, marginTop: 16 }}>
+            <div className="row" style={{ alignItems: "flex-start", gap: 36 }}>
+              <div style={{ flex: 1 }}>
+                <div className="row">
+                  <div style={{ width: 44, height: 44, borderRadius: 12, overflow: "hidden", border: "2.5px solid var(--ink)", boxShadow: "2px 2px 0 0 var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0 }}>
+                    <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
+                  </div>
+                  <div>
+                    <div className="display" style={{ fontSize: 22, lineHeight: 1 }}>VELOXFI</div>
+                    <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>BATTLE · SPL on Solana</div>
+                  </div>
+                </div>
+                <p style={{ fontSize: 12, color: "var(--mute)", maxWidth: 440, marginTop: 14 }}>
+                  $BATTLE is a community meme coin. It has no intrinsic value or expectation of financial return. Always DYOR.
+                </p>
+              </div>
+              {[
+                { title: "Product", links: [["Mining", "/mine"], ["Games", "/games"], ["Leaderboard", "/leaderboard"]] },
+                { title: "Community", links: [["Pump.fun", "#"], ["X / Twitter", "#"], ["Telegram", "#"]] },
+                { title: "Resources", links: [["Whitepaper", "/whitepaper"], ["FAQ", "/faq"], ["Privacy", "/privacy"]] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <div className="eyebrow" style={{ marginBottom: 10 }}>{col.title}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13 }}>
+                    {col.links.map(([label, href]) => (
+                      <Link key={label} href={href} style={{ color: "var(--ink)", textDecoration: "none" }}>{label}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ borderTop: "1.5px solid rgba(11,11,26,0.12)", marginTop: 26, paddingTop: 16, fontSize: 11, color: "var(--mute)", display: "flex", justifyContent: "space-between" }}>
+              <div>© 2026 Veloxfi · Howl loudly.</div>
+              <div>v2.0 · ahooooo 🐺</div>
+            </div>
+          </footer>
+
         </div>
-      </footer>
+      </main>
     </div>
   );
 }
