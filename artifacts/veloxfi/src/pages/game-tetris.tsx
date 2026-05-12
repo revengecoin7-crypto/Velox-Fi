@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import MemeShell from "@/components/MemeShell";
+import GameShell from "@/components/GameShell";
 import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
@@ -186,7 +186,15 @@ export default function GameTetris() {
   }
 
   return (
-    <MemeShell testId="page-game-tetris">
+    <GameShell
+      testId="page-game-tetris"
+      title="Battle Tetris"
+      tag="1v1 · COMPETITIVE"
+      description="Clear lines faster than your opponent. Send trash rows to fill their board. Last one standing wins."
+      boost={2.4}
+      controls={["← → — move piece", "↑ — rotate", "↓ — soft drop", "Space — hard drop"]}
+      rewards={[{ label: "Per win", value: "+WOLF" }, { label: "Trash rows sent", value: "+bonus" }, { label: "Max per session", value: "120 WOLF" }]}
+    >
       <TokenFly
         count={Math.min(pendingWolf, 10)}
         show={flyShow}
@@ -246,6 +254,6 @@ export default function GameTetris() {
           </div>
         )}
       </div>
-    </MemeShell>
+    </GameShell>
   );
 }

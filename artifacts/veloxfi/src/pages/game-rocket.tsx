@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import MemeShell from "@/components/MemeShell";
+import GameShell from "@/components/GameShell";
 import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
@@ -225,7 +225,15 @@ export default function GameRocket() {
   }
 
   return (
-    <MemeShell testId="page-game-rocket">
+    <GameShell
+      testId="page-game-rocket"
+      title="Rocket Miner"
+      tag="CRASH GAME"
+      description="Watch the multiplier rise and cash out before the rocket crashes. The longer you wait, the bigger the reward."
+      boost={3.2}
+      controls={["Click / Space — cash out", "Higher multiplier = more WOLF", "Cash out before crash", "House edge: 12%"]}
+      rewards={[{ label: "×1.0 cashout", value: "base WOLF" }, { label: "×3.0+ cashout", value: "+bonus WOLF" }, { label: "Max per session", value: "120 WOLF" }]}
+    >
       <TokenFly
         count={Math.min(pendingWolf, 10)}
         show={flyShow}
@@ -285,6 +293,6 @@ export default function GameRocket() {
           </div>
         )}
       </div>
-    </MemeShell>
+    </GameShell>
   );
 }

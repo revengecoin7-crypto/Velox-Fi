@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import MemeShell from "@/components/MemeShell";
+import GameShell from "@/components/GameShell";
 import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
@@ -494,7 +494,15 @@ export default function GameSnake() {
 
   // ── render ────────────────────────────────────────────────
   return (
-    <MemeShell testId="page-game-snake">
+    <GameShell
+      testId="page-game-snake"
+      title="Crypto Snake"
+      tag="CLASSIC · SOLO"
+      description="Eat coins, grow your tail. Every coin collected boosts your mining hash rate. Don't bite yourself."
+      boost={1.5}
+      controls={["Arrow keys / WASD — move", "Eat yellow coins to grow", "Avoid walls and your tail", "Higher score = more WOLF"]}
+      rewards={[{ label: "Per coin", value: "+WOLF" }, { label: "Claim threshold", value: "15 coins" }, { label: "Max per session", value: "120 WOLF" }]}
+    >
       <TokenFly count={Math.min(pendingWolf, 12)} show={flyShow}
         fromX={flyFrom.x} fromY={flyFrom.y} onComplete={() => setFlyShow(false)} />
 
@@ -670,6 +678,6 @@ export default function GameSnake() {
           </div>
         )}
       </div>
-    </MemeShell>
+    </GameShell>
   );
 }

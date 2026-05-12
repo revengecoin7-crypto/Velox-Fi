@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import MemeShell from "@/components/MemeShell";
+import GameShell from "@/components/GameShell";
 import TokenFly from "@/components/TokenFly";
 import { useAuth } from "@/context/AuthContext";
 
@@ -222,7 +222,15 @@ export default function GameRunner() {
   }
 
   return (
-    <MemeShell testId="page-game-runner">
+    <GameShell
+      testId="page-game-runner"
+      title="Wolf Run"
+      tag="ENDLESS RUNNER"
+      description="Dodge obstacles and collect power-ups. The longer your wolf runs, the more WOLF tokens you earn."
+      boost={1.8}
+      controls={["Space / Click — jump", "Double-tap — double jump", "Avoid obstacles", "Collect coins for bonus"]}
+      rewards={[{ label: "Per 100m", value: "+WOLF" }, { label: "Coin bonus", value: "+5 WOLF" }, { label: "Max per session", value: "120 WOLF" }]}
+    >
       <TokenFly
         count={Math.min(pendingWolf, 10)}
         show={flyShow}
@@ -282,6 +290,6 @@ export default function GameRunner() {
           </div>
         )}
       </div>
-    </MemeShell>
+    </GameShell>
   );
 }
