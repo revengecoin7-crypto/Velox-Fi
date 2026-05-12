@@ -190,10 +190,20 @@ export default function GameTetris() {
       testId="page-game-tetris"
       title="Battle Tetris"
       tag="1v1 · COMPETITIVE"
-      description="Clear lines faster than your opponent. Send trash rows to fill their board. Last one standing wins."
+      description="Clear lines faster than your opponent. Send trash rows to fill their board. Last one standing wins the pool."
       boost={2.4}
-      controls={["← → — move piece", "↑ — rotate", "↓ — soft drop", "Space — hard drop"]}
-      rewards={[{ label: "Per win", value: "+WOLF" }, { label: "Trash rows sent", value: "+bonus" }, { label: "Max per session", value: "120 WOLF" }]}
+      sessionReward={`+${pendingWolf} BATTLE`}
+      powerUps={[
+        { icon: "💣", name: "Bomb", desc: "Clear bottom 2 rows instantly" },
+        { icon: "🧊", name: "Freeze", desc: "Slow opponent for 5s" },
+        { icon: "⬆", name: "Fast drop", desc: "Instant hard drop bonus" },
+      ]}
+      controls={[
+        { key: "← →", action: "Move piece" },
+        { key: "↑", action: "Rotate" },
+        { key: "↓", action: "Soft drop" },
+        { key: "Space", action: "Hard drop" },
+      ]}
     >
       <TokenFly
         count={Math.min(pendingWolf, 10)}

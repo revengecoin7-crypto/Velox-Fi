@@ -229,10 +229,19 @@ export default function GameRocket() {
       testId="page-game-rocket"
       title="Rocket Miner"
       tag="CRASH GAME"
-      description="Watch the multiplier rise and cash out before the rocket crashes. The longer you wait, the bigger the reward."
+      description="Watch the multiplier climb and cash out before the rocket crashes. Wait longer for bigger rewards — but don't get greedy."
       boost={3.2}
-      controls={["Click / Space — cash out", "Higher multiplier = more WOLF", "Cash out before crash", "House edge: 12%"]}
-      rewards={[{ label: "×1.0 cashout", value: "base WOLF" }, { label: "×3.0+ cashout", value: "+bonus WOLF" }, { label: "Max per session", value: "120 WOLF" }]}
+      sessionReward={`+${pendingWolf} BATTLE`}
+      powerUps={[
+        { icon: "🚀", name: "Auto-launch", desc: "Starts next round faster" },
+        { icon: "📡", name: "Signal boost", desc: "+0.5 to final multiplier" },
+        { icon: "🔮", name: "Oracle", desc: "See crash point once" },
+      ]}
+      controls={[
+        { key: "Space", action: "Cash out" },
+        { key: "Click", action: "Cash out" },
+        { key: "Enter", action: "New round" },
+      ]}
     >
       <TokenFly
         count={Math.min(pendingWolf, 10)}

@@ -497,11 +497,20 @@ export default function GameSnake() {
     <GameShell
       testId="page-game-snake"
       title="Crypto Snake"
-      tag="CLASSIC · SOLO"
-      description="Eat coins, grow your tail. Every coin collected boosts your mining hash rate. Don't bite yourself."
+      tag="SOLO · CLASSIC"
+      description="Eat $BATTLE coins to grow. Hit a wall or yourself — your rig overheats and the round ends."
       boost={1.5}
-      controls={["Arrow keys / WASD — move", "Eat yellow coins to grow", "Avoid walls and your tail", "Higher score = more WOLF"]}
-      rewards={[{ label: "Per coin", value: "+WOLF" }, { label: "Claim threshold", value: "15 coins" }, { label: "Max per session", value: "120 WOLF" }]}
+      sessionReward={`+${pendingWolf} BATTLE`}
+      powerUps={[
+        { icon: "🪙", name: "Coin", desc: "+1 BATTLE" },
+        { icon: "⚡", name: "Lightning", desc: "+2 speed for 3s · +5 BATTLE" },
+        { icon: "🛡", name: "Shield", desc: "1 free wall hit" },
+      ]}
+      controls={[
+        { key: "←/→", action: "Move" },
+        { key: "↑/↓", action: "Move" },
+        { key: "Space", action: "Action" },
+      ]}
     >
       <TokenFly count={Math.min(pendingWolf, 12)} show={flyShow}
         fromX={flyFrom.x} fromY={flyFrom.y} onComplete={() => setFlyShow(false)} />

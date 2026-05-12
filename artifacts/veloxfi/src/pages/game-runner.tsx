@@ -226,10 +226,19 @@ export default function GameRunner() {
       testId="page-game-runner"
       title="Wolf Run"
       tag="ENDLESS RUNNER"
-      description="Dodge obstacles and collect power-ups. The longer your wolf runs, the more WOLF tokens you earn."
+      description="Dodge obstacles, collect coins. Your wolf runs until it can't. Furthest distance earns the most BATTLE."
       boost={1.8}
-      controls={["Space / Click — jump", "Double-tap — double jump", "Avoid obstacles", "Collect coins for bonus"]}
-      rewards={[{ label: "Per 100m", value: "+WOLF" }, { label: "Coin bonus", value: "+5 WOLF" }, { label: "Max per session", value: "120 WOLF" }]}
+      sessionReward={`+${pendingWolf} BATTLE`}
+      powerUps={[
+        { icon: "🌀", name: "Speed boost", desc: "+2x speed for 3s" },
+        { icon: "🪙", name: "Gold coin", desc: "+10 BATTLE" },
+        { icon: "🛡", name: "Shield", desc: "1 free obstacle hit" },
+      ]}
+      controls={[
+        { key: "Space", action: "Jump" },
+        { key: "Click", action: "Jump" },
+        { key: "↑", action: "Double jump" },
+      ]}
     >
       <TokenFly
         count={Math.min(pendingWolf, 10)}
