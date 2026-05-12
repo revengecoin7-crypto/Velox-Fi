@@ -515,47 +515,33 @@ export default function GameSnake() {
       <TokenFly count={Math.min(pendingWolf, 12)} show={flyShow}
         fromX={flyFrom.x} fromY={flyFrom.y} onComplete={() => setFlyShow(false)} />
 
-      <div className="flex flex-col items-center py-6 px-3 gap-4">
-        <div className="text-center">
-          <h1 className="font-bungee text-3xl" style={{ color: "#1a1a1a" }}>🐺 CRYPTO SNAKE</h1>
-          <p className="font-fredoka text-sm" style={{ color: "#666" }}>
-            Eat coins · Grow bigger · Earn WOLF {highScore > 0 && `· Best: ${highScore}`}
-          </p>
-        </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "20px 16px" }}>
 
         {/* ── START ── */}
         {phase === "start" && (
-          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 22, padding: "24px 28px", boxShadow: "6px 6px 0 #6BCB77", maxWidth: 400, width: "100%" }}>
-            <div className="text-center" style={{ fontSize: 64, marginBottom: 12 }}>🐺</div>
-            <h2 className="font-bungee text-xl text-center mb-4">HOW TO PLAY</h2>
-            <div className="flex flex-col gap-2 mb-5">
+          <div style={{ maxWidth: 440, width: "100%" }}>
+            <div style={{ textAlign: "center", marginBottom: 20 }}>
+              <div className="display" style={{ fontSize: 40, color: "white", lineHeight: 1 }}>CRYPTO SNAKE</div>
+              <div className="mono" style={{ fontSize: 12, color: "var(--cyan)", marginTop: 6 }}>
+                SOLO · CLASSIC {highScore > 0 && `· BEST: ${highScore} WOLF`}
+              </div>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "2px solid rgba(8,209,242,0.3)", borderRadius: 14, padding: 18, marginBottom: 16 }}>
               {[
-                ["🎮","Arrow keys / WASD · Swipe on screen"],
-                ["💰","Eat gold $ coins → earn WOLF tokens"],
-                ["🔥","Combo streak → x2, x3, x4 WOLF bonus"],
-                ["⬆️","Every 10 coins = level up + faster speed"],
-                ["🛡️","Shield — blocks one death"],
-                ["💎","Diamond — instant +5 WOLF"],
-                ["🌀","Shrink — makes snake shorter"],
-                ["⏳","Slow — temporarily reduces speed"],
-                ["⭐","Star mode — triple WOLF, pass through self!"],
-                ["❤️","3 lives · No time limit — play as long as you can!"],
-                ["🎯",`Score at least ${CLAIM_THRESHOLD} WOLF to claim your earnings`],
+                ["🪙","Eat $ coins to earn WOLF tokens"],
+                ["🔥","Combo streak → ×2 ×3 ×4 bonus"],
+                ["🛡","Shield — blocks one death"],
+                ["⭐","Star mode — ×3 WOLF, pass through self"],
+                ["❤️","3 lives · No time limit"],
               ].map(([ic, tx]) => (
-                <div key={tx} className="flex gap-3 items-start">
-                  <span style={{ minWidth: 28, fontSize: 15 }}>{ic}</span>
-                  <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 14, color: "#555" }}>{tx}</span>
+                <div key={String(tx)} style={{ display: "flex", gap: 10, alignItems: "center", padding: "5px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span style={{ fontSize: 16, width: 24 }}>{ic}</span>
+                  <span className="mono" style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>{tx}</span>
                 </div>
               ))}
             </div>
-            {highScore > 0 && (
-              <div style={{ background: "#1a1a1a", borderRadius: 12, padding: "8px 16px", marginBottom: 14, textAlign: "center" }}>
-                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#FFD93D" }}>🏆 BEST: {highScore} WOLF</span>
-              </div>
-            )}
-            {!user && <p className="font-fredoka text-xs text-center mb-3" style={{ color: "#FF6B6B" }}>⚠️ Login to save earnings</p>}
-            <button onClick={() => setPhase("playing")}
-              style={{ width: "100%", background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a" }}>
+            {!user && <div className="mono" style={{ fontSize: 11, color: "var(--tomato)", textAlign: "center", marginBottom: 10 }}>⚠ Login to save earnings</div>}
+            <button onClick={() => setPhase("playing")} className="btn lg magenta" style={{ width: "100%", justifyContent: "center", fontSize: 18 }}>
               PLAY NOW 🐺
             </button>
           </div>
@@ -564,125 +550,79 @@ export default function GameSnake() {
         {/* ── PLAYING ── */}
         {phase === "playing" && (
           <div style={{ width: "100%", maxWidth: W + 8 }}>
-
             {/* HUD */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 5, marginBottom: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 8 }}>
               {[
-                { label: "WOLF",  value: score,               color: "#6BCB77" },
-                { label: "LEVEL", value: level,               color: "#FF9F43" },
-                { label: "LIVES", value: "❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives)), color: "#FF6B6B" },
-                { label: "PLAYED",  value: fmt(time),           color: "#4CC9F0" },
+                { label: "WOLF", value: score, color: "var(--lime)" },
+                { label: "LEVEL", value: level, color: "var(--cyan)" },
+                { label: "LIVES", value: "❤️".repeat(lives) + "🖤".repeat(Math.max(0, 3 - lives)), color: "var(--tomato)" },
+                { label: "TIME", value: fmt(time), color: "var(--magenta)" },
               ].map(({ label, value, color }) => (
-                <div key={label} style={{ background: "#0d0d1a", border: `2px solid ${color}`, borderRadius: 10, padding: "5px 6px", textAlign: "center" }}>
-                  <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 10, color: "#666", margin: 0 }}>{label}</p>
-                  <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color, margin: 0 }}>{value}</p>
+                <div key={label} style={{ background: "rgba(255,255,255,0.06)", border: `1.5px solid ${color}`, borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
+                  <div className="mono" style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{label}</div>
+                  <div className="display tabular" style={{ fontSize: 14, color }}>{value}</div>
                 </div>
               ))}
             </div>
-
             {/* Status banners */}
-            <div style={{ display: "flex", gap: 5, marginBottom: 5, flexWrap: "wrap" }}>
-              {combo > 1 && (
-                <div style={{ flex: 1, background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
-                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>🔥 COMBO ×{comboMult}!</span>
-                </div>
-              )}
-              {shield && (
-                <div style={{ flex: 1, background: "#4CC9F0", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
-                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>🛡️ SHIELD ON</span>
-                </div>
-              )}
-              {star && (
-                <div style={{ flex: 1, background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
-                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>⭐ STAR MODE ×3!</span>
-                </div>
-              )}
-              {urgent && !star && (
-                <div style={{ flex: 1, background: "#FF6B6B", border: "2px solid #1a1a1a", borderRadius: 8, padding: "3px 10px", textAlign: "center", boxShadow: "2px 2px 0 #1a1a1a" }}>
-                  <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 12 }}>⚠️ EAT SOMETHING!</span>
-                </div>
-              )}
+            <div style={{ display: "flex", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+              {combo > 1 && <div className="pill yellow" style={{ fontSize: 11 }}>🔥 COMBO ×{comboMult}</div>}
+              {shield && <div className="pill cyan" style={{ fontSize: 11 }}>🛡 SHIELD ON</div>}
+              {star && <div className="pill yellow" style={{ fontSize: 11 }}>⭐ STAR ×3</div>}
+              {urgent && !star && <div className="pill" style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}>⚠ EAT SOMETHING</div>}
             </div>
-
-            {/* Claim progress bar */}
+            {/* Claim bar */}
             <div style={{ marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                <span style={{ fontFamily: "Fredoka,sans-serif", fontSize: 12, color: score >= CLAIM_THRESHOLD ? "#6BCB77" : "#aaa" }}>
-                  {score >= CLAIM_THRESHOLD ? "✅ Claim unlocked!" : `🎯 ${score}/${CLAIM_THRESHOLD} WOLF to unlock claim`}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span className="mono" style={{ fontSize: 11, color: score >= CLAIM_THRESHOLD ? "var(--lime)" : "rgba(255,255,255,0.4)" }}>
+                  {score >= CLAIM_THRESHOLD ? "✓ Claim unlocked!" : `${score}/${CLAIM_THRESHOLD} to unlock claim`}
                 </span>
-                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 11, color: "#6BCB77" }}>{score} WOLF</span>
+                <span className="display tabular" style={{ fontSize: 11, color: "var(--lime)" }}>{score} WOLF</span>
               </div>
-              <div style={{ background: "#0d0d1a", border: "2px solid #1a1a1a", borderRadius: 8, height: 10, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (score / CLAIM_THRESHOLD) * 100)}%`, background: score >= CLAIM_THRESHOLD ? "#6BCB77" : "#FFD93D", borderRadius: 6, transition: "width 0.3s" }} />
-              </div>
+              <div className="bar"><div className="bar-fill" style={{ width: `${Math.min(100, (score / CLAIM_THRESHOLD) * 100)}%`, background: score >= CLAIM_THRESHOLD ? "var(--lime)" : "var(--yellow)" }} /></div>
             </div>
 
             <canvas ref={canvasRef} width={W} height={H}
-              style={{ border: "2.5px solid #1a1a1a", borderRadius: 14, boxShadow: "6px 6px 0 #1a1a1a", display: "block", width: "100%", touchAction: "none" }} />
+              style={{ border: "2.5px solid rgba(8,209,242,0.4)", borderRadius: 14, display: "block", width: "100%", touchAction: "none" }} />
 
-            {/* D-pad for mobile */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, maxWidth: 180, margin: "12px auto 0" }}>
-              {[
-                [null,   { dx:0,  dy:-1, icon:"⬆️" }, null],
-                [{ dx:-1,dy:0, icon:"⬅️" }, null, { dx:1, dy:0, icon:"➡️" }],
-                [null,   { dx:0,  dy: 1, icon:"⬇️" }, null],
-              ].map((row, ri) => row.map((cell, ci) =>
-                cell ? (
-                  <button key={`${ri}-${ci}`}
-                    onPointerDown={(e) => { e.preventDefault(); dpad(cell.dx, cell.dy); }}
-                    style={{ aspectRatio: "1", background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 12, fontSize: 18, cursor: "pointer", boxShadow: "2px 2px 0 #1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", WebkitUserSelect: "none", userSelect: "none" }}>
+            {/* D-pad mobile */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, maxWidth: 160, margin: "14px auto 0" }}>
+              {[[null, { dx:0,dy:-1,icon:"↑" }, null],[{ dx:-1,dy:0,icon:"←" }, null, { dx:1,dy:0,icon:"→" }],[null, { dx:0,dy:1,icon:"↓" }, null]].map((row, ri) =>
+                row.map((cell, ci) => cell ? (
+                  <button key={`${ri}-${ci}`} onPointerDown={(e) => { e.preventDefault(); dpad(cell.dx, cell.dy); }}
+                    className="btn" style={{ aspectRatio: "1", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", padding: 0, background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.3)", color: "white", boxShadow: "none" }}>
                     {cell.icon}
                   </button>
-                ) : <div key={`${ri}-${ci}`} />
-              ))}
+                ) : <div key={`${ri}-${ci}`} />)
+              )}
             </div>
-            <p className="font-fredoka text-center text-xs mt-2" style={{ color: "#888" }}>Arrow keys / WASD or swipe · Walls wrap around</p>
           </div>
         )}
 
         {/* ── DONE ── */}
         {phase === "done" && (
-          <div style={{ background: "#fff", border: "2.5px solid #1a1a1a", borderRadius: 22, padding: "28px 28px", boxShadow: "6px 6px 0 #6BCB77", maxWidth: 380, width: "100%", textAlign: "center" }}>
-            <div style={{ fontSize: 72 }}>{newRecord ? "🏆" : "🎉"}</div>
-            <h2 className="font-bungee text-2xl mt-3">{newRecord ? "NEW RECORD!" : "SESSION COMPLETE!"}</h2>
-            <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 38, color: "#6BCB77", margin: "6px 0 0" }}>+{pendingWolf}</p>
-            <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 16, color: "#888", margin: "0 0 4px" }}>WOLF TOKENS</p>
-            {newRecord && (
-              <div style={{ background: "#FFD93D", border: "2px solid #1a1a1a", borderRadius: 10, padding: "5px 16px", margin: "8px auto", display: "inline-block" }}>
-                <span style={{ fontFamily: "Bungee,sans-serif", fontSize: 13 }}>🏆 PERSONAL BEST: {pendingWolf}</span>
-              </div>
-            )}
-            {!newRecord && highScore > 0 && (
-              <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#aaa", margin: "4px 0 12px" }}>Best: {highScore} WOLF</p>
-            )}
+          <div style={{ maxWidth: 400, width: "100%", textAlign: "center" }}>
+            <div style={{ fontSize: 64, marginBottom: 8 }}>{newRecord ? "🏆" : "🎉"}</div>
+            <div className="display" style={{ fontSize: 28, color: "white" }}>{newRecord ? "NEW RECORD!" : "SESSION COMPLETE!"}</div>
+            <div className="display tabular" style={{ fontSize: 56, color: "var(--lime)", marginTop: 8 }}>+{pendingWolf}</div>
+            <div className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>WOLF TOKENS</div>
 
             {!claimed && user && pendingWolf >= CLAIM_THRESHOLD && (
-              <>
-                <p className="font-fredoka text-sm mb-4 mt-3" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
-                <button ref={claimRef} onClick={handleClaim}
-                  style={{ width: "100%", background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 14, padding: "14px", fontFamily: "Bungee,sans-serif", fontSize: 17, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 12 }}>
-                  CLAIM {pendingWolf} WOLF ⬆️
-                </button>
-              </>
+              <button ref={claimRef} onClick={handleClaim} className="btn lg magenta" style={{ width: "100%", justifyContent: "center", marginBottom: 12 }}>
+                CLAIM {pendingWolf} WOLF ↑
+              </button>
             )}
             {!claimed && user && pendingWolf < CLAIM_THRESHOLD && (
-              <div style={{ background: "#FF6B6B20", border: "2px solid #FF6B6B", borderRadius: 12, padding: "12px 16px", margin: "12px 0", textAlign: "center" }}>
-                <p style={{ fontFamily: "Bungee,sans-serif", fontSize: 13, color: "#FF6B6B", margin: 0 }}>❌ SCORE TOO LOW TO CLAIM</p>
-                <p style={{ fontFamily: "Fredoka,sans-serif", fontSize: 13, color: "#666", margin: "4px 0 0" }}>Need at least {CLAIM_THRESHOLD} WOLF · You scored {pendingWolf}</p>
+              <div style={{ background: "rgba(255,90,74,0.15)", border: "2px solid var(--tomato)", borderRadius: 12, padding: "12px", marginBottom: 12 }}>
+                <div className="mono" style={{ fontSize: 12, color: "var(--tomato)" }}>Score too low to claim · need {CLAIM_THRESHOLD} WOLF</div>
               </div>
             )}
-            {claimed && <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>}
-            {!user && <p className="font-fredoka text-sm mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save earnings</p>}
+            {claimed && <div className="mono" style={{ fontSize: 12, color: "var(--lime)", marginBottom: 12 }}>✓ Added to your balance!</div>}
+            {!user && <div className="mono" style={{ fontSize: 11, color: "var(--tomato)", marginBottom: 12 }}>⚠ Login to save earnings</div>}
 
-            <div className="flex gap-3 justify-center flex-wrap">
-              <button onClick={() => setPhase("start")}
-                style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 22px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>
-                PLAY AGAIN
-              </button>
-              <button onClick={() => nav("/games")}
-                style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", borderRadius: 12, padding: "11px 22px", fontFamily: "Bungee,sans-serif", fontSize: 14, cursor: "pointer", boxShadow: "3px 3px 0 #1a1a1a", color: "#1a1a1a" }}>
-                ALL GAMES
-              </button>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button onClick={() => setPhase("start")} className="btn lg primary">Play again</button>
+              <button onClick={() => nav("/games")} className="btn lg">All games</button>
             </div>
           </div>
         )}

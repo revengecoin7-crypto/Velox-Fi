@@ -247,54 +247,53 @@ export default function GameRunner() {
         fromY={flyFrom.y}
         onComplete={() => setFlyShow(false)}
       />
-      <div className="flex flex-col items-center py-8 px-4">
-        <h1 className="font-bungee text-3xl mb-1" style={{ color: "#1a1a1a" }}>🐺 WOLF RUN</h1>
-        <p className="font-fredoka text-base mb-6" style={{ color: "#666" }}>Jump over obstacles, collect WOLF tokens!</p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "20px 16px" }}>
 
         {phase === "start" && (
-          <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
-            <div style={{ fontSize: 72 }}>🐺</div>
-            <h2 className="font-bungee text-xl mt-4 mb-3">HOW TO PLAY</h2>
-            <p className="font-fredoka text-sm mb-1" style={{ color: "#555" }}>⬆️ Space or Arrow Up to jump</p>
-            <p className="font-fredoka text-sm mb-1" style={{ color: "#555" }}>📱 Tap the screen on mobile</p>
-            <p className="font-fredoka text-sm mb-4" style={{ color: "#555" }}>🏆 Collect WOLF coins · ❤️ 3 lives · ⏱️ 2 min</p>
-            {!user && <p className="font-fredoka text-sm mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>}
-            {btn("PLAY NOW", "#FF9F43", () => setPhase("playing"))}
+          <div style={{ maxWidth: 380, width: "100%", textAlign: "center" }}>
+            <div className="display" style={{ fontSize: 36, color: "white", marginBottom: 6 }}>WOLF RUN</div>
+            <div className="mono" style={{ fontSize: 12, color: "var(--yellow)", marginBottom: 18 }}>ENDLESS · REFLEX · 3 LIVES</div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "2px solid rgba(255,204,43,0.4)", borderRadius: 14, padding: 18, marginBottom: 16, textAlign: "left" }}>
+              {[["Space / ↑","Jump"],["Tap","Jump (mobile)"],["Coins","= WOLF tokens"],["3 lives","= 3 chances"],["2 min","session limit"]].map(([k,v]) => (
+                <div key={String(k)} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span style={{ padding: "1px 8px", background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 5, fontSize: 12, fontFamily: "JetBrains Mono,monospace" }}>{k}</span>
+                  <span className="mono" style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+            {!user && <div className="mono" style={{ fontSize: 11, color: "var(--tomato)", marginBottom: 10 }}>⚠ Login to save earnings</div>}
+            <button className="btn lg yellow" style={{ width: "100%", justifyContent: "center", fontSize: 18 }} onClick={() => setPhase("playing")}>RUN 🐺</button>
           </div>
         )}
 
         {phase === "playing" && (
-          <div>
-            <div className="flex justify-between items-center mb-3 gap-6" style={{ maxWidth: W }}>
-              <span className="font-fredoka font-bold text-lg">🏆 {score} WOLF</span>
-              <span className="font-fredoka font-bold text-lg">{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</span>
-              <span className="font-fredoka font-bold text-lg">⏱️ {fmt(time)}</span>
+          <div style={{ width: "100%" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, maxWidth: W }}>
+              <div className="display tabular" style={{ fontSize: 20, color: "var(--yellow)" }}>{score} WOLF</div>
+              <div className="mono" style={{ fontSize: 14, color: "rgba(255,255,255,0.7)" }}>{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</div>
+              <div className="mono" style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>⏱ {fmt(time)}</div>
             </div>
-            <canvas ref={canvasRef} width={W} height={H} style={{ border: "2.5px solid #1a1a1a", borderRadius: 10, boxShadow: "5px 5px 0 #1a1a1a", display: "block", maxWidth: "100%" }} />
-            <p className="font-fredoka text-center text-sm mt-3" style={{ color: "#888" }}>Space / Up to jump · Tap canvas on mobile</p>
+            <canvas ref={canvasRef} width={W} height={H} style={{ border: "2px solid rgba(255,204,43,0.4)", borderRadius: 10, display: "block", maxWidth: "100%" }} />
+            <div className="mono" style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>Space / ↑ to jump · Tap on mobile</div>
           </div>
         )}
 
         {phase === "done" && (
-          <div style={{ border: "2.5px solid #1a1a1a", borderRadius: 20, padding: 36, boxShadow: "5px 5px 0 #1a1a1a", background: "#fff", maxWidth: 380, textAlign: "center" }}>
-            <div style={{ fontSize: 72 }}>🎉</div>
-            <h2 className="font-bungee text-2xl mt-4">SESSION COMPLETE!</h2>
-            <p className="font-fredoka text-4xl font-bold mt-2" style={{ color: "#FF9F43" }}>+{pendingWolf} WOLF</p>
+          <div style={{ maxWidth: 380, width: "100%", textAlign: "center" }}>
+            <div style={{ fontSize: 56, marginBottom: 8 }}>🎉</div>
+            <div className="display" style={{ fontSize: 28, color: "white" }}>SESSION COMPLETE!</div>
+            <div className="display tabular" style={{ fontSize: 56, color: "var(--yellow)", marginTop: 8 }}>+{pendingWolf}</div>
+            <div className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>WOLF TOKENS</div>
             {!claimed && user && (
-              <>
-                <p className="font-fredoka text-sm mt-2 mb-5" style={{ color: "#666" }}>Claim your WOLF to add them to your balance!</p>
-                <button
-                  ref={claimBtnRef}
-                  onClick={handleClaim}
-                  style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", borderRadius: 16, padding: "16px 40px", fontFamily: "Bungee,sans-serif", fontSize: 18, cursor: "pointer", boxShadow: "4px 4px 0 #1a1a1a", color: "#1a1a1a", marginBottom: 16, display: "block", width: "100%" }}
-                >CLAIM {pendingWolf} WOLF ⬆️</button>
-              </>
+              <button ref={claimBtnRef} onClick={handleClaim} className="btn lg magenta" style={{ width: "100%", justifyContent: "center", marginBottom: 12 }}>
+                CLAIM {pendingWolf} WOLF ↑
+              </button>
             )}
-            {claimed && <p className="font-fredoka text-sm mt-2 mb-4" style={{ color: "#6BCB77" }}>✓ Added to your balance!</p>}
-            {!user && <p className="font-fredoka text-sm mt-1 mb-4" style={{ color: "#FF6B6B" }}>⚠️ Login to save your WOLF earnings</p>}
-            <div className="flex gap-3 justify-center flex-wrap mt-2">
-              {btn("PLAY AGAIN", "#FFD93D", () => setPhase("start"))}
-              {btn("ALL GAMES", "#A29BFE", () => nav("/games"))}
+            {claimed && <div className="mono" style={{ fontSize: 12, color: "var(--lime)", marginBottom: 12 }}>✓ Added to your balance!</div>}
+            {!user && <div className="mono" style={{ fontSize: 11, color: "var(--tomato)", marginBottom: 12 }}>⚠ Login to save earnings</div>}
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button className="btn lg primary" onClick={() => setPhase("start")}>Play again</button>
+              <button className="btn lg" onClick={() => nav("/games")}>All games</button>
             </div>
           </div>
         )}
