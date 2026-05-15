@@ -3,6 +3,77 @@ import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
 
+// ── Pack Tiers ─────────────────────────────────────────────────────────────
+const TIERS = [
+  { name: "Bronze",  icon: "🥉", min: 0,      max: 999,    color: "#CD7F32", bonus: 0,   desc: "All wolves start here." },
+  { name: "Silver",  icon: "🥈", min: 1000,   max: 4999,   color: "#C0C0C0", bonus: 10,  desc: "+10% mining rate." },
+  { name: "Gold",    icon: "🥇", min: 5000,   max: 19999,  color: "var(--yellow)", bonus: 25, desc: "+25% mining rate." },
+  { name: "Diamond", icon: "💎", min: 20000,  max: 99999,  color: "var(--cyan)", bonus: 50,  desc: "+50% mining rate." },
+  { name: "Alpha",   icon: "👑", min: 100000, max: Infinity, color: "#FFD700", bonus: 100, desc: "+100% · permanent title." },
+];
+
+function PackTiers({ balance }: { balance: number }) {
+  const tierIdx = TIERS.findIndex((t) => balance >= t.min && balance < t.max);
+  const tier = TIERS[Math.max(0, tierIdx)];
+  const nextTier = TIERS[tierIdx + 1];
+  const pct = nextTier ? Math.min(100, ((balance - tier.min) / (nextTier.min - tier.min)) * 100) : 100;
+
+  return (
+    <div>
+      <div className="section-title">
+        <div><div className="eyebrow">Pack tiers</div><h2>Rank up your wolf</h2></div>
+        <div className="grow" />
+        <span className="pill" style={{ background: tier.color, fontSize: 11 }}>{tier.icon} {tier.name}</span>
+      </div>
+
+      {/* Current tier card */}
+      <div className="card" style={{ padding: 22, marginBottom: 18, background: `linear-gradient(120deg, ${tier.color}22, var(--paper))` }}>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 18, alignItems: "center" }}>
+          <div style={{ fontSize: 56 }}>{tier.icon}</div>
+          <div>
+            <div className="display" style={{ fontSize: 28 }}>{tier.name}</div>
+            <div style={{ fontSize: 13, color: "var(--mute)", marginTop: 2 }}>{tier.desc}</div>
+            {nextTier && (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, marginBottom: 4 }}>
+                  <span className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>PROGRESS TO {nextTier.name.toUpperCase()}</span>
+                  <span className="mono" style={{ fontSize: 10 }}>{balance.toLocaleString()} / {nextTier.min.toLocaleString()} $BATTLE</span>
+                </div>
+                <div className="bar thick"><div className="bar-fill" style={{ width: `${pct}%`, background: nextTier.color }} /></div>
+                <div style={{ fontSize: 11, color: "var(--mute)", marginTop: 6 }}>Need {(nextTier.min - balance).toLocaleString()} more $BATTLE</div>
+              </>
+            )}
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>MINING BONUS</div>
+            <div className="display tabular" style={{ fontSize: 36, color: tier.bonus > 0 ? "var(--lime)" : "var(--mute)" }}>+{tier.bonus}%</div>
+            {tier.name === "Alpha" && <div className="pill" style={{ background: "#FFD700", fontSize: 10, marginTop: 6 }}>PERMANENT</div>}
+          </div>
+        </div>
+      </div>
+
+      {/* All tiers */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+        {TIERS.map((t, i) => {
+          const isCurrent = i === Math.max(0, tierIdx);
+          const unlocked = balance >= t.min;
+          return (
+            <div key={t.name} className="card" style={{ padding: 14, textAlign: "center", background: isCurrent ? `${t.color}33` : "var(--paper)", border: isCurrent ? `2.5px solid ${t.color}` : "2.5px solid var(--ink)", opacity: unlocked ? 1 : 0.5 }}>
+              <div style={{ fontSize: 32, marginBottom: 6 }}>{t.icon}</div>
+              <div className="display" style={{ fontSize: 14 }}>{t.name}</div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--mute)", marginTop: 2 }}>{t.min === 0 ? "0" : t.min.toLocaleString()} $B</div>
+              <div className="display tabular" style={{ fontSize: 14, color: t.bonus > 0 ? "var(--lime)" : "var(--mute)", marginTop: 4 }}>+{t.bonus}%</div>
+              {isCurrent && <div className="pill" style={{ fontSize: 9, marginTop: 6, background: t.color, padding: "2px 6px" }}>YOURS</div>}
+              {!unlocked && <div style={{ fontSize: 11, marginTop: 4 }}>🔒</div>}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mono" style={{ fontSize: 11, color: "var(--mute)", marginTop: 10, textAlign: "center" }}>Tier resets weekly based on $BATTLE balance · Alpha tier is permanent once reached</div>
+    </div>
+  );
+}
+
 const QUESTS = [
   { t: "Play any game", d: "Just one round counts.", icon: "🎮", color: "var(--cyan)", reward: 50, p: 100, progress: "1 / 1", done: true },
   { t: "Score 1,000 in Wolf Run", d: "Dodge 5 obstacles in a row.", icon: "🐾", color: "var(--lime)", reward: 120, p: 100, progress: "1,240 / 1,000", done: true },
@@ -78,7 +149,7 @@ export default function Mine() {
   const [pulsing, setPulsing] = useState(false);
   const [activeTab, setActiveTab] = useState("24h");
   const streak = user?.dailyStreak ?? 7;
-  const xp = user?.xp ?? 4280;
+  const xp = user?.totalMined ?? 4280;
 
   useEffect(() => {
     const t = setInterval(() => setClaimable((c) => +(c + 0.04).toFixed(2)), 1500);
@@ -209,8 +280,8 @@ export default function Mine() {
                 <div className="row" style={{ justifyContent: "space-between" }}>
                   <div>
                     <div className="stat-label">$BATTLE balance</div>
-                    <div className="display tabular" style={{ fontSize: 32, lineHeight: 1, marginTop: 4 }}>{user?.tokens?.toLocaleString() ?? "12,840"}</div>
-                    <div style={{ fontSize: 12, marginTop: 4 }}>≈ ${((user?.tokens ?? 12840) * 0.00428).toFixed(2)} · in your wallet</div>
+                    <div className="display tabular" style={{ fontSize: 32, lineHeight: 1, marginTop: 4 }}>{user?.wolf?.toLocaleString() ?? "12,840"}</div>
+                    <div style={{ fontSize: 12, marginTop: 4 }}>≈ ${((user?.wolf ?? 12840) * 0.00428).toFixed(2)} · in your wallet</div>
                   </div>
                   <Link href="/convert" className="btn ink">Wallet →</Link>
                 </div>
@@ -341,6 +412,9 @@ export default function Mine() {
               ))}
             </div>
           </div>
+
+          {/* ── PACK TIERS ── */}
+          <PackTiers balance={user?.wolf ?? 12840} />
 
         </div>
       </main>

@@ -3,6 +3,55 @@ import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
 
+// ── One-time achievements ──
+const ONE_TIME_ACHIEVEMENTS = [
+  { name: "First Howl",      desc: "Registered and claimed once.",            icon: "🐺", color: "var(--cyan)",    xp: 100,  date: "Day 001", unlocked: true },
+  { name: "Speed Miner",     desc: "Claimed within 1hr of rig start.",        icon: "⚡", color: "var(--yellow)", xp: 250,  date: "Day 003", unlocked: true },
+  { name: "Alpha Hunter",    desc: "Reached top 200 on leaderboard.",         icon: "🏆", color: "var(--lime)",   xp: 750,  date: "Day 031", unlocked: true, rare: true },
+  { name: "Pack Leader",     desc: "Invited 10 wolves to the pack.",          icon: "👥", color: "var(--magenta)",xp: 1000, unlocked: false },
+  { name: "Diamond Paws",    desc: "Hold 100k $BATTLE at once.",              icon: "💎", color: "var(--cyan)",   xp: 1500, unlocked: false },
+  { name: "Night Owl",       desc: "Connected to the site at 3am.",           icon: "🦉", color: "var(--lavender)",xp: 200, unlocked: false, hidden: true },
+  { name: "30-Day Howl",     desc: "Log in for 30 consecutive days.",         icon: "📅", color: "var(--tomato)", xp: 2000, unlocked: false },
+  { name: "Genesis Wolf",    desc: "One of the first 1,000 registered.",      icon: "🌟", color: "#FFD700",       xp: 5000, unlocked: false, rare: true },
+];
+
+// ── Tiered achievements ──
+const TIERED_ACHIEVEMENTS = [
+  { name: "Mining Output", icon: "⛏", color: "var(--cyan)",
+    tiers: [
+      { label: "Bronze",  req: 1000,    reward: 50,   done: true  },
+      { label: "Silver",  req: 10000,   reward: 200,  done: true  },
+      { label: "Gold",    req: 100000,  reward: 500,  done: false, progress: 12840, pct: 12.8 },
+      { label: "Legend",  req: 1000000, reward: 2000, done: false, progress: 12840, pct: 1.3 },
+    ],
+  },
+  { name: "Referrals",    icon: "👥", color: "var(--lime)",
+    tiers: [
+      { label: "Bronze",  req: 1,   reward: 100,  done: true },
+      { label: "Silver",  req: 5,   reward: 300,  done: true },
+      { label: "Gold",    req: 25,  reward: 1000, done: false, progress: 5, pct: 20 },
+      { label: "Legend",  req: 100, reward: 5000, done: false, progress: 5, pct: 5 },
+    ],
+  },
+  { name: "Daily Streak", icon: "🔥", color: "var(--tomato)",
+    tiers: [
+      { label: "Bronze",  req: 7,  reward: 100,  done: true  },
+      { label: "Silver",  req: 14, reward: 250,  done: false, progress: 7, pct: 50 },
+      { label: "Gold",    req: 21, reward: 500,  done: false, progress: 7, pct: 33 },
+      { label: "Legend",  req: 30, reward: 1000, done: false, progress: 7, pct: 23 },
+    ],
+  },
+  { name: "Hold $BATTLE", icon: "💎", color: "var(--magenta)",
+    tiers: [
+      { label: "Bronze",  req: 7,  reward: 150,  done: true  },
+      { label: "Silver",  req: 14, reward: 400,  done: false, progress: 12, pct: 86 },
+      { label: "Gold",    req: 30, reward: 1000, done: false, progress: 12, pct: 40 },
+      { label: "Legend",  req: 90, reward: 5000, done: false, progress: 12, pct: 13 },
+    ],
+  },
+];
+
+// Keep original for type compat
 const ACHIEVEMENTS = [
   { name: "First Howl", desc: "Registered and claimed once.", icon: "🐺", color: "var(--cyan)", xp: 100, date: "Day 001", locked: false },
   { name: "Speed Miner", desc: "Claimed within 1hr of rig start.", icon: "⚡", color: "var(--yellow)", xp: 250, date: "Day 003", locked: false },
@@ -121,40 +170,73 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* ── ACHIEVEMENTS ── */}
+          {/* ── ONE-TIME ACHIEVEMENTS ── */}
           <div>
             <div className="section-title">
               <div>
-                <div className="eyebrow">Achievements · 6 of 12 unlocked</div>
+                <div className="eyebrow">Achievements · one-time</div>
                 <h2>The trophy room</h2>
               </div>
               <div className="grow" />
-              <div className="row" style={{ gap: 3 }}>
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} style={{ width: 8, height: 18, borderRadius: 2, background: i < 6 ? "var(--ink)" : "rgba(11,11,26,0.15)" }} />
-                ))}
-              </div>
+              <span className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{ONE_TIME_ACHIEVEMENTS.filter(a => a.unlocked).length} / {ONE_TIME_ACHIEVEMENTS.length} unlocked</span>
             </div>
             <div className="grid-4">
-              {ACHIEVEMENTS.map((a, i) => (
-                <div key={i} className="card" style={{ padding: 16, opacity: a.locked ? 0.45 : 1, position: "relative", background: a.locked ? "var(--cream-soft)" : "var(--paper)" }}>
-                  {!a.locked && (a as any).rare && <div className="sticker" style={{ position: "absolute", top: -10, right: 14, background: "var(--magenta)", color: "white", fontSize: 10, padding: "3px 8px" }}>RARE</div>}
-                  <div style={{ width: 56, height: 56, borderRadius: 14, background: a.locked ? "var(--cream)" : a.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: a.locked ? "none" : "2px 2px 0 0 var(--ink)" }}>
-                    {a.locked ? "🔒" : a.icon}
+              {ONE_TIME_ACHIEVEMENTS.map((a, i) => {
+                const isHidden = !a.unlocked && (a as any).hidden;
+                return (
+                  <div key={i} className="card" style={{ padding: 16, opacity: a.unlocked ? 1 : 0.5, position: "relative", background: a.unlocked ? "var(--paper)" : "var(--cream-soft)" }}>
+                    {a.unlocked && (a as any).rare && <div className="sticker" style={{ position: "absolute", top: -10, right: 14, background: "var(--magenta)", color: "white", fontSize: 10, padding: "3px 8px" }}>RARE</div>}
+                    <div style={{ width: 56, height: 56, borderRadius: 14, background: a.unlocked ? a.color : "var(--cream)", border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: a.unlocked ? "2px 2px 0 0 var(--ink)" : "none" }}>
+                      {isHidden ? "❓" : a.unlocked ? a.icon : "🔒"}
+                    </div>
+                    <div className="display" style={{ fontSize: 15, marginTop: 12, lineHeight: 1.1 }}>{isHidden ? "???" : a.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{isHidden ? "Keep playing to discover this." : a.desc}</div>
+                    {a.unlocked && (
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+                        <span className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{(a as any).date}</span>
+                        <span className="display" style={{ fontSize: 14, color: "var(--magenta)" }}>+{a.xp} XP</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="display" style={{ fontSize: 16, marginTop: 12, lineHeight: 1.1 }}>{a.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{a.desc}</div>
-                  {!a.locked ? (
-                    <div className="row" style={{ marginTop: 10, justifyContent: "space-between" }}>
-                      <span className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{a.date}</span>
-                      <span className="display" style={{ fontSize: 14, color: "var(--magenta)" }}>+{a.xp} XP</span>
-                    </div>
-                  ) : (
-                    <div style={{ marginTop: 10 }}>
-                      <div className="bar"><div className="bar-fill" style={{ width: `${a.progress ?? 0}%`, background: "var(--mute)" }} /></div>
-                      <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 4 }}>{a.progressText}</div>
-                    </div>
-                  )}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── TIERED ACHIEVEMENTS ── */}
+          <div>
+            <div className="section-title">
+              <div>
+                <div className="eyebrow">Achievements · tiered</div>
+                <h2>Bronze to Legendary</h2>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {TIERED_ACHIEVEMENTS.map((a) => (
+                <div key={a.name} className="card" style={{ padding: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: a.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "2px 2px 0 0 var(--ink)", flexShrink: 0 }}>{a.icon}</div>
+                    <div className="display" style={{ fontSize: 22 }}>{a.name}</div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                    {a.tiers.map((t) => (
+                      <div key={t.label} style={{ padding: "12px 14px", borderRadius: 12, border: `2px solid ${t.done ? a.color : "var(--ink)"}`, background: t.done ? `${a.color}22` : "var(--cream-soft)", opacity: t.done ? 1 : 0.8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                          <span className="pill" style={{ fontSize: 9, background: t.done ? a.color : "var(--cream)", padding: "1px 7px" }}>{t.label}</span>
+                          {t.done && <span style={{ fontSize: 14 }}>✓</span>}
+                        </div>
+                        <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>REQ</div>
+                        <div className="display tabular" style={{ fontSize: 16 }}>{t.req >= 1000 ? `${(t.req / 1000).toFixed(0)}k` : t.req}</div>
+                        <div className="display tabular" style={{ fontSize: 14, color: "var(--magenta)", marginTop: 4 }}>+{t.reward} $B</div>
+                        {!t.done && (t as any).pct !== undefined && (
+                          <div style={{ marginTop: 8 }}>
+                            <div className="bar"><div className="bar-fill" style={{ width: `${(t as any).pct}%`, background: a.color }} /></div>
+                            <div className="mono" style={{ fontSize: 9, color: "var(--mute)", marginTop: 3 }}>{(t as any).pct.toFixed(1)}%</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
