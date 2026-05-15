@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
@@ -66,9 +67,19 @@ function TokenDonut() {
   );
 }
 
+const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
+
 export default function Home() {
   const { user } = useAuth();
   const stats = calcUserStats(user);
+  const [caCopied, setCaCopied] = useState(false);
+
+  function copyCA() {
+    navigator.clipboard.writeText(CA);
+    setCaCopied(true);
+    setTimeout(() => setCaCopied(false), 2000);
+  }
+
   return (
     <div className="app-shell">
       <Sidebar />
@@ -95,10 +106,16 @@ export default function Home() {
                 <a href="#how-it-works" className="btn lg ghost">How it works ↓</a>
               </div>
               <div className="row" style={{ marginTop: 28, gap: 10, flexWrap: "wrap" }}>
-                <div className="pill" style={{ maxWidth: 260, overflow: "hidden" }}>
-                  <span className="mono" style={{ fontSize: 10 }}>CA</span>
-                  <span className="mono" style={{ fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>HAytudteq...DpumP</span>
-                </div>
+                <button
+                  onClick={copyCA}
+                  className="pill"
+                  style={{ cursor: "pointer", background: caCopied ? "var(--lime)" : "var(--paper)", border: "2px solid var(--ink)", transition: "background 0.2s" }}
+                  title="Click to copy contract address"
+                >
+                  <span className="mono" style={{ fontSize: 10 }}>{caCopied ? "✓ Copied!" : "CA"}</span>
+                  {!caCopied && <span className="mono" style={{ fontSize: 10 }}>HAytudteq...DpumP</span>}
+                  {!caCopied && <span style={{ fontSize: 10 }}>📋</span>}
+                </button>
                 <a className="btn sm" href="https://pump.fun" target="_blank" rel="noreferrer">P pump.fun</a>
                 <a className="btn sm" href="#">𝕏 X</a>
                 <a className="btn sm" href="#">✈ Telegram</a>
