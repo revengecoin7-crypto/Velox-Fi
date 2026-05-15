@@ -180,8 +180,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right column — padding creates space for badges around the smaller image */}
-            <div style={{ position: "relative", padding: "36px 36px 28px 16px" }}>
+            {/* Right column — large right padding keeps $BATTLE badge outside image */}
+            <div style={{ position: "relative", padding: "50px 110px 40px 16px" }}>
 
               {/* FAIR LAUNCH — top-left, clearly above/left of image */}
               <div className="sticker float-y" style={{
