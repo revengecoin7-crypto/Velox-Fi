@@ -33,84 +33,6 @@ function Ticker() {
   );
 }
 
-const GAMES = [
-  { id: "snake", name: "Crypto Snake", tag: "CLASSIC · SOLO", boost: 1.5, bg: "#C7F75F", dark: false, barColor: "var(--ink)", isNew: false, href: "/games/snake" },
-  { id: "tetris", name: "Battle Tetris", tag: "1v1 · COMPETITIVE", boost: 2.4, bg: "var(--magenta)", dark: true, barColor: "var(--cyan)", isNew: false, href: "/games/tetris" },
-  { id: "wolfrun", name: "Wolf Run", tag: "ENDLESS RUNNER", boost: 1.8, bg: "#FFB02E", dark: false, barColor: "var(--magenta)", isNew: false, href: "/games/runner" },
-  { id: "rocket", name: "Rocket Miner", tag: "CRASH GAME", boost: 3.2, bg: "#0B0B1A", dark: true, barColor: "var(--cyan)", isNew: false, href: "/games/rocket" },
-  { id: "howlhunt", name: "Howl & Hunt", tag: "BATTLE ROYALE · 10P", boost: 4.0, bg: "#1F1B2E", dark: true, barColor: "var(--lime)", isNew: true, href: "/games" },
-  { id: "pump", name: "Pump Pulse", tag: "60s PREDICT", boost: 2.8, bg: "var(--cyan)", dark: false, barColor: "var(--magenta)", isNew: true, href: "/games" },
-];
-
-function GameMiniArt({ id }: { id: string }) {
-  const style: React.CSSProperties = { position: "absolute", inset: 0, opacity: 0.85 };
-  if (id === "snake") return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <path d="M10 30 Q 60 20, 80 50 T 150 60 T 190 90" stroke="var(--ink)" strokeWidth="14" fill="none" strokeLinecap="round" />
-      <circle cx="190" cy="90" r="12" fill="var(--ink)" />
-      <circle cx="194" cy="86" r="3" fill="var(--magenta)" />
-      <circle cx="40" cy="80" r="6" fill="var(--magenta)" stroke="var(--ink)" strokeWidth="2" />
-    </svg>
-  );
-  if (id === "tetris") return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <g stroke="var(--ink)" strokeWidth="2">
-        <rect x="20" y="60" width="20" height="20" fill="var(--cyan)" />
-        <rect x="40" y="60" width="20" height="20" fill="var(--cyan)" />
-        <rect x="60" y="60" width="20" height="20" fill="var(--cyan)" />
-        <rect x="80" y="60" width="20" height="20" fill="var(--cyan)" />
-        <rect x="120" y="40" width="20" height="20" fill="var(--yellow)" />
-        <rect x="140" y="40" width="20" height="20" fill="var(--yellow)" />
-        <rect x="120" y="60" width="20" height="20" fill="var(--yellow)" />
-        <rect x="140" y="60" width="20" height="20" fill="var(--yellow)" />
-      </g>
-    </svg>
-  );
-  if (id === "wolfrun") return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <path d="M0 90 L 200 90" stroke="var(--ink)" strokeWidth="3" />
-      <rect x="40" y="60" width="20" height="30" fill="var(--ink)" />
-      <rect x="80" y="40" width="40" height="50" fill="var(--ink)" />
-      <rect x="140" y="70" width="20" height="20" fill="var(--ink)" />
-      <circle cx="170" cy="70" r="12" fill="var(--paper)" stroke="var(--ink)" strokeWidth="2.5" />
-    </svg>
-  );
-  if (id === "rocket") return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <path d="M10 100 Q 80 100, 100 60 T 190 10" stroke="var(--cyan)" strokeWidth="4" fill="none" strokeLinecap="round" />
-      <path d="M170 30 L 190 10 L 180 30 Z" fill="var(--magenta)" stroke="var(--ink)" strokeWidth="2" />
-      <circle cx="40" cy="92" r="3" fill="var(--cyan)" />
-      <circle cx="80" cy="80" r="3" fill="var(--cyan)" />
-      <circle cx="120" cy="50" r="3" fill="var(--cyan)" />
-    </svg>
-  );
-  if (id === "howlhunt") return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <g stroke="var(--lime)" strokeWidth="2" fill="none">
-        <rect x="14" y="14" width="172" height="92" rx="6" />
-        {Array.from({ length: 9 }).map((_, i) => <line key={i} x1={14 + i * 19} y1="14" x2={14 + i * 19} y2="106" opacity="0.3" />)}
-        {Array.from({ length: 5 }).map((_, i) => <line key={i} x1="14" y1={14 + i * 19} x2="186" y2={14 + i * 19} opacity="0.3" />)}
-      </g>
-      <circle cx="60" cy="60" r="6" fill="var(--lime)" />
-      <circle cx="120" cy="80" r="6" fill="var(--magenta)" />
-      <circle cx="150" cy="40" r="6" fill="var(--cyan)" />
-    </svg>
-  );
-  return (
-    <svg viewBox="0 0 200 120" preserveAspectRatio="none" style={style}>
-      <g stroke="var(--ink)" strokeWidth="2.5">
-        <rect x="20" y="60" width="14" height="40" fill="var(--lime)" />
-        <rect x="40" y="40" width="14" height="60" fill="var(--lime)" />
-        <rect x="60" y="50" width="14" height="50" fill="var(--tomato)" />
-        <rect x="80" y="30" width="14" height="70" fill="var(--lime)" />
-        <rect x="100" y="20" width="14" height="80" fill="var(--lime)" />
-        <rect x="120" y="45" width="14" height="55" fill="var(--tomato)" />
-        <rect x="140" y="25" width="14" height="75" fill="var(--lime)" />
-        <rect x="160" y="15" width="14" height="85" fill="var(--lime)" />
-      </g>
-    </svg>
-  );
-}
 
 function TokenDonut() {
   const segments = [
@@ -257,40 +179,6 @@ export default function Home() {
                   <div className="display" style={{ fontSize: 22, lineHeight: 1.1 }}>{s.t}</div>
                   <div style={{ fontSize: 14, marginTop: 8, opacity: 0.85 }}>{s.d}</div>
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── GAMES ── */}
-          <section>
-            <div className="section-title">
-              <div><div className="eyebrow">The game den</div><h2>Six ways to multiply your hash</h2></div>
-              <div className="grow" />
-              <Link href="/games" className="btn">Open game den →</Link>
-            </div>
-            <div className="grid-3">
-              {GAMES.map((g) => (
-                <Link href={g.href} key={g.id} style={{ textDecoration: "none" }}>
-                  <div className="card" style={{ padding: 0, overflow: "hidden", cursor: "pointer" }}>
-                    <div style={{ background: g.bg, height: 160, padding: 16, position: "relative", borderBottom: "2.5px solid var(--ink)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
-                      <GameMiniArt id={g.id} />
-                      {g.isNew && <div style={{ position: "absolute", top: 12, right: 12 }}><span className="pill magenta" style={{ fontSize: 10 }}>NEW</span></div>}
-                      <div style={{ position: "relative", zIndex: 2 }}>
-                        <div className="display" style={{ fontSize: 22, lineHeight: 1, color: g.dark ? "white" : "var(--ink)" }}>{g.name}</div>
-                        <div className="mono" style={{ fontSize: 10, marginTop: 4, color: g.dark ? "rgba(255,255,255,0.7)" : "var(--mute)" }}>{g.tag}</div>
-                      </div>
-                    </div>
-                    <div style={{ padding: 14 }}>
-                      <div className="row" style={{ justifyContent: "space-between" }}>
-                        <div style={{ fontSize: 12, color: "var(--mute)" }}>Hash boost</div>
-                        <div className="display" style={{ fontSize: 16 }}>×{g.boost}</div>
-                      </div>
-                      <div className="bar" style={{ marginTop: 8 }}>
-                        <div className="bar-fill" style={{ width: `${g.boost * 20}%`, background: g.barColor }} />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
               ))}
             </div>
           </section>
