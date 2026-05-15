@@ -56,7 +56,7 @@ const FAQS = [
   },
   {
     q: "How can I join the community?",
-    a: (<>Join our Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#6BCB77" }}>t.me/VeloxFiOfficial</a> and Discord at <a href="https://discord.gg/u2UhxuTd" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#A29BFE" }}>discord.gg/u2UhxuTd</a>. We're active 24/7.</>),
+    a: (<>Join our Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#6BCB77" }}>t.me/VeloxFiOfficial</a> or follow us on X at <a href="https://x.com/Battle767629" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#08D1F2" }}>x.com/Battle767629</a>. We're active 24/7.</>),
     color: "#A29BFE", emoji: "🌐",
   },
   {
@@ -131,10 +131,10 @@ export default function FAQ() {
               style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a", borderRadius: "12px" }}>
               ✈️ Telegram
             </a>
-            <a href="https://discord.gg/u2UhxuTd" target="_blank" rel="noopener noreferrer"
+            <a href="https://x.com/Battle767629" target="_blank" rel="noopener noreferrer"
               className="cartoon-btn px-6 py-3 text-sm font-bungee"
-              style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a", borderRadius: "12px" }}>
-              Discord
+              style={{ background: "#1a1a1a", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #666", textDecoration: "none", color: "white", borderRadius: "12px" }}>
+              𝕏 Follow on X
             </a>
             <a href="/games"
               className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
