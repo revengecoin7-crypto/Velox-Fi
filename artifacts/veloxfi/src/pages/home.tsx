@@ -245,9 +245,9 @@ export default function Home() {
             </div>
             <div className="grid-3">
               {[
-                { n: "01", t: "Connect your wallet", d: "Phantom, Solflare, or e-mail. No KYC. Your wolf avatar is generated on the fly.", c: "var(--paper)", icon: "👛" },
-                { n: "02", t: "Mine + play daily", d: "Spin up your rig for passive mining, then play arcade games to multiply your hash rate.", c: "var(--cyan)", icon: "⛏" },
-                { n: "03", t: "Claim straight to wallet", d: "Every 24h you can claim $BATTLE to your wallet. No bridges. No fees beyond Solana.", c: "var(--magenta)", icon: "💰" },
+                { n: "01", t: "Register your wolf", d: "Sign up with e-mail or Solana wallet. No KYC. Your wolf companion is generated on the fly.", c: "var(--paper)", icon: "🐺" },
+                { n: "02", t: "Mine & complete daily tasks", d: "Spin up your mining rig for passive $BATTLE. Complete daily missions, spin the wheel and open treasure chests every day.", c: "var(--cyan)", icon: "⛏" },
+                { n: "03", t: "Claim straight to wallet", d: "Claim your $BATTLE directly to your Solana wallet. No bridges. No fees beyond the Solana network.", c: "var(--magenta)", icon: "💰" },
               ].map((s) => (
                 <div className="card" key={s.n} style={{ background: s.c, color: s.c === "var(--magenta)" ? "white" : "var(--ink)" }}>
                   <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
