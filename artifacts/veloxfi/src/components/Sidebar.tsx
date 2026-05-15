@@ -10,7 +10,9 @@ const NAV = [
     group: "YOUR PACK",
     items: [
       { href: "/mine", label: "Mining Hub", icon: PickaxeIcon, badge: "LIVE" },
-      { href: "/games", label: "Game Den", icon: GamepadIcon, badge: "6" },
+      { href: "/daily", label: "Daily Den", icon: StarIcon, badge: "NEW" },
+      { href: "/pet", label: "Pet Wolf", icon: PawIcon },
+      { href: "/factions", label: "Pack Wars", icon: ShieldIcon },
       { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
       { href: "/profile", label: "Profile", icon: UserIcon },
       { href: "/convert", label: "Wallet", icon: WalletIcon },
@@ -20,7 +22,7 @@ const NAV = [
     group: "ACCOUNT",
     items: [
       { href: "/login", label: "Sign in / Register", icon: UserIcon },
-      { href: "/admin", label: "Admin", icon: ShieldIcon },
+      { href: "/admin", label: "Admin", icon: LockIcon },
     ],
   },
 ];
@@ -75,53 +77,31 @@ export function Sidebar() {
   );
 }
 
-// ── Inline SVG Icons ──
+// ── Icons ──
 function HomeIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 12 12 3l9 9" /><path d="M5 10v10h14V10" />
-    </svg>
-  );
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 12 12 3l9 9" /><path d="M5 10v10h14V10" /></svg>;
 }
 function PickaxeIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 3l7 7-4 4" /><path d="M11 6l7 7" /><path d="M3 21l8-8" />
-    </svg>
-  );
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3l7 7-4 4" /><path d="M11 6l7 7" /><path d="M3 21l8-8" /></svg>;
 }
-function GamepadIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="7" width="20" height="12" rx="4" /><path d="M7 13h3M8.5 11.5v3" /><circle cx="15" cy="11.5" r="1" /><circle cx="17.5" cy="14" r="1" />
-    </svg>
-  );
+function StarIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>;
 }
-function TrophyIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 4h8v5a4 4 0 0 1-8 0V4z" /><path d="M5 6H3v2a3 3 0 0 0 3 3M19 6h2v2a3 3 0 0 1-3 3" /><path d="M10 14h4l-1 4h-2l-1-4zM8 21h8" />
-    </svg>
-  );
-}
-function UserIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
-    </svg>
-  );
+function PawIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="9" r="2" /><circle cx="12" cy="6" r="2" /><circle cx="17" cy="9" r="2" /><path d="M7 17c0-3 2-5 5-5s5 2 5 5a3 3 0 0 1-5 2 3 3 0 0 1-5-2z" /></svg>;
 }
 function ShieldIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6l8-3z" />
-    </svg>
-  );
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6l8-3z" /></svg>;
+}
+function TrophyIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" /><path d="M5 6H3v2a3 3 0 0 0 3 3M19 6h2v2a3 3 0 0 1-3 3" /><path d="M10 14h4l-1 4h-2l-1-4zM8 21h8" /></svg>;
+}
+function UserIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-7 8-7s8 3 8 7" /></svg>;
 }
 function WalletIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 7h15a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7z" /><path d="M3 7c0-1.7 1.3-3 3-3h11" /><circle cx="17" cy="14" r="1.5" />
-    </svg>
-  );
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h15a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7z" /><path d="M3 7c0-1.7 1.3-3 3-3h11" /><circle cx="17" cy="14" r="1.5" /></svg>;
+}
+function LockIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>;
 }
