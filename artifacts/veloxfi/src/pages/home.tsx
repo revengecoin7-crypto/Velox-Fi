@@ -151,9 +151,6 @@ export default function Home() {
 
           {/* ── HERO ── */}
           <section style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 36, alignItems: "center", position: "relative", paddingTop: 12 }}>
-            <div className="sticker float-y" style={{ position: "absolute", top: -6, left: "52%", background: "var(--cyan)", zIndex: 3, transform: "rotate(-8deg)" }}>FAIR LAUNCH</div>
-            <div className="sticker wiggle" style={{ position: "absolute", top: 40, right: -4, background: "var(--magenta)", color: "white", zIndex: 3 }}>NO PRESALE</div>
-            <div className="sticker" style={{ position: "absolute", bottom: -12, left: "46%", background: "var(--lime)", zIndex: 3, transform: "rotate(4deg)" }}>SOLANA ⚡</div>
 
             <div>
               <div className="row" style={{ gap: 8, marginBottom: 18 }}>
@@ -197,6 +194,11 @@ export default function Home() {
                     <div style={{ opacity: 0.7, marginTop: 2 }}>PACK / ALPHA</div>
                   </div>
                 </div>
+                {/* Floating stickers inside mascot frame */}
+                <div className="sticker float-y" style={{ position: "absolute", top: 14, left: 14, background: "var(--cyan)", fontSize: 12, padding: "4px 10px", zIndex: 5, transform: "rotate(-6deg)" }}>FAIR LAUNCH</div>
+                <div className="sticker wiggle" style={{ position: "absolute", top: 14, right: 14, background: "var(--magenta)", color: "white", fontSize: 12, padding: "4px 10px", zIndex: 5, transform: "rotate(5deg)" }}>NO PRESALE</div>
+                <div className="sticker" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%) rotate(-3deg)", background: "var(--lime)", fontSize: 12, padding: "4px 10px", zIndex: 5, opacity: 0.9 }}>SOLANA ⚡</div>
+
                 <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                   <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--cyan)", borderRadius: 10, padding: "6px 10px" }}>
                     <div className="mono" style={{ fontSize: 10, color: "var(--cyan)" }}>RIG POWER</div>
@@ -208,18 +210,20 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="float-y" style={{ position: "absolute", top: -22, right: -22, zIndex: 4 }}>
-                <div className="card yellow" style={{ width: 96, height: 96, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+              {/* $BATTLE coin — inside right edge of mascot */}
+              <div className="float-y" style={{ position: "absolute", top: 14, right: 14, zIndex: 6 }}>
+                <div style={{ background: "var(--yellow)", border: "2.5px solid var(--ink)", borderRadius: "50%", width: 80, height: 80, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "3px 3px 0 var(--ink)" }}>
                   <div style={{ textAlign: "center" }}>
-                    <div className="display" style={{ fontSize: 24, lineHeight: 0.9 }}>$BATTLE</div>
-                    <div className="mono" style={{ fontSize: 9, marginTop: 4 }}>SOLANA</div>
+                    <div className="display" style={{ fontSize: 20, lineHeight: 0.9 }}>$BATTLE</div>
+                    <div className="mono" style={{ fontSize: 8, marginTop: 3 }}>SOLANA</div>
                   </div>
                 </div>
               </div>
-              <div style={{ position: "absolute", bottom: -16, left: -22, zIndex: 4, transform: "rotate(-8deg)" }}>
-                <div className="card cyan" style={{ padding: "10px 14px" }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Total mined</div>
-                  <div className="display tabular" style={{ fontSize: 22 }}>892M BATTLE</div>
+              {/* Total mined — bottom-left inside mascot */}
+              <div style={{ position: "absolute", bottom: 60, left: 14, zIndex: 6, transform: "rotate(-4deg)" }}>
+                <div className="card cyan" style={{ padding: "8px 12px" }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Total mined</div>
+                  <div className="display tabular" style={{ fontSize: 18 }}>892M BATTLE</div>
                 </div>
               </div>
             </div>
