@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
+import { calcUserStats } from "@/lib/userStats";
 
 const WHEEL_REWARDS = [
   { label: "50",    value: 50,   color: "var(--cream)" },
@@ -34,7 +35,8 @@ function dayReward(d: number) { return DAY_MILESTONES[d] || (d % 5 === 0 ? 50 : 
 
 export default function DailyPage() {
   const { user } = useAuth();
-  const currentDay = user?.dailyStreak ?? 7;
+  const stats = calcUserStats(user);
+  const currentDay = stats.dailyStreak;
   const hour = new Date().getHours();
   const greeting = hour < 6 ? "Late night, wolf." : hour < 12 ? "Good morning, wolf." : hour < 18 ? "Afternoon, wolf." : "Evening, wolf.";
 
@@ -54,8 +56,12 @@ export default function DailyPage() {
   // Chests
   const [opened, setOpened] = useState<Record<string, number>>({});
 
-  // Energy
-  const [energy] = useState(72);
+  // Energy (base max 100, regenerates 5/hour)
+  const [energy] = useState(() => {
+    if (!user?.wolfMiningStart) return 72;
+    const hoursSince = (Date.now() - user.wolfMiningStart) / 3600000;
+    return Math.min(100, Math.floor(hoursSince * 5));
+  });
 
   function spin() {
     if (spinning || usedSpin) return;
@@ -171,7 +177,7 @@ export default function DailyPage() {
               </div>
               <div style={{ border: "2px dashed var(--ink)", borderRadius: 12, padding: 12 }}>
                 <div className="mono" style={{ fontSize: 10, color: "var(--ink-soft)" }}>NEXT CLAIM</div>
-                <div className="display tabular" style={{ fontSize: 22, marginTop: 4, lineHeight: 1 }}>428 $BATTLE</div>
+                <div className="display tabular" style={{ fontSize: 22, marginTop: 4, lineHeight: 1 }}>{stats.claimable.toLocaleString()} $BATTLE</div>
                 <div className="mono" style={{ fontSize: 11, color: "var(--ink-soft)", marginTop: 4 }}>Ready · costs 20 energy</div>
                 <Link href="/mine" className="btn lg magenta" style={{ marginTop: 10, width: "100%", justifyContent: "center" }}>
                   💰 Claim

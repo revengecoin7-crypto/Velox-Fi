@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
+import { calcUserStats } from "@/lib/userStats";
 
 // ── One-time achievements ──
 const ONE_TIME_ACHIEVEMENTS = [
@@ -94,7 +95,7 @@ function XPRing({ pct }: { pct: number }) {
         <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
       </div>
       <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)" }}>
-        <span className="pill yellow" style={{ fontSize: 11, whiteSpace: "nowrap" }}>LVL 14</span>
+        <span className="pill yellow" style={{ fontSize: 11, whiteSpace: "nowrap" }}>LVL {stats.level}</span>
       </div>
     </div>
   );
@@ -102,10 +103,11 @@ function XPRing({ pct }: { pct: number }) {
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const stats = calcUserStats(user);
   const [copied, setCopied] = useState(false);
-  const refLink = `veloxfi.io/?ref=${user?.username ?? "wolfkid"}`;
-  const xp = user?.totalMined ?? 4280;
-  const xpPct = Math.min((xp / 5000) * 100, 100);
+  const refLink = `veloxfi.io/?ref=${stats.username}`;
+  const xp = stats.xp;
+  const xpPct = Math.min((xp / stats.xpToNextLevel) * 100, 100);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(refLink);
@@ -130,7 +132,7 @@ export default function ProfilePage() {
           <div className="card" style={{ padding: 0, overflow: "hidden" }}>
             <div style={{ height: 140, background: "linear-gradient(120deg, #1F1B2E, #2b1a4d 50%, #1F1B2E)", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1.2px, transparent 1.2px)", backgroundSize: "14px 14px" }} />
-              <div className="mono" style={{ position: "absolute", top: 16, right: 20, fontSize: 11, color: "var(--cyan)", letterSpacing: 2 }}>JOINED · DAY 047 · LVL 14 HUNTER</div>
+              <div className="mono" style={{ position: "absolute", top: 16, right: 20, fontSize: 11, color: "var(--cyan)", letterSpacing: 2 }}>LVL {stats.level} · {stats.levelName.toUpperCase()}</div>
             </div>
             <div style={{ padding: "0 28px 28px", display: "grid", gridTemplateColumns: "1fr 2fr 1.2fr", gap: 26, alignItems: "flex-end" }}>
               <div style={{ marginTop: -80 }}>
@@ -140,14 +142,14 @@ export default function ProfilePage() {
                 <div className="row" style={{ gap: 8 }}>
                   <span className="pill">✓ VERIFIED WALLET</span>
                   <span className="pill dot">ONLINE</span>
-                  <span className="pill yellow">🔥 7-day streak</span>
+                  <span className="pill yellow">🔥 {stats.dailyStreak}-day streak</span>
                 </div>
-                <div className="display" style={{ fontSize: 48, lineHeight: 0.95, marginTop: 12 }}>{user?.username ?? "wolfkid.sol"}</div>
+                <div className="display" style={{ fontSize: 48, lineHeight: 0.95, marginTop: 12 }}>{stats.username}</div>
                 <div className="mono" style={{ fontSize: 11, color: "var(--mute)", marginTop: 6 }}>
-                  {user?.wallet ? `${user.wallet.slice(0, 20)}...` : "7VLxw9zKbXcM3qPj4yR8nT2gH5fW1aC6bE8dZ9KuvLNS"}
+                  {stats.walletAddress ? `${stats.walletAddress.slice(0, 24)}...` : "No wallet connected yet"}
                 </div>
                 <div className="row" style={{ gap: 18, marginTop: 14 }}>
-                  {[["🏆", "142", "games won", "var(--yellow)"], ["⚡", "68%", "win rate", "var(--cyan)"], ["🔥", "7d", "streak", "var(--tomato)"], ["👑", "#142", "rank", "var(--magenta)"]].map(([icon, val, sub, color]) => (
+                  {[["🏆", String(user?.totalGameWolf ?? 0), "wolf from games", "var(--yellow)"], ["⚡", `LVL ${stats.level}`, "rig level", "var(--cyan)"], ["🔥", `${stats.dailyStreak}d`, "streak", "var(--tomato)"], ["👑", stats.tier.icon, stats.tier.name, "var(--magenta)"]].map(([icon, val, sub, color]) => (
                     <div key={String(sub)}>
                       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <span style={{ fontSize: 14 }}>{icon}</span>
@@ -160,8 +162,8 @@ export default function ProfilePage() {
               </div>
               <div className="card cream" style={{ padding: 16 }}>
                 <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>WALLET BALANCE</div>
-                <div className="display tabular" style={{ fontSize: 36, lineHeight: 1, marginTop: 4 }}>{(user?.wolf ?? 12840).toLocaleString()}</div>
-                <div className="mono" style={{ fontSize: 12, color: "var(--mute)" }}>BATTLE · ≈ ${((user?.wolf ?? 12840) * 0.00428).toFixed(2)}</div>
+                <div className="display tabular" style={{ fontSize: 36, lineHeight: 1, marginTop: 4 }}>{stats.wolfBalance.toLocaleString()}</div>
+                <div className="mono" style={{ fontSize: 12, color: "var(--mute)" }}>BATTLE · ≈ ${(stats.wolfBalance * 0.00428).toFixed(2)}</div>
                 <div className="row" style={{ marginTop: 12, gap: 8 }}>
                   <button className="btn sm magenta" style={{ flex: 1, justifyContent: "center" }}>Claim 428</button>
                   <Link href="/convert" className="btn sm">Wallet</Link>

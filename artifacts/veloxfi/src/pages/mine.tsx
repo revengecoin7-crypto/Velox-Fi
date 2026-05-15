@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
+import { calcUserStats } from "@/lib/userStats";
 
 // ── Pack Tiers ─────────────────────────────────────────────────────────────
 const TIERS = [
@@ -145,11 +146,12 @@ function RigIllustration({ tier, dark }: { tier: number; dark?: boolean }) {
 
 export default function Mine() {
   const { user } = useAuth();
-  const [claimable, setClaimable] = useState(428.34);
+  const stats = calcUserStats(user);
+  const [claimable, setClaimable] = useState(() => stats.claimable);
   const [pulsing, setPulsing] = useState(false);
   const [activeTab, setActiveTab] = useState("24h");
-  const streak = user?.dailyStreak ?? 7;
-  const xp = user?.totalMined ?? 4280;
+  const streak = stats.dailyStreak;
+  const xp = stats.xp;
 
   useEffect(() => {
     const t = setInterval(() => setClaimable((c) => +(c + 0.04).toFixed(2)), 1500);
@@ -207,10 +209,10 @@ export default function Mine() {
 
                   <div className="row" style={{ gap: 24, marginTop: 18 }}>
                     {[
-                      { label: "Hash rate", value: "2.4 KH/s", color: "var(--cyan)" },
-                      { label: "Boost", value: "×2.4", color: "var(--magenta)" },
+                      { label: "Hash rate", value: `${stats.hashRate} KH/s`, color: "var(--cyan)" },
+                      { label: "Tier", value: `${stats.tier.icon} ${stats.tier.name}`, color: "var(--magenta)" },
                       { label: "Next halving", value: "13d 04h", color: "var(--yellow)" },
-                      { label: "Rig level", value: "14", color: "var(--lime)" },
+                      { label: "Rig level", value: String(stats.level), color: "var(--lime)" },
                     ].map((s) => (
                       <div key={s.label}>
                         <div className="mono" style={{ fontSize: 10, color: s.color, letterSpacing: 1.4 }}>{s.label.toUpperCase()}</div>
@@ -280,8 +282,8 @@ export default function Mine() {
                 <div className="row" style={{ justifyContent: "space-between" }}>
                   <div>
                     <div className="stat-label">$BATTLE balance</div>
-                    <div className="display tabular" style={{ fontSize: 32, lineHeight: 1, marginTop: 4 }}>{user?.wolf?.toLocaleString() ?? "12,840"}</div>
-                    <div style={{ fontSize: 12, marginTop: 4 }}>≈ ${((user?.wolf ?? 12840) * 0.00428).toFixed(2)} · in your wallet</div>
+                    <div className="display tabular" style={{ fontSize: 32, lineHeight: 1, marginTop: 4 }}>{stats.wolfBalance.toLocaleString()}</div>
+                    <div style={{ fontSize: 12, marginTop: 4 }}>≈ ${(stats.wolfBalance * 0.00428).toFixed(2)} · in your wallet</div>
                   </div>
                   <Link href="/convert" className="btn ink">Wallet →</Link>
                 </div>
@@ -414,7 +416,7 @@ export default function Mine() {
           </div>
 
           {/* ── PACK TIERS ── */}
-          <PackTiers balance={user?.wolf ?? 12840} />
+          <PackTiers balance={stats.wolfBalance} />
 
         </div>
       </main>

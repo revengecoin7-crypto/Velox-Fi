@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import { Sidebar } from "@/components/Sidebar";
+import { useAuth } from "@/context/AuthContext";
+import { calcUserStats } from "@/lib/userStats";
 
 // ── Ticker data ──
 const TICKER_ITEMS = [
@@ -143,6 +145,8 @@ function TokenDonut() {
 }
 
 export default function Home() {
+  const { user } = useAuth();
+  const stats = calcUserStats(user);
   return (
     <div className="app-shell">
       <Sidebar />
@@ -234,22 +238,22 @@ export default function Home() {
                 <div className="gloss" />
                 <div style={{ position: "absolute", top: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between" }}>
                   <div className="mono" style={{ fontSize: 11, color: "var(--cyan)", textShadow: "0 0 8px var(--cyan)" }}>
-                    <div>VELOX :: AGENT_07</div>
-                    <div style={{ opacity: 0.7, marginTop: 2 }}>STATUS / ONLINE</div>
+                    <div>VELOX :: {stats.username.toUpperCase()}</div>
+                    <div style={{ opacity: 0.7, marginTop: 2 }}>STATUS / {stats.isOnline ? "ONLINE" : "OFFLINE"}</div>
                   </div>
                   <div className="mono" style={{ fontSize: 11, color: "var(--magenta)", textShadow: "0 0 8px var(--magenta)", textAlign: "right" }}>
-                    <div>HASH ↑ 2.4 KH/s</div>
-                    <div style={{ opacity: 0.7, marginTop: 2 }}>PACK / ALPHA</div>
+                    <div>HASH ↑ {stats.hashRate} KH/s</div>
+                    <div style={{ opacity: 0.7, marginTop: 2 }}>PACK / {stats.tier.name.toUpperCase()}</div>
                   </div>
                 </div>
                 <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                   <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--cyan)", borderRadius: 10, padding: "6px 10px" }}>
                     <div className="mono" style={{ fontSize: 10, color: "var(--cyan)" }}>RIG POWER</div>
-                    <div className="display" style={{ fontSize: 18, color: "white" }}>LVL 14</div>
+                    <div className="display" style={{ fontSize: 18, color: "white" }}>LVL {stats.level}</div>
                   </div>
                   <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--magenta)", borderRadius: 10, padding: "6px 10px" }}>
                     <div className="mono" style={{ fontSize: 10, color: "var(--magenta)" }}>CLAIMABLE</div>
-                    <div className="display" style={{ fontSize: 18, color: "white" }}>4,280 BATTLE</div>
+                    <div className="display" style={{ fontSize: 18, color: "white" }}>{stats.claimable.toLocaleString()} BATTLE</div>
                   </div>
                 </div>
               </div>
