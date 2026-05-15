@@ -38,7 +38,6 @@ function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
     { label: "VOL 24h",       val: t ? fmtLarge(t.volume24h) : "—",                                                  delta: "",                                                            dir: "" },
     { label: "MCAP",          val: t ? fmtLarge(t.marketCap) : "—",                                                  delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
     { label: "MINERS ONLINE", val: "LIVE",                                                                            delta: "",                                                            dir: "" },
-    { label: "NEXT HALVING",  val: "in 13d 04h",                                                                     delta: "",                                                            dir: "" },
   ];
 
   const doubled = [...items, ...items, ...items];
