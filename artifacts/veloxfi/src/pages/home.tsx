@@ -184,55 +184,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right column — large right padding keeps $BATTLE badge outside image */}
-            <div style={{ position: "relative", padding: "50px 110px 40px 16px" }}>
+            {/* Right column — mascot */}
+            <div style={{ position: "relative" }}>
 
-              {/* FAIR LAUNCH — top-left, clearly above/left of image */}
-              <div className="sticker float-y" style={{
-                position: "absolute", top: 0, left: 0,
-                background: "var(--cyan)", fontSize: 13, padding: "6px 14px",
-                zIndex: 10, transform: "rotate(-5deg)"
-              }}>FAIR LAUNCH</div>
-
-              {/* $BATTLE coin — top-right, clearly above/right of image */}
-              <div className="float-y" style={{ position: "absolute", top: 0, right: 0, zIndex: 10 }}>
-                <div style={{
-                  background: "var(--yellow)", border: "2.5px solid var(--ink)",
-                  borderRadius: "50%", width: 90, height: 90,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "3px 3px 0 var(--ink)"
-                }}>
-                  <div style={{ textAlign: "center" }}>
-                    <div className="display" style={{ fontSize: 22, lineHeight: 0.9 }}>$BATTLE</div>
-                    <div className="mono" style={{ fontSize: 8, marginTop: 3 }}>SOLANA</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* NO PRESALE — right side middle */}
-              <div className="sticker wiggle" style={{
-                position: "absolute", top: "40%", right: -2,
-                background: "var(--magenta)", color: "white",
-                fontSize: 12, padding: "5px 12px",
-                zIndex: 10, transform: "rotate(4deg)"
-              }}>NO PRESALE</div>
-
-              {/* Total mined — bottom-left, below image */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, zIndex: 10, transform: "rotate(-4deg)" }}>
-                <div className="card cyan" style={{ padding: "8px 14px" }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Total mined</div>
-                  <div className="display tabular" style={{ fontSize: 20 }}>892M BATTLE</div>
-                </div>
-              </div>
-
-              {/* SOLANA sticker — bottom-right */}
-              <div className="sticker" style={{
-                position: "absolute", bottom: 2, right: 0,
-                background: "var(--lime)", fontSize: 12, padding: "5px 12px",
-                zIndex: 10, transform: "rotate(3deg)"
-              }}>SOLANA ⚡</div>
-
-              {/* Mascot frame — smaller due to padding */}
+              {/* Mascot frame */}
               <div className="mascot-frame" style={{ aspectRatio: "1/1" }}>
                 <img src="/mascot.jpg" alt="Velox cyber wolf" />
                 <div className="gloss" />
