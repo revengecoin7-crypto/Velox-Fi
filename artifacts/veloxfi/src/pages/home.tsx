@@ -150,7 +150,7 @@ export default function Home() {
         <div className="app-main" style={{ display: "flex", flexDirection: "column", gap: 64 }}>
 
           {/* ── HERO ── */}
-          <section style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 36, alignItems: "center", position: "relative", paddingTop: 12 }}>
+          <section style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 36, alignItems: "center", position: "relative", paddingTop: 12 }} className="hero-section">
 
             <div>
               <div className="row" style={{ gap: 8, marginBottom: 18 }}>

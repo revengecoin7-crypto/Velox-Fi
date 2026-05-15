@@ -369,3 +369,193 @@ body {
   .shadow-hard-sm { box-shadow: 2px 2px 0 0 #0B0B1A; }
   .shadow-hard-lg { box-shadow: 6px 6px 0 0 #0B0B1A; }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — breakpoint 768px
+═══════════════════════════════════════════ */
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11,11,26,0.55);
+  z-index: 49;
+  backdrop-filter: blur(2px);
+}
+
+/* Mobile top bar */
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--paper);
+  border-bottom: 2.5px solid var(--ink);
+  z-index: 60;
+  padding: 0 16px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 0 0 var(--ink);
+}
+
+.hamburger-btn {
+  width: 40px; height: 40px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--paper);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px;
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+.hamburger-btn span {
+  display: block; width: 18px; height: 2px;
+  background: var(--ink); border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  /* Show mobile topbar */
+  .mobile-topbar { display: flex; }
+
+  /* Hide desktop sidebar by default, show as drawer */
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    transition: left 0.28s cubic-bezier(.4,0,.2,1);
+    box-shadow: none;
+    padding-top: 72px;
+  }
+
+  .sidebar.sidebar-open {
+    left: 0;
+    box-shadow: 6px 0 24px rgba(11,11,26,0.18);
+  }
+
+  .sidebar-overlay.overlay-open {
+    display: block;
+  }
+
+  /* Push main content below mobile topbar */
+  main {
+    padding-top: 56px !important;
+  }
+
+  .app-main {
+    padding: 20px 16px 60px !important;
+    gap: 32px !important;
+  }
+
+  /* Responsive grids — all stack to 1 column on phone */
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
+  .grid-4 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Stats grid — 2 columns on mobile */
+  .grid-4.stats-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Hero section — stack vertically */
+  section[style*="1.05fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce hero headline size */
+  h1.display {
+    font-size: 56px !important;
+  }
+
+  /* Section title smaller */
+  .section-title h2 {
+    font-size: 22px !important;
+  }
+
+  /* Cards full width */
+  .card { width: 100%; }
+
+  /* Topbar wraps */
+  .topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Tables scroll horizontally */
+  .card[style*="overflow: hidden"] {
+    overflow-x: auto !important;
+  }
+
+  /* Ticker full width */
+  .ticker { margin: 0 -16px; }
+
+  /* Tabs wrap */
+  .tabs { flex-wrap: wrap; width: 100% !important; }
+
+  /* Sidebar foot pricing always visible */
+  .sb-foot { display: block; }
+
+  /* Hero section stacks on mobile */
+  .hero-section {
+    grid-template-columns: 1fr !important;
+  }
+  .hero-section h1 {
+    font-size: 52px !important;
+    line-height: 0.95 !important;
+  }
+
+  /* Mascot image — smaller on mobile */
+  .hero-section .mascot-frame {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* Mining hub top grid */
+  section > div[style*="1.1fr 1fr"],
+  div[style*="1.1fr 1fr"],
+  div[style*="1.4fr 1fr"],
+  div[style*="1.2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tokenomics donut layout */
+  div[style*="1.1fr 1fr"] { grid-template-columns: 1fr !important; }
+
+  /* Roadmap timeline — scroll horizontally */
+  div[style*="repeat(5, 1fr)"] {
+    grid-template-columns: repeat(5, minmax(140px, 1fr)) !important;
+    overflow-x: auto;
+  }
+
+  /* Pet stages — 3 col on mobile */
+  div[style*="repeat(5, 1fr)"].stages-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Faction cards — 2 col */
+  .grid-4.factions-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Stat numbers smaller */
+  .stat-num { font-size: 28px !important; }
+
+  /* Rig cards — 2 col */
+  .grid-4 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Buttons smaller on mobile */
+  .btn.lg { padding: 12px 18px !important; font-size: 14px !important; }
+
+  /* Topbar on pages */
+  .topbar .display { font-size: 22px !important; }
+
+  /* Daily spin wheel center */
+  .grid-3 { gap: 12px !important; }
+
+  /* Admin tabs wrap */
+  .tabs { width: 100% !important; }
+  .tab { font-size: 12px !important; padding: 6px 10px !important; }
+}
