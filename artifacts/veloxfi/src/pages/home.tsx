@@ -162,10 +162,10 @@ export default function Home() {
                 <span className="pill" style={{ background: "var(--cream)" }}>v2 — Pack mode just dropped</span>
               </div>
               <h1 className="display" style={{ fontSize: 90, lineHeight: 0.92, margin: 0 }}>
-                MINE.<br />PLAY.<br /><span style={{ color: "var(--magenta)" }}>HOWL.</span>
+                MINE.<br />EARN.<br /><span style={{ color: "var(--magenta)" }}>HOWL.</span>
               </h1>
               <p style={{ fontSize: 18, lineHeight: 1.45, maxWidth: 520, marginTop: 22, color: "var(--ink-soft)" }}>
-                Veloxfi is the cyber-wolf meme coin on Solana. Mine <b>$BATTLE</b> every day, sharpen your fangs in six arcade games, and climb the pack on a leaderboard that pays in real tokens. No presale. No team allocation. Just the wolves.
+                Veloxfi is the cyber-wolf meme coin on Solana. Mine <b>$BATTLE</b> every day, complete daily missions, grow your wolf companion, and climb the pack on a leaderboard that pays in real tokens. No presale. No team allocation. Just the wolves.
               </p>
               <div className="row" style={{ marginTop: 26, gap: 12, flexWrap: "wrap" }}>
                 <Link href="/register" className="btn lg magenta">Join the pack →</Link>
