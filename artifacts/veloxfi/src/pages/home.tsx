@@ -1,31 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 import { calcUserStats } from "@/lib/userStats";
 
-// ── Ticker data ──
-const TICKER_ITEMS = [
-  { label: "$BATTLE", val: "$0.00428", delta: "+12.6%", dir: "up" },
-  { label: "HOLDERS", val: "14,902", delta: "+341 24h", dir: "up" },
-  { label: "VOL 24h", val: "$1.84M", delta: "+22.1%", dir: "up" },
-  { label: "MCAP", val: "$4.28M", delta: "+12.6%", dir: "up" },
-  { label: "MINERS ONLINE", val: "3,217", delta: "LIVE", dir: "up" },
-  { label: "GAMES PLAYED", val: "218,440", delta: "+1,212", dir: "up" },
-  { label: "NEXT HALVING", val: "in 13d 04h", delta: "", dir: "" },
-  { label: "SOL", val: "$184.21", delta: "-0.4%", dir: "down" },
-];
+// ── Fetch real token stats from backend ──
+interface TokenStats { price: number; marketCap: number; volume24h: number; holders: number; priceChange24h: number }
 
-function Ticker() {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS];
+function useTokenStats() {
+  const [stats, setStats] = useState<TokenStats | null>(null);
+  useEffect(() => {
+    const fetch_ = () => fetch("/api/veloxfi/token-stats")
+      .then(r => r.json())
+      .then(setStats)
+      .catch(() => {});
+    fetch_();
+    const id = setInterval(fetch_, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return stats;
+}
+
+function fmt(n: number, decimals = 2) { return n.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
+function fmtLarge(n: number) {
+  if (n >= 1_000_000) return `$${fmt(n / 1_000_000)}M`;
+  if (n >= 1_000) return `$${fmt(n / 1_000)}K`;
+  return `$${fmt(n)}`;
+}
+
+function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
+  const t = tokenStats;
+  const priceUp = (t?.priceChange24h ?? 0) >= 0;
+
+  const items = [
+    { label: "$BATTLE",       val: t ? `$${t.price < 0.01 ? t.price.toFixed(6) : t.price.toFixed(4)}` : "—",        delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
+    { label: "HOLDERS",       val: t ? t.holders.toLocaleString() : "—",                                             delta: "",                                                            dir: "" },
+    { label: "VOL 24h",       val: t ? fmtLarge(t.volume24h) : "—",                                                  delta: "",                                                            dir: "" },
+    { label: "MCAP",          val: t ? fmtLarge(t.marketCap) : "—",                                                  delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
+    { label: "MINERS ONLINE", val: "LIVE",                                                                            delta: "",                                                            dir: "" },
+    { label: "NEXT HALVING",  val: "in 13d 04h",                                                                     delta: "",                                                            dir: "" },
+  ];
+
+  const doubled = [...items, ...items, ...items];
   return (
     <div className="ticker">
       <div className="ticker-track">
-        {items.map((t, i) => (
+        {doubled.map((item, i) => (
           <div className="ticker-item" key={i}>
-            <span className="label">{t.label}</span>
-            <span className="val">{t.val}</span>
-            {t.delta && <span className={`val ${t.dir}`}>{t.delta}</span>}
+            <span className="label">{item.label}</span>
+            <span className="val">{item.val}</span>
+            {item.delta && <span className={`val ${item.dir}`}>{item.delta}</span>}
             <span style={{ opacity: 0.3 }}>•</span>
           </div>
         ))}
@@ -72,6 +96,7 @@ const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
 export default function Home() {
   const { user } = useAuth();
   const stats = calcUserStats(user);
+  const tokenStats = useTokenStats();
   const [caCopied, setCaCopied] = useState(false);
 
   function copyCA() {
@@ -154,16 +179,16 @@ export default function Home() {
           </section>
 
           {/* ── TICKER ── */}
-          <div style={{ margin: "0 -36px" }}><Ticker /></div>
+          <div style={{ margin: "0 -36px" }}><Ticker tokenStats={tokenStats} /></div>
 
           {/* ── STATS ── */}
           <section>
             <div className="grid-4">
               {[
-                { label: "Holders", value: "14,902", sub: "+341 in 24h", color: "var(--paper)" },
-                { label: "Total mined", value: "892M", sub: "of 1B max supply", color: "var(--cyan)" },
-                { label: "Market cap", value: "$4.28M", sub: "+12.6% · 24h", color: "var(--paper)" },
-                { label: "Active miners", value: "3,217", sub: "online right now", color: "var(--lime)" },
+                { label: "Holders", value: tokenStats ? tokenStats.holders.toLocaleString() : "—", sub: "on Solana", color: "var(--paper)" },
+                { label: "Market cap", value: tokenStats ? fmtLarge(tokenStats.marketCap) : "—", sub: tokenStats ? `${(tokenStats.priceChange24h >= 0 ? "+" : "") + fmt(tokenStats.priceChange24h)}% · 24h` : "", color: "var(--cyan)" },
+                { label: "Volume 24h", value: tokenStats ? fmtLarge(tokenStats.volume24h) : "—", sub: "trading volume", color: "var(--paper)" },
+                { label: "$BATTLE price", value: tokenStats ? `$${tokenStats.price < 0.01 ? tokenStats.price.toFixed(6) : tokenStats.price.toFixed(4)}` : "—", sub: "live on pump.fun", color: "var(--lime)" },
               ].map((s) => (
                 <div className="card" key={s.label} style={{ background: s.color }}>
                   <div className="stat-label">{s.label}</div>
