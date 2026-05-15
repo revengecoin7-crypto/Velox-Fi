@@ -5,7 +5,7 @@ const PHASES = [
   {
     num: 1, label: "BUILD & LAUNCH", emoji: "🔥", status: "done" as const,
     color: "#6BCB77",
-    items: ["Platform development complete","4 arcade games live (Snake, Tetris, Runner, Rocket)","$BATTLE token launched on pump.fun","Mining system live","Website live at veloxfi.io","Community started on Telegram & Discord"],
+    items: ["Platform development complete","4 arcade games live (Snake, Tetris, Runner, Rocket)","$BATTLE token launched on pump.fun","Mining system live","Website live at veloxfi.io","Community started on Telegram & X"],
   },
   {
     num: 2, label: "GROW", emoji: "📈", status: "active" as const,

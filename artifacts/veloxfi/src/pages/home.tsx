@@ -116,10 +116,9 @@ export default function Home() {
                   {!caCopied && <span className="mono" style={{ fontSize: 10 }}>HAytudteq...DpumP</span>}
                   {!caCopied && <span style={{ fontSize: 10 }}>📋</span>}
                 </button>
-                <a className="btn sm" href="https://pump.fun" target="_blank" rel="noreferrer">P pump.fun</a>
-                <a className="btn sm" href="#">𝕏 X</a>
-                <a className="btn sm" href="#">✈ Telegram</a>
-                <a className="btn sm" href="#">Discord</a>
+                <a className="btn sm" href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump" target="_blank" rel="noreferrer">P pump.fun</a>
+                <a className="btn sm" href="#" target="_blank" rel="noreferrer">𝕏 X</a>
+                <a className="btn sm" href="#" target="_blank" rel="noreferrer">✈ Telegram</a>
               </div>
             </div>
 
@@ -277,9 +276,8 @@ export default function Home() {
                   <h2 className="display" style={{ fontSize: 48, lineHeight: 1, color: "white", margin: "6px 0 14px" }}>14,902 wolves and counting.</h2>
                   <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)" }}>Drop into the den. Memes, alpha, daily quests, and weekly $BATTLE raffles for active members.</p>
                   <div className="row" style={{ gap: 10, marginTop: 20, flexWrap: "wrap" }}>
-                    <button className="btn lg yellow">🎮 Join Discord</button>
-                    <button className="btn lg primary">✈ Telegram</button>
-                    <button className="btn lg">𝕏 Follow on X</button>
+                    <a href="#" target="_blank" rel="noreferrer" className="btn lg primary">✈ Telegram</a>
+                    <a href="#" target="_blank" rel="noreferrer" className="btn lg">𝕏 Follow on X</a>
                   </div>
                 </div>
                 <div style={{ position: "relative", height: 280 }}>
