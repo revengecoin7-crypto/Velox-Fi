@@ -170,7 +170,7 @@ export default function Home() {
               <div className="row" style={{ marginTop: 26, gap: 12, flexWrap: "wrap" }}>
                 <Link href="/register" className="btn lg magenta">Join the pack →</Link>
                 <Link href="/mine" className="btn lg primary">⛏ Start mining</Link>
-                <button className="btn lg ghost">▶ Watch 60s intro</button>
+                <a href="#how-it-works" className="btn lg ghost">How it works ↓</a>
               </div>
               <div className="row" style={{ marginTop: 28, gap: 10, flexWrap: "wrap" }}>
                 <div className="pill" style={{ maxWidth: 260, overflow: "hidden" }}>
@@ -237,7 +237,7 @@ export default function Home() {
           </section>
 
           {/* ── HOW IT WORKS ── */}
-          <section>
+          <section id="how-it-works">
             <div className="section-title">
               <div><div className="eyebrow">How it works</div><h2>Three steps to the pack</h2></div>
               <div className="grow" />
