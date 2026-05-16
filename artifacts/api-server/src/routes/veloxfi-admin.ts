@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiClaims } from "@workspace/db/schema";
-import { eq, desc, sql, isNotNull } from "drizzle-orm";
+import { veloxfiUsers, veloxfiBattles, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
+import { eq, desc, sql, isNotNull, isNull } from "drizzle-orm";
+
+const BATTLE_SUPPLY_CAP = 95_000_000;
 
 const ADMIN_PASSWORD = "veloxfi2025";
 
@@ -129,6 +131,74 @@ router.delete("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req:
     await db.update(veloxfiClaims).set({ paidAt: null }).where(eq(veloxfiClaims.id, id));
     res.json({ ok: true });
   } catch (e) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ── Supply / waitlist management ─────────────────────────────────────────────
+
+router.get("/veloxfi/admin/supply", requireAdmin as any, async (_req: any, res: any) => {
+  try {
+    const [distRow] = await db
+      .select({ total: sql<number>`coalesce(sum(${veloxfiUsers.tokens}), 0)::float8` })
+      .from(veloxfiUsers);
+    const distributed = Number(distRow?.total ?? 0);
+    const remaining   = Math.max(0, BATTLE_SUPPLY_CAP - distributed);
+
+    const [pendingRow] = await db
+      .select({
+        cnt:       sql<number>`count(*)::int`,
+        battleSum: sql<number>`coalesce(sum(${veloxfiWaitlist.battleAmount}), 0)::float8`,
+      })
+      .from(veloxfiWaitlist)
+      .where(isNull(veloxfiWaitlist.fulfilledAt));
+
+    res.json({
+      cap:               BATTLE_SUPPLY_CAP,
+      distributed:       Math.round(distributed * 10000) / 10000,
+      remaining:         Math.round(remaining * 10000) / 10000,
+      percentUsed:       Math.round((distributed / BATTLE_SUPPLY_CAP) * 10000) / 100,
+      waitlistCount:     pendingRow?.cnt ?? 0,
+      waitlistBattleSum: Math.round(Number(pendingRow?.battleSum ?? 0) * 10000) / 10000,
+    });
+  } catch (e) {
+    console.error("admin/supply error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.get("/veloxfi/admin/waitlist", requireAdmin as any, async (_req: any, res: any) => {
+  try {
+    const entries = await db
+      .select({
+        id:            veloxfiWaitlist.id,
+        username:      veloxfiWaitlist.username,
+        wolfAmount:    veloxfiWaitlist.wolfAmount,
+        battleAmount:  veloxfiWaitlist.battleAmount,
+        walletAddress: veloxfiWaitlist.walletAddress,
+        requestedAt:   veloxfiWaitlist.requestedAt,
+        fulfilledAt:   veloxfiWaitlist.fulfilledAt,
+      })
+      .from(veloxfiWaitlist)
+      .orderBy(desc(veloxfiWaitlist.requestedAt))
+      .limit(200);
+    res.json(entries);
+  } catch (e) {
+    console.error("admin/waitlist error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.put("/veloxfi/admin/waitlist/:id/fulfill", requireAdmin as any, async (req: any, res: any) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+    await db.update(veloxfiWaitlist)
+      .set({ fulfilledAt: new Date() })
+      .where(eq(veloxfiWaitlist.id, id));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("admin/waitlist/fulfill error:", e);
     res.status(500).json({ error: "Server error" });
   }
 });

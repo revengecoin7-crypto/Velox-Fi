@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiClaims, veloxfiGameSessions } from "@workspace/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { veloxfiUsers, veloxfiClaims, veloxfiGameSessions, veloxfiWaitlist } from "@workspace/db/schema";
+import { eq, sql, isNull, desc } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -318,6 +318,42 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
 // ── Wolf → $BATTLE Conversion ────────────────────────────────────────────────
 const WOLF_PER_BATTLE = 5000;
 
+// Total $BATTLE pool — limited to what the project owner has personally bought
+// on pump.fun. Once distributed, new conversion requests go to a waitlist.
+const BATTLE_SUPPLY_CAP = 95_000_000;
+
+async function getDistributedBattle(): Promise<number> {
+  const [row] = await db
+    .select({ total: sql<number>`coalesce(sum(${veloxfiUsers.tokens}), 0)::float8` })
+    .from(veloxfiUsers);
+  return Number(row?.total ?? 0);
+}
+
+router.get("/veloxfi/supply-status", async (_req, res) => {
+  try {
+    const distributed = await getDistributedBattle();
+    const remaining   = Math.max(0, BATTLE_SUPPLY_CAP - distributed);
+    const percentUsed = BATTLE_SUPPLY_CAP > 0 ? (distributed / BATTLE_SUPPLY_CAP) * 100 : 0;
+
+    const [waitlistRow] = await db
+      .select({ cnt: sql<number>`count(*)::int` })
+      .from(veloxfiWaitlist)
+      .where(isNull(veloxfiWaitlist.fulfilledAt));
+
+    res.json({
+      cap:           BATTLE_SUPPLY_CAP,
+      distributed:   Math.round(distributed * 10000) / 10000,
+      remaining:     Math.round(remaining * 10000) / 10000,
+      percentUsed:   Math.round(percentUsed * 100) / 100,
+      poolDepleted:  remaining <= 0,
+      waitlistCount: waitlistRow?.cnt ?? 0,
+    });
+  } catch (e) {
+    console.error("supply-status error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
 router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;
@@ -329,14 +365,50 @@ router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) =
     if (amount > currentWolf) {
       res.status(400).json({ error: "Insufficient WOLF balance." }); return;
     }
-    const battleEarned     = amount / WOLF_PER_BATTLE; // fractional — e.g. 50 WOLF = 0.01 $BATTLE
+    const battleEarned = amount / WOLF_PER_BATTLE;
+
+    // Check supply cap — if exceeded, route the request to the waitlist
+    // instead of distributing tokens we don't own.
+    const distributed = await getDistributedBattle();
+    if (distributed + battleEarned > BATTLE_SUPPLY_CAP) {
+      const [entry] = await db.insert(veloxfiWaitlist).values({
+        username:      user.username,
+        wolfAmount:    amount,
+        battleAmount:  battleEarned,
+        walletAddress: user.walletAddress ?? null,
+      }).returning({ id: veloxfiWaitlist.id });
+
+      res.status(202).json({
+        ok: false,
+        waitlisted: true,
+        waitlistId: entry?.id,
+        battleRequested: battleEarned,
+        remaining: Math.max(0, BATTLE_SUPPLY_CAP - distributed),
+        error: "Pool is currently depleted. You've been added to the waitlist — your WOLF is untouched.",
+      });
+      return;
+    }
+
     const newWolfBalance   = currentWolf - amount;
     const newBattleBalance = (user.tokens ?? 0) + battleEarned;
     await db.update(veloxfiUsers)
       .set({ wolf: newWolfBalance, tokens: newBattleBalance })
       .where(eq(veloxfiUsers.username, user.username));
-    res.json({ ok: true, wolfSpent: amount, battleEarned, newWolfBalance, newBattleBalance });
+
+    const newDistributed = distributed + battleEarned;
+    const newRemaining   = Math.max(0, BATTLE_SUPPLY_CAP - newDistributed);
+
+    res.json({
+      ok: true,
+      wolfSpent: amount,
+      battleEarned,
+      newWolfBalance,
+      newBattleBalance,
+      poolRemaining: Math.round(newRemaining * 10000) / 10000,
+      poolPercentUsed: Math.round((newDistributed / BATTLE_SUPPLY_CAP) * 10000) / 100,
+    });
   } catch (e) {
+    console.error("convert-wolf error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });
