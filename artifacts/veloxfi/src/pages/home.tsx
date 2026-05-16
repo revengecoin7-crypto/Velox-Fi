@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { calcUserStats } from "@/lib/userStats";
 
 // ── Fetch real token stats from backend ──
-interface TokenStats { price: number; marketCap: number; volume24h: number; holders: number; priceChange24h: number }
+interface TokenStats { price: number; marketCap: number; volume24h: number; liquidity: number; holders: number; priceChange24h: number }
 
 function useTokenStats() {
   const [stats, setStats] = useState<TokenStats | null>(null);
@@ -53,7 +53,7 @@ function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
 
   const items = [
     { label: "$BATTLE",       val: t ? `$${t.price < 0.01 ? t.price.toFixed(6) : t.price.toFixed(4)}` : "—",        delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
-    { label: "HOLDERS",       val: t ? t.holders.toLocaleString() : "—",                                             delta: "",                                                            dir: "" },
+    { label: "LIQUIDITY",     val: t ? fmtLarge(t.liquidity) : "—",                                                  delta: "",                                                            dir: "" },
     { label: "VOL 24h",       val: t ? fmtLarge(t.volume24h) : "—",                                                  delta: "",                                                            dir: "" },
     { label: "MCAP",          val: t ? fmtLarge(t.marketCap) : "—",                                                  delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
     { label: "MINERS ONLINE", val: "LIVE",                                                                            delta: "",                                                            dir: "" },
@@ -76,38 +76,6 @@ function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
   );
 }
 
-
-function TokenDonut() {
-  const segments = [
-    { v: 60, c: "var(--cyan)" },
-    { v: 18, c: "var(--magenta)" },
-    { v: 14, c: "var(--yellow)" },
-    { v: 8, c: "var(--lime)" },
-  ];
-  const r = 56, cx = 70, cy = 70, sw = 24;
-  const circumference = 2 * Math.PI * r;
-  let offset = 0;
-  return (
-    <svg width="140" height="140" viewBox="0 0 140 140" style={{ flexShrink: 0 }}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--ink-soft)" strokeWidth={sw} />
-      {segments.map((d, i) => {
-        const dashLen = (d.v / 100) * circumference;
-        const dashOffset = -offset;
-        offset += dashLen;
-        return (
-          <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={d.c} strokeWidth={sw}
-            strokeDasharray={`${dashLen} ${circumference}`}
-            strokeDashoffset={dashOffset}
-            transform={`rotate(-90 ${cx} ${cy})`} />
-        );
-      })}
-      <circle cx={cx} cy={cy} r={r - sw / 2 - 1} fill="none" stroke="var(--ink)" strokeWidth="2" />
-      <circle cx={cx} cy={cy} r={r + sw / 2 + 1} fill="none" stroke="var(--ink)" strokeWidth="2" />
-      <text x={cx} y={cy - 4} textAnchor="middle" fontFamily="Bagel Fat One" fontSize="16" fill="white">BATTLE</text>
-      <text x={cx} y={cy + 12} textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="rgba(255,255,255,0.6)">1B SUPPLY</text>
-    </svg>
-  );
-}
 
 const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
 
@@ -204,7 +172,7 @@ export default function Home() {
           <section>
             <div className="grid-4">
               {[
-                { label: "Holders", value: tokenStats ? tokenStats.holders.toLocaleString() : "—", sub: "on Solana", color: "var(--paper)" },
+                { label: "Liquidity", value: tokenStats ? fmtLarge(tokenStats.liquidity) : "—", sub: "USD locked", color: "var(--paper)" },
                 { label: "Market cap", value: tokenStats ? fmtLarge(tokenStats.marketCap) : "—", sub: tokenStats ? `${(tokenStats.priceChange24h >= 0 ? "+" : "") + fmt(tokenStats.priceChange24h)}% · 24h` : "", color: "var(--cyan)" },
                 { label: "Volume 24h", value: tokenStats ? fmtLarge(tokenStats.volume24h) : "—", sub: "trading volume", color: "var(--paper)" },
                 { label: "$BATTLE price", value: tokenStats ? `$${tokenStats.price < 0.01 ? tokenStats.price.toFixed(6) : tokenStats.price.toFixed(4)}` : "—", sub: "live on pump.fun", color: "var(--lime)" },
@@ -282,37 +250,16 @@ export default function Home() {
               </div>
             )}
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 18 }}>
-              <div className="card ink" style={{ padding: 28 }}>
-                <div className="row" style={{ gap: 18, alignItems: "center" }}>
-                  <TokenDonut />
-                  <div style={{ flex: 1 }}>
-                    <div className="mono" style={{ fontSize: 11, color: "var(--cyan)" }}>MAX SUPPLY</div>
-                    <div className="display tabular" style={{ fontSize: 36, lineHeight: 1, marginTop: 6 }}>1,000,000,000</div>
-                    <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>$BATTLE · SPL · Solana mainnet</div>
-                    <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
-                      {[["Mining rewards", 60, "var(--cyan)"], ["Liquidity pool (LP)", 18, "var(--magenta)"], ["Game prize pool", 14, "var(--yellow)"], ["Community treasury", 8, "var(--lime)"]].map(([n, p, c]) => (
-                        <div key={String(n)} className="row" style={{ gap: 10 }}>
-                          <div style={{ width: 10, height: 10, borderRadius: 2, background: String(c), flexShrink: 0 }} />
-                          <div style={{ flex: 1, fontSize: 13 }}>{String(n)}</div>
-                          <div className="display tabular" style={{ fontSize: 16 }}>{p}%</div>
-                        </div>
-                      ))}
-                    </div>
+            <div className="grid-3">
+              {[["0% tax", "No buy / sell tax. Forever.", "🌿"], ["LP burned", "Liquidity locked permanently on day one.", "🔥"], ["Contract renounced", "Mint authority revoked. Nobody can change the rules.", "🛡"]].map(([t, d, icon]) => (
+                <div className="card cream" key={String(t)} style={{ padding: 22 }}>
+                  <div className="row" style={{ justifyContent: "space-between" }}>
+                    <div className="display" style={{ fontSize: 22 }}>{t}</div>
+                    <span style={{ fontSize: 22 }}>{icon}</span>
                   </div>
+                  <div style={{ fontSize: 13, marginTop: 4 }}>{String(d)}</div>
                 </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {[["0% tax", "No buy / sell tax. Forever.", "🌿"], ["LP burned", "Liquidity locked permanently on day one.", "🔥"], ["Contract renounced", "Mint authority revoked. Nobody can change the rules.", "🛡"]].map(([t, d, icon]) => (
-                  <div className="card cream" key={String(t)}>
-                    <div className="row" style={{ justifyContent: "space-between" }}>
-                      <div className="display" style={{ fontSize: 22 }}>{t}</div>
-                      <span style={{ fontSize: 22 }}>{icon}</span>
-                    </div>
-                    <div style={{ fontSize: 13, marginTop: 4 }}>{String(d)}</div>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </section>
 
