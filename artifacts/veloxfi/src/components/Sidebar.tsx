@@ -14,7 +14,7 @@ const NAV = [
       { href: "/mine",      label: "Mining Hub",  icon: PickaxeIcon, badge: "LIVE" },
       { href: "/daily",     label: "Daily Den",   icon: StarIcon,    badge: "NEW" },
       { href: "/pet",       label: "Pet Wolf",    icon: PawIcon },
-      { href: "/factions",  label: "Pack Wars",   icon: ShieldIcon },
+      { href: "/factions",  label: "Pack Wars",   icon: ShieldIcon, badge: "SOON" },
       { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
       { href: "/profile",   label: "Profile",     icon: UserIcon },
       { href: "/convert",   label: "Wallet",      icon: WalletIcon },
