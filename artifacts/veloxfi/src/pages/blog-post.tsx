@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { useLocation, useRoute } from "wouter";
 import { ArrowLeft, Clock, Tag } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -5,46 +6,44 @@ import MemeShell from "@/components/MemeShell";
 import { BLOG_POSTS } from "./blog";
 
 /* ── Full article content per slug ── */
-const CONTENT: Record<string, () => JSX.Element> = {
+const CONTENT: Record<string, () => ReactElement> = {
 
-  "earn-crypto-playing-games-2026": () => (
+  "free-crypto-mining-2026": () => (
     <div className="prose-velox">
-      <h2>Why Play-to-Earn Matters in 2026</h2>
-      <p>In 2026, crypto gaming has matured. Gone are the days of paying thousands for NFT characters. The new wave of play-to-earn is accessible — you play browser games, earn tokens, and convert to real crypto. VeloxFi is at the forefront of this shift on Solana.</p>
+      <h2>Why Free Mining Beats Traditional Crypto Mining in 2026</h2>
+      <p>Traditional crypto mining is dead for most people. ASICs cost thousands of dollars, electricity bills wipe out the rewards, and the noise plus heat make it impractical for home setups. In 2026, the smarter way to earn crypto is platforms that offload all the infrastructure and just pay you for showing up.</p>
 
       <h2>What is VeloxFi?</h2>
-      <p>VeloxFi is a free-to-play game arena on Solana. You earn <strong>WOLF tokens</strong> by playing arcade games and running mining sessions. When you collect 5,000 WOLF, you can convert them to <strong>$BATTLE</strong> — a real Solana token trading on pump.fun.</p>
-      <p>The key difference from most P2E games: <strong>no wallet required to start</strong>. Just register with an email and start playing.</p>
+      <p>VeloxFi is a free, browser-based mining platform on Solana. You earn <strong>WOLF tokens</strong> by running passive 4-hour mining sessions. When you're ready, you convert WOLF to <strong>$BATTLE</strong> — a real Solana token trading on pump.fun — at a fixed 5,000:1 rate.</p>
+      <p>The key difference from most "free crypto" platforms: <strong>no wallet required to start mining</strong>. Just register with an email and click Start.</p>
 
-      <h2>The 4 Games Available</h2>
+      <h2>How a Mining Session Works</h2>
       <ul>
-        <li><strong>🐍 Crypto Snake</strong> — Classic snake game. Eat WOLF coins to grow. Each coin = 1 WOLF token. Sessions last 120 seconds.</li>
-        <li><strong>🟦 Battle Tetris</strong> — Classic Tetris. Clear lines to earn WOLF. Harder clears give more points.</li>
-        <li><strong>🐺 Wolf Run</strong> — Infinite side-scroller. Jump over obstacles, collect WOLF coins mid-air.</li>
-        <li><strong>🚀 Rocket Miner</strong> — Shoot falling asteroids with your rocket. 1 WOLF per hit. Watch out for waves of asteroids!</li>
+        <li><strong>Length:</strong> Every session runs exactly 4 hours.</li>
+        <li><strong>Rate:</strong> 1 WOLF per minute → up to 240 WOLF per session.</li>
+        <li><strong>Passive:</strong> Close the tab, lock the laptop, go for a walk. The session keeps running.</li>
+        <li><strong>Claim:</strong> When the timer hits zero, click Claim and the WOLF lands in your balance.</li>
+        <li><strong>Restart:</strong> Start the next session immediately. Up to 6 sessions a day if you're actively claiming.</li>
       </ul>
-      <p>Every game session gives you 3 lives and 120 seconds to earn as many WOLF as possible.</p>
 
-      <h2>Step-by-Step: Start Earning Today</h2>
+      <h2>Step-by-Step: Start Mining Today</h2>
       <ol>
-        <li><strong>Register</strong> — Go to <a href="/register">veloxfi.io/register</a>. Enter your username and email. You start with a 100 WOLF bonus.</li>
-        <li><strong>Play games</strong> — Visit the Games page and pick any game. Play, collect coins, earn WOLF.</li>
-        <li><strong>Mine WOLF</strong> — Go to the Mine page and start a free 8-hour mining session. Claim your WOLF when it finishes.</li>
-        <li><strong>Convert to $BATTLE</strong> — Once you have 5,000 WOLF, go to Convert, enter your Phantom wallet address, and claim your $BATTLE tokens.</li>
+        <li><strong>Register</strong> — Go to <a href="/register">veloxfi.io/register</a>. Username + email, that's it.</li>
+        <li><strong>Start session</strong> — On the Mine page, click "Start Mining Session". The 4-hour timer begins.</li>
+        <li><strong>Wait or do other things</strong> — Sessions run in the background server-side. You don't need to keep the tab open.</li>
+        <li><strong>Claim WOLF</strong> — Come back when the timer hits zero, click Claim.</li>
+        <li><strong>Convert to $BATTLE</strong> — On the Convert page, enter how much WOLF and your Phantom wallet address. We send $BATTLE within 24 hours.</li>
       </ol>
 
-      <h2>How Much Can You Earn?</h2>
-      <p>A skilled player can earn 20–50 WOLF per 120-second game session. With mining sessions adding more every 8 hours, consistent players stack WOLF fast. The conversion rate: <strong>5,000 WOLF = 1 $BATTLE token</strong>.</p>
-
       <h2>Why Solana?</h2>
-      <p>Solana processes 65,000 transactions per second at near-zero fees (typically $0.001). For a gaming platform where token rewards need to flow quickly and cheaply, Solana is the ideal blockchain. $BATTLE tokens arrive in your wallet within seconds of conversion.</p>
+      <p>Solana processes 65,000 transactions per second at near-zero fees (typically $0.001). For payouts where each token transfer needs to be cheap and fast, Solana is the ideal blockchain. $BATTLE distributions arrive in your wallet seconds after we send them.</p>
 
       <h2>Getting Started Tips</h2>
       <ul>
-        <li>Start your mining session first — it runs in the background for 8 hours</li>
-        <li>Play Rocket Miner for fast WOLF — asteroids appear frequently</li>
-        <li>Come back every 8 hours to claim and restart your mine</li>
-        <li>Set up your Phantom wallet early at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer">phantom.app</a> so you're ready to convert when you hit 5,000 WOLF</li>
+        <li>Set up your Phantom wallet early at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer">phantom.app</a> so you're ready to convert</li>
+        <li>Run mining sessions back-to-back — 6 sessions in 24h × 240 WOLF = 1,440 WOLF/day max</li>
+        <li>Check the Live Emission Pool on the homepage — when the buyback pool depletes, conversions queue on a waitlist</li>
+        <li>Climb the leaderboard for visibility (and possible future top-100 rewards)</li>
       </ul>
     </div>
   ),
@@ -52,49 +51,45 @@ const CONTENT: Record<string, () => JSX.Element> = {
   "wolf-token-mining-guide": () => (
     <div className="prose-velox">
       <h2>What is WOLF Token?</h2>
-      <p>WOLF is the in-game currency of the VeloxFi game arena on Solana. You earn WOLF by playing arcade games or running free passive mining sessions. While WOLF itself has no direct monetary value, it's the gateway to <strong>$BATTLE</strong> — a real Solana token on pump.fun.</p>
-      <p>Rate: <strong>5,000 WOLF = 1 $BATTLE token</strong>.</p>
+      <p>WOLF is the in-platform credit you earn by mining on VeloxFi. While WOLF itself has no monetary value, it's the gateway to <strong>$BATTLE</strong> — a real Solana token on pump.fun. The conversion rate is fixed and never changes: <strong>5,000 WOLF = 1 $BATTLE</strong>, with fractional amounts allowed (no minimum).</p>
 
-      <h2>How Does Free Crypto Mining Work on VeloxFi?</h2>
-      <p>Unlike traditional crypto mining that requires expensive hardware and electricity, VeloxFi's mining system is browser-based and passive. Here's how it works:</p>
+      <h2>How Does Free Mining Work on VeloxFi?</h2>
+      <p>Unlike traditional crypto mining that requires expensive hardware and electricity, VeloxFi's mining is browser-based and passive. Here's the loop:</p>
       <ol>
         <li>Register a free account at veloxfi.io</li>
         <li>Go to the <strong>Mine</strong> page</li>
         <li>Click "Start Mining Session"</li>
-        <li>Wait 8 hours (you can close the tab — it runs in the background)</li>
-        <li>Come back and click "Claim" to collect your WOLF</li>
-        <li>Start again immediately</li>
+        <li>Wait 4 hours — you can close the tab; sessions track server-side</li>
+        <li>Come back, click "Claim" to collect your WOLF</li>
+        <li>Start the next session immediately</li>
       </ol>
 
       <h2>How Much WOLF Do You Mine Per Session?</h2>
-      <p>Mining rewards are based on the session duration and your activity level on the platform. Active players who also play games earn mining bonuses. The 8-hour cycle encourages consistent daily engagement.</p>
-
-      <h2>WOLF Mining vs. Playing Games</h2>
-      <p>There are two ways to earn WOLF on VeloxFi:</p>
-      <ul>
-        <li><strong>Mining</strong> — Passive, every 8 hours. Set it and forget it. Great for consistent background earnings.</li>
-        <li><strong>Games</strong> — Active, immediate. Play Snake, Tetris, Wolf Run, or Rocket Miner. Each coin/hit earns 1 WOLF. Skilled players earn faster.</li>
-      </ul>
-      <p>The best strategy: always have a mining session running AND play games in your free time.</p>
+      <p>The rate is fixed: <strong>1 WOLF per minute</strong>, capped at <strong>240 WOLF per 4-hour session</strong>. If you run six sessions a day (one every four hours, claiming promptly), that's a theoretical maximum of <strong>1,440 WOLF/day</strong>. At 5,000:1, that translates to about 0.288 $BATTLE per day if you're maximally active.</p>
 
       <h2>Converting WOLF to $BATTLE</h2>
-      <p>Once you've accumulated 5,000 WOLF, go to the <strong>Convert</strong> page:</p>
+      <p>Once you have any amount of WOLF you're ready to convert:</p>
       <ol>
-        <li>Enter the amount of WOLF to convert (multiples of 5,000)</li>
+        <li>Set up a Phantom wallet at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer">phantom.app</a></li>
+        <li>Go to the <strong>Convert</strong> page</li>
+        <li>Enter the amount of WOLF (no minimum, fractional $BATTLE is fine)</li>
         <li>Enter your Phantom wallet address</li>
-        <li>Submit the conversion request</li>
-        <li>Receive $BATTLE tokens in your Solana wallet</li>
+        <li>Submit — we send $BATTLE to your wallet within 24 hours</li>
       </ol>
 
+      <h2>What Happens When the Distribution Pool Is Empty?</h2>
+      <p>VeloxFi caps distribution at the $BATTLE we've actually bought back on pump.fun (95M $BATTLE total). When the pool depletes, new conversion requests join a waitlist — your WOLF stays in your balance, untouched. As soon as we refill the pool, the queue processes in order.</p>
+      <p>This is the opposite of most platforms that mint endless rewards: scarcity is baked in, no inflation, every $BATTLE you receive was bought on the open market.</p>
+
       <h2>Why Mine WOLF Instead of Just Buying $BATTLE?</h2>
-      <p>Mining and gaming lets you earn $BATTLE effectively for free — you're investing time, not money. For players who enjoy games, the WOLF earnings can stack up significantly over weeks of consistent play and mining. It's a legitimate way to accumulate a Solana token without spending SOL.</p>
+      <p>Mining lets you earn $BATTLE without spending money — you're investing time, not capital. For people who want to accumulate a Solana token over weeks without taking on price risk, free mining is a legitimate way in. Of course, you can also buy $BATTLE directly on pump.fun if you want to be faster.</p>
     </div>
   ),
 
   "how-to-buy-battle-token-pump-fun": () => (
     <div className="prose-velox">
       <h2>What is $BATTLE Token?</h2>
-      <p>$BATTLE is the native token of the VeloxFi game arena, built on the Solana blockchain. It launched on pump.fun and is freely tradeable. Total supply: 1,000,000,000 tokens.</p>
+      <p>$BATTLE is the native token of VeloxFi, built on the Solana blockchain. It launched on pump.fun and is freely tradeable. Total supply: 1,000,000,000 tokens, mint authority revoked.</p>
       <p><strong>Contract Address (CA):</strong> <code>HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</code></p>
 
       <h2>Step 1 — Get a Phantom Wallet</h2>
@@ -124,99 +119,96 @@ const CONTENT: Record<string, () => JSX.Element> = {
         <li>$BATTLE tokens appear in your wallet within seconds</li>
       </ol>
 
-      <h2>Alternative: Earn $BATTLE for Free</h2>
-      <p>You don't have to buy $BATTLE — you can earn it! Play games on VeloxFi to earn WOLF tokens. Collect 5,000 WOLF and convert to 1 $BATTLE. It's free, just takes time and skill.</p>
+      <h2>Alternative: Mine $BATTLE for Free</h2>
+      <p>You don't have to buy $BATTLE — you can mine it. Register on VeloxFi, run 4-hour mining sessions, and convert WOLF to $BATTLE at 5,000:1. It's free, just takes time.</p>
       <ul>
         <li>Register at <a href="/register">veloxfi.io/register</a></li>
-        <li>Play Snake, Tetris, Wolf Run or Rocket Miner</li>
-        <li>Mine WOLF every 8 hours passively</li>
-        <li>Convert 5,000 WOLF to $BATTLE on the Convert page</li>
+        <li>Start a 4-hour mining session on the Mine page (1 WOLF/minute, 240 WOLF max per session)</li>
+        <li>Claim and restart — up to 6 sessions per 24h</li>
+        <li>Convert WOLF to $BATTLE on the Convert page — no minimum, fractional amounts welcome</li>
       </ul>
 
       <h2>Is $BATTLE a Good Investment?</h2>
-      <p>This is not financial advice. $BATTLE is a speculative crypto token. Only invest what you can afford to lose. The VeloxFi platform creates organic demand for $BATTLE through the WOLF conversion system — players who earn WOLF convert to $BATTLE, creating continuous buy pressure. Always do your own research (DYOR).</p>
+      <p>This is not financial advice. $BATTLE is a speculative meme coin. Only put in what you can afford to lose. VeloxFi creates organic demand for $BATTLE through buybacks: every conversion is backed by $BATTLE bought on the open market, capped at 95M tokens. Always do your own research (DYOR).</p>
     </div>
   ),
 
-  "best-play-to-earn-games-solana-2026": () => (
+  "capped-buyback-explained": () => (
     <div className="prose-velox">
-      <h2>Why Solana for Play-to-Earn in 2026?</h2>
-      <p>Solana has become the dominant blockchain for gaming in 2026. With 65,000 transactions per second, near-zero fees (under $0.001), and a massive developer ecosystem, it's the ideal platform for games that need fast, cheap token transfers.</p>
-      <p>Compare to Ethereum: a single token transfer on Ethereum can cost $5–50 in gas fees. On Solana, it's fractions of a cent. For play-to-earn games where you earn small amounts frequently, Solana wins easily.</p>
+      <h2>Why Most Reward Tokens Die</h2>
+      <p>Most "earn while you sleep" platforms have one fatal flaw: they mint endless supply to pay users. Every reward dilutes existing holders. Within months the token chart drifts inexorably toward zero, and the platform either pivots or quietly shuts down.</p>
+      <p>VeloxFi is built around the opposite design: <strong>we cannot pay out more $BATTLE than we've already bought on the open market.</strong></p>
 
-      <h2>VeloxFi — The Free Game Arena</h2>
-      <p><strong>What it is:</strong> A browser-based arcade game arena where you earn WOLF tokens that convert to $BATTLE on Solana.</p>
-      <p><strong>Games:</strong> Crypto Snake, Battle Tetris, Wolf Run, Rocket Miner.</p>
-      <p><strong>Cost to start:</strong> Completely free — no NFTs, no upfront investment.</p>
-      <p><strong>Earning potential:</strong> 20–50 WOLF per session + passive mining every 8 hours. 5,000 WOLF = 1 $BATTLE.</p>
-      <p><strong>Best for:</strong> Casual players, beginners to crypto, people who want to earn without investing money.</p>
+      <h2>How the Capped Buyback Pool Works</h2>
+      <ol>
+        <li>The project team buys $BATTLE on pump.fun using its own funds — this is the distribution pool.</li>
+        <li>Right now the pool is capped at <strong>95,000,000 $BATTLE</strong> (9.5% of total supply).</li>
+        <li>When you convert WOLF, $BATTLE leaves the pool and lands in your Phantom wallet.</li>
+        <li>When the pool runs low, new conversion requests join a waitlist. Your WOLF stays untouched in your balance.</li>
+        <li>Once we refill the pool via additional pump.fun buybacks, the waitlist processes in order.</li>
+      </ol>
 
-      <h2>What Makes a Good Play-to-Earn Game?</h2>
-      <p>After the NFT gaming bubble of 2021–2022, the market has matured. The best P2E games in 2026 share these traits:</p>
+      <h2>What This Means for You</h2>
       <ul>
-        <li><strong>Free to start</strong> — No barrier to entry. The best games don't require you to buy an NFT first.</li>
-        <li><strong>Fun gameplay</strong> — If you'd play it without the crypto rewards, it's a good game.</li>
-        <li><strong>Sustainable tokenomics</strong> — Token supply must be managed to avoid inflation that kills earnings.</li>
-        <li><strong>Low fees</strong> — Earning 1 cent but paying 50 cents in gas defeats the purpose.</li>
-        <li><strong>Real token value</strong> — The earned token should be tradeable on a real DEX or CEX.</li>
+        <li><strong>No emission-driven price collapse.</strong> Every $BATTLE distributed already exists — no new mint events.</li>
+        <li><strong>Transparent supply.</strong> The Live Emission Pool widget on the homepage shows exactly how much is left and how many requests are waiting.</li>
+        <li><strong>Buybacks create price support.</strong> When we refill the pool, we're buying $BATTLE on the open market — that's continuous buy pressure.</li>
+        <li><strong>Honest waitlists.</strong> If demand outpaces our buybacks, you queue. Painful in the moment, but the alternative is dilution and we refuse to do that.</li>
       </ul>
 
-      <h2>Tips for Maximising P2E Earnings</h2>
-      <ul>
-        <li>Always check the earn rate before investing time — how many tokens per hour?</li>
-        <li>Diversify across multiple games to reduce dependence on one token</li>
-        <li>Set up your Solana wallet before you start playing so you're ready to withdraw</li>
-        <li>On VeloxFi: run mining sessions 24/7 (3 sessions per day) alongside gameplay</li>
-        <li>Join the community — VeloxFi's Telegram often announces bonus WOLF events</li>
-      </ul>
+      <h2>Why Cap at 95M?</h2>
+      <p>That number is what the team has been able to accumulate on pump.fun to date. It's not a magic figure — it'll grow as the project grows. Every time we hit the cap, we'll buy more $BATTLE on pump.fun and raise the cap publicly. No silent re-mints, no off-chain promises.</p>
 
-      <h2>Start Playing on VeloxFi Today</h2>
-      <p>VeloxFi is live now. Register for free, earn WOLF by playing 4 arcade games, mine passively every 8 hours, and convert to $BATTLE. The contract address is <code>HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</code> and $BATTLE trades on pump.fun.</p>
+      <h2>The Trade-Off, Honestly</h2>
+      <p>The downside: if you mine a lot of WOLF in a short window and the pool runs dry, you wait. We think that's a better trade-off than the "endless mint" model where you get paid instantly but the token chart bleeds out over time. We want $BATTLE to still be worth something in two years — capping distribution is how we get there.</p>
+
+      <h2>Check the Pool Yourself</h2>
+      <p>Don't take our word — check the live data:</p>
+      <ul>
+        <li>Homepage → Tokenomics section → Live Emission Pool widget</li>
+        <li>Convert page → Distribution Pool card</li>
+        <li>Admin endpoint (if you're auditing): <code>/api/veloxfi/supply-status</code></li>
+      </ul>
     </div>
   ),
 
   "veloxfi-beginner-guide": () => (
     <div className="prose-velox">
       <h2>What is VeloxFi?</h2>
-      <p>VeloxFi is a free-to-play game arena on Solana. You play arcade games and mine WOLF tokens. Convert 5,000 WOLF to 1 $BATTLE — a real Solana token you can trade on pump.fun. No crypto knowledge required to start.</p>
+      <p>VeloxFi is a free mining platform on Solana. You run passive 4-hour mining sessions to earn WOLF tokens, then convert WOLF to $BATTLE — a real Solana token on pump.fun — at a fixed 5,000:1 rate. No crypto knowledge required to start.</p>
 
       <h2>Step 1 — Create Your Account</h2>
-      <p>Go to <a href="/register">veloxfi.io/register</a> and sign up with a username and email. No wallet required. When you register you receive a <strong>100 WOLF welcome bonus</strong> instantly.</p>
+      <p>Go to <a href="/register">veloxfi.io/register</a> and sign up with a username and email. No wallet required to begin.</p>
 
       <h2>Step 2 — Start Your First Mining Session</h2>
-      <p>Before anything else, go to the <strong>Mine</strong> page and click "Start Mining Session". This takes 8 hours and earns you free WOLF in the background. Do this first so it's running while you play.</p>
+      <p>Go to the <strong>Mine</strong> page and click "Start Mining Session". The 4-hour timer begins immediately. You can close the tab — the session tracks server-side. Come back any time after the timer hits zero to claim 240 WOLF.</p>
 
-      <h2>Step 3 — Play Your First Game</h2>
-      <p>Go to <strong>Games</strong> and pick any game. We recommend starting with Crypto Snake — it's the simplest:</p>
-      <ul>
-        <li>Use arrow keys or WASD to control the snake</li>
-        <li>Eat the glowing coins to grow and earn WOLF</li>
-        <li>Avoid hitting the walls or your own tail</li>
-        <li>You have 3 lives and 120 seconds per session</li>
-      </ul>
+      <h2>Step 3 — Stack Up WOLF</h2>
+      <p>Each 4-hour session pays a fixed 240 WOLF. If you claim and restart promptly, you can do six sessions in a day for a theoretical maximum of 1,440 WOLF/day. Keep an eye on the Live Emission Pool widget on the homepage to see how much $BATTLE is still available for conversion.</p>
 
       <h2>Step 4 — Check Your Balance</h2>
-      <p>After playing, go to your <strong>Profile</strong> page to see your WOLF balance. Each coin you ate added 1 WOLF to your balance. Keep playing and mining to stack up to 5,000.</p>
+      <p>Go to your <strong>Profile</strong> page to see your WOLF balance, level, daily streak, and the achievements you've unlocked so far.</p>
 
       <h2>Step 5 — Convert WOLF to $BATTLE</h2>
-      <p>Once you have 5,000 WOLF you're ready to convert. But first you need a Solana wallet:</p>
+      <p>You're ready to convert once you have any amount of WOLF — there's no minimum. But first you need a Solana wallet:</p>
       <ol>
         <li>Download Phantom at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer">phantom.app</a></li>
         <li>Create a wallet and save your seed phrase safely</li>
         <li>Copy your wallet address</li>
         <li>Go to VeloxFi's <strong>Convert</strong> page</li>
-        <li>Enter 5000 WOLF and your wallet address</li>
-        <li>Submit — you receive 1 $BATTLE in your wallet</li>
+        <li>Enter how much WOLF you want to convert and your wallet address</li>
+        <li>Submit — we send $BATTLE within 24 hours (or queue you on the waitlist if the pool is depleted)</li>
       </ol>
 
       <h2>Frequently Asked Beginner Questions</h2>
-      <p><strong>Is it really free?</strong> Yes. Playing and mining are 100% free. You only need a wallet when you convert WOLF to $BATTLE.</p>
-      <p><strong>How long until I have 5,000 WOLF?</strong> With consistent gaming (say, 5 sessions per day at ~30 WOLF each) plus 3 mining sessions per day, you can reach 5,000 WOLF in about 2–3 weeks.</p>
-      <p><strong>Can I lose money?</strong> No. You're not spending anything to play or mine.</p>
-      <p><strong>Is $BATTLE worth money?</strong> $BATTLE is a real Solana token that trades on pump.fun. Its value fluctuates like any crypto token. Always do your own research.</p>
+      <p><strong>Is it really free?</strong> Yes. Registering and mining are 100% free. You only need a wallet when you convert WOLF to $BATTLE.</p>
+      <p><strong>What's the maximum I can mine per day?</strong> Six 4-hour sessions × 240 WOLF = 1,440 WOLF/day = ~0.29 $BATTLE/day at the fixed rate.</p>
+      <p><strong>Can I lose money?</strong> No — you're not spending anything to mine.</p>
+      <p><strong>What if the distribution pool is empty?</strong> Your conversion request goes on a waitlist; your WOLF stays untouched. We process the queue as soon as we refill the pool.</p>
+      <p><strong>Is $BATTLE worth money?</strong> $BATTLE is a real Solana token that trades on pump.fun. Its value fluctuates like any crypto. Always do your own research.</p>
 
       <h2>Join the Community</h2>
-      <p>Join the VeloxFi Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer">t.me/VeloxFiOfficial</a> for tips, bonus WOLF events, and to connect with other players. We're active 24/7.</p>
+      <p>Join VeloxFi Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer">t.me/VeloxFiOfficial</a> for updates, bonus events, and to connect with other miners. We're active 24/7.</p>
     </div>
   ),
 };
@@ -242,7 +234,7 @@ export default function BlogPost() {
 
   usePageMeta({
     title: post ? `${post.title} | VeloxFi Blog` : "Blog Post | VeloxFi",
-    description: post?.description ?? "Read the VeloxFi blog for guides on earning crypto, WOLF mining, $BATTLE token, and play-to-earn games on Solana.",
+    description: post?.description ?? "Read the VeloxFi blog for guides on free WOLF mining, $BATTLE on pump.fun, and capped buyback distribution on Solana.",
     canonical: `https://veloxfi.io/blog/${slug}`,
   });
 
@@ -306,11 +298,11 @@ export default function BlogPost() {
 
         {/* CTA */}
         <div className="cartoon-card-yellow p-8 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <h3 className="font-bungee text-xl text-[#1a1a1a] mb-2">START EARNING NOW</h3>
-          <p className="font-fredoka text-gray-600 mb-5">Play games, mine WOLF every 8 hours, convert to $BATTLE. Free to start.</p>
+          <h3 className="font-bungee text-xl text-[#1a1a1a] mb-2">START MINING NOW</h3>
+          <p className="font-fredoka text-gray-600 mb-5">Free 4-hour sessions. Convert WOLF to $BATTLE on Solana at 5,000:1.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="/register" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>CREATE FREE ACCOUNT</a>
-            <a href="/games" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>PLAY GAMES 🎮</a>
+            <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>START MINING ⛏️</a>
           </div>
         </div>
 

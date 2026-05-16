@@ -4,26 +4,26 @@ import MemeShell from "@/components/MemeShell";
 
 export const BLOG_POSTS = [
   {
-    slug: "earn-crypto-playing-games-2026",
-    title: "How to Earn Crypto by Playing Games in 2026 (Complete Guide)",
-    description: "Step-by-step guide to earning free cryptocurrency by playing arcade games on VeloxFi. Earn WOLF tokens, convert to $BATTLE on Solana — no experience needed.",
+    slug: "free-crypto-mining-2026",
+    title: "How to Mine Free Crypto in 2026 (No Hardware, No Cost)",
+    description: "Step-by-step guide to mining free cryptocurrency on VeloxFi. Mine WOLF tokens in 4-hour passive sessions, then convert to real $BATTLE on Solana. No GPU, no electricity bill.",
     date: "2026-04-10",
     readTime: "6 min",
-    emoji: "🎮",
+    emoji: "⛏️",
     color: "#4CC9F0",
-    tags: ["Play to Earn", "Solana", "WOLF Token", "Beginner"],
-    intro: "Play-to-earn crypto games have exploded in 2026. But most require expensive NFTs or huge upfront investments. VeloxFi is different — playing is completely free and you earn real crypto.",
+    tags: ["Free Mining", "Solana", "WOLF Token", "Beginner"],
+    intro: "Traditional crypto mining needs expensive hardware and burns electricity. VeloxFi flips that: free, browser-based, passive — and the rewards convert to a real Solana token.",
   },
   {
     slug: "wolf-token-mining-guide",
     title: "What is WOLF Token? VeloxFi Mining Guide 2026",
-    description: "Complete guide to WOLF tokens on VeloxFi. Learn how free crypto mining works every 8 hours, how much you earn, and how to convert WOLF to $BATTLE on Solana.",
+    description: "Complete guide to WOLF tokens on VeloxFi. Learn how passive 4-hour mining sessions work, how much you earn, and how to convert WOLF to $BATTLE on Solana at a fixed 5,000:1 rate.",
     date: "2026-04-08",
     readTime: "5 min",
-    emoji: "⛏️",
+    emoji: "🐺",
     color: "#6BCB77",
     tags: ["WOLF Token", "Mining", "Free Crypto", "Guide"],
-    intro: "WOLF is the in-game currency of VeloxFi — and you can mine it for free every 8 hours without any hardware, electricity costs, or technical knowledge.",
+    intro: "WOLF is the in-platform credit you earn by mining on VeloxFi — a passive 4-hour timer pays 1 WOLF per minute, capped at 240 per session. WOLF on its own has no monetary value; the magic is that it converts to a real Solana token.",
   },
   {
     slug: "how-to-buy-battle-token-pump-fun",
@@ -37,33 +37,33 @@ export const BLOG_POSTS = [
     intro: "$BATTLE is VeloxFi's native token on Solana, currently trading on pump.fun. Here's exactly how to buy it in under 5 minutes.",
   },
   {
-    slug: "best-play-to-earn-games-solana-2026",
-    title: "Best Play-to-Earn Games on Solana in 2026",
-    description: "Discover the best play-to-earn crypto games on Solana in 2026. Compare VeloxFi, Stepn, Star Atlas and others. Earn real crypto tokens by playing browser games.",
+    slug: "capped-buyback-explained",
+    title: "Capped Buyback Distribution — Why VeloxFi Doesn't Mint Reward Tokens",
+    description: "How VeloxFi handles WOLF→$BATTLE conversions: a 95M $BATTLE pool bought back on pump.fun, with a waitlist when it depletes. Transparent, scarcity-aware tokenomics.",
     date: "2026-04-02",
-    readTime: "7 min",
-    emoji: "🏆",
+    readTime: "5 min",
+    emoji: "🛡️",
     color: "#FFD93D",
-    tags: ["Play to Earn", "Solana Games", "Best Games", "Crypto Gaming"],
-    intro: "Solana has become the home of crypto gaming in 2026. Fast, cheap transactions and a thriving ecosystem make it the best blockchain for play-to-earn games.",
+    tags: ["Tokenomics", "Buyback", "Transparency", "Solana"],
+    intro: "Most reward platforms mint endless supply to pay users. VeloxFi caps its distribution at the $BATTLE we've actually bought on pump.fun — when the pool depletes, conversions queue instead of inflating supply.",
   },
   {
     slug: "veloxfi-beginner-guide",
     title: "VeloxFi Beginner's Guide: Everything You Need to Know",
-    description: "Complete beginner's guide to VeloxFi. Learn how to register, play games, mine WOLF tokens, and convert to $BATTLE. Start earning crypto in minutes — no wallet needed.",
+    description: "Complete beginner's guide to VeloxFi. Learn how to register, mine free WOLF, and convert to $BATTLE on Solana. Start earning crypto in minutes — no wallet needed to begin.",
     date: "2026-03-28",
     readTime: "8 min",
     emoji: "🐺",
     color: "#FF6B9D",
-    tags: ["VeloxFi", "Beginner", "Getting Started", "Crypto Games"],
+    tags: ["VeloxFi", "Beginner", "Getting Started", "Mining"],
     intro: "New to VeloxFi? This guide covers everything you need to go from zero to earning $BATTLE tokens — in plain language, no crypto experience needed.",
   },
 ];
 
 export default function Blog() {
   usePageMeta({
-    title: "Blog — VeloxFi | Crypto Gaming, WOLF Mining & $BATTLE Token Guides",
-    description: "VeloxFi blog — guides on earning crypto by playing games, WOLF token mining, how to buy $BATTLE on pump.fun, and the best play-to-earn games on Solana in 2026.",
+    title: "Blog — VeloxFi | WOLF Mining, Capped Buybacks & $BATTLE Token Guides",
+    description: "VeloxFi blog — guides on free WOLF mining, how to buy $BATTLE on pump.fun, capped buyback distribution, and getting started on Solana in 2026.",
     canonical: "https://veloxfi.io/blog",
   });
 
@@ -79,10 +79,10 @@ export default function Blog() {
             📝 VELOXFI BLOG
           </div>
           <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
-            CRYPTO GAMING <span style={{ color: "#FF6B9D" }}>GUIDES</span>
+            MINING <span style={{ color: "#FF6B9D" }}>GUIDES</span>
           </h1>
           <p className="font-fredoka text-lg text-gray-600 max-w-lg mx-auto">
-            Learn how to earn crypto playing games, mine WOLF tokens, and everything about $BATTLE on Solana.
+            Learn how to mine free WOLF, buy $BATTLE on pump.fun, and understand our capped buyback model.
           </p>
         </div>
 
@@ -120,11 +120,11 @@ export default function Blog() {
         </div>
 
         <div className="cartoon-card-yellow p-10 text-center mt-12" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">READY TO START EARNING?</h3>
-          <p className="font-fredoka text-gray-600 mb-6">Register for free and start earning WOLF tokens today. No wallet needed to begin.</p>
+          <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">READY TO START MINING?</h3>
+          <p className="font-fredoka text-gray-600 mb-6">Register for free and start your first 4-hour mining session. No wallet needed to begin.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="/register" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>CREATE ACCOUNT</a>
-            <a href="/games" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>PLAY GAMES 🎮</a>
+            <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>START MINING ⛏️</a>
           </div>
         </div>
 

@@ -1,26 +1,25 @@
-import { Download, Gamepad2, Zap, Shield, Users, ChevronRight } from "lucide-react";
+import { Download, Pickaxe, Zap, Shield, Users, ChevronRight } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MemeShell from "@/components/MemeShell";
 
 const DIST = [
-  { label: "Public Market (pump.fun)", pct: 60, color: "#FF9F43" },
-  { label: "Platform Reserves",        pct: 20, color: "#4CC9F0" },
-  { label: "Community & Marketing",    pct: 10, color: "#6BCB77" },
-  { label: "Developer (Locked 1yr)",   pct: 10, color: "#ccc"    },
+  { label: "Public Market (pump.fun)", pct: 70, color: "#FF9F43" },
+  { label: "Buyback Distribution Pool", pct: 20, color: "#4CC9F0" },
+  { label: "Community & Marketing",     pct: 10, color: "#6BCB77" },
 ];
 
 const PHASES = [
-  { num: "01", name: "BUILD & LAUNCH",   done: true,  color: "#6BCB77", items: ["Platform & 4 games built","$BATTLE live on pump.fun","Mining system live","Website live at veloxfi.io"] },
-  { num: "02", name: "GROW",             done: false, color: "#4CC9F0", items: ["More games added","Mobile-optimised experience","Referral system","Leaderboard Season 1 prizes"] },
-  { num: "03", name: "COMPETE",          done: false, color: "#FFD93D", items: ["Tournament mode","Weekly WOLF prize pools","Live season rewards","Community events"] },
-  { num: "04", name: "SCALE",            done: false, color: "#FF9F43", items: ["DexScreener listing","Cross-platform app","CEX listing pursuit","Bigger community"] },
-  { num: "05", name: "GLOBAL EXPANSION", done: false, color: "#A29BFE", items: ["DAO governance","VeloxFi grants program","Multi-language support","Global ambassador program"] },
+  { num: "01", name: "BUILD & LAUNCH",   done: true,  color: "#6BCB77", items: ["$BATTLE live on pump.fun","Free 4-hour mining sessions","Wallet linking + Solana payouts","Website live at veloxfi.io"] },
+  { num: "02", name: "GROW",             done: false, color: "#4CC9F0", items: ["Live leaderboard","Mobile-friendly experience","Daily streak rewards","Referral system"] },
+  { num: "03", name: "DISTRIBUTE",       done: false, color: "#FFD93D", items: ["Capped buyback pool (95M $BATTLE)","Waitlist when pool depletes","Live emission tracker","Transparent buyback receipts"] },
+  { num: "04", name: "SCALE",            done: false, color: "#FF9F43", items: ["Raydium liquidity migration","DexScreener listing","CEX listing pursuit","Ambassador program"] },
+  { num: "05", name: "GLOBAL EXPANSION", done: false, color: "#A29BFE", items: ["Community treasury and DAO","Wolf NFT mint","Multi-language platform","Merch drop and IRL meetups"] },
 ];
 
 export default function Whitepaper() {
   usePageMeta({
-    title: "Whitepaper — VeloxFi Game Arena on Solana | $BATTLE Token",
-    description: "Read the VeloxFi whitepaper. Learn about the game arena, WOLF token mining, $BATTLE tokenomics, how to earn crypto playing games on Solana, and the roadmap.",
+    title: "Whitepaper — VeloxFi | Mining-only meme coin on Solana | $BATTLE Token",
+    description: "Read the VeloxFi whitepaper. Free WOLF mining, fixed 5,000:1 conversion to $BATTLE, capped buyback distribution pool, and a 5-phase roadmap on Solana.",
     canonical: "https://veloxfi.io/whitepaper",
   });
 
@@ -31,13 +30,13 @@ export default function Whitepaper() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-5 font-bungee text-xs text-[#1a1a1a]"
             style={{ background: "#FFD93D", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
-            📄 WHITEPAPER · v2.0 · 2026
+            📄 WHITEPAPER · v3.0 · 2026
           </div>
           <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
             VELOXFI <span style={{ color: "#FF9F43" }}>WHITEPAPER</span>
           </h1>
           <p className="font-fredoka text-lg text-gray-600 max-w-xl mx-auto mb-8">
-            The complete guide to the VeloxFi game arena on Solana — earn WOLF tokens, convert to $BATTLE, and dominate the leaderboard.
+            The complete guide to VeloxFi — a mining-only meme coin on Solana with free WOLF mining and a capped $BATTLE buyback pool.
           </p>
           <a href="/VeloxFi-Whitepaper.pdf" download
             className="inline-flex items-center gap-3 font-bungee text-sm px-8 py-4 rounded-2xl"
@@ -50,7 +49,7 @@ export default function Whitepaper() {
           style={{ background: "#FFF9E6", border: "2px solid #FFD93D" }}>
           <Shield className="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1a1a1a]" />
           <p className="font-fredoka text-sm text-gray-600 leading-relaxed">
-            <strong className="text-[#1a1a1a]">DISCLAIMER:</strong> This whitepaper is for informational purposes only and does not constitute financial advice. WOLF tokens have no monetary value. $BATTLE is a freely tradeable Solana token — always do your own research.
+            <strong className="text-[#1a1a1a]">DISCLAIMER:</strong> This whitepaper is for informational purposes only and does not constitute financial advice. WOLF has no monetary value on its own. $BATTLE is a freely tradeable Solana token — always do your own research.
           </p>
         </div>
 
@@ -67,16 +66,16 @@ export default function Whitepaper() {
               </div>
             </div>
             <p className="font-fredoka text-gray-600 leading-relaxed mb-4">
-              VeloxFi is a <strong className="text-[#1a1a1a]">play-to-earn game arena on Solana</strong>. Players earn WOLF tokens by playing arcade games and running free mining sessions every 8 hours. WOLF tokens convert to <strong className="text-[#1a1a1a]">$BATTLE</strong> — a real Solana token live on pump.fun.
+              VeloxFi is a <strong className="text-[#1a1a1a]">mining-only meme coin platform on Solana</strong>. Users mine free WOLF tokens in passive 4-hour sessions, then convert them to <strong className="text-[#1a1a1a]">$BATTLE</strong> — a real Solana token live on pump.fun — at a fixed 5,000:1 rate.
             </p>
             <p className="font-fredoka text-gray-600 leading-relaxed">
-              Unlike passive crypto holding, VeloxFi rewards <strong className="text-[#1a1a1a]">active players</strong>. The more you play and mine, the more WOLF you earn — and the more $BATTLE you can claim.
+              Unlike most reward platforms that mint endless supply, VeloxFi caps distribution at the $BATTLE we've already bought back on the open market. No emission-driven dilution — when the pool depletes, conversions queue.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
               {[
-                { icon: <Zap className="w-5 h-5" />, label: "SPEED", value: "Solana — 65K TPS", color: "#4CC9F0" },
-                { icon: <Users className="w-5 h-5" />, label: "ACCESS", value: "No wallet to play", color: "#6BCB77" },
-                { icon: <Gamepad2 className="w-5 h-5" />, label: "GAMES", value: "4 arcade games", color: "#FF9F43" },
+                { icon: <Zap     className="w-5 h-5" />, label: "SPEED",  value: "Solana — 65K TPS",     color: "#4CC9F0" },
+                { icon: <Users   className="w-5 h-5" />, label: "ACCESS", value: "No wallet to mine",    color: "#6BCB77" },
+                { icon: <Pickaxe className="w-5 h-5" />, label: "MINING", value: "Free 4-hour sessions", color: "#FF9F43" },
               ].map(({ icon, label, value, color }) => (
                 <div key={label} className="rounded-2xl p-4 text-center"
                   style={{ background: color + "22", border: `2px solid ${color}`, boxShadow: "2px 2px 0 #1a1a1a" }}>
@@ -88,57 +87,25 @@ export default function Whitepaper() {
             </div>
           </div>
 
-          {/* 02 — Games */}
-          <div className="cartoon-card-sky p-8" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>🎮</div>
-              <div>
-                <div className="font-bungee text-xs text-gray-400">02 — GAMES</div>
-                <h2 className="font-bungee text-xl text-[#1a1a1a]">The Game Arena</h2>
-              </div>
-            </div>
-            <p className="font-fredoka text-gray-600 leading-relaxed mb-5">
-              Every game session lasts <strong className="text-[#1a1a1a]">120 seconds</strong>. You earn 1 WOLF per coin/point collected in-game. Players have 3 lives per session.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { emoji: "🐍", name: "Crypto Snake",  desc: "Classic snake — eat WOLF coins to grow. 1 WOLF per coin." },
-                { emoji: "🟦", name: "Battle Tetris", desc: "Clear lines, earn WOLF. Harder clears = more points." },
-                { emoji: "🐺", name: "Wolf Run",      desc: "Side-scroller runner — collect WOLF coins mid-air." },
-                { emoji: "🚀", name: "Rocket Miner",  desc: "Shoot falling asteroids. 1 WOLF per hit." },
-              ].map((g) => (
-                <div key={g.name} className="rounded-xl p-4 flex gap-3 items-start"
-                  style={{ background: "rgba(255,255,255,0.7)", border: "2px solid #1a1a1a" }}>
-                  <span className="text-3xl">{g.emoji}</span>
-                  <div>
-                    <div className="font-bungee text-sm text-[#1a1a1a]">{g.name}</div>
-                    <div className="font-fredoka text-sm text-gray-500 mt-0.5">{g.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 03 — Mining */}
+          {/* 02 — Mining */}
           <div className="cartoon-card-lime p-8" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
                 style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>⛏️</div>
               <div>
-                <div className="font-bungee text-xs text-gray-400">03 — MINING</div>
+                <div className="font-bungee text-xs text-gray-400">02 — MINING</div>
                 <h2 className="font-bungee text-xl text-[#1a1a1a]">WOLF Mining System</h2>
               </div>
             </div>
             <p className="font-fredoka text-gray-600 leading-relaxed mb-4">
-              Every registered user can start a free WOLF mining session once every <strong className="text-[#1a1a1a]">8 hours</strong>. No hardware or wallet needed — just register, start, and claim.
+              Every registered user can run a free WOLF mining session. The session lasts <strong className="text-[#1a1a1a]">4 hours</strong> and pays <strong className="text-[#1a1a1a]">1 WOLF per minute</strong>, capped at 240 WOLF per session. Sessions track server-side, so closing the tab doesn't stop progress. Claim when the timer hits zero and start the next session — up to six per day.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "INTERVAL", value: "8 hours" },
-                { label: "SESSION",  value: "Passive"  },
-                { label: "REWARD",   value: "WOLF"     },
-                { label: "COST",     value: "Free"     },
+                { label: "SESSION",  value: "4 hours" },
+                { label: "RATE",     value: "1 WOLF/min" },
+                { label: "MAX/SESSION", value: "240 WOLF" },
+                { label: "COST",     value: "Free" },
               ].map((r) => (
                 <div key={r.label} className="rounded-xl p-4 text-center"
                   style={{ background: "rgba(255,255,255,0.7)", border: "2px solid #1a1a1a" }}>
@@ -147,6 +114,34 @@ export default function Whitepaper() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* 03 — Capped Buyback Distribution */}
+          <div className="cartoon-card-sky p-8" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>🛡️</div>
+              <div>
+                <div className="font-bungee text-xs text-gray-400">03 — DISTRIBUTION</div>
+                <h2 className="font-bungee text-xl text-[#1a1a1a]">Capped Buyback Pool</h2>
+              </div>
+            </div>
+            <p className="font-fredoka text-gray-600 leading-relaxed mb-4">
+              Every $BATTLE we distribute has already been bought back on pump.fun. The pool is currently capped at <strong className="text-[#1a1a1a]">95,000,000 $BATTLE</strong> (≈9.5% of total supply). When users convert WOLF, $BATTLE leaves the pool and lands in their Solana wallet. When the pool depletes, new conversions join a <strong className="text-[#1a1a1a]">waitlist</strong> — your WOLF stays untouched until we refill the pool.
+            </p>
+            <ul className="flex flex-col gap-2 mb-5">
+              {[
+                "No emission-driven dilution — we never mint reward tokens",
+                "Live emission pool widget on the homepage shows remaining $BATTLE",
+                "Buybacks create continuous open-market buy pressure on pump.fun",
+                "Waitlist is FIFO — first-come, first-served when the pool refills",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <ChevronRight className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#4CC9F0" }} />
+                  <span className="font-fredoka text-sm text-gray-600">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* 04 — Tokenomics */}
@@ -166,7 +161,7 @@ export default function Whitepaper() {
                 { label: "Total Supply", value: "1,000,000,000" },
                 { label: "Listed on",    value: "pump.fun" },
                 { label: "WOLF Rate",    value: "5,000 WOLF = 1 $BATTLE" },
-                { label: "Dev Lock",     value: "100M — 1 year" },
+                { label: "Mint Auth",    value: "Revoked" },
               ].map(({ label, value }) => (
                 <div key={label} className="rounded-xl px-4 py-3 flex justify-between items-center"
                   style={{ background: "rgba(255,255,255,0.6)", border: "1.5px solid #1a1a1a" }}>
@@ -175,7 +170,7 @@ export default function Whitepaper() {
                 </div>
               ))}
             </div>
-            <div className="font-bungee text-xs text-gray-500 mb-2">TOKEN DISTRIBUTION</div>
+            <div className="font-bungee text-xs text-gray-500 mb-2">SUPPLY HELD BY</div>
             <div className="flex h-5 rounded-full overflow-hidden mb-3" style={{ border: "2px solid #1a1a1a" }}>
               {DIST.map(({ pct, color, label }) => (
                 <div key={label} title={`${label}: ${pct}%`} style={{ width: `${pct}%`, background: color }} />
@@ -185,16 +180,19 @@ export default function Whitepaper() {
               {DIST.map(({ label, pct, color }) => (
                 <div key={label} className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-sm" style={{ background: color, border: "1.5px solid #1a1a1a" }} />
-                  <span className="font-fredoka text-xs text-gray-600">{label} — <strong>{pct}%</strong></span>
+                  <span className="font-fredoka text-xs text-gray-600">{label} — <strong>~{pct}%</strong></span>
                 </div>
               ))}
             </div>
+            <p className="font-fredoka text-xs text-gray-500 leading-relaxed mb-4 italic">
+              Percentages are approximations — the buyback pool grows as the team buys more $BATTLE on pump.fun. Track the live state on the homepage.
+            </p>
             <ul className="flex flex-col gap-2">
               {[
-                "Earn $BATTLE by converting WOLF tokens (5000 WOLF = 1 $BATTLE)",
-                "Trade freely on pump.fun (Solana)",
-                "Leaderboard rewards for top WOLF earners",
-                "Future: premium platform features paid in $BATTLE",
+                "Convert WOLF to $BATTLE at a fixed 5,000:1 rate — no minimum",
+                "Trade freely on pump.fun (Solana mainnet)",
+                "Leaderboard rewards for top $BATTLE holders",
+                "Mint authority revoked, LP burned — no rug possible",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
                   <ChevronRight className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#FF9F43" }} />
@@ -239,11 +237,11 @@ export default function Whitepaper() {
           </div>
 
           <div className="cartoon-card-yellow p-10 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-            <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">START EARNING NOW</h3>
-            <p className="font-fredoka text-gray-600 mb-6 max-w-md mx-auto">Register for free, play games, mine WOLF every 8 hours, and convert to $BATTLE.</p>
+            <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">START MINING NOW</h3>
+            <p className="font-fredoka text-gray-600 mb-6 max-w-md mx-auto">Register for free, run 4-hour mining sessions, and convert WOLF to $BATTLE on Solana.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/games" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>PLAY GAMES</a>
-              <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>START MINING</a>
+              <a href="/mine" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>START MINING</a>
+              <a href="/convert" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>CONVERT WOLF</a>
               <a href="/VeloxFi-Whitepaper.pdf" download
                 className="cartoon-btn px-8 py-3 text-sm font-bungee inline-flex items-center gap-2"
                 style={{ background: "#A29BFE", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a", borderRadius: "12px" }}>
