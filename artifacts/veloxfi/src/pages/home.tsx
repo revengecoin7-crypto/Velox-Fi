@@ -21,6 +21,25 @@ function useTokenStats() {
   return stats;
 }
 
+interface SupplyStatus { cap: number; distributed: number; remaining: number; percentUsed: number; poolDepleted: boolean; waitlistCount: number }
+
+function useSupplyStatus() {
+  const [supply, setSupply] = useState<SupplyStatus | null>(null);
+  useEffect(() => {
+    const fetch_ = () => fetch("/api/veloxfi/supply-status").then(r => r.json()).then(setSupply).catch(() => {});
+    fetch_();
+    const id = setInterval(fetch_, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return supply;
+}
+
+function fmtBattle(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
+  return n.toFixed(2);
+}
+
 function fmt(n: number, decimals = 2) { return n.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
 function fmtLarge(n: number) {
   if (n >= 1_000_000) return `$${fmt(n / 1_000_000)}M`;
@@ -96,6 +115,7 @@ export default function Home() {
   const { user } = useAuth();
   const stats = calcUserStats(user);
   const tokenStats = useTokenStats();
+  const supply = useSupplyStatus();
   const [caCopied, setCaCopied] = useState(false);
 
   function copyCA() {
@@ -225,7 +245,43 @@ export default function Home() {
 
           {/* ── TOKENOMICS ── */}
           <section>
-            <div className="section-title"><div><div className="eyebrow">Tokenomics</div><h2>Fair from day one</h2></div></div>
+            <div className="section-title"><div><div className="eyebrow">Tokenomics</div><h2>Fair from day one — finite emission</h2></div></div>
+
+            {supply && (
+              <div className="card ink" style={{ padding: 24, marginBottom: 18 }}>
+                <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 14 }}>
+                  <div>
+                    <div className="mono" style={{ fontSize: 11, color: "var(--cyan)", letterSpacing: 1.5 }}>LIVE EMISSION POOL</div>
+                    <div className="display tabular" style={{ fontSize: 36, color: "white", lineHeight: 1, marginTop: 6 }}>
+                      {fmtBattle(supply.remaining)} <span style={{ fontSize: 16, color: "var(--magenta)" }}>$BATTLE left</span>
+                    </div>
+                    <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                      of {fmtBattle(supply.cap)} bought back on pump.fun · {supply.percentUsed.toFixed(2)}% claimed
+                    </div>
+                  </div>
+                  {supply.poolDepleted ? (
+                    <span className="pill" style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}>⚠ Pool empty</span>
+                  ) : supply.percentUsed >= 90 ? (
+                    <span className="pill" style={{ background: "var(--yellow)", fontSize: 11 }}>🔥 Almost gone</span>
+                  ) : (
+                    <span className="pill" style={{ background: "var(--lime)", fontSize: 11 }}>✓ Open for claims</span>
+                  )}
+                </div>
+                <div className="bar thick" style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <div
+                    className="bar-fill"
+                    style={{
+                      width: `${Math.min(100, supply.percentUsed)}%`,
+                      background: supply.poolDepleted ? "var(--tomato)" : supply.percentUsed >= 90 ? "var(--yellow)" : "var(--lime)",
+                    }}
+                  />
+                </div>
+                <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
+                  No team mint. No new emission. Every $BATTLE distributed is bought back on the open market.
+                </div>
+              </div>
+            )}
+
             <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 18 }}>
               <div className="card ink" style={{ padding: 28 }}>
                 <div className="row" style={{ gap: 18, alignItems: "center" }}>

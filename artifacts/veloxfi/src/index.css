@@ -558,4 +558,7 @@ body {
   /* Admin tabs wrap */
   .tabs { width: 100% !important; }
   .tab { font-size: 12px !important; padding: 6px 10px !important; }
+
+  /* Convert page: hold-tier grid stacks */
+  .hold-tier-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
 }

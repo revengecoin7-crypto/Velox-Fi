@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
@@ -9,12 +9,39 @@ const HOLD_TIERS = [
   { days: 30, bonus: 50, label: "30-day hold", color: "var(--magenta)", icon: "💎" },
 ];
 
+interface SupplyStatus {
+  cap: number;
+  distributed: number;
+  remaining: number;
+  percentUsed: number;
+  poolDepleted: boolean;
+  waitlistCount: number;
+}
+
+function useSupplyStatus() {
+  const [supply, setSupply] = useState<SupplyStatus | null>(null);
+  useEffect(() => {
+    const fetch_ = () => fetch("/api/veloxfi/supply-status").then(r => r.json()).then(setSupply).catch(() => {});
+    fetch_();
+    const id = setInterval(fetch_, 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return { supply, refresh: () => fetch("/api/veloxfi/supply-status").then(r => r.json()).then(setSupply).catch(() => {}) };
+}
+
+function fmtBattle(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
+  return n.toFixed(2);
+}
+
 export default function Convert() {
   const { user, requestConversion, setWallet } = useAuth();
   const [, nav] = useLocation();
+  const { supply, refresh: refreshSupply } = useSupplyStatus();
   const [wolfAmount, setWolfAmount] = useState("");
   const [walletInput, setWalletInput] = useState(user?.wallet ?? "");
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "success" | "error" | "waitlisted">("idle");
   const [msg, setMsg] = useState("");
   const [holdDays] = useState(12); // mock: user has held for 12 days
 
@@ -54,6 +81,12 @@ export default function Convert() {
       setStatus("success");
       setMsg(`Conversion requested! You'll receive ${battleOut.toFixed(4)} $BATTLE within 24 hours.`);
       setWolfAmount("");
+      refreshSupply();
+    } else if (result?.waitlisted) {
+      setStatus("waitlisted");
+      setMsg(`Pool is currently empty — you're #${(supply?.waitlistCount ?? 0) + 1} on the waitlist. We'll process your ${result.battleRequested?.toFixed(4)} $BATTLE as soon as the pool refills. Your WOLF is untouched.`);
+      setWolfAmount("");
+      refreshSupply();
     } else {
       setStatus("error");
       setMsg(result?.error || "Something went wrong.");
@@ -73,7 +106,7 @@ export default function Convert() {
           </div>
 
           {/* Balance + rate */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+          <div className="grid-2">
             <div className="card" style={{ padding: 22 }}>
               <div className="stat-label">WOLF Balance</div>
               <div className="stat-num tabular">{user!.wolf.toLocaleString()}</div>
@@ -85,6 +118,42 @@ export default function Convert() {
             </div>
           </div>
 
+          {/* Distribution pool — limited supply from pump.fun buyback */}
+          {supply && (
+            <div className="card ink" style={{ padding: 22 }}>
+              <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+                <div>
+                  <div className="mono" style={{ fontSize: 10, color: "var(--cyan)", letterSpacing: 1.5 }}>DISTRIBUTION POOL</div>
+                  <div className="display tabular" style={{ fontSize: 28, color: "white", lineHeight: 1, marginTop: 4 }}>
+                    {fmtBattle(supply.remaining)} <span style={{ fontSize: 14, color: "var(--magenta)" }}>$BATTLE left</span>
+                  </div>
+                  <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>
+                    of {fmtBattle(supply.cap)} bought on pump.fun · {supply.percentUsed.toFixed(2)}% used
+                  </div>
+                </div>
+                {supply.poolDepleted ? (
+                  <span className="pill" style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}>⚠ Pool empty — waitlist active</span>
+                ) : supply.percentUsed >= 90 ? (
+                  <span className="pill" style={{ background: "var(--yellow)", fontSize: 11 }}>🔥 Almost depleted</span>
+                ) : (
+                  <span className="pill" style={{ background: "var(--lime)", fontSize: 11 }}>✓ Pool open</span>
+                )}
+              </div>
+              <div className="bar thick" style={{ background: "rgba(255,255,255,0.08)" }}>
+                <div
+                  className="bar-fill"
+                  style={{
+                    width: `${Math.min(100, supply.percentUsed)}%`,
+                    background: supply.poolDepleted ? "var(--tomato)" : supply.percentUsed >= 90 ? "var(--yellow)" : "var(--lime)",
+                  }}
+                />
+              </div>
+              <div className="mono" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 10 }}>
+                {supply.waitlistCount > 0 ? `${supply.waitlistCount} request${supply.waitlistCount === 1 ? "" : "s"} on waitlist` : "First come, first served — no waitlist yet"}
+              </div>
+            </div>
+          )}
+
           {/* Hold-to-earn */}
           <div>
             <div className="section-title">
@@ -92,7 +161,7 @@ export default function Convert() {
               {holdTier && <span className="pill" style={{ background: holdTier.color, fontSize: 11 }}>{holdTier.icon} {holdTier.label} active</span>}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 18 }}>
+            <div className="hold-tier-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 18 }}>
               {/* Current hold status */}
               <div className="card ink" style={{ padding: 22 }}>
                 <div className="mono" style={{ fontSize: 10, color: "var(--cyan)", letterSpacing: 1.5 }}>YOUR HOLD STREAK</div>
@@ -148,7 +217,7 @@ export default function Convert() {
           </div>
 
           {/* Conversion form */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+          <div className="grid-2">
             <div className="card" style={{ padding: 24 }}>
               <div className="eyebrow" style={{ marginBottom: 14 }}>Convert WOLF → $BATTLE</div>
 
@@ -173,14 +242,30 @@ export default function Convert() {
                 <input type="text" value={walletInput} onChange={(e) => setWalletInput(e.target.value)} placeholder="Your Solana wallet…" className="input" style={{ marginTop: 6 }} />
               </div>
 
-              {status !== "idle" && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, marginBottom: 14, background: status === "success" ? "rgba(182,242,63,0.1)" : "rgba(255,90,74,0.1)", border: `2px solid ${status === "success" ? "var(--lime)" : "var(--tomato)"}` }}>
-                  <div style={{ fontSize: 13, color: status === "success" ? "var(--lime)" : "var(--tomato)" }}>{msg}</div>
-                </div>
-              )}
+              {status !== "idle" && (() => {
+                const tone = status === "success"
+                  ? { bg: "rgba(182,242,63,0.1)",  border: "var(--lime)",    text: "var(--lime)"    }
+                  : status === "waitlisted"
+                    ? { bg: "rgba(255,200,40,0.12)", border: "var(--yellow)",  text: "var(--yellow)"  }
+                    : { bg: "rgba(255,90,74,0.1)",   border: "var(--tomato)",  text: "var(--tomato)"  };
+                return (
+                  <div style={{ padding: "10px 14px", borderRadius: 10, marginBottom: 14, background: tone.bg, border: `2px solid ${tone.border}` }}>
+                    <div style={{ fontSize: 13, color: tone.text }}>{msg}</div>
+                  </div>
+                );
+              })()}
 
-              <button className={`btn lg ${canConvert ? "primary" : "ghost"}`} style={{ width: "100%", justifyContent: "center" }} onClick={handleConvert} disabled={!canConvert}>
-                {canConvert ? `Convert ${wolf.toLocaleString()} WOLF → ${battleOut.toFixed(4)} $BATTLE` : "Enter WOLF amount"}
+              <button
+                className={`btn lg ${supply?.poolDepleted ? "ghost" : (canConvert ? "primary" : "ghost")}`}
+                style={{ width: "100%", justifyContent: "center" }}
+                onClick={handleConvert}
+                disabled={!canConvert}
+              >
+                {!canConvert
+                  ? "Enter WOLF amount"
+                  : supply?.poolDepleted
+                    ? `Join waitlist (${wolf.toLocaleString()} WOLF → ${battleOut.toFixed(4)} $BATTLE)`
+                    : `Convert ${wolf.toLocaleString()} WOLF → ${battleOut.toFixed(4)} $BATTLE`}
               </button>
             </div>
 

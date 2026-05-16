@@ -98,7 +98,7 @@ interface AuthContextType {
   addGameSession: (game: string, wolfEarned: number) => Promise<void>;
   earnWolfFromGame: (game: string, wolfEarned: number) => Promise<{ ok: boolean; error?: string }>;
   // Convert
-  requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string }>;
+  requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string; waitlisted?: boolean; battleRequested?: number }>;
   // Wallet
   setWallet: (address: string) => Promise<void>;
   // Daily
@@ -270,14 +270,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ── Convert ───────────────────────────────────────────────────────────────
   async function requestConversion(wolfAmount: number) {
     if (!token) return { ok: false, error: "Not logged in" };
-    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/convert-wolf", {
+    const { ok, data, status } = await apiFetch<Record<string, unknown>>("/veloxfi/convert-wolf", {
       method: "POST",
       body: JSON.stringify({ amount: wolfAmount }),
     }, token);
-    if (ok) {
-      setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf), battle: Number(data.newBattleBalance ?? u.battle) } : u);
+
+    // 202 = added to waitlist (pool depleted). WOLF stays untouched.
+    if (status === 202 && data?.waitlisted) {
+      return {
+        ok: false,
+        waitlisted: true,
+        battleRequested: Number(data.battleRequested ?? 0),
+        error: String(data.error ?? "Pool is currently depleted."),
+      };
     }
-    return ok ? { ok: true } : { ok: false, error: (data as any)?.error || "Conversion failed" };
+
+    if (ok && data?.ok) {
+      setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf), battle: Number(data.newBattleBalance ?? u.battle) } : u);
+      return { ok: true };
+    }
+    return { ok: false, error: (data as any)?.error || "Conversion failed" };
   }
 
   // ── Wallet ────────────────────────────────────────────────────────────────

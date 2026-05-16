@@ -1,7 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 
 const ADMIN_PW = "veloxfi2025";
+
+interface AdminSupply {
+  cap: number;
+  distributed: number;
+  remaining: number;
+  percentUsed: number;
+  waitlistCount: number;
+  waitlistBattleSum: number;
+}
+
+interface WaitlistEntry {
+  id: number;
+  username: string;
+  wolfAmount: number;
+  battleAmount: number;
+  walletAddress: string | null;
+  requestedAt: string;
+  fulfilledAt: string | null;
+}
+
+function adminHeaders(): HeadersInit {
+  return { "Content-Type": "application/json", "x-admin-password": ADMIN_PW };
+}
+
+function fmtBattle(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
+  return n.toFixed(2);
+}
+
+function useAdminSupply() {
+  const [data, setData] = useState<AdminSupply | null>(null);
+  const refresh = () => fetch("/api/veloxfi/admin/supply", { headers: adminHeaders() }).then(r => r.json()).then(setData).catch(() => {});
+  useEffect(() => { refresh(); const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, []);
+  return { supply: data, refresh };
+}
+
+function useAdminWaitlist() {
+  const [entries, setEntries] = useState<WaitlistEntry[]>([]);
+  const refresh = () => fetch("/api/veloxfi/admin/waitlist", { headers: adminHeaders() }).then(r => r.json()).then(setEntries).catch(() => {});
+  useEffect(() => { refresh(); const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, []);
+  return { entries, refresh };
+}
 
 const USERS = [
   { name: "alphawolf.sol", wallet: "7VLx…vLNS", joined: "day 1", lvl: 47, mined: 184210, games: 412, balance: 241890, status: "online", flag: null },
@@ -85,13 +128,25 @@ function SliderRow({ label, value, pct }: { label: string; value: string; pct: n
 }
 
 function AdminOverview() {
+  const { supply } = useAdminSupply();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
       <div className="grid-4">
         <KpiCard label="Total holders" value="14,902" sub="+341 in 24h" color="var(--cyan)" />
         <KpiCard label="$BATTLE circulating" value="892M" sub="89.2% of max supply" color="var(--magenta)" />
-        <KpiCard label="Tokens claimed · 24h" value="1.84M" sub="3,217 wallets" color="var(--yellow)" />
-        <KpiCard label="Pool reserve" value="48.4M" sub="≈ 5,400 days burn rate" color="var(--lime)" down />
+        <KpiCard
+          label="Distributed · all-time"
+          value={supply ? fmtBattle(supply.distributed) : "—"}
+          sub={supply ? `${supply.percentUsed.toFixed(2)}% of pool used` : ""}
+          color="var(--yellow)"
+        />
+        <KpiCard
+          label="Pool remaining"
+          value={supply ? fmtBattle(supply.remaining) : "—"}
+          sub={supply ? `Waitlist: ${supply.waitlistCount} pending` : ""}
+          color="var(--lime)"
+          down={!!supply && supply.percentUsed >= 90}
+        />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
@@ -255,47 +310,113 @@ function AdminUsers() {
 }
 
 function AdminPool() {
+  const { supply, refresh: refreshSupply } = useAdminSupply();
+  const { entries, refresh: refreshWaitlist } = useAdminWaitlist();
+  const pending = entries.filter(e => !e.fulfilledAt);
+
+  async function markFulfilled(id: number) {
+    if (!confirm("Mark this waitlist entry as paid out?")) return;
+    await fetch(`/api/veloxfi/admin/waitlist/${id}/fulfill`, { method: "PUT", headers: adminHeaders() });
+    refreshWaitlist();
+    refreshSupply();
+  }
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
-      <div className="card">
-        <div className="eyebrow">Pool balance</div>
-        <div className="display tabular" style={{ fontSize: 52, lineHeight: 1, marginTop: 4 }}>
-          48.4M <span style={{ fontSize: 22, color: "var(--magenta)" }}>BATTLE</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      {/* Pool + waitlist summary */}
+      <div className="grid-2">
+        <div className="card ink" style={{ padding: 24 }}>
+          <div className="mono" style={{ fontSize: 11, color: "var(--cyan)", letterSpacing: 1.5 }}>DISTRIBUTION POOL</div>
+          <div className="display tabular" style={{ fontSize: 48, color: "white", lineHeight: 1, marginTop: 6 }}>
+            {supply ? fmtBattle(supply.remaining) : "—"} <span style={{ fontSize: 18, color: "var(--magenta)" }}>BATTLE left</span>
+          </div>
+          <div className="mono" style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>
+            of {supply ? fmtBattle(supply.cap) : "—"} bought back on pump.fun
+          </div>
+          {supply && (
+            <>
+              <div className="bar thick" style={{ marginTop: 18, background: "rgba(255,255,255,0.08)" }}>
+                <div
+                  className="bar-fill"
+                  style={{
+                    width: `${Math.min(100, supply.percentUsed)}%`,
+                    background: supply.remaining <= 0 ? "var(--tomato)" : supply.percentUsed >= 90 ? "var(--yellow)" : "var(--lime)",
+                  }}
+                />
+              </div>
+              <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
+                <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+                  {supply.distributed.toLocaleString(undefined, { maximumFractionDigits: 2 })} distributed
+                </div>
+                <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+                  {supply.percentUsed.toFixed(2)}% used
+                </div>
+              </div>
+            </>
+          )}
         </div>
-        <div className="mono" style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>4.84% of max supply · ≈ $207,152</div>
-        <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-          <div className="eyebrow" style={{ marginBottom: 2 }}>Emission knobs</div>
-          <SliderRow label="Base mining rate" value="14.2 BATTLE / hour" pct={42} />
-          <SliderRow label="Game boost multiplier" value="×2.4 max" pct={60} />
-          <SliderRow label="Referral bonus" value="250 BATTLE per claim" pct={50} />
-          <SliderRow label="Daily quest payout" value="850 BATTLE max" pct={70} />
-          <div className="row" style={{ gap: 10 }}>
-            <button className="btn primary">Save changes</button>
-            <button className="btn ghost">Schedule halving</button>
+
+        <div className="card cream" style={{ padding: 24 }}>
+          <div className="eyebrow">Waitlist</div>
+          <div className="display tabular" style={{ fontSize: 48, lineHeight: 1, marginTop: 6 }}>
+            {supply?.waitlistCount ?? 0} <span style={{ fontSize: 18, color: "var(--magenta)" }}>pending</span>
+          </div>
+          <div className="mono" style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>
+            Total owed: {supply ? supply.waitlistBattleSum.toLocaleString(undefined, { maximumFractionDigits: 4 }) : "—"} $BATTLE
+          </div>
+          <div style={{ marginTop: 18, fontSize: 13, color: "var(--ink-soft)" }}>
+            When the pool runs dry, conversion requests land here. Top up the pool by buying more $BATTLE on pump.fun, then pay out each entry from your wallet.
+          </div>
+          <div className="row" style={{ marginTop: 14, gap: 8 }}>
+            <a href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump" target="_blank" rel="noreferrer" className="btn sm primary">Buy more on pump.fun</a>
+            <button className="btn sm" onClick={() => { refreshSupply(); refreshWaitlist(); }}>Refresh</button>
           </div>
         </div>
       </div>
 
-      <div className="card cream">
-        <div className="eyebrow">Treasury actions</div>
-        <h2 className="display" style={{ fontSize: 22, marginTop: 4 }}>Quick controls</h2>
-        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-          {[
-            ["Pause mining (emergency)", "Halts all rigs immediately", "var(--tomato)", "Pause"],
-            ["Top up game prize pool", "Move BATTLE from treasury → games", "var(--cyan)", "Top up"],
-            ["Force daily reset", "Manually reset all daily quests", "var(--yellow)", "Reset"],
-            ["Burn excess emission", "Burn unallocated tokens", "var(--magenta)", "Burn"],
-          ].map(([t, d, c, cta], i) => (
-            <div key={i} className="row" style={{ padding: 12, background: "var(--paper)", border: "2px solid var(--ink)", borderRadius: 12, gap: 10 }}>
-              <div style={{ width: 6, alignSelf: "stretch", background: String(c), borderRadius: 99, flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>{t}</div>
-                <div style={{ fontSize: 11, color: "var(--mute)" }}>{d}</div>
-              </div>
-              <button className="btn sm">{cta}</button>
-            </div>
-          ))}
+      {/* Waitlist entries */}
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="row" style={{ padding: "14px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)" }}>
+          <div className="display" style={{ fontSize: 22 }}>Waitlist queue</div>
+          <div className="grow" />
+          <span className="pill" style={{ background: pending.length > 0 ? "var(--yellow)" : "var(--lime)", fontSize: 11 }}>
+            {pending.length} pending
+          </span>
         </div>
+        {entries.length === 0 ? (
+          <div style={{ padding: 28, textAlign: "center", color: "var(--mute)", fontSize: 13 }}>
+            No waitlist entries — pool is healthy.
+          </div>
+        ) : (
+          entries.map((e, i) => (
+            <div key={e.id} className="row" style={{ padding: "12px 22px", borderBottom: i < entries.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ flex: 1.5, minWidth: 120 }}>
+                <div style={{ fontWeight: 700, fontSize: 13 }}>{e.username}</div>
+                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>
+                  {new Date(e.requestedAt).toLocaleString()}
+                </div>
+              </div>
+              <div style={{ flex: 2, minWidth: 180 }} className="mono">
+                <span style={{ fontSize: 11, color: "var(--ink-soft)" }}>
+                  {e.walletAddress ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-4)}` : <em style={{ color: "var(--tomato)" }}>no wallet</em>}
+                </span>
+              </div>
+              <div style={{ width: 110, textAlign: "right" }} className="display tabular">
+                {e.wolfAmount.toLocaleString()} <span style={{ fontSize: 10, color: "var(--mute)" }}>WOLF</span>
+              </div>
+              <div style={{ width: 130, textAlign: "right" }} className="display tabular">
+                {e.battleAmount.toFixed(4)} <span style={{ fontSize: 10, color: "var(--magenta)" }}>BATTLE</span>
+              </div>
+              <div style={{ width: 130, textAlign: "right" }}>
+                {e.fulfilledAt ? (
+                  <span className="pill" style={{ background: "var(--lime)", fontSize: 10 }}>✓ Paid out</span>
+                ) : (
+                  <button className="btn sm primary" onClick={() => markFulfilled(e.id)}>Mark paid</button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
