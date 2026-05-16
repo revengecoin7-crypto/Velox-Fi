@@ -235,16 +235,82 @@ router.get("/veloxfi/me", requireAuth as any, async (req: any, res) => {
   }
 });
 
-router.get("/veloxfi/leaderboard", async (_req, res) => {
+router.get("/veloxfi/leaderboard", async (req, res) => {
   try {
-    const users = await db
-      .select({ username: veloxfiUsers.username, tokens: veloxfiUsers.tokens, xp: veloxfiUsers.xp })
+    const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit ?? "50")) || 50));
+    const requester = typeof req.query.username === "string" ? req.query.username : null;
+
+    const rows = await db
+      .select({
+        username:       veloxfiUsers.username,
+        tokens:         veloxfiUsers.tokens,
+        wolf:           veloxfiUsers.wolf,
+        xp:             veloxfiUsers.xp,
+        referralCount:  veloxfiUsers.referralCount,
+        walletAddress:  veloxfiUsers.walletAddress,
+        createdAt:      veloxfiUsers.createdAt,
+        gamesPlayed:    sql<number>`(select count(*)::int from ${veloxfiGameSessions} gs where gs.username = ${veloxfiUsers.username})`,
+      })
       .from(veloxfiUsers)
-      .orderBy(veloxfiUsers.tokens)
-      .limit(10);
-    users.sort((a, b) => b.tokens - a.tokens);
-    res.json(users);
+      .orderBy(desc(veloxfiUsers.tokens))
+      .limit(limit);
+
+    const leaderboard = rows.map((r, i) => ({
+      rank:          i + 1,
+      username:      r.username,
+      tokens:        Number(r.tokens ?? 0),
+      wolf:          r.wolf ?? 0,
+      xp:            r.xp ?? 0,
+      level:         Math.max(1, Math.floor((r.xp ?? 0) / 1000) + 1),
+      referralCount: r.referralCount ?? 0,
+      walletAddress: r.walletAddress ?? null,
+      gamesPlayed:   r.gamesPlayed ?? 0,
+      isYou:         requester != null && r.username.toLowerCase() === requester.toLowerCase(),
+    }));
+
+    // Find requester's rank if they're outside the returned page
+    let yourEntry: typeof leaderboard[number] | null = null;
+    if (requester && !leaderboard.some(l => l.isYou)) {
+      const [me] = await db
+        .select({
+          username:      veloxfiUsers.username,
+          tokens:        veloxfiUsers.tokens,
+          wolf:          veloxfiUsers.wolf,
+          xp:            veloxfiUsers.xp,
+          referralCount: veloxfiUsers.referralCount,
+          walletAddress: veloxfiUsers.walletAddress,
+          createdAt:     veloxfiUsers.createdAt,
+        })
+        .from(veloxfiUsers)
+        .where(eq(veloxfiUsers.username, requester));
+
+      if (me) {
+        const [{ rank }] = await db
+          .select({ rank: sql<number>`(select count(*)::int from ${veloxfiUsers} u where u.tokens > ${me.tokens}) + 1` })
+          .from(veloxfiUsers)
+          .limit(1);
+        const [{ games }] = await db
+          .select({ games: sql<number>`count(*)::int` })
+          .from(veloxfiGameSessions)
+          .where(eq(veloxfiGameSessions.username, requester));
+        yourEntry = {
+          rank:          Number(rank),
+          username:      me.username,
+          tokens:        Number(me.tokens ?? 0),
+          wolf:          me.wolf ?? 0,
+          xp:            me.xp ?? 0,
+          level:         Math.max(1, Math.floor((me.xp ?? 0) / 1000) + 1),
+          referralCount: me.referralCount ?? 0,
+          walletAddress: me.walletAddress ?? null,
+          gamesPlayed:   Number(games ?? 0),
+          isYou:         true,
+        };
+      }
+    }
+
+    res.json({ leaderboard, yourEntry });
   } catch (e) {
+    console.error("veloxfi/leaderboard error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });

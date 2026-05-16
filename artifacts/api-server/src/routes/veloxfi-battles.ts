@@ -507,11 +507,32 @@ router.get("/veloxfi/stats", async (_req, res) => {
             AND (${veloxfiUsers.activeBattle}::jsonb->>'endTime')::bigint > ${Date.now()}`
       );
 
+    // Total registered wolves (holders of an account)
+    const [holderRow] = await db
+      .select({ cnt: sql<number>`count(*)::int` })
+      .from(veloxfiUsers);
+
+    // Miners online = users with an active mining session in the last 4 hours
+    const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+    const [miningRow] = await db
+      .select({ cnt: sql<number>`count(*)::int` })
+      .from(veloxfiUsers)
+      .where(sql`${veloxfiUsers.wolfMiningStart} IS NOT NULL AND ${veloxfiUsers.wolfMiningStart} > ${fourHoursAgo}`);
+
+    // Holders with a wallet address (i.e. ready to receive $BATTLE)
+    const [withWalletRow] = await db
+      .select({ cnt: sql<number>`count(*)::int` })
+      .from(veloxfiUsers)
+      .where(sql`${veloxfiUsers.walletAddress} IS NOT NULL AND length(${veloxfiUsers.walletAddress}) > 0`);
+
     res.json({
-      battlesToday: todayRow?.battlesToday   ?? 0,
-      tokensToday:  todayRow?.tokensToday    ?? 0,
-      activeNow:    activeRow?.cnt           ?? 0,
-      totalEarned:  allTimeRow?.totalEarned  ?? 0,
+      battlesToday:    todayRow?.battlesToday    ?? 0,
+      tokensToday:     todayRow?.tokensToday     ?? 0,
+      activeNow:       activeRow?.cnt            ?? 0,
+      totalEarned:     allTimeRow?.totalEarned   ?? 0,
+      holderCount:     holderRow?.cnt            ?? 0,
+      minersOnline:    miningRow?.cnt            ?? 0,
+      walletsLinked:   withWalletRow?.cnt        ?? 0,
     });
   } catch (e) {
     console.error("veloxfi/stats GET error:", e);
