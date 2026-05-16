@@ -3,23 +3,7 @@ import { Link } from "wouter";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 import { calcUserStats } from "@/lib/userStats";
-
-// ── Fetch real token stats from backend ──
-interface TokenStats { price: number; marketCap: number; volume24h: number; liquidity: number; holders: number; priceChange24h: number }
-
-function useTokenStats() {
-  const [stats, setStats] = useState<TokenStats | null>(null);
-  useEffect(() => {
-    const fetch_ = () => fetch("/api/veloxfi/token-stats")
-      .then(r => r.json())
-      .then(setStats)
-      .catch(() => {});
-    fetch_();
-    const id = setInterval(fetch_, 60_000);
-    return () => clearInterval(id);
-  }, []);
-  return stats;
-}
+import { useTokenStats, type TokenStats } from "@/lib/tokenStats";
 
 interface SupplyStatus { cap: number; distributed: number; remaining: number; percentUsed: number; poolDepleted: boolean; waitlistCount: number }
 

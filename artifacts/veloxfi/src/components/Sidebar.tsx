@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
+import { useTokenStats, fmtPrice, fmtPctDelta } from "@/lib/tokenStats";
 
 const NAV = [
   {
@@ -70,6 +71,7 @@ export function Sidebar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const tokenStats = useTokenStats();
 
   useEffect(() => {
     _setOpen = setOpen;
@@ -145,8 +147,10 @@ export function Sidebar() {
         {/* $BATTLE price footer */}
         <div className="sb-foot">
           <div style={{ color: "var(--mute)", fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>$BATTLE</div>
-          <div className="price tabular">$0.00428</div>
-          <div className="delta">+12.6% · 24h</div>
+          <div className="price tabular">{tokenStats ? fmtPrice(tokenStats.price) : "—"}</div>
+          <div className="delta" style={{ color: tokenStats && tokenStats.priceChange24h < 0 ? "var(--tomato)" : undefined }}>
+            {tokenStats ? `${fmtPctDelta(tokenStats.priceChange24h)} · 24h` : "live · 24h"}
+          </div>
         </div>
       </aside>
     </>
