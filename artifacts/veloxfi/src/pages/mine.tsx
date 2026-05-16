@@ -7,7 +7,6 @@ import { useActivityFeed, relativeTime } from "@/lib/veloxfiApi";
 
 const ACTIVITY_COLORS: Record<string, string> = {
   claim:       "var(--cyan)",
-  game_win:    "var(--lime)",
   battle_win:  "var(--lime)",
   battle_loss: "var(--mute)",
   achievement: "var(--magenta)",
@@ -86,15 +85,6 @@ function PackTiers({ balance }: { balance: number }) {
     </div>
   );
 }
-
-const QUESTS = [
-  { t: "Play any game", d: "Just one round counts.", icon: "🎮", color: "var(--cyan)", reward: 50, p: 100, progress: "1 / 1", done: true },
-  { t: "Score 1,000 in Wolf Run", d: "Dodge 5 obstacles in a row.", icon: "🐾", color: "var(--lime)", reward: 120, p: 100, progress: "1,240 / 1,000", done: true },
-  { t: "Win a Battle Tetris match", d: "Send 10+ trash rows.", icon: "⬛", color: "var(--magenta)", reward: 200, p: 40, progress: "0 / 1 wins", done: false },
-  { t: "Mine for 60 minutes", d: "Keep your rig online.", icon: "⛏", color: "var(--yellow)", reward: 80, p: 72, progress: "43 / 60 min", done: false },
-  { t: "Invite 1 new wolf", d: "They need to claim once.", icon: "👤", color: "var(--tomato)", reward: 300, p: 0, progress: "0 / 1 referrals", done: false },
-  { t: "Hold $BATTLE in wallet", d: "Minimum 1,000 BATTLE overnight.", icon: "👛", color: "var(--lavender)", reward: 100, p: 100, progress: "12,840 / 1,000", done: false },
-];
 
 const RIGS = [
   { name: "Pup Rig", boost: 1.0, cost: 0, desc: "Starter gear. Every wolf gets one.", bg: "var(--cream)", owned: true, current: false },
@@ -295,42 +285,6 @@ export default function Mine() {
             </div>
           </div>
 
-          {/* ── DAILY QUESTS ── */}
-          <div>
-            <div className="section-title">
-              <div>
-                <div className="eyebrow">Daily quests · resets in 11h 24m</div>
-                <h2>Earn while you sleep</h2>
-              </div>
-              <div className="grow" />
-              <div className="row" style={{ gap: 6 }}>
-                <span className="pill">✓ 2/5 done</span>
-                <span className="pill yellow">+850 BATTLE up for grabs</span>
-              </div>
-            </div>
-            <div className="grid-3">
-              {QUESTS.map((q, i) => (
-                <div key={i} className="card" style={{ padding: 18, opacity: q.done ? 0.75 : 1 }}>
-                  <div className="row" style={{ justifyContent: "space-between" }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 10, background: q.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{q.icon}</div>
-                    <div className="display" style={{ fontSize: 18, color: "var(--magenta)" }}>+{q.reward}</div>
-                  </div>
-                  <div className="display" style={{ fontSize: 17, marginTop: 12 }}>{q.t}</div>
-                  <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{q.d}</div>
-                  <div className="bar" style={{ marginTop: 14 }}>
-                    <div className="bar-fill" style={{ width: `${q.p}%`, background: q.color }} />
-                  </div>
-                  <div className="row" style={{ marginTop: 8, justifyContent: "space-between" }}>
-                    <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{q.progress}</div>
-                    {q.done
-                      ? <span className="pill" style={{ background: "var(--lime)", fontSize: 11 }}>✓ Claimed</span>
-                      : <button className="btn sm">Go →</button>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* ── CHART + ACTIVITY ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
             <div className="card">
@@ -348,18 +302,8 @@ export default function Mine() {
               <div style={{ marginTop: 18, height: 180 }}>
                 <MiningChart />
               </div>
-              <div className="row" style={{ marginTop: 18, gap: 24 }}>
-                {[["var(--cyan)", "Mined", "284.4 BATTLE"], ["var(--magenta)", "Game boosts", "143.94 BATTLE"]].map(([c, l, v]) => (
-                  <div key={String(l)} className="row" style={{ gap: 8 }}>
-                    <div style={{ width: 12, height: 12, borderRadius: 4, background: String(c), border: "1.5px solid var(--ink)" }} />
-                    <div>
-                      <div style={{ fontSize: 11, color: "var(--mute)" }}>{l}</div>
-                      <div className="display tabular" style={{ fontSize: 16 }}>{v}</div>
-                    </div>
-                  </div>
-                ))}
-                <div style={{ flex: 1 }} />
-                <div style={{ fontSize: 12, color: "var(--mute)" }}>Best hour <b className="display">06:00 — 71.2</b></div>
+              <div className="row" style={{ marginTop: 18, gap: 24, color: "var(--mute)", fontSize: 12 }}>
+                <span>Bars show your hourly WOLF output. Magenta segments are your tier-bonus uplift.</span>
               </div>
             </div>
 

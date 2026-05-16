@@ -20,7 +20,6 @@ interface ProfileData {
     m3Rewarded:     boolean;
     m4Rewarded:     boolean;
   };
-  gameActivity: { game: string; plays: number; totalWolf: number }[];
 }
 
 // Achievement definitions: each evaluator returns { unlocked, progress, pct, requirement }
@@ -33,25 +32,24 @@ interface OneTimeAchievement {
   xp:     number;
   rare?:  boolean;
   hidden?: boolean;
-  unlocked: (s: UserStats, gamesPlayed: number, refCount: number, achievementIds: Set<string>) => boolean;
+  unlocked: (s: UserStats, refCount: number, achievementIds: Set<string>) => boolean;
 }
 
 const ONE_TIME_DEFS: OneTimeAchievement[] = [
   { id: "first_howl",   name: "First Howl",   desc: "Registered and claimed once.",        icon: "🐺", color: "var(--cyan)",     xp: 100,  unlocked: (s) => s.wolfBalance > 0 || !!s.walletAddress },
-  { id: "speed_miner",  name: "Speed Miner",  desc: "Claimed within 1hr of rig start.",    icon: "⚡", color: "var(--yellow)",   xp: 250,  unlocked: (_s, _g, _r, ids) => ids.has("speed_miner") },
-  { id: "alpha_hunter", name: "Alpha Hunter", desc: "Reached top 200 on leaderboard.",     icon: "🏆", color: "var(--lime)",     xp: 750,  rare: true,  unlocked: (_s, _g, _r, ids) => ids.has("alpha_hunter") },
-  { id: "pack_leader",  name: "Pack Leader",  desc: "Invite 10 wolves to the pack.",       icon: "👥", color: "var(--magenta)",  xp: 1000, unlocked: (_s, _g, r) => r >= 10 },
+  { id: "speed_miner",  name: "Speed Miner",  desc: "Claimed within 1hr of rig start.",    icon: "⚡", color: "var(--yellow)",   xp: 250,  unlocked: (_s, _r, ids) => ids.has("speed_miner") },
+  { id: "alpha_hunter", name: "Alpha Hunter", desc: "Reached top 200 on leaderboard.",     icon: "🏆", color: "var(--lime)",     xp: 750,  rare: true,  unlocked: (_s, _r, ids) => ids.has("alpha_hunter") },
+  { id: "pack_leader",  name: "Pack Leader",  desc: "Invite 10 wolves to the pack.",       icon: "👥", color: "var(--magenta)",  xp: 1000, unlocked: (_s, r) => r >= 10 },
   { id: "diamond_paws", name: "Diamond Paws", desc: "Hold 100k $BATTLE at once.",          icon: "💎", color: "var(--cyan)",     xp: 1500, unlocked: (s) => s.battleBalance >= 100000 },
   { id: "thirty_day",   name: "30-Day Howl",  desc: "Log in for 30 consecutive days.",     icon: "📅", color: "var(--tomato)",   xp: 2000, unlocked: (s) => s.dailyStreak >= 30 },
-  { id: "genesis_wolf", name: "Genesis Wolf", desc: "One of the first 1,000 registered.",  icon: "🌟", color: "#FFD700",         xp: 5000, rare: true, unlocked: (_s, _g, _r, ids) => ids.has("genesis_wolf") },
-  { id: "game_shark",   name: "Game Shark",   desc: "Play 50 arcade games.",               icon: "🎮", color: "var(--lavender)", xp: 400,  unlocked: (_s, g) => g >= 50 },
+  { id: "genesis_wolf", name: "Genesis Wolf", desc: "One of the first 1,000 registered.",  icon: "🌟", color: "#FFD700",         xp: 5000, rare: true, unlocked: (_s, _r, ids) => ids.has("genesis_wolf") },
 ];
 
 interface TieredAchievement {
   name:   string;
   icon:   string;
   color:  string;
-  metric: (s: UserStats, gamesPlayed: number, refCount: number) => number;
+  metric: (s: UserStats, refCount: number) => number;
   tiers:  { label: string; req: number; reward: number }[];
 }
 
@@ -64,7 +62,7 @@ const TIERED_DEFS: TieredAchievement[] = [
       { label: "Legend", req: 1000000, reward: 2000 },
     ],
   },
-  { name: "Referrals", icon: "👥", color: "var(--lime)", metric: (_s, _g, r) => r,
+  { name: "Referrals", icon: "👥", color: "var(--lime)", metric: (_s, r) => r,
     tiers: [
       { label: "Bronze", req: 1,   reward: 100  },
       { label: "Silver", req: 5,   reward: 300  },
@@ -155,17 +153,16 @@ export default function ProfilePage() {
 
   const refCount    = (user as any)?.referralCount  ?? profile?.user.referralCount ?? 0;
   const refTokens   = (user as any)?.referralTokens ?? 0;
-  const gamesPlayed = (profile?.gameActivity ?? []).reduce((s, g) => s + g.plays, 0);
   const achievementIds = new Set((profile?.achievements ?? []).map(a => a.achievementId));
 
   const oneTime = ONE_TIME_DEFS.map(d => ({
     ...d,
-    unlocked: d.unlocked(stats, gamesPlayed, refCount, achievementIds),
+    unlocked: d.unlocked(stats, refCount, achievementIds),
     earnedAt: profile?.achievements.find(a => a.achievementId === d.id)?.earnedAt ?? null,
   }));
 
   const tiered = TIERED_DEFS.map(t => {
-    const value = t.metric(stats, gamesPlayed, refCount);
+    const value = t.metric(stats, refCount);
     return {
       ...t,
       tiers: t.tiers.map(tier => ({
@@ -215,7 +212,7 @@ export default function ProfilePage() {
                   {stats.walletAddress ? `${stats.walletAddress.slice(0, 24)}...` : "No wallet connected yet"}
                 </div>
                 <div className="row" style={{ gap: 18, marginTop: 14 }}>
-                  {[["🏆", String(user?.totalGameWolf ?? 0), "wolf from games", "var(--yellow)"], ["⚡", `LVL ${stats.level}`, "rig level", "var(--cyan)"], ["🔥", `${stats.dailyStreak}d`, "streak", "var(--tomato)"], ["👑", stats.tier.icon, stats.tier.name, "var(--magenta)"]].map(([icon, val, sub, color]) => (
+                  {[["🏆", stats.battleBalance.toLocaleString(), "$BATTLE earned", "var(--yellow)"], ["⚡", `LVL ${stats.level}`, "mining level", "var(--cyan)"], ["🔥", `${stats.dailyStreak}d`, "streak", "var(--tomato)"], ["👑", stats.tier.icon, stats.tier.name, "var(--magenta)"]].map(([icon, val, sub, color]) => (
                     <div key={String(sub)}>
                       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <span style={{ fontSize: 14 }}>{icon}</span>

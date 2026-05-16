@@ -91,21 +91,6 @@ function useAdminClaims() {
   return { claims, refresh };
 }
 
-interface AdminGameStat {
-  game:          string;
-  plays:         number;
-  totalWolfPaid: number;
-  uniquePlayers: number;
-  avgPayout:     number;
-}
-
-function useAdminGames() {
-  const [games, setGames] = useState<AdminGameStat[]>([]);
-  const refresh = () => fetch("/api/veloxfi/admin/games", { headers: adminHeaders() }).then(r => r.json()).then(setGames).catch(() => {});
-  useEffect(() => { refresh(); const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, []);
-  return { games, refresh };
-}
-
 function shortAddr(addr: string | null | undefined): string {
   if (!addr || addr.length < 10) return addr ?? "—";
   return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
@@ -126,20 +111,12 @@ function relTime(iso: string | null | undefined): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-const GAME_META: Record<string, { display: string; tag: string; emoji: string; bg: string }> = {
-  "crypto-snake": { display: "Crypto Snake",  tag: "SOLO",    emoji: "🐍", bg: "#C7F75F" },
-  "battle-tetris":{ display: "Battle Tetris", tag: "1v1",     emoji: "⬛", bg: "var(--magenta)" },
-  "wolf-run":     { display: "Wolf Run",      tag: "RUNNER",  emoji: "🐺", bg: "#FFB02E" },
-  "rocket-miner": { display: "Rocket Miner",  tag: "CRASH",   emoji: "🚀", bg: "#0B0B1A" },
-  "wolf-trap":    { display: "Wolf Trap",     tag: "PUZZLE",  emoji: "🎯", bg: "var(--cyan)" },
-};
-
 function AdminTabs({ tab, setTab }: { tab: string; setTab: (v: string) => void }) {
   const { stats } = useAdminStats();
   const userLabel = stats ? `Users · ${stats.totalUsers.toLocaleString()}` : "Users";
   return (
     <div className="tabs" style={{ width: "auto" }}>
-      {[["overview", "Overview"], ["users", userLabel], ["pool", "Mining pool"], ["games", "Game balance"], ["tx", "Transactions"]].map(([id, label]) => (
+      {[["overview", "Overview"], ["users", userLabel], ["pool", "Mining pool"], ["tx", "Transactions"]].map(([id, label]) => (
         <div key={id} className={`tab${tab === id ? " active" : ""}`} onClick={() => setTab(id)}>{label}</div>
       ))}
     </div>
@@ -483,71 +460,6 @@ function AdminPool() {
   );
 }
 
-function AdminGames() {
-  const { games } = useAdminGames();
-  const totalPlays    = games.reduce((s, g) => s + g.plays, 0);
-  const totalWolfPaid = games.reduce((s, g) => s + g.totalWolfPaid, 0);
-  const uniquePlayers = Math.max(...games.map(g => g.uniquePlayers), 0);
-
-  return (
-    <div>
-      <div className="grid-3" style={{ marginBottom: 22 }}>
-        {[
-          { l: "Total game sessions", v: totalPlays.toLocaleString(), s: `${games.length} games tracked`, c: "var(--paper)" },
-          { l: "WOLF paid out · all-time", v: totalWolfPaid.toLocaleString(), s: "across all games", c: "var(--cyan)" },
-          { l: "Unique players (peak)", v: uniquePlayers.toLocaleString(), s: "best-performing game", c: "var(--yellow)" },
-        ].map((s) => (
-          <div className="card" key={s.l} style={{ background: s.c }}>
-            <div className="stat-label">{s.l}</div>
-            <div className="stat-num tabular">{s.v}</div>
-            <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{s.s}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div className="row" style={{ padding: "14px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)" }}>
-          <div className="display" style={{ fontSize: 22 }}>Game balance</div>
-          <div className="grow" />
-          <span className="pill dot" style={{ fontSize: 11 }}>Live · auto-refresh 30s</span>
-        </div>
-        {games.length === 0 ? (
-          <div style={{ padding: 24, textAlign: "center", color: "var(--mute)", fontSize: 13 }}>No game sessions recorded yet.</div>
-        ) : games.map((g, i) => {
-          const meta = GAME_META[g.game] ?? { display: g.game, tag: "GAME", emoji: "🎮", bg: "var(--cream)" };
-          return (
-            <div key={g.game} className="row" style={{ padding: "16px 22px", borderBottom: i < games.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", gap: 16 }}>
-              <div style={{ width: 48, height: 48, background: meta.bg, border: "2.5px solid var(--ink)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>
-                {meta.emoji}
-              </div>
-              <div style={{ flex: 1.5 }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>{meta.display}</div>
-                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{meta.tag}</div>
-              </div>
-              <div style={{ width: 110 }}>
-                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>PLAYS · ALL-TIME</div>
-                <div className="display tabular" style={{ fontSize: 16 }}>{g.plays.toLocaleString()}</div>
-              </div>
-              <div style={{ width: 130 }}>
-                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>WOLF PAID</div>
-                <div className="display tabular" style={{ fontSize: 16 }}>{g.totalWolfPaid.toLocaleString()}</div>
-              </div>
-              <div style={{ width: 100 }}>
-                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>AVG PAYOUT</div>
-                <div className="display tabular" style={{ fontSize: 16 }}>{g.avgPayout.toFixed(2)}</div>
-              </div>
-              <div style={{ width: 110 }}>
-                <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>UNIQUE PLAYERS</div>
-                <div className="display tabular" style={{ fontSize: 16 }}>{g.uniquePlayers.toLocaleString()}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function AdminTx() {
   const { claims, refresh } = useAdminClaims();
 
@@ -678,7 +590,6 @@ export default function AdminPage() {
           {tab === "overview" && <AdminOverview />}
           {tab === "users" && <AdminUsers />}
           {tab === "pool" && <AdminPool />}
-          {tab === "games" && <AdminGames />}
           {tab === "tx" && <AdminTx />}
 
         </div>

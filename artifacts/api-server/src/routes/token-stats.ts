@@ -29,7 +29,7 @@ async function fetchDexScreener(): Promise<TokenStats | null> {
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
-    const d = await res.json();
+    const d: any = await res.json();
     const pairs: any[] = Array.isArray(d?.pairs) ? d.pairs : [];
     if (pairs.length === 0) return null;
 
@@ -63,7 +63,7 @@ async function fetchPumpFun(): Promise<TokenStats | null> {
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
-    const d = await res.json();
+    const d: any = await res.json();
     return {
       price:          d.usd_market_cap && d.total_supply ? d.usd_market_cap / d.total_supply : 0,
       marketCap:      d.usd_market_cap ?? 0,

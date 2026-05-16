@@ -69,9 +69,7 @@ export interface User {
   id?: string;
   lastMineSession?: number | null;
   conversions?: never[];
-  gameHistory?: never[];
   totalMined?: number;
-  totalGameWolf?: number;
 }
 
 interface MiningProgress {
@@ -94,9 +92,6 @@ interface AuthContextType {
   startMiningSession: () => Promise<void>;
   claimMiningReward: () => Promise<number>;
   getMiningProgress: () => MiningProgress;
-  // Games
-  addGameSession: (game: string, wolfEarned: number) => Promise<void>;
-  earnWolfFromGame: (game: string, wolfEarned: number) => Promise<{ ok: boolean; error?: string }>;
   // Convert
   requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string; waitlisted?: boolean; battleRequested?: number }>;
   // Wallet
@@ -126,9 +121,7 @@ function buildUser(api: Record<string, unknown>, daily: DailyData): User {
     dailyStreak:     daily.dailyStreak,
     id:              String(api.username ?? ""),
     conversions:     [],
-    gameHistory:     [],
     totalMined:      0,
-    totalGameWolf:   0,
   };
 }
 
@@ -239,34 +232,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return wolfEarned;
   }
 
-  // ── Games ─────────────────────────────────────────────────────────────────
-  const GAME_API_MAP: Record<string, string> = {
-    snake:  "crypto-snake",
-    tetris: "battle-tetris",
-    rocket: "rocket-miner",
-    runner: "wolf-run",
-    trap:   "wolf-trap",
-  };
-
-  async function earnWolfFromGame(game: string, wolfEarned: number) {
-    if (!token) return { ok: false, error: "Not logged in" };
-    const endpoint = GAME_API_MAP[game] ?? game;
-    const { ok, data } = await apiFetch<Record<string, unknown>>(
-      `/veloxfi/game/${endpoint}/earn`,
-      { method: "POST", body: JSON.stringify({ wolfEarned }) },
-      token,
-    );
-    if (ok) {
-      setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf) } : u);
-    }
-    return ok ? { ok: true } : { ok: false, error: (data as any)?.error || "Error saving WOLF" };
-  }
-
-  // Alias kept for legacy callers
-  async function addGameSession(game: string, wolfEarned: number) {
-    await earnWolfFromGame(game, wolfEarned);
-  }
-
   // ── Convert ───────────────────────────────────────────────────────────────
   async function requestConversion(wolfAmount: number) {
     if (!token) return { ok: false, error: "Not logged in" };
@@ -335,7 +300,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user, token, isLoading,
       login, register, logout, refreshUser,
       startMiningSession, claimMiningReward, getMiningProgress,
-      addGameSession, earnWolfFromGame,
       requestConversion,
       setWallet,
       canClaimDaily, getDailyRewardAmount, claimDailyReward,

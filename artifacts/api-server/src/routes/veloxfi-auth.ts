@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiClaims, veloxfiGameSessions, veloxfiWaitlist } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
 import { eq, sql, isNull, desc } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
@@ -249,7 +249,6 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
         referralCount:  veloxfiUsers.referralCount,
         walletAddress:  veloxfiUsers.walletAddress,
         createdAt:      veloxfiUsers.createdAt,
-        gamesPlayed:    sql<number>`(select count(*)::int from ${veloxfiGameSessions} gs where gs.username = ${veloxfiUsers.username})`,
       })
       .from(veloxfiUsers)
       .orderBy(desc(veloxfiUsers.tokens))
@@ -264,7 +263,6 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
       level:         Math.max(1, Math.floor((r.xp ?? 0) / 1000) + 1),
       referralCount: r.referralCount ?? 0,
       walletAddress: r.walletAddress ?? null,
-      gamesPlayed:   r.gamesPlayed ?? 0,
       isYou:         requester != null && r.username.toLowerCase() === requester.toLowerCase(),
     }));
 
@@ -289,10 +287,6 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
           .select({ rank: sql<number>`(select count(*)::int from ${veloxfiUsers} u where u.tokens > ${me.tokens}) + 1` })
           .from(veloxfiUsers)
           .limit(1);
-        const [{ games }] = await db
-          .select({ games: sql<number>`count(*)::int` })
-          .from(veloxfiGameSessions)
-          .where(eq(veloxfiGameSessions.username, requester));
         yourEntry = {
           rank:          Number(rank),
           username:      me.username,
@@ -302,7 +296,6 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
           level:         Math.max(1, Math.floor((me.xp ?? 0) / 1000) + 1),
           referralCount: me.referralCount ?? 0,
           walletAddress: me.walletAddress ?? null,
-          gamesPlayed:   Number(games ?? 0),
           isYou:         true,
         };
       }
@@ -479,33 +472,6 @@ router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) =
   }
 });
 
-// ── Rocket Miner: save earned WOLF ───────────────────────────────────────────
-const ROCKET_MINER_MAX_WOLF = 120; // 1 WOLF/hit, ~1 coin/2s over 2-min session
-const CRYPTO_SNAKE_MAX_WOLF = 120; // 1 WOLF/coin, cap at 120 per session
-
-router.post("/veloxfi/game/rocket-miner/earn", requireAuth as any, async (req: any, res) => {
-  try {
-    const user = req.veloxfiUser;
-    const raw = Number(req.body.wolfEarned);
-    if (!Number.isFinite(raw) || raw <= 0) {
-      res.status(400).json({ error: "No WOLF earned." }); return;
-    }
-    const wolfEarned = Math.min(Math.floor(raw), ROCKET_MINER_MAX_WOLF);
-    const [updated] = await db.update(veloxfiUsers)
-      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
-      .where(eq(veloxfiUsers.username, user.username))
-      .returning({ wolf: veloxfiUsers.wolf });
-    if (!updated) {
-      res.status(500).json({ error: "Failed to update balance." }); return;
-    }
-    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'rocket-miner', wolfEarned });
-    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
-  } catch (e) {
-    console.error("rocket-miner/earn error:", e);
-    res.status(500).json({ error: "Server error. Please try again." });
-  }
-});
-
 // ── Lightweight WOLF balance ──────────────────────────────────────────────────
 router.get("/veloxfi/wolf-balance", requireAuth as any, async (req: any, res) => {
   try {
@@ -518,104 +484,6 @@ router.get("/veloxfi/wolf-balance", requireAuth as any, async (req: any, res) =>
   } catch (e) {
     console.error("wolf-balance error:", e);
     res.status(500).json({ error: "Server error." });
-  }
-});
-
-// ── Battle Tetris: save earned WOLF ──────────────────────────────────────────
-const BATTLE_TETRIS_MAX_WOLF = 120; // 1 WOLF/line, cap 120 per session
-router.post("/veloxfi/game/battle-tetris/earn", requireAuth as any, async (req: any, res) => {
-  try {
-    const user = req.veloxfiUser;
-    const raw = Number(req.body.wolfEarned);
-    if (!Number.isFinite(raw) || raw <= 0) {
-      res.status(400).json({ error: "No WOLF earned." }); return;
-    }
-    const wolfEarned = Math.min(Math.floor(raw), BATTLE_TETRIS_MAX_WOLF);
-    const [updated] = await db.update(veloxfiUsers)
-      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
-      .where(eq(veloxfiUsers.username, user.username))
-      .returning({ wolf: veloxfiUsers.wolf });
-    if (!updated) {
-      res.status(500).json({ error: "Failed to update balance." }); return;
-    }
-    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'battle-tetris', wolfEarned });
-    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
-  } catch (e) {
-    console.error("battle-tetris/earn error:", e);
-    res.status(500).json({ error: "Server error. Please try again." });
-  }
-});
-
-// ── Crypto Snake: save earned WOLF ───────────────────────────────────────────
-router.post("/veloxfi/game/crypto-snake/earn", requireAuth as any, async (req: any, res) => {
-  try {
-    const user = req.veloxfiUser;
-    const raw = Number(req.body.wolfEarned);
-    if (!Number.isFinite(raw) || raw <= 0) {
-      res.status(400).json({ error: "No WOLF earned." }); return;
-    }
-    const wolfEarned = Math.min(Math.floor(raw), CRYPTO_SNAKE_MAX_WOLF);
-    const [updated] = await db.update(veloxfiUsers)
-      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
-      .where(eq(veloxfiUsers.username, user.username))
-      .returning({ wolf: veloxfiUsers.wolf });
-    if (!updated) {
-      res.status(500).json({ error: "Failed to update balance." }); return;
-    }
-    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'crypto-snake', wolfEarned });
-    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
-  } catch (e) {
-    console.error("crypto-snake/earn error:", e);
-    res.status(500).json({ error: "Server error. Please try again." });
-  }
-});
-
-// ── Wolf Run: save earned WOLF ────────────────────────────────────────────────
-const WOLF_RUN_MAX_WOLF = 120;
-router.post("/veloxfi/game/wolf-run/earn", requireAuth as any, async (req: any, res) => {
-  try {
-    const user = req.veloxfiUser;
-    const raw = Number(req.body.wolfEarned);
-    if (!Number.isFinite(raw) || raw <= 0) {
-      res.status(400).json({ error: "No WOLF earned." }); return;
-    }
-    const wolfEarned = Math.min(Math.floor(raw), WOLF_RUN_MAX_WOLF);
-    const [updated] = await db.update(veloxfiUsers)
-      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
-      .where(eq(veloxfiUsers.username, user.username))
-      .returning({ wolf: veloxfiUsers.wolf });
-    if (!updated) {
-      res.status(500).json({ error: "Failed to update balance." }); return;
-    }
-    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'wolf-run', wolfEarned });
-    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
-  } catch (e) {
-    console.error("wolf-run/earn error:", e);
-    res.status(500).json({ error: "Server error. Please try again." });
-  }
-});
-
-const WOLF_TRAP_MAX_WOLF = 120;
-router.post("/veloxfi/game/wolf-trap/earn", requireAuth as any, async (req: any, res) => {
-  try {
-    const user = req.veloxfiUser;
-    const raw = Number(req.body.wolfEarned);
-    if (!Number.isFinite(raw) || raw <= 0) {
-      res.status(400).json({ error: "No WOLF earned." }); return;
-    }
-    const wolfEarned = Math.min(Math.floor(raw), WOLF_TRAP_MAX_WOLF);
-    const [updated] = await db.update(veloxfiUsers)
-      .set({ wolf: sql`coalesce(wolf, 0) + ${wolfEarned}` })
-      .where(eq(veloxfiUsers.username, user.username))
-      .returning({ wolf: veloxfiUsers.wolf });
-    if (!updated) {
-      res.status(500).json({ error: "Failed to update balance." }); return;
-    }
-    await db.insert(veloxfiGameSessions).values({ username: user.username, game: 'wolf-trap', wolfEarned });
-    res.json({ ok: true, wolfEarned, newWolfBalance: updated.wolf });
-  } catch (e) {
-    console.error("wolf-trap/earn error:", e);
-    res.status(500).json({ error: "Server error. Please try again." });
   }
 });
 

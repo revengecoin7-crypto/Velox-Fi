@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiClaims, veloxfiWaitlist, veloxfiGameSessions } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiBattles, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
 import { eq, desc, sql, isNotNull, isNull } from "drizzle-orm";
 
 const BATTLE_SUPPLY_CAP = 95_000_000;
@@ -131,34 +131,6 @@ router.delete("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req:
     await db.update(veloxfiClaims).set({ paidAt: null }).where(eq(veloxfiClaims.id, id));
     res.json({ ok: true });
   } catch (e) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ── Games aggregate ──────────────────────────────────────────────────────────
-
-router.get("/veloxfi/admin/games", requireAdmin as any, async (_req: any, res: any) => {
-  try {
-    const rows = await db
-      .select({
-        game:           veloxfiGameSessions.game,
-        plays:          sql<number>`count(*)::int`,
-        totalWolfPaid:  sql<number>`coalesce(sum(${veloxfiGameSessions.wolfEarned}),0)::int`,
-        uniquePlayers:  sql<number>`count(distinct ${veloxfiGameSessions.username})::int`,
-        avgPayout:      sql<number>`coalesce(avg(${veloxfiGameSessions.wolfEarned}),0)::float8`,
-      })
-      .from(veloxfiGameSessions)
-      .groupBy(veloxfiGameSessions.game);
-
-    res.json(rows.map(r => ({
-      game:          r.game,
-      plays:         r.plays,
-      totalWolfPaid: r.totalWolfPaid,
-      uniquePlayers: r.uniquePlayers,
-      avgPayout:     Math.round((r.avgPayout ?? 0) * 100) / 100,
-    })));
-  } catch (e) {
-    console.error("admin/games error:", e);
     res.status(500).json({ error: "Server error" });
   }
 });
