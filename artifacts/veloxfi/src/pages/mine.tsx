@@ -3,6 +3,18 @@ import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
 import { calcUserStats } from "@/lib/userStats";
+import { useActivityFeed, relativeTime } from "@/lib/veloxfiApi";
+
+const ACTIVITY_COLORS: Record<string, string> = {
+  claim:       "var(--cyan)",
+  game_win:    "var(--lime)",
+  battle_win:  "var(--lime)",
+  battle_loss: "var(--mute)",
+  achievement: "var(--magenta)",
+  mission:     "var(--yellow)",
+  referral:    "var(--cyan)",
+  level_up:    "var(--magenta)",
+};
 
 // ── Pack Tiers ─────────────────────────────────────────────────────────────
 const TIERS = [
@@ -84,15 +96,6 @@ const QUESTS = [
   { t: "Hold $BATTLE in wallet", d: "Minimum 1,000 BATTLE overnight.", icon: "👛", color: "var(--lavender)", reward: 100, p: 100, progress: "12,840 / 1,000", done: false },
 ];
 
-const ACTIVITY = [
-  { user: "moonwolf42", action: "won Battle Tetris", time: "just now", amt: "320 BATTLE", color: "var(--lime)" },
-  { user: "pumpqueen.sol", action: "claimed daily", time: "2m ago", amt: "184 BATTLE", color: "var(--cyan)" },
-  { user: "fangmaster", action: "survived Howl & Hunt", time: "4m ago", amt: "512 BATTLE", color: "var(--magenta)" },
-  { user: "shibakid", action: "leveled to 22", time: "7m ago", amt: "XP +500", color: "var(--mute)" },
-  { user: "alphawolf.sol", action: "invited a friend", time: "12m ago", amt: "250 BATTLE", color: "var(--cyan)" },
-  { user: "cryptobaby", action: "topped Wolf Run", time: "18m ago", amt: "210 BATTLE", color: "var(--lime)" },
-];
-
 const RIGS = [
   { name: "Pup Rig", boost: 1.0, cost: 0, desc: "Starter gear. Every wolf gets one.", bg: "var(--cream)", owned: true, current: false },
   { name: "Hunter Rig", boost: 1.8, cost: 1200, desc: "Twin GPU + signal antenna.", bg: "var(--cyan)", owned: true, current: true },
@@ -152,6 +155,7 @@ export default function Mine() {
   const [activeTab, setActiveTab] = useState("24h");
   const streak = stats.dailyStreak;
   const xp = stats.xp;
+  const activity = useActivityFeed();
 
   useEffect(() => {
     const t = setInterval(() => setClaimable((c) => +(c + 0.04).toFixed(2)), 1500);
@@ -368,16 +372,20 @@ export default function Mine() {
                 <span className="pill dot" style={{ fontSize: 10 }}>LIVE</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                {ACTIVITY.map((a, i) => (
-                  <div key={i} className="row" style={{ padding: "10px 0", borderBottom: i < ACTIVITY.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", gap: 12 }}>
+                {activity.length === 0 ? (
+                  <div style={{ padding: 20, textAlign: "center", color: "var(--mute)", fontSize: 13 }}>
+                    No activity yet. Be the first to mine, win a battle, or claim a reward.
+                  </div>
+                ) : activity.slice(0, 10).map((a, i, arr) => (
+                  <div key={a.id} className="row" style={{ padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", gap: 12 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 9, overflow: "hidden", border: "2px solid var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0 }}>
                       <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}><b>{a.user}</b> {a.action}</div>
-                      <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 2 }}>{a.time}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}><b>{a.username}</b> {a.message}</div>
+                      <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 2 }}>{relativeTime(a.createdAt)}</div>
                     </div>
-                    <div className="display" style={{ fontSize: 14, color: a.color }}>+{a.amt}</div>
+                    <div className="display" style={{ fontSize: 12, color: ACTIVITY_COLORS[a.type] ?? "var(--mute)", textTransform: "uppercase" }}>{a.type.replace(/_/g, " ")}</div>
                   </div>
                 ))}
               </div>

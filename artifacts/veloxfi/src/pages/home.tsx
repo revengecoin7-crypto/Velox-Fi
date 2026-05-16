@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 import { calcUserStats } from "@/lib/userStats";
 import { useTokenStats, type TokenStats } from "@/lib/tokenStats";
+import { useVeloxfiStats, type VeloxfiStats } from "@/lib/veloxfiApi";
 
 interface SupplyStatus { cap: number; distributed: number; remaining: number; percentUsed: number; poolDepleted: boolean; waitlistCount: number }
 
@@ -31,7 +32,7 @@ function fmtLarge(n: number) {
   return `$${fmt(n)}`;
 }
 
-function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
+function Ticker({ tokenStats, vstats }: { tokenStats: TokenStats | null; vstats: VeloxfiStats | null }) {
   const t = tokenStats;
   const priceUp = (t?.priceChange24h ?? 0) >= 0;
 
@@ -40,7 +41,8 @@ function Ticker({ tokenStats }: { tokenStats: TokenStats | null }) {
     { label: "LIQUIDITY",     val: t ? fmtLarge(t.liquidity) : "—",                                                  delta: "",                                                            dir: "" },
     { label: "VOL 24h",       val: t ? fmtLarge(t.volume24h) : "—",                                                  delta: "",                                                            dir: "" },
     { label: "MCAP",          val: t ? fmtLarge(t.marketCap) : "—",                                                  delta: t ? `${priceUp ? "+" : ""}${fmt(t.priceChange24h)}%` : "",  dir: priceUp ? "up" : "down" },
-    { label: "MINERS ONLINE", val: "LIVE",                                                                            delta: "",                                                            dir: "" },
+    { label: "MINERS ONLINE", val: vstats ? vstats.minersOnline.toLocaleString() : "—",                              delta: "",                                                            dir: "" },
+    { label: "HOLDERS",       val: vstats ? vstats.holderCount.toLocaleString() : "—",                               delta: "",                                                            dir: "" },
   ];
 
   const doubled = [...items, ...items, ...items];
@@ -67,6 +69,7 @@ export default function Home() {
   const { user } = useAuth();
   const stats = calcUserStats(user);
   const tokenStats = useTokenStats();
+  const vstats = useVeloxfiStats();
   const supply = useSupplyStatus();
   const [caCopied, setCaCopied] = useState(false);
 
@@ -150,7 +153,7 @@ export default function Home() {
           </section>
 
           {/* ── TICKER ── */}
-          <div style={{ margin: "0 -36px" }}><Ticker tokenStats={tokenStats} /></div>
+          <div style={{ margin: "0 -36px" }}><Ticker tokenStats={tokenStats} vstats={vstats} /></div>
 
           {/* ── STATS ── */}
           <section>
@@ -284,7 +287,9 @@ export default function Home() {
               <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 30, alignItems: "center" }}>
                 <div>
                   <div className="eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>The pack</div>
-                  <h2 className="display" style={{ fontSize: 48, lineHeight: 1, color: "white", margin: "6px 0 14px" }}>14,902 wolves and counting.</h2>
+                  <h2 className="display" style={{ fontSize: 48, lineHeight: 1, color: "white", margin: "6px 0 14px" }}>
+                    {vstats ? `${vstats.holderCount.toLocaleString()} wolves and counting.` : "Wolves joining every day."}
+                  </h2>
                   <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)" }}>Drop into the den. Memes, alpha, daily quests, and weekly $BATTLE raffles for active members.</p>
                   <div className="row" style={{ gap: 10, marginTop: 20, flexWrap: "wrap" }}>
                     <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noreferrer" className="btn lg primary">✈ Telegram</a>
