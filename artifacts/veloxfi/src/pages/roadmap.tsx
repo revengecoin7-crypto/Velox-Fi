@@ -5,34 +5,34 @@ const PHASES = [
   {
     num: 1, label: "BUILD & LAUNCH", emoji: "🔥", status: "done" as const,
     color: "#6BCB77",
-    items: ["Platform development complete","4 arcade games live (Snake, Tetris, Runner, Rocket)","$BATTLE token launched on pump.fun","Mining system live","Website live at veloxfi.io","Community started on Telegram & X"],
+    items: ["$BATTLE token launched on pump.fun","Free 4-hour WOLF mining live","Wallet linking + Solana payouts","Website live at veloxfi.io","Community started on Telegram & X"],
   },
   {
     num: 2, label: "GROW", emoji: "📈", status: "active" as const,
     color: "#4CC9F0",
-    items: ["Leaderboard Season 1 — top WOLF earners","More games added to the arena","Mobile-friendly experience","Referral system: earn bonus WOLF","Influencer partnerships","Community milestones & giveaways"],
+    items: ["Live leaderboard (top $BATTLE holders)","Mobile-friendly experience","Daily streak rewards","Referral system: earn bonus WOLF","Influencer partnerships","Community milestones & giveaways"],
   },
   {
-    num: 3, label: "COMPETE", emoji: "⚔️", status: "upcoming" as const,
+    num: 3, label: "DISTRIBUTE", emoji: "💱", status: "upcoming" as const,
     color: "#FFD93D",
-    items: ["Tournament mode — weekly competitions","Live season rewards in $BATTLE","Prize pools for top players","Featured player spotlights","Community voting on new games"],
+    items: ["Capped buyback distribution pool (95M $BATTLE)","Conversion waitlist when pool depletes","Live emission tracker on homepage","Transparent buyback receipts","Holder count >5k"],
   },
   {
     num: 4, label: "SCALE", emoji: "🚀", status: "upcoming" as const,
     color: "#FF9F43",
-    items: ["DexScreener & DEX aggregator listings","Native mobile app (iOS & Android)","CEX listing pursuit","Expanded marketing campaign","Ambassador program launch"],
+    items: ["DexScreener listing (post-migration)","Raydium liquidity migration","Native mobile experience","CEX listing pursuit","Ambassador program"],
   },
   {
     num: 5, label: "GLOBAL EXPANSION", emoji: "🌍", status: "upcoming" as const,
     color: "#A29BFE",
-    items: ["DAO governance — community votes on features","VeloxFi grants for game developers","Multi-language platform support","Global community events","#1 crypto game arena on Solana"],
+    items: ["Community treasury and DAO voting","Wolf NFT mint","Multi-language platform support","Merch drop and IRL meetups","Cross-chain bridge"],
   },
 ];
 
 export default function Roadmap() {
   usePageMeta({
-    title: "Roadmap — VeloxFi Game Arena | From Launch to Global Crypto Gaming",
-    description: "Follow the VeloxFi roadmap. From our live game arena launch, to tournaments, mobile app, CEX listings, DAO governance, and becoming the #1 crypto game arena on Solana.",
+    title: "Roadmap — VeloxFi | From pump.fun launch to global distribution",
+    description: "Follow the VeloxFi roadmap. From our pump.fun token launch and free WOLF mining, to capped buyback distribution, Raydium migration, CEX listings and global expansion.",
     canonical: "https://veloxfi.io/roadmap",
   });
 
@@ -48,7 +48,7 @@ export default function Roadmap() {
           <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
             THE <span style={{ color: "#A29BFE" }}>ROADMAP</span>
           </h1>
-          <p className="font-fredoka text-lg text-gray-600">Our journey to #1 crypto game arena on Solana 🐺</p>
+          <p className="font-fredoka text-lg text-gray-600">From pump.fun launch to capped buyback distribution 🐺</p>
         </div>
 
         <div className="relative">
@@ -116,14 +116,14 @@ export default function Roadmap() {
           <div className="text-5xl mb-3">🚀</div>
           <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">JOIN THE JOURNEY</h2>
           <p className="font-fredoka text-gray-600 text-base mb-6">
-            We're in Phase 2 — play games, climb the leaderboard, and be part of the early community.
+            We're in Phase 2 — start mining, climb the leaderboard, and be part of the early community.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="/games" className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
-              PLAY NOW 🎮
-            </a>
-            <a href="/mine" className="cartoon-btn cartoon-btn-white px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
+            <a href="/mine" className="cartoon-btn cartoon-btn-dark px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
               START MINING ⛏️
+            </a>
+            <a href="/convert" className="cartoon-btn cartoon-btn-white px-10 py-4 text-sm" style={{ textDecoration: "none" }}>
+              CONVERT WOLF 💱
             </a>
           </div>
         </div>

@@ -71,7 +71,7 @@ export default function Login() {
           </div>
 
           <div className="row" style={{ marginTop: 24, gap: 8, flexWrap: "wrap" }}>
-            {["🔒 Non-custodial", "⚡ 1-click claim", "🎮 6 games", "🐺 14k+ pack"].map((t) => (
+            {["🔒 Non-custodial", "⚡ 1-click claim", "⛏ 4-hour sessions", "🐺 Free mining"].map((t) => (
               <span key={t} className="pill" style={{ background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.3)", color: "white" }}>{t}</span>
             ))}
           </div>

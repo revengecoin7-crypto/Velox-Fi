@@ -91,13 +91,13 @@ export default function Home() {
             <div>
               <div className="row" style={{ gap: 8, marginBottom: 18 }}>
                 <span className="pill dot">LIVE ON PUMP.FUN</span>
-                <span className="pill" style={{ background: "var(--cream)" }}>v2 — Pack mode just dropped</span>
+                <span className="pill" style={{ background: "var(--cream)" }}>Capped buyback distribution</span>
               </div>
               <h1 className="display" style={{ fontSize: 90, lineHeight: 0.92, margin: 0 }}>
                 MINE.<br />EARN.<br /><span style={{ color: "var(--magenta)" }}>HOWL.</span>
               </h1>
               <p style={{ fontSize: 18, lineHeight: 1.45, maxWidth: 520, marginTop: 22, color: "var(--ink-soft)" }}>
-                Veloxfi is the cyber-wolf meme coin on Solana. Mine <b>$BATTLE</b> every day, complete daily missions, grow your wolf companion, and climb the pack on a leaderboard that pays in real tokens. No presale. No team allocation. Just the wolves.
+                Veloxfi is the cyber-wolf meme coin on Solana. Mine free <b>WOLF</b> every day, convert to <b>$BATTLE</b> on pump.fun at 5,000:1, and climb the leaderboard. No presale, no team allocation, no game gimmicks. Just mine, claim, and hold.
               </p>
               <div className="row" style={{ marginTop: 26, gap: 12, flexWrap: "wrap" }}>
                 <Link href="/register" className="btn lg magenta">Join the pack →</Link>
@@ -257,11 +257,11 @@ export default function Home() {
               <div style={{ position: "relative", display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 18 }}>
                 <div style={{ position: "absolute", left: 14, right: 14, top: 13, height: 0, borderTop: "2px dashed rgba(11,11,26,0.12)", zIndex: 0 }} />
                 {[
-                  { q: "Q1", t: "Howl begins", items: ["Pump.fun launch", "Mining v1", "10k holders", "DEXTools listing"], done: true },
-                  { q: "Q2", t: "Game den opens", items: ["4 arcade games", "Leaderboard", "Daily quests", "Web app v2"], done: true },
-                  { q: "Q3", t: "Pack mode", items: ["Multiplayer raids", "2 new games", "Mobile beta", "$BATTLE staking"], done: false, now: true },
-                  { q: "Q4", t: "CEX & NFT", items: ["Tier-1 CEX listing", "Wolf NFT mint", "Cross-chain bridge", "Partnerships"], done: false },
-                  { q: "Q1+", t: "Veloxverse", items: ["Open world game", "Wolf DAO", "Merch drop", "IRL meetups"], done: false },
+                  { q: "Q1", t: "Howl begins",   items: ["Pump.fun launch", "Mining v1 live", "Wallet linking", "DEXTools listing"], done: true },
+                  { q: "Q2", t: "Pack grows",    items: ["Leaderboard live", "Daily streak rewards", "Mobile-friendly UI", "Referral system"], done: true },
+                  { q: "Q3", t: "Distribution",  items: ["$BATTLE buyback pool", "Conversion waitlist", "Live emission tracker", "Holder count >5k"], done: false, now: true },
+                  { q: "Q4", t: "Listings",      items: ["Raydium migration", "Tier-2 CEX listing", "Cross-chain bridge", "Audit + transparency report"], done: false },
+                  { q: "Q1+", t: "Pack future",  items: ["Wolf NFT mint", "Community treasury", "Merch drop", "IRL meetups"], done: false },
                 ].map((r) => (
                   <div key={r.q} style={{ position: "relative", zIndex: 1 }}>
                     <div className="row" style={{ marginBottom: 12 }}>
@@ -314,10 +314,10 @@ export default function Home() {
             <div className="section-title"><div><div className="eyebrow">FAQ</div><h2>Quick answers</h2></div></div>
             <div className="grid-2">
               {[
-                ["Do I need to buy $BATTLE to start?", "No. Anyone can register with a wallet or email and start mining for free. Buying $BATTLE boosts your hash rate and unlocks higher tiers."],
-                ["How is mining different from buying?", "Mining gives you daily passive $BATTLE based on your rig level. Buying lets you skip the grind and gives you tradeable tokens immediately."],
-                ["Is this audited?", "The token contract is a standard SPL. The mint authority is revoked and LP is burned. A full audit of the game backend is scheduled for Q3."],
-                ["Where can I buy?", "Pump.fun (linked above), Raydium, Jupiter aggregator, or directly via the wallet inside Veloxfi."],
+                ["Do I need to buy $BATTLE to start?", "No. Anyone can register with a wallet or email and start mining WOLF for free. WOLF converts to $BATTLE at 5,000:1 — no minimum."],
+                ["How does mining work?", "Press start, leave the tab. Sessions run 4 hours and pay 1 WOLF/minute (240 WOLF max per session). When done, claim and start the next session."],
+                ["Is the contract trustworthy?", "Standard SPL on Solana. Mint authority is revoked, LP is burned, and the distribution pool is capped at the $BATTLE the team has already bought back on pump.fun."],
+                ["Where can I buy $BATTLE?", "Directly on pump.fun (linked above), or once we migrate to Raydium, via Jupiter aggregator."],
               ].map(([q, a]) => (
                 <div className="card" key={String(q)}>
                   <div className="display" style={{ fontSize: 18, marginBottom: 6 }}>{q}</div>
@@ -345,7 +345,7 @@ export default function Home() {
                 </p>
               </div>
               {[
-                { title: "Product", links: [["Mining", "/mine"], ["Games", "/games"], ["Leaderboard", "/leaderboard"]] },
+                { title: "Product", links: [["Mining", "/mine"], ["Wallet", "/convert"], ["Leaderboard", "/leaderboard"]] },
                 { title: "Community", links: [["Pump.fun", "#"], ["X / Twitter", "#"], ["Telegram", "#"]] },
                 { title: "Resources", links: [["Whitepaper", "/whitepaper"], ["FAQ", "/faq"], ["Privacy", "/privacy"]] },
               ].map((col) => (

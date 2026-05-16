@@ -6,52 +6,47 @@ import MemeShell from "@/components/MemeShell";
 const FAQS = [
   {
     q: "What is VeloxFi?",
-    a: "VeloxFi is a play-to-earn game arena on Solana. You play arcade games and mine WOLF tokens for free. Collect 5,000 WOLF and convert them to $BATTLE — a real Solana token live on pump.fun.",
+    a: "VeloxFi is a mining-only meme coin platform on Solana. You mine WOLF tokens for free in 4-hour sessions, then convert them to $BATTLE — a real Solana token live on pump.fun. No presale, no team allocation, no gimmicks.",
     color: "#4CC9F0", emoji: "🐺",
   },
   {
-    q: "How do I earn WOLF tokens?",
-    a: "Two ways: (1) Play any of the 4 arcade games — you earn 1 WOLF per coin/point collected in-game. (2) Start a mining session every 8 hours and claim free WOLF when it completes.",
-    color: "#6BCB77", emoji: "💰",
-  },
-  {
-    q: "What is WOLF token?",
-    a: "WOLF is the in-game currency of VeloxFi. It has no direct monetary value but can be converted to $BATTLE tokens (5,000 WOLF = 1 $BATTLE). You earn it by playing games or mining.",
-    color: "#FFD93D", emoji: "🐺",
-  },
-  {
     q: "How does mining work?",
-    a: "Once you register, you can start a free mining session from the Mine page. The session runs passively for 8 hours. Come back, click Claim, and your WOLF tokens are added to your balance. Then start again.",
+    a: "Once you register, start a free mining session from the Mine page. The session runs passively for 4 hours and pays 1 WOLF per minute (240 WOLF max per session). Come back, click Claim, and start the next session.",
     color: "#FF9F43", emoji: "⛏️",
   },
   {
-    q: "What games are available?",
-    a: "There are 4 games: Crypto Snake (eat coins to grow), Battle Tetris (clear lines), Wolf Run (runner — collect coins), and Rocket Miner (shoot asteroids). All earn WOLF tokens during 120-second sessions.",
-    color: "#4CC9F0", emoji: "🎮",
+    q: "What is WOLF and what is $BATTLE?",
+    a: "WOLF is the in-platform credit you earn by mining. It has no monetary value on its own. $BATTLE is the real Solana SPL token on pump.fun. You convert WOLF to $BATTLE at a fixed 5,000:1 rate — no minimum, fractional amounts allowed.",
+    color: "#FFD93D", emoji: "🔄",
   },
   {
     q: "How do I convert WOLF to $BATTLE?",
-    a: "Go to the Convert page, enter how many WOLF you want to convert (minimum 5,000), enter your Solana wallet address, and submit. We send the $BATTLE tokens to your wallet.",
+    a: "Go to the Convert page, enter how many WOLF you want to convert and your Solana wallet address. We'll send the $BATTLE to your wallet within 24 hours. If our distribution pool is depleted at that moment, your request joins a waitlist — your WOLF stays untouched.",
     color: "#FF6B9D", emoji: "💱",
   },
   {
-    q: "What is $BATTLE token?",
-    a: "$BATTLE is a real Solana token launched on pump.fun. Contract address: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump. Total supply: 1 billion. You can buy it directly on pump.fun or earn it through WOLF.",
+    q: "Why is the distribution pool capped?",
+    a: "Every $BATTLE we hand out has been bought back on the open market at pump.fun (capped at 95M $BATTLE). We don't mint new supply — we just redistribute what we've already purchased. When the pool runs low, new conversion requests go to a waitlist until we refill it.",
+    color: "#08D1F2", emoji: "🛡️",
+  },
+  {
+    q: "What is the $BATTLE token contract?",
+    a: "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump — standard SPL on Solana. Mint authority is revoked, LP is burned. You can buy it directly on pump.fun.",
     color: "#FF9F43", emoji: "⚔️",
   },
   {
     q: "How do I buy $BATTLE directly?",
-    a: "Go to pump.fun and search for the contract address: HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump. You need a Phantom wallet with SOL to buy it. Or use the Buy $BATTLE link in our navigation.",
+    a: "Open pump.fun, paste the contract address (HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump), and swap SOL for $BATTLE from your Phantom wallet.",
     color: "#A29BFE", emoji: "🛒",
   },
   {
     q: "Which wallet do I need?",
-    a: (<>You need Phantom wallet on Solana to receive $BATTLE tokens. Download it at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#4CC9F0" }}>phantom.app</a>. Playing games and mining WOLF does not require a wallet — only converting to $BATTLE does.</>),
+    a: (<>You need Phantom wallet on Solana to receive $BATTLE tokens. Download it at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#4CC9F0" }}>phantom.app</a>. Mining WOLF does not require a wallet — only converting to $BATTLE does.</>),
     color: "#6BCB77", emoji: "👛",
   },
   {
     q: "Is VeloxFi free to use?",
-    a: "Yes! Playing games and mining WOLF is completely free. You only need a wallet when you convert WOLF to $BATTLE tokens, which get sent to your Solana address.",
+    a: "Yes. Registering and mining WOLF is completely free. You only need a wallet when you convert WOLF to $BATTLE tokens, which get sent to your Solana address.",
     color: "#6BCB77", emoji: "✅",
   },
   {
@@ -68,8 +63,8 @@ const FAQS = [
 
 export default function FAQ() {
   usePageMeta({
-    title: "FAQ — VeloxFi Game Arena | Earn WOLF, Mine Crypto, $BATTLE Token",
-    description: "Frequently asked questions about VeloxFi. Learn how to earn WOLF tokens, mine crypto for free, convert to $BATTLE, play games on Solana, and how the platform works.",
+    title: "FAQ — VeloxFi | Mine WOLF, Convert to $BATTLE on Solana",
+    description: "Frequently asked questions about VeloxFi. Learn how to mine WOLF tokens for free, convert to $BATTLE on Solana, the capped buyback pool, and how the platform works.",
     canonical: "https://veloxfi.io/faq",
   });
 
@@ -136,10 +131,10 @@ export default function FAQ() {
               style={{ background: "#1a1a1a", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #666", textDecoration: "none", color: "white", borderRadius: "12px" }}>
               𝕏 Follow on X
             </a>
-            <a href="/games"
+            <a href="/mine"
               className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
               style={{ textDecoration: "none" }}>
-              🎮 PLAY NOW
+              ⛏ START MINING
             </a>
           </div>
         </div>

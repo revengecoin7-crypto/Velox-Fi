@@ -10,7 +10,7 @@ const HOW_TO_BUY = [
   { step: "01", title: "Get a Solana wallet", desc: "Download Phantom or Solflare and create a new wallet. Keep your seed phrase safe!", color: "#FFD93D", icon: "👛" },
   { step: "02", title: "Buy SOL",             desc: "Buy SOL on Coinbase, Binance, or any exchange and send it to your wallet.", color: "#4CC9F0", icon: "💳" },
   { step: "03", title: "Go to pump.fun",      desc: "Open the link below, paste the contract address, and swap SOL for $BATTLE.", color: "#FF6B9D", icon: "🚀" },
-  { step: "04", title: "Hold & earn WOLF",    desc: "Play games and mine WOLF tokens. 5000 WOLF = 1 $BATTLE. Stack up!", color: "#6BCB77", icon: "🏆" },
+  { step: "04", title: "Hold & mine WOLF",    desc: "Run free 4-hour mining sessions and convert WOLF to $BATTLE (5000:1). Stack up!", color: "#6BCB77", icon: "🏆" },
 ];
 
 export default function Presale() {
@@ -122,14 +122,14 @@ export default function Presale() {
         <div className="cartoon-card-yellow p-8 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
           <h3 className="font-bungee text-2xl text-[#1a1a1a] mb-3">EARN MORE $BATTLE</h3>
           <p className="font-fredoka text-[#333] text-lg mb-6 max-w-md mx-auto">
-            Play games and mine WOLF tokens for free. Convert <strong>5000 WOLF = 1 $BATTLE</strong> whenever you're ready.
+            Mine WOLF tokens for free. Convert <strong>5000 WOLF = 1 $BATTLE</strong> whenever you're ready.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="/games" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
-              PLAY GAMES
-            </a>
-            <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
+            <a href="/mine" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
               START MINING
+            </a>
+            <a href="/convert" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>
+              CONVERT WOLF
             </a>
           </div>
         </div>
