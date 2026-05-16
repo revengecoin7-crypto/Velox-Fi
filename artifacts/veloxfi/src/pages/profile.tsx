@@ -1,82 +1,119 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
-import { calcUserStats } from "@/lib/userStats";
+import { calcUserStats, type UserStats } from "@/lib/userStats";
 
-// ── One-time achievements ──
-const ONE_TIME_ACHIEVEMENTS = [
-  { name: "First Howl",      desc: "Registered and claimed once.",            icon: "🐺", color: "var(--cyan)",    xp: 100,  date: "Day 001", unlocked: true },
-  { name: "Speed Miner",     desc: "Claimed within 1hr of rig start.",        icon: "⚡", color: "var(--yellow)", xp: 250,  date: "Day 003", unlocked: true },
-  { name: "Alpha Hunter",    desc: "Reached top 200 on leaderboard.",         icon: "🏆", color: "var(--lime)",   xp: 750,  date: "Day 031", unlocked: true, rare: true },
-  { name: "Pack Leader",     desc: "Invited 10 wolves to the pack.",          icon: "👥", color: "var(--magenta)",xp: 1000, unlocked: false },
-  { name: "Diamond Paws",    desc: "Hold 100k $BATTLE at once.",              icon: "💎", color: "var(--cyan)",   xp: 1500, unlocked: false },
-  { name: "Night Owl",       desc: "Connected to the site at 3am.",           icon: "🦉", color: "var(--lavender)",xp: 200, unlocked: false, hidden: true },
-  { name: "30-Day Howl",     desc: "Log in for 30 consecutive days.",         icon: "📅", color: "var(--tomato)", xp: 2000, unlocked: false },
-  { name: "Genesis Wolf",    desc: "One of the first 1,000 registered.",      icon: "🌟", color: "#FFD700",       xp: 5000, unlocked: false, rare: true },
+interface ProfileData {
+  user:      { username: string; tokens: number; xp: number; referralCount: number };
+  stats:     { totalBattles: number; totalWins: number; totalLosses: number; totalTokens: number };
+  battles:   any[];
+  achievements: { achievementId: string; earnedAt: string }[];
+  missions:  {
+    date:           string;
+    battlesPlayed:  number;
+    thirtyMinWins:  number;
+    teamBattles:    number;
+    referrals:      number;
+    m1Rewarded:     boolean;
+    m2Rewarded:     boolean;
+    m3Rewarded:     boolean;
+    m4Rewarded:     boolean;
+  };
+  gameActivity: { game: string; plays: number; totalWolf: number }[];
+}
+
+// Achievement definitions: each evaluator returns { unlocked, progress, pct, requirement }
+interface OneTimeAchievement {
+  id:     string;
+  name:   string;
+  desc:   string;
+  icon:   string;
+  color:  string;
+  xp:     number;
+  rare?:  boolean;
+  hidden?: boolean;
+  unlocked: (s: UserStats, gamesPlayed: number, refCount: number, achievementIds: Set<string>) => boolean;
+}
+
+const ONE_TIME_DEFS: OneTimeAchievement[] = [
+  { id: "first_howl",   name: "First Howl",   desc: "Registered and claimed once.",        icon: "🐺", color: "var(--cyan)",     xp: 100,  unlocked: (s) => s.wolfBalance > 0 || !!s.walletAddress },
+  { id: "speed_miner",  name: "Speed Miner",  desc: "Claimed within 1hr of rig start.",    icon: "⚡", color: "var(--yellow)",   xp: 250,  unlocked: (_s, _g, _r, ids) => ids.has("speed_miner") },
+  { id: "alpha_hunter", name: "Alpha Hunter", desc: "Reached top 200 on leaderboard.",     icon: "🏆", color: "var(--lime)",     xp: 750,  rare: true,  unlocked: (_s, _g, _r, ids) => ids.has("alpha_hunter") },
+  { id: "pack_leader",  name: "Pack Leader",  desc: "Invite 10 wolves to the pack.",       icon: "👥", color: "var(--magenta)",  xp: 1000, unlocked: (_s, _g, r) => r >= 10 },
+  { id: "diamond_paws", name: "Diamond Paws", desc: "Hold 100k $BATTLE at once.",          icon: "💎", color: "var(--cyan)",     xp: 1500, unlocked: (s) => s.battleBalance >= 100000 },
+  { id: "thirty_day",   name: "30-Day Howl",  desc: "Log in for 30 consecutive days.",     icon: "📅", color: "var(--tomato)",   xp: 2000, unlocked: (s) => s.dailyStreak >= 30 },
+  { id: "genesis_wolf", name: "Genesis Wolf", desc: "One of the first 1,000 registered.",  icon: "🌟", color: "#FFD700",         xp: 5000, rare: true, unlocked: (_s, _g, _r, ids) => ids.has("genesis_wolf") },
+  { id: "game_shark",   name: "Game Shark",   desc: "Play 50 arcade games.",               icon: "🎮", color: "var(--lavender)", xp: 400,  unlocked: (_s, g) => g >= 50 },
 ];
 
-// ── Tiered achievements ──
-const TIERED_ACHIEVEMENTS = [
-  { name: "Mining Output", icon: "⛏", color: "var(--cyan)",
+interface TieredAchievement {
+  name:   string;
+  icon:   string;
+  color:  string;
+  metric: (s: UserStats, gamesPlayed: number, refCount: number) => number;
+  tiers:  { label: string; req: number; reward: number }[];
+}
+
+const TIERED_DEFS: TieredAchievement[] = [
+  { name: "Mining Output", icon: "⛏", color: "var(--cyan)", metric: (s) => s.xp,
     tiers: [
-      { label: "Bronze",  req: 1000,    reward: 50,   done: true  },
-      { label: "Silver",  req: 10000,   reward: 200,  done: true  },
-      { label: "Gold",    req: 100000,  reward: 500,  done: false, progress: 12840, pct: 12.8 },
-      { label: "Legend",  req: 1000000, reward: 2000, done: false, progress: 12840, pct: 1.3 },
+      { label: "Bronze", req: 1000,    reward: 50   },
+      { label: "Silver", req: 10000,   reward: 200  },
+      { label: "Gold",   req: 100000,  reward: 500  },
+      { label: "Legend", req: 1000000, reward: 2000 },
     ],
   },
-  { name: "Referrals",    icon: "👥", color: "var(--lime)",
+  { name: "Referrals", icon: "👥", color: "var(--lime)", metric: (_s, _g, r) => r,
     tiers: [
-      { label: "Bronze",  req: 1,   reward: 100,  done: true },
-      { label: "Silver",  req: 5,   reward: 300,  done: true },
-      { label: "Gold",    req: 25,  reward: 1000, done: false, progress: 5, pct: 20 },
-      { label: "Legend",  req: 100, reward: 5000, done: false, progress: 5, pct: 5 },
+      { label: "Bronze", req: 1,   reward: 100  },
+      { label: "Silver", req: 5,   reward: 300  },
+      { label: "Gold",   req: 25,  reward: 1000 },
+      { label: "Legend", req: 100, reward: 5000 },
     ],
   },
-  { name: "Daily Streak", icon: "🔥", color: "var(--tomato)",
+  { name: "Daily Streak", icon: "🔥", color: "var(--tomato)", metric: (s) => s.dailyStreak,
     tiers: [
-      { label: "Bronze",  req: 7,  reward: 100,  done: true  },
-      { label: "Silver",  req: 14, reward: 250,  done: false, progress: 7, pct: 50 },
-      { label: "Gold",    req: 21, reward: 500,  done: false, progress: 7, pct: 33 },
-      { label: "Legend",  req: 30, reward: 1000, done: false, progress: 7, pct: 23 },
+      { label: "Bronze", req: 7,  reward: 100  },
+      { label: "Silver", req: 14, reward: 250  },
+      { label: "Gold",   req: 21, reward: 500  },
+      { label: "Legend", req: 30, reward: 1000 },
     ],
   },
-  { name: "Hold $BATTLE", icon: "💎", color: "var(--magenta)",
+  { name: "Hold $BATTLE", icon: "💎", color: "var(--magenta)", metric: (s) => s.battleBalance,
     tiers: [
-      { label: "Bronze",  req: 7,  reward: 150,  done: true  },
-      { label: "Silver",  req: 14, reward: 400,  done: false, progress: 12, pct: 86 },
-      { label: "Gold",    req: 30, reward: 1000, done: false, progress: 12, pct: 40 },
-      { label: "Legend",  req: 90, reward: 5000, done: false, progress: 12, pct: 13 },
+      { label: "Bronze", req: 100,    reward: 150  },
+      { label: "Silver", req: 1000,   reward: 400  },
+      { label: "Gold",   req: 10000,  reward: 1000 },
+      { label: "Legend", req: 100000, reward: 5000 },
     ],
   },
 ];
 
-// Keep original for type compat
-const ACHIEVEMENTS = [
-  { name: "First Howl", desc: "Registered and claimed once.", icon: "🐺", color: "var(--cyan)", xp: 100, date: "Day 001", locked: false },
-  { name: "Speed Miner", desc: "Claimed within 1hr of rig start.", icon: "⚡", color: "var(--yellow)", xp: 250, date: "Day 003", locked: false },
-  { name: "Game Shark", desc: "Won 10 arcade games.", icon: "🎮", color: "var(--magenta)", xp: 500, date: "Day 012", locked: false },
-  { name: "Alpha Hunter", desc: "Reached top 200 on leaderboard.", icon: "🏆", color: "var(--lime)", xp: 750, date: "Day 031", locked: false, rare: true },
-  { name: "Pack Leader", desc: "Invited 5 wolves to the pack.", icon: "👥", color: "var(--lavender)", xp: 400, date: "Day 022", locked: false },
-  { name: "Streak King", desc: "14-day mining streak.", icon: "🔥", color: "var(--tomato)", xp: 600, date: "Day 047", locked: false },
-  { name: "Diamond Paws", desc: "Hold 100k BATTLE at once.", icon: "💎", color: "var(--cyan)", xp: 1000, locked: true, progress: 12, progressText: "12,840 / 100,000" },
-  { name: "Apex Predator", desc: "Reach top 10 on leaderboard.", icon: "👑", color: "var(--yellow)", xp: 2000, locked: true, progress: 0, progressText: "#142 / top 10" },
-  { name: "Tetris Legend", desc: "Win 100 Battle Tetris matches.", icon: "⬛", color: "var(--magenta)", xp: 800, locked: true, progress: 12, progressText: "12 / 100 wins" },
-  { name: "Iron Rig", desc: "Upgrade to Plasma Rig.", icon: "⛏", color: "var(--mute)", xp: 500, locked: true, progress: 85, progressText: "4,280 / 4,500 BATTLE" },
-  { name: "Referral Wolf", desc: "Invite 20 wolves.", icon: "🐾", color: "var(--lime)", xp: 1500, locked: true, progress: 25, progressText: "5 / 20 invites" },
-  { name: "Night Miner", desc: "Mine for 30 consecutive nights.", icon: "🌙", color: "var(--lavender)", xp: 700, locked: true, progress: 23, progressText: "7 / 30 nights" },
-];
+function useProfileData(token: string | null) {
+  const [data, setData] = useState<ProfileData | null>(null);
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/veloxfi/profile", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(setData)
+      .catch(() => {});
+  }, [token]);
+  return data;
+}
 
-const MISSIONS = [
-  { t: "Play any game", icon: "🎮", color: "var(--cyan)", reward: 50, p: 100, progress: "1 / 1", done: true },
-  { t: "Score 1,000 in Wolf Run", icon: "🐾", color: "var(--lime)", reward: 120, p: 100, progress: "1,240 pts", done: true },
-  { t: "Win Battle Tetris", icon: "⬛", color: "var(--magenta)", reward: 200, p: 40, progress: "0 / 1 wins", done: false },
-  { t: "Mine for 60 minutes", icon: "⛏", color: "var(--yellow)", reward: 80, p: 72, progress: "43 / 60 min", done: false },
-  { t: "Invite 1 new wolf", icon: "👤", color: "var(--tomato)", reward: 300, p: 0, progress: "0 / 1", done: false },
-];
+interface MissionView { t: string; icon: string; color: string; reward: number; p: number; progress: string; done: boolean }
 
-function XPRing({ pct }: { pct: number }) {
+function buildMissions(m: ProfileData["missions"] | null): MissionView[] {
+  return [
+    { t: "Play 3 battles",          icon: "⚔",  color: "var(--cyan)",    reward: 50,  p: m ? Math.min(100, (m.battlesPlayed / 3) * 100) : 0, progress: m ? `${m.battlesPlayed} / 3 battles`  : "0 / 3 battles",  done: !!m?.m1Rewarded || (m?.battlesPlayed ?? 0) >= 3 },
+    { t: "Win within 30 min",       icon: "⚡", color: "var(--yellow)",  reward: 120, p: m ? Math.min(100, (m.thirtyMinWins / 1) * 100) : 0, progress: m ? `${m.thirtyMinWins} / 1 wins`      : "0 / 1 wins",      done: !!m?.m2Rewarded || (m?.thirtyMinWins ?? 0) >= 1 },
+    { t: "Play a team battle",      icon: "🤝", color: "var(--magenta)", reward: 200, p: m ? Math.min(100, (m.teamBattles / 1) * 100)   : 0, progress: m ? `${m.teamBattles} / 1 team`       : "0 / 1 team",      done: !!m?.m3Rewarded || (m?.teamBattles ?? 0) >= 1 },
+    { t: "Invite 1 new wolf",       icon: "👤", color: "var(--tomato)",  reward: 300, p: m ? Math.min(100, (m.referrals / 1) * 100)     : 0, progress: m ? `${m.referrals} / 1 referrals`    : "0 / 1 referrals", done: !!m?.m4Rewarded || (m?.referrals ?? 0) >= 1 },
+  ];
+}
+
+function XPRing({ pct, level }: { pct: number; level: number }) {
   const r = 72, cx = 90, cy = 90, sw = 12;
   const circumference = 2 * Math.PI * r;
   const filled = (pct / 100) * circumference;
@@ -95,15 +132,16 @@ function XPRing({ pct }: { pct: number }) {
         <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 25%" }} />
       </div>
       <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)" }}>
-        <span className="pill yellow" style={{ fontSize: 11, whiteSpace: "nowrap" }}>LVL {stats.level}</span>
+        <span className="pill yellow" style={{ fontSize: 11, whiteSpace: "nowrap" }}>LVL {level}</span>
       </div>
     </div>
   );
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const stats = calcUserStats(user);
+  const profile = useProfileData(token);
   const [copied, setCopied] = useState(false);
   const refLink = `veloxfi.io/?ref=${stats.username}`;
   const xp = stats.xp;
@@ -114,6 +152,34 @@ export default function ProfilePage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const refCount    = (user as any)?.referralCount  ?? profile?.user.referralCount ?? 0;
+  const refTokens   = (user as any)?.referralTokens ?? 0;
+  const gamesPlayed = (profile?.gameActivity ?? []).reduce((s, g) => s + g.plays, 0);
+  const achievementIds = new Set((profile?.achievements ?? []).map(a => a.achievementId));
+
+  const oneTime = ONE_TIME_DEFS.map(d => ({
+    ...d,
+    unlocked: d.unlocked(stats, gamesPlayed, refCount, achievementIds),
+    earnedAt: profile?.achievements.find(a => a.achievementId === d.id)?.earnedAt ?? null,
+  }));
+
+  const tiered = TIERED_DEFS.map(t => {
+    const value = t.metric(stats, gamesPlayed, refCount);
+    return {
+      ...t,
+      tiers: t.tiers.map(tier => ({
+        ...tier,
+        done: value >= tier.req,
+        progress: value,
+        pct: Math.min(100, (value / tier.req) * 100),
+      })),
+    };
+  });
+
+  const missions = buildMissions(profile?.missions ?? null);
+  const missionPending = missions.filter(m => !m.done);
+  const missionsUpReward = missionPending.reduce((s, m) => s + m.reward, 0);
 
   return (
     <div className="app-shell">
@@ -136,7 +202,7 @@ export default function ProfilePage() {
             </div>
             <div style={{ padding: "0 28px 28px", display: "grid", gridTemplateColumns: "1fr 2fr 1.2fr", gap: 26, alignItems: "flex-end" }}>
               <div style={{ marginTop: -80 }}>
-                <XPRing pct={xpPct} />
+                <XPRing pct={xpPct} level={stats.level} />
               </div>
               <div style={{ paddingTop: 18 }}>
                 <div className="row" style={{ gap: 8 }}>
@@ -180,14 +246,14 @@ export default function ProfilePage() {
                 <h2>The trophy room</h2>
               </div>
               <div className="grow" />
-              <span className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{ONE_TIME_ACHIEVEMENTS.filter(a => a.unlocked).length} / {ONE_TIME_ACHIEVEMENTS.length} unlocked</span>
+              <span className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{oneTime.filter(a => a.unlocked).length} / {oneTime.length} unlocked</span>
             </div>
             <div className="grid-4">
-              {ONE_TIME_ACHIEVEMENTS.map((a, i) => {
-                const isHidden = !a.unlocked && (a as any).hidden;
+              {oneTime.map((a) => {
+                const isHidden = !a.unlocked && a.hidden;
                 return (
-                  <div key={i} className="card" style={{ padding: 16, opacity: a.unlocked ? 1 : 0.5, position: "relative", background: a.unlocked ? "var(--paper)" : "var(--cream-soft)" }}>
-                    {a.unlocked && (a as any).rare && <div className="sticker" style={{ position: "absolute", top: -10, right: 14, background: "var(--magenta)", color: "white", fontSize: 10, padding: "3px 8px" }}>RARE</div>}
+                  <div key={a.id} className="card" style={{ padding: 16, opacity: a.unlocked ? 1 : 0.5, position: "relative", background: a.unlocked ? "var(--paper)" : "var(--cream-soft)" }}>
+                    {a.unlocked && a.rare && <div className="sticker" style={{ position: "absolute", top: -10, right: 14, background: "var(--magenta)", color: "white", fontSize: 10, padding: "3px 8px" }}>RARE</div>}
                     <div style={{ width: 56, height: 56, borderRadius: 14, background: a.unlocked ? a.color : "var(--cream)", border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: a.unlocked ? "2px 2px 0 0 var(--ink)" : "none" }}>
                       {isHidden ? "❓" : a.unlocked ? a.icon : "🔒"}
                     </div>
@@ -195,7 +261,9 @@ export default function ProfilePage() {
                     <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 4 }}>{isHidden ? "Keep playing to discover this." : a.desc}</div>
                     {a.unlocked && (
                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-                        <span className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{(a as any).date}</span>
+                        <span className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>
+                          {a.earnedAt ? new Date(a.earnedAt).toLocaleDateString() : "earned"}
+                        </span>
                         <span className="display" style={{ fontSize: 14, color: "var(--magenta)" }}>+{a.xp} XP</span>
                       </div>
                     )}
@@ -214,7 +282,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {TIERED_ACHIEVEMENTS.map((a) => (
+              {tiered.map((a) => (
                 <div key={a.name} className="card" style={{ padding: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: a.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "2px 2px 0 0 var(--ink)", flexShrink: 0 }}>{a.icon}</div>
@@ -230,10 +298,10 @@ export default function ProfilePage() {
                         <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>REQ</div>
                         <div className="display tabular" style={{ fontSize: 16 }}>{t.req >= 1000 ? `${(t.req / 1000).toFixed(0)}k` : t.req}</div>
                         <div className="display tabular" style={{ fontSize: 14, color: "var(--magenta)", marginTop: 4 }}>+{t.reward} $B</div>
-                        {!t.done && (t as any).pct !== undefined && (
+                        {!t.done && (
                           <div style={{ marginTop: 8 }}>
-                            <div className="bar"><div className="bar-fill" style={{ width: `${(t as any).pct}%`, background: a.color }} /></div>
-                            <div className="mono" style={{ fontSize: 9, color: "var(--mute)", marginTop: 3 }}>{(t as any).pct.toFixed(1)}%</div>
+                            <div className="bar"><div className="bar-fill" style={{ width: `${t.pct}%`, background: a.color }} /></div>
+                            <div className="mono" style={{ fontSize: 9, color: "var(--mute)", marginTop: 3 }}>{t.pct.toFixed(1)}%</div>
                           </div>
                         )}
                       </div>
@@ -248,13 +316,13 @@ export default function ProfilePage() {
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
             <div>
               <div className="section-title" style={{ marginBottom: 14 }}>
-                <div><div className="eyebrow">Daily missions · resets 11h 24m</div><h2 style={{ fontSize: 26 }}>Today's hunt</h2></div>
+                <div><div className="eyebrow">Daily missions · resets at 00:00 UTC</div><h2 style={{ fontSize: 26 }}>Today's hunt</h2></div>
                 <div className="grow" />
-                <span className="pill yellow">+850 BATTLE up</span>
+                {missionsUpReward > 0 && <span className="pill yellow">+{missionsUpReward} BATTLE up</span>}
               </div>
               <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-                {MISSIONS.map((m, i) => (
-                  <div key={i} className="row" style={{ padding: "14px 18px", borderBottom: i < MISSIONS.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: m.done ? "var(--cream-soft)" : "var(--paper)", gap: 14 }}>
+                {missions.map((m, i) => (
+                  <div key={i} className="row" style={{ padding: "14px 18px", borderBottom: i < missions.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: m.done ? "var(--cream-soft)" : "var(--paper)", gap: 14 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: m.done ? "var(--lime)" : m.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>
                       {m.done ? "✓" : m.icon}
                     </div>
@@ -268,7 +336,7 @@ export default function ProfilePage() {
                         <span className="mono" style={{ fontSize: 11, color: "var(--mute)", flexShrink: 0 }}>{m.progress}</span>
                       </div>
                     </div>
-                    {m.done ? <span style={{ fontSize: 16 }}>✓</span> : <button className="btn sm">Go →</button>}
+                    {m.done ? <span style={{ fontSize: 16 }}>✓</span> : null}
                   </div>
                 ))}
               </div>
@@ -292,25 +360,26 @@ export default function ProfilePage() {
               </div>
               <div className="grid-2" style={{ marginBottom: 14 }}>
                 <div className="card" style={{ textAlign: "center" }}>
-                  <div className="stat-num tabular">5</div>
+                  <div className="stat-num tabular">{refCount}</div>
                   <div className="stat-label">pack size</div>
                 </div>
                 <div className="card" style={{ textAlign: "center" }}>
-                  <div className="stat-num tabular">750</div>
+                  <div className="stat-num tabular">{refTokens.toLocaleString()}</div>
                   <div className="stat-label">bonus earned</div>
                 </div>
               </div>
               <div className="card" style={{ padding: 14 }}>
-                <div style={{ fontSize: 11, color: "var(--mute)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Latest invites</div>
-                {["moonwolf42", "cryptobaby", "shibakid"].map((name) => (
-                  <div key={name} className="row" style={{ padding: "8px 0", borderBottom: "1px dashed rgba(11,11,26,0.12)", gap: 10 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, overflow: "hidden", border: "2px solid var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0 }}>
-                      <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                    <div style={{ flex: 1, fontSize: 13, fontWeight: 600 }}>{name}</div>
-                    <span className="pill" style={{ background: "var(--lime)", fontSize: 10 }}>+150</span>
+                <div style={{ fontSize: 11, color: "var(--mute)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Refer wolves</div>
+                {refCount === 0 ? (
+                  <div style={{ fontSize: 13, color: "var(--mute)", textAlign: "center", padding: 10 }}>
+                    Share your link to invite your first wolf. You'll earn $BATTLE for every active referral.
                   </div>
-                ))}
+                ) : (
+                  <div style={{ fontSize: 13, padding: "4px 0" }}>
+                    You've brought <b>{refCount}</b> wolf{refCount === 1 ? "" : "ves"} to the pack so far —
+                    <b> {refTokens.toLocaleString()} $BATTLE</b> earned in referral bonuses.
+                  </div>
+                )}
               </div>
             </div>
           </div>
