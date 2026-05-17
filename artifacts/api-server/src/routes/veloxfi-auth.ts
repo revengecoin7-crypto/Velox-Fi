@@ -152,18 +152,6 @@ router.get("/veloxfi/user/:username", requireAuth as any, async (req: any, res) 
   });
 });
 
-router.post("/veloxfi/update-tokens", requireAuth as any, async (req: any, res) => {
-  try {
-    const { amount } = req.body;
-    const user = req.veloxfiUser;
-    const newTokens = user.tokens + (parseInt(amount) || 0);
-    await db.update(veloxfiUsers).set({ tokens: newTokens }).where(eq(veloxfiUsers.username, user.username));
-    res.json({ tokens: newTokens });
-  } catch (e) {
-    res.status(500).json({ error: "Server error." });
-  }
-});
-
 router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;

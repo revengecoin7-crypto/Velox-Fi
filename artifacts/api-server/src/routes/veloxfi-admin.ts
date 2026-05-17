@@ -53,6 +53,7 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         username:          veloxfiUsers.username,
         email:             veloxfiUsers.email,
         tokens:            veloxfiUsers.tokens,
+        wolf:              veloxfiUsers.wolf,
         createdAt:         veloxfiUsers.createdAt,
         walletAddress:     veloxfiUsers.walletAddress,
         claimedAt:         veloxfiUsers.claimedAt,
@@ -65,6 +66,7 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         veloxfiUsers.username,
         veloxfiUsers.email,
         veloxfiUsers.tokens,
+        veloxfiUsers.wolf,
         veloxfiUsers.createdAt,
         veloxfiUsers.walletAddress,
         veloxfiUsers.claimedAt,
@@ -120,6 +122,30 @@ router.put("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req: an
     res.json({ ok: true });
   } catch (e) {
     console.error("admin/claims paid error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Reset a user's WOLF and/or $BATTLE balance to 0 — used to clean up
+// suspect balances that came from the old /update-tokens backdoor.
+router.put("/veloxfi/admin/users/:username/reset", requireAdmin as any, async (req: any, res: any) => {
+  try {
+    const username = String(req.params.username ?? "");
+    const resetTokens = req.body?.tokens !== false;   // default true
+    const resetWolf   = req.body?.wolf   !== false;   // default true
+    const patch: { tokens?: number; wolf?: number } = {};
+    if (resetTokens) patch.tokens = 0;
+    if (resetWolf)   patch.wolf   = 0;
+    if (Object.keys(patch).length === 0) {
+      res.status(400).json({ error: "Nothing to reset." }); return;
+    }
+    const result = await db.update(veloxfiUsers).set(patch).where(eq(veloxfiUsers.username, username)).returning({ username: veloxfiUsers.username });
+    if (result.length === 0) {
+      res.status(404).json({ error: "User not found." }); return;
+    }
+    res.json({ ok: true, username, patch });
+  } catch (e) {
+    console.error("admin/users/reset error:", e);
     res.status(500).json({ error: "Server error" });
   }
 });

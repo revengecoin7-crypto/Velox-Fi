@@ -50,6 +50,7 @@ interface AdminUser {
   username:          string;
   email:             string;
   tokens:            number;
+  wolf:              number;
   createdAt:         string;
   walletAddress:     string | null;
   claimedAt:         string | null;
@@ -260,9 +261,10 @@ function DailyBattlesChart({ data }: { data: { date: string; count: number }[] }
 }
 
 function AdminUsers() {
-  const { stats } = useAdminStats();
+  const { stats, refresh } = useAdminStats();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "wallet" | "noClaim">("all");
+  const [resetting, setResetting] = useState<string>("");
 
   const users = stats?.users ?? [];
 
@@ -279,6 +281,20 @@ function AdminUsers() {
 
   const withWallet = users.filter(u => !!u.walletAddress).length;
   const noClaim    = users.filter(u => !u.claimedAt).length;
+
+  async function resetBalance(username: string) {
+    if (!confirm(`Reset ${username}'s WOLF and $BATTLE balance to 0?\n\nThis cannot be undone.`)) return;
+    setResetting(username);
+    try {
+      await fetch(`/api/veloxfi/admin/users/${encodeURIComponent(username)}/reset`, {
+        method: "PUT",
+        headers: adminHeaders(),
+      });
+      refresh();
+    } finally {
+      setResetting("");
+    }
+  }
 
   return (
     <div>
@@ -303,10 +319,10 @@ function AdminUsers() {
         <div className="row" style={{ padding: "12px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)", fontSize: 11, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700, gap: 0 }}>
           <div style={{ flex: 1.5 }}>Wolf</div>
           <div style={{ flex: 1 }}>Wallet</div>
-          <div style={{ width: 90, textAlign: "right" }}>Battles</div>
-          <div style={{ width: 110, textAlign: "right" }}>Earned</div>
-          <div style={{ width: 110, textAlign: "right" }}>Balance</div>
-          <div style={{ width: 90 }}>Claim</div>
+          <div style={{ width: 90, textAlign: "right" }}>WOLF</div>
+          <div style={{ width: 110, textAlign: "right" }}>$BATTLE</div>
+          <div style={{ width: 110 }}>Wallet status</div>
+          <div style={{ width: 80, textAlign: "right" }}>Actions</div>
         </div>
         {stats == null ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--mute)" }}>Loading users…</div>
@@ -327,13 +343,23 @@ function AdminUsers() {
               <div style={{ flex: 1 }} className="mono">
                 <span style={{ fontSize: 11, color: u.walletAddress ? "var(--ink-soft)" : "var(--mute)" }}>{shortAddr(u.walletAddress)}</span>
               </div>
-              <div style={{ width: 90, textAlign: "right" }} className="mono">{u.totalBattles.toLocaleString()}</div>
-              <div style={{ width: 110, textAlign: "right" }} className="mono">{u.totalTokensEarned.toLocaleString()}</div>
-              <div style={{ width: 110, textAlign: "right" }} className="display tabular">{u.tokens.toLocaleString()}</div>
-              <div style={{ width: 90 }}>
-                <span className="pill" style={{ fontSize: 10, background: u.claimedAt ? "var(--lime)" : "var(--cream)", padding: "2px 7px" }}>
-                  {u.claimedAt ? "claimed" : "pending"}
+              <div style={{ width: 90, textAlign: "right" }} className="mono">{(u.wolf ?? 0).toLocaleString()}</div>
+              <div style={{ width: 110, textAlign: "right" }} className="display tabular">{(u.tokens ?? 0).toLocaleString()}</div>
+              <div style={{ width: 110 }}>
+                <span className="pill" style={{ fontSize: 10, background: u.walletAddress ? "var(--lime)" : "var(--cream)", padding: "2px 7px" }}>
+                  {u.walletAddress ? "✓ linked" : "no wallet"}
                 </span>
+              </div>
+              <div style={{ width: 80, textAlign: "right" }}>
+                <button
+                  className="btn sm"
+                  style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}
+                  disabled={resetting === u.username}
+                  onClick={() => resetBalance(u.username)}
+                  title="Reset WOLF and $BATTLE to 0"
+                >
+                  {resetting === u.username ? "…" : "🗑 Reset"}
+                </button>
               </div>
             </div>
           ))
