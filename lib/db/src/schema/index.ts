@@ -11,3 +11,4 @@ export * from "./veloxfi-achievements";
 export * from "./veloxfi-missions";
 export * from "./veloxfi-activity";
 export * from "./veloxfi-waitlist";
+export * from "./veloxfi-daily-actions";

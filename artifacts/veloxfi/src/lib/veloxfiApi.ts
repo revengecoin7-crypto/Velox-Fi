@@ -94,3 +94,40 @@ export function shortAddr(addr: string | null | undefined): string {
   if (!addr || addr.length < 10) return addr ?? "";
   return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
 }
+
+// ── /veloxfi/daily/status ──────────────────────────────────────────────────
+export interface DailyStatus {
+  spin: { availableToday: boolean; lastReward: number | null; rewards: number[]; weights: number[] };
+  chests: Record<string, { ready: boolean; nextAtMs: number; lastReward?: number }>;
+  milestones: Record<string, { day: number; claimed: boolean; available: boolean; reward: number }>;
+  bounties: Record<string, { claimed: boolean; available: boolean; reward: number }>;
+  now: number;
+}
+
+export function useDailyStatus(token: string | null, refreshMs = 30_000) {
+  const [data, setData] = useState<DailyStatus | null>(null);
+  const refresh = () => {
+    if (!token) { setData(null); return; }
+    fetch("/api/veloxfi/daily/status", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setData(d))
+      .catch(() => {});
+  };
+  useEffect(() => {
+    refresh();
+    const id = setInterval(refresh, refreshMs);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, refreshMs]);
+  return { status: data, refresh };
+}
+
+export async function dailyAction(token: string, path: string): Promise<{ ok: boolean; reward?: number; error?: string; nextAtMs?: number }> {
+  const res = await fetch(`/api/veloxfi/daily${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { ok: false, error: data?.error ?? "Request failed", nextAtMs: data?.nextAtMs };
+  return { ok: true, reward: data?.reward };
+}
