@@ -53,6 +53,7 @@ interface AdminUser {
   wolf:              number;
   createdAt:         string;
   walletAddress:     string | null;
+  registrationIp:    string | null;
   claimedAt:         string | null;
   totalBattles:      number;
   totalTokensEarned: number;
@@ -268,6 +269,19 @@ function AdminUsers() {
 
   const users = stats?.users ?? [];
 
+  // Count duplicates so we can flag suspect overlaps in the table.
+  const ipCounts: Record<string, number> = {};
+  const walletCounts: Record<string, number> = {};
+  for (const u of users) {
+    if (u.registrationIp) ipCounts[u.registrationIp] = (ipCounts[u.registrationIp] ?? 0) + 1;
+    if (u.walletAddress)  walletCounts[u.walletAddress] = (walletCounts[u.walletAddress] ?? 0) + 1;
+  }
+  // Stable colour per shared IP so groups are visually obvious at a glance.
+  const sharedIps = Object.entries(ipCounts).filter(([, n]) => n > 1).map(([ip]) => ip);
+  const ipPalette = ["#ff6b6b", "#ffa94d", "#ffd43b", "#69db7c", "#4dabf7", "#da77f2", "#f06595", "#94d82d"];
+  const ipColor: Record<string, string> = {};
+  sharedIps.forEach((ip, i) => { ipColor[ip] = ipPalette[i % ipPalette.length]; });
+
   const filtered = users.filter(u => {
     if (search) {
       const q = search.toLowerCase();
@@ -315,22 +329,51 @@ function AdminUsers() {
         <a className="btn sm" href="/api/veloxfi/admin/export-csv" target="_blank" rel="noreferrer">📋 Export CSV</a>
       </div>
 
+      {(() => {
+        const dupWalletGroups = Object.values(walletCounts).filter(n => n > 1).length;
+        const dupIpGroups = sharedIps.length;
+        const accountsOnSharedIp = sharedIps.reduce((s, ip) => s + ipCounts[ip], 0);
+        const accountsOnSharedWallet = Object.values(walletCounts).filter(n => n > 1).reduce((s, n) => s + n, 0);
+        if (dupWalletGroups === 0 && dupIpGroups === 0) return null;
+        return (
+          <div className="card" style={{ padding: 14, marginBottom: 14, background: "rgba(255,90,74,0.08)", border: "2px solid var(--tomato)" }}>
+            <div className="row" style={{ alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 22 }}>⚠</div>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div className="display" style={{ fontSize: 14 }}>Possible multi-accounts detected</div>
+                <div className="mono" style={{ fontSize: 11, color: "var(--ink-soft)", marginTop: 4 }}>
+                  {dupWalletGroups > 0 && <>{accountsOnSharedWallet} accounts share {dupWalletGroups} wallet{dupWalletGroups === 1 ? "" : "s"}. </>}
+                  {dupIpGroups > 0 && <>{accountsOnSharedIp} accounts share {dupIpGroups} IP{dupIpGroups === 1 ? "" : "s"}.</>}
+                </div>
+                <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 4 }}>
+                  Wallet duplicates work for all accounts. IP tracking only applies to accounts created after 2026-05-16.
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div className="row" style={{ padding: "12px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)", fontSize: 11, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700, gap: 0 }}>
           <div style={{ flex: 1.5 }}>Wolf</div>
           <div style={{ flex: 1 }}>Wallet</div>
-          <div style={{ width: 90, textAlign: "right" }}>WOLF</div>
-          <div style={{ width: 110, textAlign: "right" }}>$BATTLE</div>
-          <div style={{ width: 110 }}>Wallet status</div>
-          <div style={{ width: 80, textAlign: "right" }}>Actions</div>
+          <div style={{ width: 130 }}>IP</div>
+          <div style={{ width: 80, textAlign: "right" }}>WOLF</div>
+          <div style={{ width: 100, textAlign: "right" }}>$BATTLE</div>
+          <div style={{ width: 100 }}>Status</div>
+          <div style={{ width: 70, textAlign: "right" }}>Actions</div>
         </div>
         {stats == null ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--mute)" }}>Loading users…</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--mute)" }}>No users match this filter.</div>
         ) : (
-          filtered.map((u, i) => (
-            <div key={u.username} className="row" style={{ padding: "12px 22px", borderBottom: i < filtered.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: "var(--paper)", gap: 0 }}>
+          filtered.map((u, i) => {
+            const walletShared = !!u.walletAddress && (walletCounts[u.walletAddress] ?? 0) > 1;
+            const ipShared     = !!u.registrationIp && (ipCounts[u.registrationIp] ?? 0) > 1;
+            return (
+            <div key={u.username} className="row" style={{ padding: "12px 22px", borderBottom: i < filtered.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: walletShared ? "rgba(255,90,74,0.07)" : "var(--paper)", gap: 0 }}>
               <div style={{ flex: 1.5, display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 28, height: 28, borderRadius: 8, overflow: "hidden", border: "2px solid var(--ink)", background: "linear-gradient(140deg,#1a1d3a,#2b1a4d)", flexShrink: 0 }}>
                   <img src="/mascot.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -340,17 +383,34 @@ function AdminUsers() {
                   <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>joined {relTime(u.createdAt)}</div>
                 </div>
               </div>
-              <div style={{ flex: 1 }} className="mono">
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6 }} className="mono">
                 <span style={{ fontSize: 11, color: u.walletAddress ? "var(--ink-soft)" : "var(--mute)" }}>{shortAddr(u.walletAddress)}</span>
+                {walletShared && (
+                  <span title={`This wallet is used by ${walletCounts[u.walletAddress!]} accounts`} style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "var(--tomato)", color: "white", fontWeight: 700, letterSpacing: 0.5 }}>
+                    ×{walletCounts[u.walletAddress!]} DUP
+                  </span>
+                )}
               </div>
-              <div style={{ width: 90, textAlign: "right" }} className="mono">{(u.wolf ?? 0).toLocaleString()}</div>
-              <div style={{ width: 110, textAlign: "right" }} className="display tabular">{(u.tokens ?? 0).toLocaleString()}</div>
-              <div style={{ width: 110 }}>
+              <div style={{ width: 130, display: "flex", alignItems: "center", gap: 6 }} className="mono">
+                {u.registrationIp ? (
+                  <>
+                    {ipShared && (
+                      <span title={`Shared by ${ipCounts[u.registrationIp]} accounts`} style={{ width: 8, height: 8, borderRadius: "50%", background: ipColor[u.registrationIp], flexShrink: 0, border: "1px solid var(--ink)" }} />
+                    )}
+                    <span style={{ fontSize: 10, color: ipShared ? "var(--ink)" : "var(--ink-soft)", fontWeight: ipShared ? 700 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.registrationIp}</span>
+                  </>
+                ) : (
+                  <span style={{ fontSize: 10, color: "var(--mute)" }}>—</span>
+                )}
+              </div>
+              <div style={{ width: 80, textAlign: "right" }} className="mono">{(u.wolf ?? 0).toLocaleString()}</div>
+              <div style={{ width: 100, textAlign: "right" }} className="display tabular">{(u.tokens ?? 0).toLocaleString()}</div>
+              <div style={{ width: 100 }}>
                 <span className="pill" style={{ fontSize: 10, background: u.walletAddress ? "var(--lime)" : "var(--cream)", padding: "2px 7px" }}>
                   {u.walletAddress ? "✓ linked" : "no wallet"}
                 </span>
               </div>
-              <div style={{ width: 80, textAlign: "right" }}>
+              <div style={{ width: 70, textAlign: "right" }}>
                 <button
                   className="btn sm"
                   style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}
@@ -358,11 +418,11 @@ function AdminUsers() {
                   onClick={() => resetBalance(u.username)}
                   title="Reset WOLF and $BATTLE to 0"
                 >
-                  {resetting === u.username ? "…" : "🗑 Reset"}
+                  {resetting === u.username ? "…" : "🗑"}
                 </button>
               </div>
             </div>
-          ))
+          );})
         )}
       </div>
 

@@ -57,6 +57,7 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         wolf:              veloxfiUsers.wolf,
         createdAt:         veloxfiUsers.createdAt,
         walletAddress:     veloxfiUsers.walletAddress,
+        registrationIp:    veloxfiUsers.registrationIp,
         claimedAt:         veloxfiUsers.claimedAt,
         totalBattles:      sql<number>`count(${veloxfiBattles.id})::int`,
         totalTokensEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
@@ -70,6 +71,7 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         veloxfiUsers.wolf,
         veloxfiUsers.createdAt,
         veloxfiUsers.walletAddress,
+        veloxfiUsers.registrationIp,
         veloxfiUsers.claimedAt,
       )
       .orderBy(desc(veloxfiUsers.createdAt));
