@@ -20,6 +20,9 @@ import Convert from "@/pages/convert";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Profile from "@/pages/profile";
+import Blog from "@/pages/blog";
+import BlogPost from "@/pages/blog-post";
+import Presale from "@/pages/presale";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -55,6 +58,10 @@ function Router() {
         <Route path="/privacy" component={Privacy} />
         <Route path="/faq" component={FAQ} />
         <Route path="/roadmap" component={Roadmap} />
+        <Route path="/blog/:slug" component={BlogPost} />
+        <Route path="/blog" component={Blog} />
+        <Route path="/buy" component={Presale} />
+        <Route path="/presale" component={Presale} />
         <Route component={NotFound} />
       </Switch>
     </>
