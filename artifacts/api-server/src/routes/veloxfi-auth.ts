@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist, veloxfiActivity, veloxfiWolfEarnings } from "@workspace/db/schema";
 import { getPetBonusPercent } from "./veloxfi-pet";
-import { eq, sql, isNull, desc, gte, and } from "drizzle-orm";
+import { eq, sql, isNull, desc, gte, and, count } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -58,6 +58,20 @@ function getXPInfo(totalXP: number) {
   return { level, levelName: getLevelName(level), currentLevelXP: totalXP - spent, nextLevelXP: level < MAX ? xpToNext(level) : 0, totalXP };
 }
 
+// How many accounts a single IP can register within MAX_PER_IP_WINDOW.
+// Soft enough for shared networks (family, office, cafe Wi-Fi);
+// hard enough to frustrate someone trying to farm 20 accounts from one
+// laptop to grab Daily Den rewards on each.
+const MAX_ACCOUNTS_PER_IP   = 3;
+const MAX_PER_IP_WINDOW_MS  = 24 * 60 * 60 * 1000;
+
+function clientIp(req: Request): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
+  if (Array.isArray(forwarded) && forwarded.length > 0) return String(forwarded[0]).split(",")[0].trim();
+  return req.ip ?? "unknown";
+}
+
 router.post("/veloxfi/register", async (req, res) => {
   try {
     const { username, email, password, referredBy } = req.body;
@@ -72,6 +86,23 @@ router.post("/veloxfi/register", async (req, res) => {
 
     const [existingEmail] = await db.select({ username: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.email, email)).limit(1);
     if (existingEmail) { res.status(409).json({ error: "Email already registered." }); return; }
+
+    // Multi-account guard: how many accounts has this IP made in the last 24h?
+    const ip = clientIp(req).slice(0, 64);
+    const windowStart = new Date(Date.now() - MAX_PER_IP_WINDOW_MS);
+    const [recentRow] = await db
+      .select({ cnt: count() })
+      .from(veloxfiUsers)
+      .where(and(
+        eq(veloxfiUsers.registrationIp, ip),
+        gte(veloxfiUsers.createdAt, windowStart),
+      ));
+    if ((recentRow?.cnt ?? 0) >= MAX_ACCOUNTS_PER_IP) {
+      res.status(429).json({
+        error: `Too many accounts created from this network in the last 24 hours. Try again later, or contact support if you share a network with other wolves.`,
+      });
+      return;
+    }
 
     let validReferrer: string | null = null;
     if (referredBy && typeof referredBy === "string" && referredBy.trim()) {
@@ -93,6 +124,7 @@ router.post("/veloxfi/register", async (req, res) => {
         username, email, passwordHash, tokens: startingTokens, sessionToken: token,
         referredBy: validReferrer ?? undefined,
         emailVerifyToken: verifyToken,
+        registrationIp: ip,
       })
       .returning();
 

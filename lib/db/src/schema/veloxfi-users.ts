@@ -24,4 +24,5 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   emailVerified:      timestamp("email_verified"),
   emailVerifyToken:   text("email_verify_token"),
   lastMiningCompleteEmailAt: timestamp("last_mining_complete_email_at"),
+  registrationIp:     varchar("registration_ip", { length: 64 }),
 });
