@@ -65,6 +65,32 @@ function useProfileData(token: string | null) {
   return data;
 }
 
+interface MyClaim {
+  id:            number;
+  username:      string;
+  walletAddress: string;
+  amount:        number;
+  requestedAt:   string;
+  paidAt:        string | null;
+}
+
+// Polls the user's own claims so the profile reflects admin "mark paid"
+// without needing a manual refresh.
+function useMyClaims(token: string | null) {
+  const [claims, setClaims] = useState<MyClaim[]>([]);
+  useEffect(() => {
+    if (!token) { setClaims([]); return; }
+    const fetch_ = () => fetch("/api/veloxfi/my-claims", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(setClaims)
+      .catch(() => {});
+    fetch_();
+    const id = setInterval(fetch_, 30_000);
+    return () => clearInterval(id);
+  }, [token]);
+  return claims;
+}
+
 function XPRing({ pct, level }: { pct: number; level: number }) {
   const r = 72, cx = 90, cy = 90, sw = 12;
   const circumference = 2 * Math.PI * r;
@@ -94,6 +120,7 @@ export default function ProfilePage() {
   const { user, token } = useAuth();
   const stats = calcUserStats(user);
   const profile = useProfileData(token);
+  const myClaims = useMyClaims(token);
   const tokenStats = useTokenStats();
   const [copied, setCopied] = useState(false);
 
@@ -234,6 +261,68 @@ export default function ProfilePage() {
             <div className="mono" style={{ fontSize: 11, color: "var(--mute)", marginTop: 8 }}>
               {Math.max(0, stats.xpToNextLevel - stats.xp).toLocaleString()} XP to go · earn XP by claiming mining sessions (1 WOLF = 1 XP)
             </div>
+          </div>
+
+          {/* ── WITHDRAWAL HISTORY ── */}
+          <div>
+            <div className="section-title">
+              <div><div className="eyebrow">Withdrawals</div><h2>Your payout requests</h2></div>
+              <div className="grow" />
+              {myClaims.length > 0 && (
+                <span className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>
+                  {myClaims.filter(c => !c.paidAt).length} pending · {myClaims.filter(c => c.paidAt).length} paid
+                </span>
+              )}
+            </div>
+
+            {myClaims.length === 0 ? (
+              <div className="card" style={{ padding: 22, textAlign: "center" }}>
+                <div style={{ fontSize: 36, marginBottom: 10 }}>📭</div>
+                <div className="display" style={{ fontSize: 18 }}>No withdrawals yet</div>
+                <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 6 }}>
+                  Convert WOLF → $BATTLE, then use the Withdraw card on the Wallet page to send $BATTLE to your Solana wallet.
+                </div>
+                <Link href="/convert" className="btn lg primary" style={{ marginTop: 14, display: "inline-flex" }}>💱 Go to Wallet</Link>
+              </div>
+            ) : (
+              <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+                <div className="row" style={{ padding: "12px 22px", borderBottom: "2.5px solid var(--ink)", background: "var(--cream)", fontSize: 11, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700, gap: 0 }}>
+                  <div style={{ flex: 1 }}>Requested</div>
+                  <div style={{ flex: 1.4 }}>Wallet</div>
+                  <div style={{ width: 130, textAlign: "right" }}>Amount</div>
+                  <div style={{ width: 120, textAlign: "right" }}>Status</div>
+                </div>
+                {myClaims.map((c, i) => (
+                  <div key={c.id} className="row" style={{ padding: "12px 22px", borderBottom: i < myClaims.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: c.paidAt ? "rgba(182,242,63,0.06)" : "var(--paper)", gap: 0 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(c.requestedAt).toLocaleDateString()}</div>
+                      <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{new Date(c.requestedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                    </div>
+                    <div style={{ flex: 1.4 }} className="mono">
+                      <span style={{ fontSize: 11, color: "var(--ink-soft)" }}>{shortAddr(c.walletAddress)}</span>
+                    </div>
+                    <div style={{ width: 130, textAlign: "right" }} className="display tabular">
+                      {Number(c.amount).toFixed(4)} <span style={{ fontSize: 11, color: "var(--mute)" }}>$BATTLE</span>
+                    </div>
+                    <div style={{ width: 120, textAlign: "right" }}>
+                      {c.paidAt ? (
+                        <span className="pill" style={{ background: "var(--lime)", fontSize: 10, padding: "3px 9px" }}>✓ Paid</span>
+                      ) : (
+                        <span className="pill" style={{ background: "var(--yellow)", fontSize: 10, padding: "3px 9px" }}>⏳ Pending</span>
+                      )}
+                      {c.paidAt && (
+                        <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 4 }}>
+                          {new Date(c.paidAt).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <div style={{ padding: "10px 22px", background: "var(--cream-soft)", fontSize: 11, color: "var(--mute)" }}>
+                  Pending withdrawals are processed by admin within 24h on weekdays. Once paid, $BATTLE arrives directly in your Solana wallet.
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── ACHIEVEMENTS ── */}

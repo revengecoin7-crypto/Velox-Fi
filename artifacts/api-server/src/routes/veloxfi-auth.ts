@@ -251,7 +251,7 @@ router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
     await db.insert(veloxfiClaims).values({
       username:      user.username,
       walletAddress: user.walletAddress,
-      amount:        Math.floor(claimAmt),
+      amount:        claimAmt,
     });
     await db.insert(veloxfiActivity).values({
       type:     "withdraw",
@@ -261,6 +261,23 @@ router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
     res.json({ ok: true, newTokens, claimAmt });
   } catch (e) {
     console.error("veloxfi/claim error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// Return all withdrawal claims for the authenticated user, newest first.
+// Used by the profile page to show "pending / paid" history.
+router.get("/veloxfi/my-claims", requireAuth as any, async (req: any, res) => {
+  try {
+    const username = req.veloxfiUser.username;
+    const claims = await db
+      .select()
+      .from(veloxfiClaims)
+      .where(eq(veloxfiClaims.username, username))
+      .orderBy(desc(veloxfiClaims.requestedAt));
+    res.json(claims);
+  } catch (e) {
+    console.error("veloxfi/my-claims error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });

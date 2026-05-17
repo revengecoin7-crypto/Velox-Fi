@@ -586,8 +586,8 @@ function AdminTx() {
               <div style={{ fontSize: 13, fontWeight: 600 }}>{c.username}</div>
               <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{shortAddr(c.walletAddress)}</div>
             </div>
-            <div style={{ width: 110, textAlign: "right" }} className="display tabular">
-              <span style={{ color: "#0E6A2A", fontSize: 13 }}>{c.amount.toLocaleString()} $BATTLE</span>
+            <div style={{ width: 130, textAlign: "right" }} className="display tabular">
+              <span style={{ color: "#0E6A2A", fontSize: 13 }}>{Number(c.amount).toFixed(4)} $BATTLE</span>
             </div>
             <div className="mono" style={{ width: 90, fontSize: 11, color: "var(--mute)", textAlign: "right" }}>{relTime(c.requestedAt)}</div>
             <div style={{ width: 100, textAlign: "right" }}>
