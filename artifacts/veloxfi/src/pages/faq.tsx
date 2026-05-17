@@ -1,64 +1,33 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Sidebar } from "@/components/Sidebar";
 
-const FAQS = [
-  {
-    q: "What is VeloxFi?",
-    a: "VeloxFi is a mining-only meme coin platform on Solana. You mine WOLF tokens for free in 4-hour sessions, then convert them to $BATTLE — a real Solana token live on pump.fun. No presale, no team allocation, no gimmicks.",
-    color: "#4CC9F0", emoji: "🐺",
-  },
-  {
-    q: "How does mining work?",
-    a: "Once you register, start a free mining session from the Mine page. The session runs passively for 4 hours and pays 1 WOLF per minute (240 WOLF max per session). Come back, click Claim, and start the next session.",
-    color: "#FF9F43", emoji: "⛏️",
-  },
-  {
-    q: "What is WOLF and what is $BATTLE?",
-    a: "WOLF is the in-platform credit you earn by mining. It has no monetary value on its own. $BATTLE is the real Solana SPL token on pump.fun. You convert WOLF to $BATTLE at a fixed 5,000:1 rate — no minimum, fractional amounts allowed.",
-    color: "#FFD93D", emoji: "🔄",
-  },
-  {
-    q: "How do I convert WOLF to $BATTLE?",
-    a: "Go to the Convert page, enter how many WOLF you want to convert and your Solana wallet address. We'll send the $BATTLE to your wallet within 24 hours. If our distribution pool is depleted at that moment, your request joins a waitlist — your WOLF stays untouched.",
-    color: "#FF6B9D", emoji: "💱",
-  },
-  {
-    q: "Why is the distribution pool capped?",
-    a: "Every $BATTLE we hand out has been bought back on the open market at pump.fun (capped at 95M $BATTLE). We don't mint new supply — we just redistribute what we've already purchased. When the pool runs low, new conversion requests go to a waitlist until we refill it.",
-    color: "#08D1F2", emoji: "🛡️",
-  },
-  {
-    q: "What is the $BATTLE token contract?",
-    a: "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump — standard SPL on Solana. Mint authority is revoked, LP is burned. You can buy it directly on pump.fun.",
-    color: "#FF9F43", emoji: "⚔️",
-  },
-  {
-    q: "How do I buy $BATTLE directly?",
-    a: "Open pump.fun, paste the contract address (HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump), and swap SOL for $BATTLE from your Phantom wallet.",
-    color: "#A29BFE", emoji: "🛒",
-  },
-  {
-    q: "Which wallet do I need?",
-    a: (<>You need Phantom wallet on Solana to receive $BATTLE tokens. Download it at <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#4CC9F0" }}>phantom.app</a>. Mining WOLF does not require a wallet — only converting to $BATTLE does.</>),
-    color: "#6BCB77", emoji: "👛",
-  },
-  {
-    q: "Is VeloxFi free to use?",
-    a: "Yes. Registering and mining WOLF is completely free. You only need a wallet when you convert WOLF to $BATTLE tokens, which get sent to your Solana address.",
-    color: "#6BCB77", emoji: "✅",
-  },
-  {
-    q: "How can I join the community?",
-    a: (<>Join our Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#6BCB77" }}>t.me/VeloxFiOfficial</a> or follow us on X at <a href="https://x.com/Battle767629" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: "#08D1F2" }}>x.com/Battle767629</a>. We're active 24/7.</>),
-    color: "#A29BFE", emoji: "🌐",
-  },
-  {
-    q: "Is VeloxFi available in the US?",
-    a: "No. VeloxFi is not available to US residents due to regulatory restrictions.",
-    color: "#FF6B6B", emoji: "🚫",
-  },
+interface Faq { q: string; a: ReactNode; emoji: string; color: string }
+
+const FAQS: Faq[] = [
+  { q: "What is VeloxFi?",                       emoji: "🐺", color: "var(--cyan)",
+    a: "VeloxFi is a mining-only meme coin platform on Solana. You mine WOLF tokens for free in 4-hour sessions, then convert them to $BATTLE — a real Solana token live on pump.fun. No presale, no team allocation, no gimmicks." },
+  { q: "How does mining work?",                  emoji: "⛏", color: "var(--yellow)",
+    a: "Once you register, start a free mining session from the Mine page. The session runs passively for 4 hours and pays 1 WOLF per minute (240 WOLF max per session). Come back, click Claim, and start the next session." },
+  { q: "What is WOLF and what is $BATTLE?",       emoji: "🔄", color: "var(--lime)",
+    a: "WOLF is the in-platform credit you earn by mining. It has no monetary value on its own. $BATTLE is the real Solana SPL token on pump.fun. You convert WOLF to $BATTLE at a fixed 5,000:1 rate — no minimum, fractional amounts allowed." },
+  { q: "How do I convert WOLF to $BATTLE?",      emoji: "💱", color: "var(--magenta)",
+    a: "Go to the Convert page, enter how many WOLF you want to convert and your Solana wallet address. We'll send the $BATTLE to your wallet within 24 hours. If our distribution pool is depleted at that moment, your request joins a waitlist — your WOLF stays untouched." },
+  { q: "Why is the distribution pool capped?",   emoji: "🛡", color: "var(--cyan)",
+    a: "Every $BATTLE we hand out has been bought back on the open market at pump.fun (capped at 95M $BATTLE). We don't mint new supply — we just redistribute what we've already purchased. When the pool runs low, new conversion requests go to a waitlist until we refill it." },
+  { q: "What is the $BATTLE token contract?",    emoji: "⚔", color: "var(--yellow)",
+    a: "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump — standard SPL on Solana. Mint authority is revoked, LP is burned. You can buy it directly on pump.fun." },
+  { q: "How do I buy $BATTLE directly?",         emoji: "🛒", color: "var(--lavender)",
+    a: "Open pump.fun, paste the contract address (HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump), and swap SOL for $BATTLE from your Phantom wallet." },
+  { q: "Which wallet do I need?",                 emoji: "👛", color: "var(--lime)",
+    a: <>You need Phantom wallet on Solana to receive $BATTLE tokens. Download it at <a href="https://phantom.app" target="_blank" rel="noreferrer" style={{ color: "var(--magenta)", fontWeight: 700 }}>phantom.app</a>. Mining WOLF does not require a wallet — only converting to $BATTLE does.</> },
+  { q: "Is VeloxFi free to use?",                 emoji: "✅", color: "var(--lime)",
+    a: "Yes. Registering and mining WOLF is completely free. You only need a wallet when you convert WOLF to $BATTLE tokens, which get sent to your Solana address." },
+  { q: "How can I join the community?",          emoji: "🌐", color: "var(--lavender)",
+    a: <>Join our Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noreferrer" style={{ color: "var(--magenta)", fontWeight: 700 }}>t.me/VeloxFiOfficial</a> or follow us on X at <a href="https://x.com/Battle767629" target="_blank" rel="noreferrer" style={{ color: "var(--magenta)", fontWeight: 700 }}>x.com/Battle767629</a>. We're active 24/7.</> },
+  { q: "Is VeloxFi available in the US?",        emoji: "🚫", color: "var(--tomato)",
+    a: "No. VeloxFi is not available to US residents due to regulatory restrictions." },
 ];
 
 export default function FAQ() {
@@ -69,77 +38,61 @@ export default function FAQ() {
   });
 
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const toggle = (i: number) => setOpenIndex((prev) => (prev === i ? null : i));
+  const toggle = (i: number) => setOpenIndex(prev => (prev === i ? null : i));
 
   return (
-    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
-      <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="app-shell">
+      <Sidebar />
+      <main style={{ minWidth: 0 }}>
+        <div className="app-main" style={{ display: "flex", flexDirection: "column", gap: 26 }}>
 
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-5 font-bungee text-xs text-[#1a1a1a]"
-            style={{ background: "#4CC9F0", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a" }}>
-            ❓ SUPPORT CENTER
+          <div className="topbar">
+            <div className="crumb">Home / <b>FAQ</b></div>
+            <div className="display" style={{ fontSize: 28, lineHeight: 1, flex: 1 }}>Frequently asked questions.</div>
+            <span className="pill cyan">❓ Support</span>
           </div>
-          <h1 className="font-bungee text-4xl md:text-5xl text-[#1a1a1a] mb-4">
-            FREQUENTLY <span style={{ color: "#4CC9F0" }}>ASKED</span> QUESTIONS
-          </h1>
-          <p className="font-fredoka text-lg text-gray-600">Everything you need to know about VeloxFi 🐺</p>
-        </div>
 
-        <div className="flex flex-col gap-3 mb-12">
-          {FAQS.map((faq, i) => {
-            const isOpen = openIndex === i;
-            return (
-              <div key={i}
-                className="cartoon-card overflow-hidden transition-all duration-200"
-                style={{
-                  boxShadow: isOpen ? `5px 5px 0 ${faq.color}` : "4px 4px 0 #1a1a1a",
-                  borderColor: isOpen ? faq.color : "#1a1a1a",
-                }}>
-                <button onClick={() => toggle(i)}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
-                  style={{ background: isOpen ? faq.color + "15" : "white", border: "none", cursor: "pointer" }}>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl flex-shrink-0">{faq.emoji}</span>
-                    <span className="font-bungee text-sm md:text-base text-[#1a1a1a] leading-snug">{faq.q}</span>
-                  </div>
-                  <ChevronDown className="flex-shrink-0 w-5 h-5 transition-transform duration-300 text-[#1a1a1a]"
-                    style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
-                </button>
-                <div style={{ maxHeight: isOpen ? 300 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}>
-                  <div className="px-6 pb-5 pt-1 pl-[4.5rem] font-fredoka text-sm md:text-base text-gray-600 leading-relaxed">
-                    {faq.a}
-                  </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {FAQS.map((faq, i) => {
+              const isOpen = openIndex === i;
+              return (
+                <div key={i} className="card" style={{ padding: 0, overflow: "hidden", borderColor: isOpen ? "var(--ink)" : undefined }}>
+                  <button onClick={() => toggle(i)} className="row" style={{
+                    width: "100%", padding: "16px 22px", background: isOpen ? "var(--cream)" : "var(--paper)",
+                    border: "none", cursor: "pointer", justifyContent: "space-between", gap: 14, textAlign: "left",
+                  }}>
+                    <div className="row" style={{ gap: 12, minWidth: 0 }}>
+                      <span style={{ width: 36, height: 36, borderRadius: 9, background: faq.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{faq.emoji}</span>
+                      <span className="display" style={{ fontSize: 15, lineHeight: 1.2 }}>{faq.q}</span>
+                    </div>
+                    <span style={{ fontSize: 18, transform: isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 200ms", color: "var(--mute)" }}>▾</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ padding: "12px 22px 20px 70px", fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.6, borderTop: "1px dashed rgba(11,11,26,0.12)" }}>
+                      {faq.a}
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="cartoon-card-yellow p-10 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <div className="text-4xl mb-3">🐺</div>
-          <h2 className="font-bungee text-2xl text-[#1a1a1a] mb-3">STILL HAVE QUESTIONS?</h2>
-          <p className="font-fredoka text-gray-600 text-base mb-6">We're active in our community 24/7 — come say hi!</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noopener noreferrer"
-              className="cartoon-btn px-6 py-3 text-sm font-bungee"
-              style={{ background: "#6BCB77", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #1a1a1a", textDecoration: "none", color: "#1a1a1a", borderRadius: "12px" }}>
-              ✈️ Telegram
-            </a>
-            <a href="https://x.com/Battle767629" target="_blank" rel="noopener noreferrer"
-              className="cartoon-btn px-6 py-3 text-sm font-bungee"
-              style={{ background: "#1a1a1a", border: "2.5px solid #1a1a1a", boxShadow: "3px 3px 0 #666", textDecoration: "none", color: "white", borderRadius: "12px" }}>
-              𝕏 Follow on X
-            </a>
-            <a href="/mine"
-              className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm"
-              style={{ textDecoration: "none" }}>
-              ⛏ START MINING
-            </a>
+              );
+            })}
           </div>
-        </div>
 
-      </div>
-    </main></div>
+          <div className="card magenta" style={{ padding: 30, textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(var(--ink) 1.2px, transparent 1.2px)", backgroundSize: "14px 14px", opacity: 0.12 }} />
+            <div style={{ position: "relative" }}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🐺</div>
+              <h2 className="display" style={{ fontSize: 28, color: "white", margin: "0 0 6px" }}>Still got questions?</h2>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", marginBottom: 18 }}>The pack is active 24/7 — come say hi.</p>
+              <div className="row" style={{ gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                <a className="btn lg" href="https://t.me/VeloxFiOfficial" target="_blank" rel="noreferrer">✈ Telegram</a>
+                <a className="btn lg" href="https://x.com/Battle767629" target="_blank" rel="noreferrer">𝕏 Follow on X</a>
+                <Link href="/mine" className="btn lg primary">⛏ Start mining</Link>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
   );
 }

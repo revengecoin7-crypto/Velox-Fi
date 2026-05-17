@@ -1,6 +1,5 @@
 import type { ReactElement } from "react";
-import { useLocation, useRoute } from "wouter";
-import { ArrowLeft, Clock, Tag } from "lucide-react";
+import { Link, useLocation, useRoute } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Sidebar } from "@/components/Sidebar";
 import { BLOG_POSTS } from "./blog";
@@ -213,16 +212,16 @@ const CONTENT: Record<string, () => ReactElement> = {
   ),
 };
 
-/* ── Prose styles injected inline ── */
+/* ── Prose styles for article body — app-style ── */
 const PROSE_STYLES = `
-  .prose-velox h2 { font-family: 'Bungee', cursive; font-size: 1.25rem; color: #1a1a1a; margin-top: 2rem; margin-bottom: 0.75rem; }
-  .prose-velox h3 { font-family: 'Bungee', cursive; font-size: 1rem; color: #1a1a1a; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-  .prose-velox p  { font-family: 'Fredoka One', cursive; font-size: 1rem; color: #444; line-height: 1.7; margin-bottom: 1rem; }
-  .prose-velox ul, .prose-velox ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-  .prose-velox li { font-family: 'Fredoka One', cursive; font-size: 1rem; color: #444; line-height: 1.7; margin-bottom: 0.4rem; }
-  .prose-velox a  { color: #FF9F43; font-weight: 600; text-decoration: underline; }
-  .prose-velox strong { color: #1a1a1a; font-weight: 700; }
-  .prose-velox code { font-family: monospace; font-size: 0.8rem; background: #f5f0e0; border: 1.5px solid #ddd; border-radius: 6px; padding: 2px 6px; word-break: break-all; }
+  .prose-velox h2 { font-family: 'Bagel Fat One', sans-serif; font-size: 1.4rem; color: var(--ink); margin: 1.8rem 0 0.7rem; line-height: 1.15; }
+  .prose-velox h3 { font-family: 'Bagel Fat One', sans-serif; font-size: 1.1rem; color: var(--ink); margin: 1.4rem 0 0.5rem; line-height: 1.15; }
+  .prose-velox p  { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.7; margin-bottom: 1rem; }
+  .prose-velox ul, .prose-velox ol { margin-bottom: 1rem; padding-left: 1.25rem; }
+  .prose-velox li { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.65; margin-bottom: 0.4rem; }
+  .prose-velox a  { color: var(--magenta); font-weight: 600; text-decoration: underline; }
+  .prose-velox strong { color: var(--ink); font-weight: 700; }
+  .prose-velox code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--cream); border: 1.5px solid var(--ink-soft); border-radius: 6px; padding: 2px 7px; word-break: break-all; }
 `;
 
 export default function BlogPost() {
@@ -240,91 +239,81 @@ export default function BlogPost() {
 
   if (!post || !ContentComponent) {
     return (
-      <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
-        <div className="max-w-3xl mx-auto px-6 py-12 text-center">
-          <div className="text-6xl mb-4">😕</div>
-          <h1 className="font-bungee text-3xl text-[#1a1a1a] mb-4">POST NOT FOUND</h1>
-          <button onClick={() => navigate("/blog")} className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm">
-            BACK TO BLOG
-          </button>
-        </div>
-      </main></div>
+      <div className="app-shell">
+        <Sidebar />
+        <main style={{ minWidth: 0 }}>
+          <div className="app-main" style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div style={{ fontSize: 56, marginBottom: 14 }}>😕</div>
+            <h1 className="display" style={{ fontSize: 32, marginBottom: 14 }}>Post not found</h1>
+            <button onClick={() => navigate("/blog")} className="btn lg primary">← Back to blog</button>
+          </div>
+        </main>
+      </div>
     );
   }
 
   return (
-    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
-      <style>{PROSE_STYLES}</style>
-      <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="app-shell">
+      <Sidebar />
+      <main style={{ minWidth: 0 }}>
+        <style>{PROSE_STYLES}</style>
+        <div className="app-main" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
 
-        {/* Back */}
-        <button onClick={() => navigate("/blog")}
-          className="flex items-center gap-2 font-bungee text-sm mb-8 hover:opacity-70 transition-opacity"
-          style={{ background: "none", border: "none", cursor: "pointer", color: "#1a1a1a" }}>
-          <ArrowLeft className="w-4 h-4" /> ALL POSTS
-        </button>
-
-        {/* Header */}
-        <div className="cartoon-card overflow-hidden mb-8" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <div className="p-4 flex items-center justify-between"
-            style={{ background: post.color, borderBottom: "2.5px solid #1a1a1a" }}>
-            <div className="flex items-center gap-3">
-              <Clock className="w-4 h-4 text-[#1a1a1a]" />
-              <span className="font-bungee text-xs text-[#1a1a1a]">{post.readTime} read</span>
-            </div>
-            <span className="text-3xl">{post.emoji}</span>
+          <div className="topbar">
+            <div className="crumb">Home / <Link href="/blog" style={{ color: "inherit" }}>Blog</Link> / <b>{post.title.slice(0, 32)}…</b></div>
+            <button onClick={() => navigate("/blog")} className="btn sm">← All posts</button>
           </div>
-          <div className="p-8">
-            <div className="flex gap-2 flex-wrap mb-4">
-              {post.tags.map((tag) => (
-                <span key={tag} className="flex items-center gap-1 font-bungee text-xs px-3 py-1 rounded-lg"
-                  style={{ background: post.color + "22", border: `1.5px solid ${post.color}`, color: "#1a1a1a" }}>
-                  <Tag className="w-3 h-3" />{tag}
-                </span>
+
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="row" style={{ padding: "12px 22px", background: post.color, borderBottom: "2.5px solid var(--ink)" }}>
+              <span className="mono" style={{ fontSize: 11 }}>{post.readTime} read</span>
+              <div className="grow" />
+              <span style={{ fontSize: 26 }}>{post.emoji}</span>
+            </div>
+            <div style={{ padding: 28 }}>
+              <div className="row" style={{ gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+                {post.tags.map(tag => (
+                  <span key={tag} className="pill" style={{ background: post.color, fontSize: 10 }}>{tag}</span>
+                ))}
+              </div>
+              <h1 className="display" style={{ fontSize: 30, lineHeight: 1.1, marginBottom: 10 }}>{post.title}</h1>
+              <p style={{ fontSize: 16, color: "var(--ink-soft)", lineHeight: 1.55 }}>{post.intro}</p>
+              <p className="mono" style={{ fontSize: 11, color: "var(--mute)", marginTop: 12 }}>
+                {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              </p>
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 28 }}>
+            <ContentComponent />
+          </div>
+
+          <div className="card yellow" style={{ padding: 28, textAlign: "center" }}>
+            <h3 className="display" style={{ fontSize: 22, margin: "0 0 6px" }}>Start mining now</h3>
+            <p style={{ fontSize: 14, color: "var(--ink-soft)", marginBottom: 16 }}>Free 4-hour sessions. Convert WOLF to $BATTLE at 5,000:1.</p>
+            <div className="row" style={{ gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/register" className="btn lg primary">🚀 Create account</Link>
+              <Link href="/mine" className="btn lg">⛏ Start mining</Link>
+            </div>
+          </div>
+
+          <div>
+            <div className="section-title"><div><div className="eyebrow">Read next</div><h2>More articles</h2></div></div>
+            <div className="grid-2">
+              {BLOG_POSTS.filter(p => p.slug !== slug).slice(0, 4).map(p => (
+                <button key={p.slug} onClick={() => navigate(`/blog/${p.slug}`)} className="card" style={{ textAlign: "left", padding: 14, cursor: "pointer", background: "var(--paper)" }}>
+                  <div className="row" style={{ gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 18 }}>{p.emoji}</span>
+                    <span className="mono" style={{ fontSize: 10, color: p.color }}>{p.readTime}</span>
+                  </div>
+                  <div className="display" style={{ fontSize: 14, lineHeight: 1.25 }}>{p.title}</div>
+                </button>
               ))}
             </div>
-            <h1 className="font-bungee text-2xl md:text-3xl text-[#1a1a1a] mb-3 leading-snug">{post.title}</h1>
-            <p className="font-fredoka text-gray-600 text-lg leading-relaxed">{post.intro}</p>
-            <p className="font-fredoka text-xs text-gray-400 mt-3">
-              {new Date(post.date).toLocaleDateString("nl-NL", { year: "numeric", month: "long", day: "numeric" })}
-            </p>
           </div>
-        </div>
 
-        {/* Article body */}
-        <div className="cartoon-card p-8 mb-10" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <ContentComponent />
         </div>
-
-        {/* CTA */}
-        <div className="cartoon-card-yellow p-8 text-center" style={{ boxShadow: "6px 6px 0 #1a1a1a" }}>
-          <h3 className="font-bungee text-xl text-[#1a1a1a] mb-2">START MINING NOW</h3>
-          <p className="font-fredoka text-gray-600 mb-5">Free 4-hour sessions. Convert WOLF to $BATTLE on Solana at 5,000:1.</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="/register" className="cartoon-btn cartoon-btn-dark px-8 py-3 text-sm" style={{ textDecoration: "none" }}>CREATE FREE ACCOUNT</a>
-            <a href="/mine" className="cartoon-btn cartoon-btn-white px-8 py-3 text-sm" style={{ textDecoration: "none" }}>START MINING ⛏️</a>
-          </div>
-        </div>
-
-        {/* More posts */}
-        <div className="mt-10">
-          <h3 className="font-bungee text-lg text-[#1a1a1a] mb-5">MORE ARTICLES</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {BLOG_POSTS.filter((p) => p.slug !== slug).slice(0, 4).map((p) => (
-              <button key={p.slug} onClick={() => navigate(`/blog/${p.slug}`)}
-                className="cartoon-card p-4 text-left hover:-translate-y-1 transition-all duration-200 cursor-pointer w-full"
-                style={{ boxShadow: "3px 3px 0 #1a1a1a" }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{p.emoji}</span>
-                  <span className="font-bungee text-xs" style={{ color: p.color }}>{p.readTime}</span>
-                </div>
-                <p className="font-bungee text-xs text-[#1a1a1a] leading-snug">{p.title}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </main></div>
+      </main>
+    </div>
   );
 }
