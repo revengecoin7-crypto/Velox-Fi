@@ -95,6 +95,8 @@ interface AuthContextType {
   getMiningProgress: () => MiningProgress;
   // Convert
   requestConversion: (wolfAmount: number) => Promise<{ ok: boolean; error?: string; waitlisted?: boolean; battleRequested?: number }>;
+  // Withdraw $BATTLE balance to Solana wallet (queues an admin payout)
+  withdrawToWallet: (battleAmount: number) => Promise<{ ok: boolean; error?: string; needsVerification?: boolean }>;
   // Wallet
   setWallet: (address: string) => Promise<void>;
   // Daily
@@ -269,6 +271,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: false, error: (data as any)?.error || "Conversion failed" };
   }
 
+  // ── Withdraw ($BATTLE balance → wallet, queues admin payout) ──────────────
+  async function withdrawToWallet(battleAmount: number) {
+    if (!token) return { ok: false, error: "Not logged in" };
+    const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/claim", {
+      method: "POST",
+      body: JSON.stringify({ amount: battleAmount }),
+    }, token);
+    if (ok) {
+      setUser(u => u ? { ...u, battle: Number(data.newTokens ?? u.battle) } : u);
+      return { ok: true };
+    }
+    return {
+      ok: false,
+      needsVerification: !!(data as any)?.needsVerification,
+      error: (data as any)?.error || "Withdraw failed",
+    };
+  }
+
   // ── Wallet ────────────────────────────────────────────────────────────────
   async function setWallet(address: string) {
     if (!token) return;
@@ -313,6 +333,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login, register, logout, refreshUser,
       startMiningSession, claimMiningReward, getMiningProgress,
       requestConversion,
+      withdrawToWallet,
       setWallet,
       canClaimDaily, getDailyRewardAmount, claimDailyReward,
     }}>

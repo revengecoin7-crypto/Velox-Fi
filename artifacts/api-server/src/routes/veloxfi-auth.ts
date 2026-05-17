@@ -226,30 +226,37 @@ router.get("/veloxfi/user/:username", requireAuth as any, async (req: any, res) 
 router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;
+    if (!user.emailVerified) {
+      res.status(403).json({ error: "Verify your email before withdrawing.", needsVerification: true }); return;
+    }
     if (!user.walletAddress) {
-      res.status(400).json({ error: "You must save a wallet address before claiming." }); return;
+      res.status(400).json({ error: "Save a Solana wallet address before withdrawing." }); return;
     }
-    if (user.tokens <= 0) {
-      res.status(400).json({ error: "No tokens to claim." }); return;
+    const numericTokens = Number(user.tokens ?? 0);
+    if (numericTokens <= 0) {
+      res.status(400).json({ error: "No $BATTLE to withdraw." }); return;
     }
-    const { amount } = req.body;
-    const claimAmt = parseInt(amount, 10);
-    if (!claimAmt || claimAmt <= 0) {
-      res.status(400).json({ error: "Enter a valid amount to claim." }); return;
+    const claimAmt = Number(req.body.amount);
+    if (!Number.isFinite(claimAmt) || claimAmt <= 0) {
+      res.status(400).json({ error: "Enter a valid amount to withdraw." }); return;
     }
-    if (claimAmt > user.tokens) {
-      res.status(400).json({ error: "Claim amount exceeds your token balance." }); return;
+    if (claimAmt > numericTokens) {
+      res.status(400).json({ error: "Withdraw amount exceeds your $BATTLE balance." }); return;
     }
-    // Deduct tokens from balance
-    const newTokens = user.tokens - claimAmt;
+    // Deduct $BATTLE from in-app balance and queue an admin payout request.
+    const newTokens = numericTokens - claimAmt;
     await db.update(veloxfiUsers)
       .set({ tokens: newTokens })
       .where(eq(veloxfiUsers.username, user.username));
-    // Insert a claim record
     await db.insert(veloxfiClaims).values({
       username:      user.username,
       walletAddress: user.walletAddress,
-      amount:        claimAmt,
+      amount:        Math.floor(claimAmt),
+    });
+    await db.insert(veloxfiActivity).values({
+      type:     "withdraw",
+      username: user.username,
+      message:  `requested withdrawal of ${claimAmt} $BATTLE`,
     });
     res.json({ ok: true, newTokens, claimAmt });
   } catch (e) {

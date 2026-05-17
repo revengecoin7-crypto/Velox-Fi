@@ -36,7 +36,7 @@ function fmtBattle(n: number): string {
 }
 
 export default function Convert() {
-  const { user, token, requestConversion, setWallet } = useAuth();
+  const { user, token, requestConversion, withdrawToWallet, setWallet } = useAuth();
   const [, nav] = useLocation();
   const { supply, refresh: refreshSupply } = useSupplyStatus();
   const [wolfAmount, setWolfAmount] = useState("");
@@ -46,6 +46,33 @@ export default function Convert() {
   const [holdDays] = useState(12); // mock: user has held for 12 days
   const [resending, setResending] = useState(false);
   const [resendMsg, setResendMsg] = useState("");
+
+  // Withdraw section state — independent from the convert form above.
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawStatus, setWithdrawStatus] = useState<"idle" | "success" | "error">("idle");
+  const [withdrawMsg, setWithdrawMsg] = useState("");
+  const [withdrawing, setWithdrawing] = useState(false);
+
+  async function handleWithdraw() {
+    if (!user) return;
+    setWithdrawStatus("idle"); setWithdrawMsg("");
+    const amt = Number(withdrawAmount);
+    if (!Number.isFinite(amt) || amt <= 0) { setWithdrawStatus("error"); setWithdrawMsg("Enter a valid amount."); return; }
+    if (amt > user.battle) { setWithdrawStatus("error"); setWithdrawMsg(`You only have ${user.battle.toFixed(4)} $BATTLE.`); return; }
+    if (!walletInput.trim()) { setWithdrawStatus("error"); setWithdrawMsg("Save your Solana wallet address first (form above)."); return; }
+    if (walletInput.trim() !== user.wallet) await setWallet(walletInput.trim());
+    setWithdrawing(true);
+    const result = await withdrawToWallet(amt);
+    setWithdrawing(false);
+    if (result.ok) {
+      setWithdrawStatus("success");
+      setWithdrawMsg(`Withdrawal queued — admin will send ${amt} $BATTLE to your wallet within 24 hours.`);
+      setWithdrawAmount("");
+    } else {
+      setWithdrawStatus("error");
+      setWithdrawMsg(result.error ?? "Withdraw failed.");
+    }
+  }
 
   async function handleResendVerification() {
     if (!token) return;
@@ -311,10 +338,10 @@ export default function Convert() {
               <div className="card" style={{ padding: 18 }}>
                 <div className="eyebrow" style={{ marginBottom: 10 }}>How it works</div>
                 {[
-                  ["1.", "Enter WOLF amount and your Solana wallet"],
-                  ["2.", "Submit request — processed within 24h weekdays"],
-                  ["3.", "$BATTLE arrives directly in your Solana wallet"],
-                  ["4.", "Hold $BATTLE to activate mining rate boosts"],
+                  ["1.", "Convert WOLF → $BATTLE — your in-app balance updates instantly"],
+                  ["2.", "Hold $BATTLE in your account to keep mining-rate boosts active"],
+                  ["3.", "Ready to cash out? Use the Withdraw card below to send $BATTLE to your Solana wallet"],
+                  ["4.", "Admin processes withdrawals within 24h weekdays"],
                 ].map(([n, t]) => (
                   <div key={n} style={{ display: "flex", gap: 10, padding: "6px 0", borderBottom: "1px dashed rgba(11,11,26,0.08)" }}>
                     <span className="display" style={{ fontSize: 14, color: "var(--magenta)", flexShrink: 0 }}>{n}</span>
@@ -328,6 +355,108 @@ export default function Convert() {
                 <div style={{ marginTop: 14 }}>
                   <div className="mono" style={{ fontSize: 10, color: "var(--ink-soft)" }}>CONTRACT ADDRESS</div>
                   <div className="mono" style={{ fontSize: 11, marginTop: 4, wordBreak: "break-all" }}>HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Withdraw $BATTLE → Solana wallet (step 2 of the cash-out flow) */}
+          <div className="grid-2">
+            <div className="card" style={{ padding: 24, borderColor: "var(--magenta)" }}>
+              <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div className="eyebrow">Withdraw $BATTLE → Solana wallet</div>
+                <span className="pill" style={{ background: "var(--magenta)", color: "white", fontSize: 10 }}>STEP 2</span>
+              </div>
+
+              <div className="card cream" style={{ padding: "12px 16px", marginBottom: 16, textAlign: "center" }}>
+                <div style={{ fontSize: 12, color: "var(--mute)" }}>Your in-app balance</div>
+                <div className="display tabular" style={{ fontSize: 32, color: "var(--magenta)" }}>
+                  {user!.battle.toFixed(4)} $BATTLE
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>WITHDRAW AMOUNT</label>
+                <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                  <input
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawStatus("idle"); }}
+                    min={0}
+                    max={user!.battle}
+                    step="0.0001"
+                    placeholder="Enter $BATTLE amount…"
+                    className="input"
+                    style={{ flex: 1 }}
+                  />
+                  <button className="btn sm primary" onClick={() => setWithdrawAmount(String(user!.battle))}>MAX</button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>SOLANA WALLET ADDRESS</label>
+                <input
+                  type="text"
+                  value={walletInput}
+                  onChange={(e) => setWalletInput(e.target.value)}
+                  placeholder="Your Solana wallet…"
+                  className="input"
+                  style={{ marginTop: 6 }}
+                />
+                <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 4 }}>
+                  Same wallet used for the Convert form above. Double-check before withdrawing — admin sends to this address.
+                </div>
+              </div>
+
+              {withdrawStatus !== "idle" && (() => {
+                const tone = withdrawStatus === "success"
+                  ? { bg: "rgba(182,242,63,0.1)", border: "var(--lime)",   text: "var(--lime)"   }
+                  : { bg: "rgba(255,90,74,0.1)",  border: "var(--tomato)", text: "var(--tomato)" };
+                return (
+                  <div style={{ padding: "10px 14px", borderRadius: 10, marginBottom: 14, background: tone.bg, border: `2px solid ${tone.border}` }}>
+                    <div style={{ fontSize: 13, color: tone.text }}>{withdrawMsg}</div>
+                  </div>
+                );
+              })()}
+
+              <button
+                className={`btn lg ${Number(withdrawAmount) > 0 && Number(withdrawAmount) <= user!.battle && user!.emailVerified ? "primary" : "ghost"}`}
+                style={{ width: "100%", justifyContent: "center" }}
+                onClick={handleWithdraw}
+                disabled={withdrawing || !user!.emailVerified || Number(withdrawAmount) <= 0 || Number(withdrawAmount) > user!.battle}
+              >
+                {withdrawing
+                  ? "Submitting…"
+                  : !user!.emailVerified
+                    ? "Verify email first"
+                    : Number(withdrawAmount) <= 0
+                      ? "Enter $BATTLE amount"
+                      : Number(withdrawAmount) > user!.battle
+                        ? "Insufficient balance"
+                        : `Withdraw ${Number(withdrawAmount).toFixed(4)} $BATTLE to wallet`}
+              </button>
+            </div>
+
+            {/* Withdraw info card */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div className="card" style={{ padding: 18 }}>
+                <div className="eyebrow" style={{ marginBottom: 10 }}>Withdrawal details</div>
+                {[
+                  ["1.", "Enter the amount you want to cash out and your Solana wallet"],
+                  ["2.", "Click Withdraw — your in-app $BATTLE balance is held immediately"],
+                  ["3.", "Admin reviews and sends $BATTLE on-chain within 24h weekdays"],
+                  ["4.", "Once received in your wallet, hold-to-earn boosts stay active as long as you don't sell"],
+                ].map(([n, t]) => (
+                  <div key={n} style={{ display: "flex", gap: 10, padding: "6px 0", borderBottom: "1px dashed rgba(11,11,26,0.08)" }}>
+                    <span className="display" style={{ fontSize: 14, color: "var(--magenta)", flexShrink: 0 }}>{n}</span>
+                    <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="card" style={{ padding: 18, background: "var(--yellow)" }}>
+                <div className="display" style={{ fontSize: 16 }}>Why two steps?</div>
+                <div style={{ fontSize: 12, marginTop: 6, color: "var(--ink-soft)" }}>
+                  Convert turns WOLF into $BATTLE inside your account — free, instant, no on-chain fees. Withdraw is the on-chain payout: keep $BATTLE in-app for boosts, or send any amount to your wallet whenever you want.
                 </div>
               </div>
             </div>
