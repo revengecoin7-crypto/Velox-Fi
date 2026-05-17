@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist, veloxfiActivity } from "@workspace/db/schema";
+import { getPetBonusPercent } from "./veloxfi-pet";
 import { eq, sql, isNull, desc } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
@@ -393,8 +394,12 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
       ? MAX_WOLF_PER_SESSION
       : Math.max(1, Math.floor(((Date.now() - user.wolfMiningStart!.getTime())) / 60000) * WOLF_PER_MINUTE);
 
-    // Apply tier bonus based on current WOLF balance (before this claim).
-    const bonusPct   = tierBonusPercent(user.wolf ?? 0);
+    // Tier bonus from current WOLF balance + pet bonus from stage & equipped
+    // accessories (halved if the pet is hungry or sad). Bonuses stack
+    // additively, then multiplied with base.
+    const tierPct = tierBonusPercent(user.wolf ?? 0);
+    const petPct  = await getPetBonusPercent(user.username);
+    const bonusPct = tierPct + petPct;
     const wolfEarned = Math.floor(baseWolf * (1 + bonusPct / 100));
 
     // Daily streak: increment if last claim was yesterday, reset if older,
@@ -421,7 +426,10 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
       .where(eq(veloxfiUsers.username, user.username));
 
     // Activity feed entry — visible in /mine live feed and admin.
-    const bonusNote = bonusPct > 0 ? ` (+${bonusPct}% tier bonus)` : "";
+    const bonusParts: string[] = [];
+    if (tierPct > 0) bonusParts.push(`+${tierPct}% tier`);
+    if (petPct  > 0) bonusParts.push(`+${petPct}% pet`);
+    const bonusNote = bonusParts.length ? ` (${bonusParts.join(", ")})` : "";
     await db.insert(veloxfiActivity).values({
       type:     "claim",
       username: user.username,
@@ -432,6 +440,8 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
       ok: true,
       wolfEarned,
       baseWolf,
+      tierBonusPct: tierPct,
+      petBonusPct:  petPct,
       bonusPct,
       newWolfBalance,
       battleBalance: user.tokens,
