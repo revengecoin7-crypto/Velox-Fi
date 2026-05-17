@@ -66,12 +66,21 @@ function Ticker({ tokenStats, vstats }: { tokenStats: TokenStats | null; vstats:
 const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, getMiningProgress } = useAuth();
   const stats = calcUserStats(user);
   const tokenStats = useTokenStats();
   const vstats = useVeloxfiStats();
   const supply = useSupplyStatus();
   const [caCopied, setCaCopied] = useState(false);
+
+  // Tick every 30s to keep the hero mining badge fresh.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const mining = getMiningProgress();
 
   function copyCA() {
     navigator.clipboard.writeText(CA);
@@ -144,8 +153,12 @@ export default function Home() {
                     <div className="display" style={{ fontSize: 18, color: "white" }}>LVL {stats.level}</div>
                   </div>
                   <div style={{ background: "rgba(11,11,26,0.7)", backdropFilter: "blur(8px)", border: "2px solid var(--magenta)", borderRadius: 10, padding: "6px 10px" }}>
-                    <div className="mono" style={{ fontSize: 10, color: "var(--magenta)" }}>CLAIMABLE</div>
-                    <div className="display" style={{ fontSize: 18, color: "white" }}>{stats.claimable.toLocaleString()} BATTLE</div>
+                    <div className="mono" style={{ fontSize: 10, color: "var(--magenta)" }}>
+                      {user ? (mining.active ? "MINING NOW" : mining.wolfEarned > 0 ? "READY TO CLAIM" : "PER SESSION") : "PER SESSION"}
+                    </div>
+                    <div className="display" style={{ fontSize: 18, color: "white" }}>
+                      {user ? mining.wolfEarned : 240} WOLF
+                    </div>
                   </div>
                 </div>
               </div>
