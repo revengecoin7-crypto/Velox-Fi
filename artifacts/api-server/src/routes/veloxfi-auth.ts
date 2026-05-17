@@ -9,8 +9,11 @@ import { randomUUID } from "crypto";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const VERIFY_FROM = "noreply@veloxfi.io";
-const VERIFY_BASE = "https://veloxfi.io";
+// Sender address: needs a verified domain in Resend. Falls back to Resend's
+// public test sender so verification still works while the domain is being
+// configured. Switch over by setting RESEND_FROM=noreply@veloxfi.io in env.
+const VERIFY_FROM = process.env.RESEND_FROM ?? "onboarding@resend.dev";
+const VERIFY_BASE = process.env.SITE_URL ?? "https://veloxfi.io";
 
 async function sendVerificationEmail(toEmail: string, username: string, verifyToken: string) {
   if (!process.env.RESEND_API_KEY) {

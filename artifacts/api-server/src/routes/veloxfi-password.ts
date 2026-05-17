@@ -8,8 +8,11 @@ import { Resend } from "resend";
 
 const router = Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM   = "noreply@veloxfi.io";
-const BASE_URL = "https://veloxfi.io";
+// Falls back to Resend's public test sender until veloxfi.io is verified
+// in the Resend dashboard. Set RESEND_FROM=noreply@veloxfi.io in Railway
+// env after DNS verification to switch over.
+const FROM     = process.env.RESEND_FROM ?? "onboarding@resend.dev";
+const BASE_URL = process.env.SITE_URL    ?? "https://veloxfi.io";
 
 router.post("/veloxfi/forgot-password", async (req: any, res: any) => {
   try {
