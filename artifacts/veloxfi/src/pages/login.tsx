@@ -2,21 +2,16 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 
-const WALLETS = [
-  { id: "phantom", name: "Phantom", sub: "Connect Solana wallet", color: "#AB9FF2", mark: "P" },
-  { id: "solflare", name: "Solflare", sub: "Connect Solana wallet", color: "#FC822B", mark: "S" },
-  { id: "backpack", name: "Backpack", sub: "Connect Solana wallet", color: "#E33E3F", mark: "B" },
-];
-
 export default function Login() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [, nav] = useLocation();
   const [mode, setMode] = useState<"register" | "login">("login");
-  const [step, setStep] = useState(1);
+  const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [referral, setReferral] = useState("ALPHAWOLF");
+  const [referral, setReferral] = useState("");
+  const [checked, setChecked] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,11 +22,24 @@ export default function Login() {
     const res = await login(username, password);
     setLoading(false);
     if (res.ok) nav("/mine");
-    else setErr("Invalid username or password.");
+    else setErr(res.error ?? "Invalid username or password.");
+  }
+
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault();
+    setErr("");
+    if (!checked) { setErr("You must confirm you're 18+ to continue."); return; }
+    if (username.length < 3) { setErr("Username must be at least 3 characters."); return; }
+    if (password.length < 6) { setErr("Password must be at least 6 characters."); return; }
+    setLoading(true);
+    const res = await register(username, email, password, referral.trim() || undefined);
+    setLoading(false);
+    if (res.ok) setSuccess(true);
+    else setErr(res.error ?? "Registration failed.");
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.05fr", minHeight: "100vh" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.05fr", minHeight: "100vh" }} className="login-grid">
 
       {/* ── LEFT: visual ── */}
       <div style={{ background: "var(--ink)", color: "var(--paper)", padding: 48, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
@@ -51,7 +59,7 @@ export default function Login() {
             Join the pack.
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", maxWidth: 440, lineHeight: 1.5 }}>
-            Every wolf starts at <b style={{ color: "var(--cyan)" }}>LVL 1</b> with a free mining rig. Hit daily streaks and climb to <b style={{ color: "var(--magenta)" }}>LVL 50 ALPHA</b> for max hash rate.
+            Free <b style={{ color: "var(--cyan)" }}>4-hour mining sessions</b>. Convert WOLF to <b style={{ color: "var(--magenta)" }}>$BATTLE</b> on Solana at a fixed 5,000:1 rate. No presale, no team allocation, no gimmicks.
           </p>
 
           <div style={{ marginTop: 36, maxWidth: 380 }}>
@@ -71,7 +79,7 @@ export default function Login() {
           </div>
 
           <div className="row" style={{ marginTop: 24, gap: 8, flexWrap: "wrap" }}>
-            {["🔒 Non-custodial", "⚡ 1-click claim", "⛏ 4-hour sessions", "🐺 Free mining"].map((t) => (
+            {["🔒 No wallet needed", "⚡ 1-click claim", "⛏ 4-hour sessions", "🐺 Free mining"].map((t) => (
               <span key={t} className="pill" style={{ background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.3)", color: "white" }}>{t}</span>
             ))}
           </div>
@@ -86,103 +94,8 @@ export default function Login() {
       <div style={{ background: "var(--cream)", padding: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 480 }}>
 
-          {/* Mode tabs */}
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 26 }}>
-            <div className="tabs">
-              <div className={`tab${mode === "register" ? " active" : ""}`} onClick={() => { setMode("register"); setStep(1); setErr(""); }}>Register</div>
-              <div className={`tab${mode === "login" ? " active" : ""}`} onClick={() => { setMode("login"); setStep(1); setErr(""); }}>Sign in</div>
-            </div>
-            <Link href="/" className="btn sm ghost">✕ Close</Link>
-          </div>
-
-          {/* ── STEP 1: method select ── */}
-          {step === 1 && (
-            <>
-              <h2 className="display" style={{ fontSize: 36, lineHeight: 1, margin: 0 }}>
-                {mode === "register" ? "Howl your way in" : "Welcome back, wolf"}
-              </h2>
-              <p style={{ fontSize: 14, color: "var(--mute)", marginTop: 8 }}>
-                {mode === "register"
-                  ? "Choose how you want to enter the den. Wallet is recommended — your BATTLE goes straight there."
-                  : "Reconnect your wallet or use the e-mail you registered with."}
-              </p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 22 }}>
-                {WALLETS.map((w) => (
-                  <div key={w.id} className="card flat" style={{ padding: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, border: "2.5px solid var(--ink)" }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 10, background: w.color, border: "2.5px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontFamily: "Bagel Fat One", fontSize: 22 }}>{w.mark}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 15 }}>{w.name}</div>
-                      <div style={{ fontSize: 12, color: "var(--mute)" }}>{w.sub}</div>
-                    </div>
-                    <span>→</span>
-                  </div>
-                ))}
-
-                <div className="row" style={{ gap: 10, margin: "8px 0" }}>
-                  <div style={{ flex: 1, height: 1, background: "rgba(11,11,26,0.12)" }} />
-                  <div style={{ fontSize: 11, color: "var(--mute)", letterSpacing: 1 }}>OR</div>
-                  <div style={{ flex: 1, height: 1, background: "rgba(11,11,26,0.12)" }} />
-                </div>
-
-                {mode === "register" ? (
-                  <div className="card flat" style={{ padding: 14, border: "2.5px solid var(--ink)" }}>
-                    <div style={{ fontSize: 12, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1 }}>Email — we generate a wallet for you</div>
-                    <div className="row" style={{ marginTop: 8, gap: 8 }}>
-                      <input className="input" placeholder="wolf@howl.io" value={email} onChange={(e) => setEmail(e.target.value)} />
-                      <button className="btn primary" onClick={() => setStep(2)}>Continue</button>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Username</label>
-                      <input className="input" placeholder="moonwolf42" value={username} onChange={(e) => setUsername(e.target.value)} style={{ marginTop: 6 }} required />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Password</label>
-                      <input className="input" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ marginTop: 6 }} required />
-                    </div>
-                    {err && <div style={{ color: "var(--tomato)", fontSize: 13, fontWeight: 600 }}>{err}</div>}
-                    <button className="btn lg magenta" type="submit" disabled={loading} style={{ marginTop: 4 }}>
-                      {loading ? "Signing in..." : "Enter the den →"}
-                    </button>
-                  </form>
-                )}
-
-                {mode === "register" && (
-                  <button className="btn ghost" style={{ marginTop: 4 }}>👁 Try as guest (no rewards saved)</button>
-                )}
-              </div>
-
-              {mode === "register" && (
-                <div className="card cyan" style={{ marginTop: 18, padding: 14 }}>
-                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Referral bonus</div>
-                      <div className="display" style={{ fontSize: 18, marginTop: 2 }}>+250 BATTLE welcome boost</div>
-                    </div>
-                    <input className="input mono" style={{ maxWidth: 130, fontSize: 12 }} value={referral} onChange={(e) => setReferral(e.target.value)} />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ── STEP 2: details (register) ── */}
-          {step === 2 && mode === "register" && (
-            <RegisterStep2
-              email={email} setEmail={setEmail}
-              username={username} setUsername={setUsername}
-              password={password} setPassword={setPassword}
-              referral={referral}
-              onBack={() => setStep(1)}
-              onSuccess={() => setStep(3)}
-            />
-          )}
-
-          {/* ── STEP 3: success ── */}
-          {step === 3 && (
+          {success ? (
+            // Welcome screen
             <div style={{ textAlign: "center" }}>
               <div style={{ position: "relative", display: "inline-block", marginTop: 10 }}>
                 <div style={{ position: "absolute", inset: -22, borderRadius: "50%", border: "2px dashed var(--ink)", animation: "spin-slow 20s linear infinite" }} />
@@ -191,86 +104,99 @@ export default function Login() {
                 </div>
               </div>
               <h2 className="display" style={{ fontSize: 42, marginTop: 22, lineHeight: 1 }}>
-                Welcome, <span style={{ color: "var(--magenta)" }}>{username || "AGENT_07"}</span>.
+                Welcome, <span style={{ color: "var(--magenta)" }}>{username}</span>.
               </h2>
               <p style={{ fontSize: 14, color: "var(--mute)", marginTop: 8 }}>
-                Your rig is heating up. You start with <b className="display" style={{ fontSize: 16 }}>+250 BATTLE</b> welcome bonus.
+                Your rig is ready. Start your first 4-hour mining session whenever you want.
               </p>
-              <div className="card cream" style={{ marginTop: 22, textAlign: "left" }}>
-                <div className="row" style={{ justifyContent: "space-between" }}>
-                  <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>WALLET ADDRESS</div>
-                  <span>📋</span>
+              <div className="card cyan" style={{ marginTop: 22, textAlign: "left", padding: 16 }}>
+                <div className="mono" style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>👛 About your Solana wallet</div>
+                <div style={{ fontSize: 13, lineHeight: 1.55 }}>
+                  You don't need a wallet to mine. Whenever you want to convert WOLF to $BATTLE, you'll add your Solana wallet address on the Wallet page — that's where your $BATTLE will be sent.
                 </div>
-                <div className="mono" style={{ fontSize: 12, marginTop: 4 }}>7VLxw9zKbXcM3qPj4yR8…E8dZ9KuvLNS</div>
               </div>
               <Link href="/mine" className="btn lg primary" style={{ marginTop: 22, width: "100%", justifyContent: "center" }}>
                 Enter mining hub →
               </Link>
             </div>
+          ) : (
+            <>
+              {/* Mode tabs */}
+              <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 26 }}>
+                <div className="tabs">
+                  <div className={`tab${mode === "register" ? " active" : ""}`} onClick={() => { setMode("register"); setErr(""); }}>Register</div>
+                  <div className={`tab${mode === "login" ? " active" : ""}`} onClick={() => { setMode("login"); setErr(""); }}>Sign in</div>
+                </div>
+                <Link href="/" className="btn sm ghost">✕ Close</Link>
+              </div>
+
+              <h2 className="display" style={{ fontSize: 36, lineHeight: 1, margin: 0 }}>
+                {mode === "register" ? "Howl your way in" : "Welcome back, wolf"}
+              </h2>
+              <p style={{ fontSize: 14, color: "var(--mute)", marginTop: 8 }}>
+                {mode === "register"
+                  ? "Free account. Email + password — no wallet needed to start mining."
+                  : "Sign in with the username and password you registered with."}
+              </p>
+
+              {mode === "login" ? (
+                <form onSubmit={handleLogin} style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Username</label>
+                    <input className="input" placeholder="moonwolf42" value={username} onChange={(e) => setUsername(e.target.value)} style={{ marginTop: 6 }} required autoFocus />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Password</label>
+                    <input className="input" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ marginTop: 6 }} required />
+                  </div>
+                  {err && <div style={{ color: "var(--tomato)", fontSize: 13, fontWeight: 600 }}>{err}</div>}
+                  <button className="btn lg magenta" type="submit" disabled={loading}>
+                    {loading ? "Signing in…" : "Enter the den →"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister} style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Callsign (username)</label>
+                    <input className="input" placeholder="moonwolf42" value={username} onChange={(e) => setUsername(e.target.value)} style={{ marginTop: 6 }} required autoFocus />
+                    <div style={{ fontSize: 11, color: "var(--mute)", marginTop: 4 }}>3–16 chars. Visible on the leaderboard.</div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Email</label>
+                    <input className="input" type="email" placeholder="wolf@howl.io" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginTop: 6 }} required />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Password</label>
+                    <input className="input" type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} style={{ marginTop: 6 }} required />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Referral code (optional)</label>
+                    <input className="input mono" placeholder="ALPHAWOLF" value={referral} onChange={(e) => setReferral(e.target.value)} style={{ marginTop: 6 }} />
+                  </div>
+
+                  <label className="row" style={{ gap: 10, cursor: "pointer", alignItems: "flex-start", marginTop: 2 }}>
+                    <div onClick={() => setChecked(!checked)} style={{ width: 20, height: 20, border: "2.5px solid var(--ink)", borderRadius: 6, background: checked ? "var(--lime)" : "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2, flexShrink: 0, cursor: "pointer" }}>
+                      {checked && <span style={{ fontSize: 12 }}>✓</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--ink)" }}>I'm 18+ and I accept that meme coins are not a financial product.</div>
+                  </label>
+
+                  {err && <div style={{ color: "var(--tomato)", fontSize: 13, fontWeight: 600 }}>{err}</div>}
+
+                  <button className="btn lg magenta" type="submit" disabled={loading}>
+                    {loading ? "Generating your wolf…" : "Generate my wolf →"}
+                  </button>
+
+                  <div className="mono" style={{ fontSize: 11, color: "var(--mute)", textAlign: "center", marginTop: 4 }}>
+                    No wallet connection needed. You add your Solana wallet later, only when you want to convert WOLF to $BATTLE.
+                  </div>
+                </form>
+              )}
+            </>
           )}
 
         </div>
       </div>
     </div>
-  );
-}
-
-function RegisterStep2({ email, setEmail, username, setUsername, password, setPassword, referral, onBack, onSuccess }: {
-  email: string; setEmail: (v: string) => void;
-  username: string; setUsername: (v: string) => void;
-  password: string; setPassword: (v: string) => void;
-  referral: string;
-  onBack: () => void;
-  onSuccess: () => void;
-}) {
-  const { register } = useAuth();
-  const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [checked, setChecked] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setErr("");
-    if (!checked) { setErr("You must confirm you're 18+."); return; }
-    if (password.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    setLoading(true);
-    const res = await register(username, email, password, referral !== "ALPHAWOLF" ? referral : undefined);
-    setLoading(false);
-    if (res.ok) onSuccess();
-    else setErr(res.error ?? "Registration failed.");
-  }
-
-  return (
-    <>
-      <button className="btn sm ghost" style={{ marginBottom: 16 }} onClick={onBack}>← back</button>
-      <h2 className="display" style={{ fontSize: 36, lineHeight: 1 }}>One more thing.</h2>
-      <p style={{ fontSize: 14, color: "var(--mute)", marginTop: 8 }}>Pick a callsign your pack will know you by.</p>
-
-      <form onSubmit={handleSubmit} style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Callsign</label>
-          <input className="input" placeholder="moonwolf42" value={username} onChange={(e) => setUsername(e.target.value)} style={{ marginTop: 6 }} required />
-          <div style={{ fontSize: 11, color: "var(--mute)", marginTop: 4 }}>3–16 chars. Visible on the leaderboard.</div>
-        </div>
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Email</label>
-          <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginTop: 6 }} required />
-        </div>
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Password</label>
-          <input className="input" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ marginTop: 6 }} required />
-        </div>
-        <label className="row" style={{ gap: 10, cursor: "pointer", alignItems: "flex-start" }}>
-          <div onClick={() => setChecked(!checked)} style={{ width: 20, height: 20, border: "2.5px solid var(--ink)", borderRadius: 6, background: checked ? "var(--lime)" : "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2, flexShrink: 0, cursor: "pointer" }}>
-            {checked && <span style={{ fontSize: 12 }}>✓</span>}
-          </div>
-          <div style={{ fontSize: 12, color: "var(--ink)" }}>I'm 18+ and I accept that meme coins are not a financial product.</div>
-        </label>
-        {err && <div style={{ color: "var(--tomato)", fontSize: 13, fontWeight: 600 }}>{err}</div>}
-        <button className="btn lg magenta" type="submit" disabled={loading}>
-          {loading ? "Generating your wolf..." : "Generate my wolf →"}
-        </button>
-      </form>
-    </>
   );
 }
