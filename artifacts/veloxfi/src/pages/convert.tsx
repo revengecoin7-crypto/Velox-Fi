@@ -36,7 +36,7 @@ function fmtBattle(n: number): string {
 }
 
 export default function Convert() {
-  const { user, requestConversion, setWallet } = useAuth();
+  const { user, token, requestConversion, setWallet } = useAuth();
   const [, nav] = useLocation();
   const { supply, refresh: refreshSupply } = useSupplyStatus();
   const [wolfAmount, setWolfAmount] = useState("");
@@ -44,6 +44,24 @@ export default function Convert() {
   const [status, setStatus] = useState<"idle" | "success" | "error" | "waitlisted">("idle");
   const [msg, setMsg] = useState("");
   const [holdDays] = useState(12); // mock: user has held for 12 days
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
+
+  async function handleResendVerification() {
+    if (!token) return;
+    setResending(true);
+    setResendMsg("");
+    try {
+      const r = await fetch("/api/veloxfi/resend-verification", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await r.json().catch(() => ({}));
+      setResendMsg(r.ok ? "✓ Verification email sent. Check your inbox." : (data?.error ?? "Could not resend."));
+    } finally {
+      setResending(false);
+    }
+  }
 
   if (!user) {
     return (
@@ -104,6 +122,25 @@ export default function Convert() {
             <div className="crumb">Home / <b>Wallet</b></div>
             <div className="display" style={{ fontSize: 28, lineHeight: 1, flex: 1 }}>Your wallet.</div>
           </div>
+
+          {/* Email verification banner — required before converting */}
+          {user && !user.emailVerified && (
+            <div className="card" style={{ padding: 18, background: "var(--yellow)", borderColor: "var(--ink)" }}>
+              <div className="row" style={{ alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <div style={{ fontSize: 32 }}>📧</div>
+                <div style={{ flex: 1, minWidth: 240 }}>
+                  <div className="display" style={{ fontSize: 16 }}>Verify your email before converting</div>
+                  <div style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 4 }}>
+                    We sent a verification link to <b>{user.email}</b>. Click it to unlock WOLF → $BATTLE conversions.
+                  </div>
+                  {resendMsg && <div className="mono" style={{ fontSize: 11, color: resendMsg.startsWith("✓") ? "#0E6A2A" : "var(--tomato)", marginTop: 6 }}>{resendMsg}</div>}
+                </div>
+                <button className="btn" onClick={handleResendVerification} disabled={resending}>
+                  {resending ? "Sending…" : "📨 Resend email"}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Balance + rate */}
           <div className="grid-2">

@@ -34,6 +34,29 @@ function Analytics() {
     recordPageView(location);
     // Pick up ?ref=username from anywhere on the site (homepage, presale, ...)
     captureReferralFromUrl();
+    // Pick up ?verify=<token> from email verification links.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const verifyToken = params.get("verify");
+      if (verifyToken) {
+        fetch(`/api/veloxfi/verify-email?token=${encodeURIComponent(verifyToken)}`)
+          .then(r => r.json())
+          .then((d) => {
+            if (d?.ok) {
+              alert(d.alreadyVerified ? "Email already verified." : "✓ Email verified! You can now convert WOLF to $BATTLE.");
+              // Remove the verify token from the URL so it can't be replayed.
+              const url = new URL(window.location.href);
+              url.searchParams.delete("verify");
+              window.history.replaceState({}, "", url.toString());
+              // Force a soft reload so /veloxfi/me re-fetches the new flag.
+              window.location.reload();
+            } else {
+              alert(d?.error ?? "Verification link is invalid or expired.");
+            }
+          })
+          .catch(() => {});
+      }
+    } catch {}
   }, [location]);
   useEffect(() => {
     const id = setInterval(() => heartbeat(location), 30_000);

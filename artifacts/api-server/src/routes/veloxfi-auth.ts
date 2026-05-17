@@ -6,6 +6,40 @@ import { eq, sql, isNull, desc, gte, and } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const VERIFY_FROM = "noreply@veloxfi.io";
+const VERIFY_BASE = "https://veloxfi.io";
+
+async function sendVerificationEmail(toEmail: string, username: string, verifyToken: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY not set — skipping verification email");
+    return;
+  }
+  const verifyLink = `${VERIFY_BASE}/?verify=${verifyToken}`;
+  try {
+    await resend.emails.send({
+      from:    VERIFY_FROM,
+      to:      [toEmail],
+      subject: "🐺 Verify your VeloxFi email",
+      html: `
+        <div style="font-family:sans-serif;background:#FFFBF0;color:#0B0B1A;padding:40px;max-width:520px;margin:0 auto;border-radius:16px;border:2.5px solid #0B0B1A">
+          <div style="font-family:'Bagel Fat One',sans-serif;font-size:26px;color:#FF2BD6;letter-spacing:1px;margin-bottom:8px">VELOXFI</div>
+          <h2 style="margin:0 0 20px;font-size:18px">Welcome to the pack, ${username}</h2>
+          <p style="line-height:1.6">Click the button below to verify your email. You'll need a verified email before converting WOLF to $BATTLE.</p>
+          <div style="text-align:center;margin:32px 0">
+            <a href="${verifyLink}" style="display:inline-block;padding:14px 32px;background:#FF2BD6;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;letter-spacing:1px;border:2.5px solid #0B0B1A;box-shadow:3px 3px 0 #0B0B1A">VERIFY EMAIL →</a>
+          </div>
+          <p style="color:#666;font-size:12px;line-height:1.6">If you didn't sign up, you can ignore this email.</p>
+          <p style="color:#666;font-size:12px">Or copy this link: <span style="color:#FF2BD6;word-break:break-all">${verifyLink}</span></p>
+        </div>
+      `,
+    });
+  } catch (e) {
+    console.error("verification email send failed:", e);
+  }
+}
 
 const router = Router();
 
@@ -83,6 +117,7 @@ router.post("/veloxfi/register", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const token = randomUUID();
+    const verifyToken = randomUUID();
     const startingTokens = validReferrer ? REFERRAL_BONUS : 0;
 
     const [user] = await db
@@ -90,8 +125,12 @@ router.post("/veloxfi/register", async (req, res) => {
       .values({
         username, email, passwordHash, tokens: startingTokens, sessionToken: token,
         referredBy: validReferrer ?? undefined,
+        emailVerifyToken: verifyToken,
       })
       .returning();
+
+    // Send verification email (fire-and-forget — registration succeeds either way).
+    sendVerificationEmail(email, username, verifyToken).catch(() => {});
 
     if (validReferrer) {
       await db
@@ -116,6 +155,39 @@ router.post("/veloxfi/register", async (req, res) => {
   } catch (e) {
     console.error("register error:", e);
     res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
+// Email verification — public endpoint, token comes from the email link.
+router.get("/veloxfi/verify-email", async (req, res) => {
+  try {
+    const token = String(req.query.token ?? "").trim();
+    if (!token) { res.status(400).json({ error: "Missing token." }); return; }
+    const [user] = await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.emailVerifyToken, token)).limit(1);
+    if (!user) { res.status(400).json({ error: "Invalid or expired verification link." }); return; }
+    if (user.emailVerified) { res.json({ ok: true, alreadyVerified: true, username: user.username }); return; }
+    await db.update(veloxfiUsers)
+      .set({ emailVerified: new Date(), emailVerifyToken: null })
+      .where(eq(veloxfiUsers.username, user.username));
+    res.json({ ok: true, username: user.username });
+  } catch (e) {
+    console.error("verify-email error:", e);
+    res.status(500).json({ error: "Server error." });
+  }
+});
+
+// Resend the verification email (must be logged in).
+router.post("/veloxfi/resend-verification", requireAuth as any, async (req: any, res) => {
+  try {
+    const user = req.veloxfiUser;
+    if (user.emailVerified) { res.json({ ok: true, alreadyVerified: true }); return; }
+    const newToken = randomUUID();
+    await db.update(veloxfiUsers).set({ emailVerifyToken: newToken }).where(eq(veloxfiUsers.username, user.username));
+    sendVerificationEmail(user.email, user.username, newToken).catch(() => {});
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("resend-verification error:", e);
+    res.status(500).json({ error: "Server error." });
   }
 });
 
@@ -222,6 +294,7 @@ router.get("/veloxfi/me", requireAuth as any, async (req: any, res) => {
       lastMiningClaimAt: user.lastMiningClaimAt ?? null,
       referralCount: user.referralCount ?? 0,
       referralTokens: user.referralTokens ?? 0,
+      emailVerified: !!user.emailVerified,
     });
   } catch (e) {
     res.status(500).json({ error: "Server error." });
@@ -586,6 +659,9 @@ router.get("/veloxfi/supply-status", async (_req, res) => {
 router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;
+    if (!user.emailVerified) {
+      res.status(403).json({ error: "Verify your email before converting to $BATTLE.", needsVerification: true }); return;
+    }
     const amount = parseInt(req.body.amount) || 0;
     if (amount < 1) {
       res.status(400).json({ error: "Amount must be at least 1 WOLF." }); return;

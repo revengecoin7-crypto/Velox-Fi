@@ -65,6 +65,7 @@ export interface User {
   wolfMiningStart: number | null;
   lastDailyReward: string | null;
   dailyStreak: number;
+  emailVerified: boolean;
   // legacy compat fields used by some pages
   id?: string;
   lastMineSession?: number | null;
@@ -122,6 +123,7 @@ function buildUser(api: Record<string, unknown>, daily: DailyData): User {
     lastMineSession: wolfMiningStart,
     lastDailyReward: daily.lastDailyReward,
     dailyStreak:     apiStreak ?? daily.dailyStreak,
+    emailVerified:   Boolean(api.emailVerified ?? false),
     id:              String(api.username ?? ""),
     conversions:     [],
     totalMined:      0,

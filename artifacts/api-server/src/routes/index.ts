@@ -1,4 +1,5 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
+import { authLimit, writeLimit, readLimit } from "../middlewares/rateLimit";
 import healthRouter from "./health";
 import accountsRouter from "./accounts";
 import transactionsRouter from "./transactions";
@@ -18,6 +19,33 @@ import veloxfiPetRouter from "./veloxfi-pet";
 import tokenStatsRouter from "./token-stats";
 
 const router: IRouter = Router();
+
+// Pick the right rate-limit bucket per request. Auth-sensitive routes get
+// the strictest cap; read-only public endpoints get the most generous one.
+const AUTH_PATHS = new Set<string>([
+  "/veloxfi/register",
+  "/veloxfi/login",
+  "/veloxfi/forgot-password",
+  "/veloxfi/reset-password",
+  "/veloxfi/resend-verification",
+  "/veloxfi/verify-email",
+  "/veloxfi/admin/verify",
+]);
+const READ_PATH_PREFIXES = [
+  "/veloxfi/leaderboard",
+  "/veloxfi/stats",
+  "/veloxfi/activity-feed",
+  "/veloxfi/token-stats",
+  "/veloxfi/supply-status",
+  "/healthz",
+];
+
+router.use((req: Request, res: Response, next: NextFunction) => {
+  const p = req.path;
+  if (AUTH_PATHS.has(p))                                                  return authLimit(req, res, next);
+  if (req.method === "GET" && READ_PATH_PREFIXES.some(x => p.startsWith(x))) return readLimit(req, res, next);
+  return writeLimit(req, res, next);
+});
 
 router.use(healthRouter);
 router.use(accountsRouter);

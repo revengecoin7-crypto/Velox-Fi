@@ -5,10 +5,15 @@ import path from "path";
 import { fileURLToPath } from "url";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { auditLog } from "./middlewares/auditLog";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app: Express = express();
+
+// Trust the Railway proxy so req.ip and x-forwarded-for resolve correctly
+// (rate limiting and audit log both depend on per-IP buckets).
+app.set("trust proxy", true);
 
 app.use(
   pinoHttp({
@@ -33,7 +38,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", router);
+app.use("/api", auditLog, router);
 
 const frontendPath = path.join(__dirname, "../../veloxfi/dist/public");
 app.use(express.static(frontendPath));
