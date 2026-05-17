@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Eye, Database, Wallet, Cookie, Link2, Mail, ChevronRight, Lock } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 const SECTIONS = [
   { id: "collect",     icon: <Database className="w-5 h-5" />, title: "1. Information We Collect",   color: "#2563eb", content: `VeloxFi is committed to minimizing the collection of personal data. As a decentralized platform, we are designed to operate with the least amount of personally identifiable information possible.\n\nWe may collect the following categories of information:\n\nOn-chain data: All blockchain transactions, wallet addresses, battle participation records, and token transfers are publicly recorded on the Solana blockchain. This data is inherently public and cannot be made private.\n\nTechnical data: We automatically collect certain technical information when you visit our website, including your IP address, browser type and version, operating system, referral source, pages visited, and time spent on those pages. This information is used solely for security, analytics, and service improvement purposes.\n\nVoluntarily provided data: If you contact us directly (e.g., via Telegram or email), we may retain the content of your message and any information you voluntarily provide in order to respond to your inquiry.` },
@@ -21,7 +21,7 @@ export default function Privacy() {
   const [, navigate] = useLocation();
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       {/* Header */}
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-10">
         <div className="flex items-center gap-3 mb-6">
@@ -113,6 +113,6 @@ export default function Privacy() {
           </button>
         </div>
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

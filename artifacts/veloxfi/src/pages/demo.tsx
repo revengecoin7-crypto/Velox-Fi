@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { TrendingUp, TrendingDown, Clock, Trophy, RotateCcw, Zap } from "lucide-react";
 import confetti from "canvas-confetti";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 const OPPONENTS = [
   { ticker: "PEPE",   icon: "🐸" },
@@ -88,7 +88,7 @@ export default function Demo() {
   const battlepct   = Math.min(Math.max(50 + (userPct - oppPct) * 2, 5), 95);
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
 
         {/* ── HEADER ── */}
@@ -310,6 +310,6 @@ export default function Demo() {
           </div>
         )}
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

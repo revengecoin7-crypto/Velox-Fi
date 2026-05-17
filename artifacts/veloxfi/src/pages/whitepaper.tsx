@@ -1,6 +1,6 @@
 import { Download, Pickaxe, Zap, Shield, Users, ChevronRight } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 const DIST = [
   { label: "Public Market (pump.fun)", pct: 70, color: "#FF9F43" },
@@ -24,7 +24,7 @@ export default function Whitepaper() {
   });
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-4xl mx-auto px-6 py-12">
 
         <div className="text-center mb-12">
@@ -252,6 +252,6 @@ export default function Whitepaper() {
 
         </div>
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

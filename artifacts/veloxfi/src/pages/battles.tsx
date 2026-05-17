@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { TrendingUp, TrendingDown, Clock, Flame, Plus, Filter } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 type BattleState = "live" | "ended";
 type FilterTab = "ALL" | "LIVE" | "ENDED" | "HOT";
@@ -207,7 +207,7 @@ export default function Battles() {
   const featuredId = SEED_BATTLES.find((b) => b.hot && b.state === "live")?.id ?? null;
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
 
         {/* ── HEADER ── */}
@@ -355,6 +355,6 @@ export default function Battles() {
           </div>
         </div>
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

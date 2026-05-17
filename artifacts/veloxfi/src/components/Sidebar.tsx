@@ -21,6 +21,16 @@ const NAV = [
     ],
   },
   {
+    group: "RESOURCES",
+    items: [
+      { href: "/buy",        label: "Buy $BATTLE", icon: ShopIcon },
+      { href: "/whitepaper", label: "Whitepaper",  icon: BookIcon },
+      { href: "/roadmap",    label: "Roadmap",     icon: MapIcon },
+      { href: "/blog",       label: "Blog",        icon: PenIcon },
+      { href: "/faq",        label: "FAQ",         icon: HelpIcon },
+    ],
+  },
+  {
     group: "ACCOUNT",
     items: [
       { href: "/login",  label: "Sign in / Register", icon: UserIcon },
@@ -196,4 +206,19 @@ function WalletIcon({ size = 16 }: { size?: number }) {
 }
 function LockIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>;
+}
+function BookIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" /><path d="M4 16a4 4 0 0 1 4-4h12" /></svg>;
+}
+function MapIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" /><path d="M9 4v16M15 6v16" /></svg>;
+}
+function PenIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 4l6 6-12 12H2v-6L14 4z" /><path d="M12 6l6 6" /></svg>;
+}
+function HelpIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4" /><circle cx="12" cy="17" r="1" /></svg>;
+}
+function ShopIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1.5-5h15L21 9" /><path d="M3 9h18v11H3z" /><path d="M9 9V4M15 9V4" /></svg>;
 }

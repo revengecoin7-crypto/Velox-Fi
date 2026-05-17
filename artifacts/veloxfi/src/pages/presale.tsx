@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Copy, Check, ExternalLink, Zap, Shield, TrendingUp } from "lucide-react";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CA = "HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump";
@@ -30,7 +30,7 @@ export default function Presale() {
   }
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-4xl mx-auto px-6 py-12">
 
         {/* Header */}
@@ -135,6 +135,6 @@ export default function Presale() {
         </div>
 
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

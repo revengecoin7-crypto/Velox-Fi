@@ -7,7 +7,7 @@ import {
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import { useWallet } from "@/context/WalletContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 /* ── Live Preview Card ── */
 function CoinPreview({ name, ticker, description, imageUrl }: { name: string; ticker: string; description: string; imageUrl: string | null; }) {
@@ -141,7 +141,7 @@ export default function Create() {
   const canCreate = name.trim().length > 0 && ticker.trim().length > 0;
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
 
         {/* ── HEADER ── */}
@@ -368,6 +368,6 @@ export default function Create() {
           </div>
         </div>
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { useLocation, useRoute } from "wouter";
 import { ArrowLeft, Clock, Tag } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 import { BLOG_POSTS } from "./blog";
 
 /* ── Full article content per slug ── */
@@ -240,7 +240,7 @@ export default function BlogPost() {
 
   if (!post || !ContentComponent) {
     return (
-      <MemeShell>
+      <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
         <div className="max-w-3xl mx-auto px-6 py-12 text-center">
           <div className="text-6xl mb-4">😕</div>
           <h1 className="font-bungee text-3xl text-[#1a1a1a] mb-4">POST NOT FOUND</h1>
@@ -248,12 +248,12 @@ export default function BlogPost() {
             BACK TO BLOG
           </button>
         </div>
-      </MemeShell>
+      </main></div>
     );
   }
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <style>{PROSE_STYLES}</style>
       <div className="max-w-3xl mx-auto px-6 py-12">
 
@@ -325,6 +325,6 @@ export default function BlogPost() {
         </div>
 
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

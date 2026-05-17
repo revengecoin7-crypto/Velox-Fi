@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { FileText, AlertTriangle, Scale, Globe, Ban, RefreshCw, Shield, ChevronRight } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 import { Swords } from "lucide-react";
 
 const SECTIONS = [
@@ -24,7 +24,7 @@ export default function Terms() {
   const [, navigate] = useLocation();
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       {/* Header */}
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-10">
         <div className="flex items-center gap-3 mb-6">
@@ -97,6 +97,6 @@ export default function Terms() {
           </button>
         </div>
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

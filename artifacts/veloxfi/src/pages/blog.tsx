@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 export const BLOG_POSTS = [
   {
@@ -70,7 +70,7 @@ export default function Blog() {
   const [, navigate] = useLocation();
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-4xl mx-auto px-6 py-12">
 
         <div className="text-center mb-12">
@@ -129,6 +129,6 @@ export default function Blog() {
         </div>
 
       </div>
-    </MemeShell>
+    </main></div>
   );
 }

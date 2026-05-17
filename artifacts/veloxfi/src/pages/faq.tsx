@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import MemeShell from "@/components/MemeShell";
+import { Sidebar } from "@/components/Sidebar";
 
 const FAQS = [
   {
@@ -72,7 +72,7 @@ export default function FAQ() {
   const toggle = (i: number) => setOpenIndex((prev) => (prev === i ? null : i));
 
   return (
-    <MemeShell>
+    <div className="app-shell"><Sidebar /><main style={{ minWidth: 0, background: "#FFFBF0" }}>
       <div className="max-w-3xl mx-auto px-6 py-12">
 
         <div className="text-center mb-12">
@@ -140,6 +140,6 @@ export default function FAQ() {
         </div>
 
       </div>
-    </MemeShell>
+    </main></div>
   );
 }
