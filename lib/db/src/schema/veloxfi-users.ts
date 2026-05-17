@@ -23,4 +23,5 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   lastMiningClaimAt:  timestamp("last_mining_claim_at"),
   emailVerified:      timestamp("email_verified"),
   emailVerifyToken:   text("email_verify_token"),
+  lastMiningCompleteEmailAt: timestamp("last_mining_complete_email_at"),
 });

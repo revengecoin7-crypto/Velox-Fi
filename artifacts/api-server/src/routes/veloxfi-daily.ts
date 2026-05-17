@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiActivity, veloxfiDailyActions, veloxfiWolfEarnings } from "@workspace/db/schema";
 import { and, desc, eq, gte } from "drizzle-orm";
+import { sendMilestoneEmail } from "../lib/mailer";
 
 const router = Router();
 
@@ -252,6 +253,8 @@ router.post("/veloxfi/daily/milestone/:day", requireAuth as any, async (req: any
       username: user.username,
       message: `hit day ${day} streak and claimed ${reward} WOLF`,
     });
+    // Notify the user — best-effort, never blocks the claim response.
+    sendMilestoneEmail(user.email, user.username, day, reward).catch(() => {});
 
     res.json({ ok: true, reward, day, newWolfBalance: (user.wolf ?? 0) + reward });
   } catch (e) {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiBattles, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
 import { eq, desc, sql, isNotNull, isNull } from "drizzle-orm";
+import { sendConversionPaidEmail } from "../lib/mailer";
 
 const BATTLE_SUPPLY_CAP = 95_000_000;
 
@@ -118,7 +119,18 @@ router.put("/veloxfi/admin/claims/:id/paid", requireAdmin as any, async (req: an
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid claim id" }); return; }
-    await db.update(veloxfiClaims).set({ paidAt: new Date() }).where(eq(veloxfiClaims.id, id));
+    const [updated] = await db.update(veloxfiClaims)
+      .set({ paidAt: new Date() })
+      .where(eq(veloxfiClaims.id, id))
+      .returning();
+    if (updated) {
+      // Look up the user's email for the confirmation email.
+      const [u] = await db.select({ email: veloxfiUsers.email, username: veloxfiUsers.username })
+        .from(veloxfiUsers).where(eq(veloxfiUsers.username, updated.username));
+      if (u?.email) {
+        sendConversionPaidEmail(u.email, u.username, updated.amount, updated.walletAddress ?? "").catch(() => {});
+      }
+    }
     res.json({ ok: true });
   } catch (e) {
     console.error("admin/claims paid error:", e);
@@ -219,9 +231,17 @@ router.put("/veloxfi/admin/waitlist/:id/fulfill", requireAdmin as any, async (re
   try {
     const id = parseInt(req.params.id);
     if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-    await db.update(veloxfiWaitlist)
+    const [updated] = await db.update(veloxfiWaitlist)
       .set({ fulfilledAt: new Date() })
-      .where(eq(veloxfiWaitlist.id, id));
+      .where(eq(veloxfiWaitlist.id, id))
+      .returning();
+    if (updated) {
+      const [u] = await db.select({ email: veloxfiUsers.email, username: veloxfiUsers.username })
+        .from(veloxfiUsers).where(eq(veloxfiUsers.username, updated.username));
+      if (u?.email) {
+        sendConversionPaidEmail(u.email, u.username, updated.battleAmount, updated.walletAddress ?? "").catch(() => {});
+      }
+    }
     res.json({ ok: true });
   } catch (e) {
     console.error("admin/waitlist/fulfill error:", e);

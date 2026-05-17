@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { db } from "@workspace/db";
 import { veloxfiUsers, veloxfiPets, veloxfiPetAccessories, veloxfiActivity } from "@workspace/db/schema";
 import { and, eq } from "drizzle-orm";
+import { sendPetLevelUpEmail } from "../lib/mailer";
 
 const router = Router();
 
@@ -144,6 +145,15 @@ router.post("/veloxfi/pet/rename", requireAuth as any, async (req: any, res) => 
   }
 });
 
+// Fires a level-up email if the pet just crossed a stage boundary.
+function notifyLevelUpIfChanged(user: { email: string; username: string }, petName: string, oldXp: number, newXp: number) {
+  const oldStage = stageFor(oldXp);
+  const newStage = stageFor(newXp);
+  if (oldStage.name !== newStage.name) {
+    sendPetLevelUpEmail(user.email, user.username, petName, newStage.name, newStage.icon, newStage.bonus).catch(() => {});
+  }
+}
+
 // ── POST /veloxfi/pet/feed ─────────────────────────────────────────────────
 router.post("/veloxfi/pet/feed", requireAuth as any, async (req: any, res) => {
   try {
@@ -159,6 +169,7 @@ router.post("/veloxfi/pet/feed", requireAuth as any, async (req: any, res) => {
       type: "pet_feed", username: user.username,
       message: `fed their wolf (+${FEED_XP_REWARD} pet XP)`,
     });
+    notifyLevelUpIfChanged({ email: user.email, username: user.username }, pet.name, pet.xp, newXp);
     res.json({ ok: true, xp: newXp, xpGained: FEED_XP_REWARD });
   } catch (e) {
     console.error("pet/feed error:", e);
@@ -181,6 +192,7 @@ router.post("/veloxfi/pet/play", requireAuth as any, async (req: any, res) => {
       type: "pet_play", username: user.username,
       message: `played with their wolf (+${PLAY_XP_REWARD} pet XP)`,
     });
+    notifyLevelUpIfChanged({ email: user.email, username: user.username }, pet.name, pet.xp, newXp);
     res.json({ ok: true, xp: newXp, xpGained: PLAY_XP_REWARD });
   } catch (e) {
     console.error("pet/play error:", e);

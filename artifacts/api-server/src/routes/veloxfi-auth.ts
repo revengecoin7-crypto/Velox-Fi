@@ -6,43 +6,7 @@ import { eq, sql, isNull, desc, gte, and } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-// Sender address: needs a verified domain in Resend. Falls back to Resend's
-// public test sender so verification still works while the domain is being
-// configured. Switch over by setting RESEND_FROM=noreply@veloxfi.io in env.
-const VERIFY_FROM = process.env.RESEND_FROM ?? "onboarding@resend.dev";
-const VERIFY_BASE = process.env.SITE_URL ?? "https://veloxfi.io";
-
-async function sendVerificationEmail(toEmail: string, username: string, verifyToken: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY not set — skipping verification email");
-    return;
-  }
-  const verifyLink = `${VERIFY_BASE}/?verify=${verifyToken}`;
-  try {
-    await resend.emails.send({
-      from:    VERIFY_FROM,
-      to:      [toEmail],
-      subject: "🐺 Verify your VeloxFi email",
-      html: `
-        <div style="font-family:sans-serif;background:#FFFBF0;color:#0B0B1A;padding:40px;max-width:520px;margin:0 auto;border-radius:16px;border:2.5px solid #0B0B1A">
-          <div style="font-family:'Bagel Fat One',sans-serif;font-size:26px;color:#FF2BD6;letter-spacing:1px;margin-bottom:8px">VELOXFI</div>
-          <h2 style="margin:0 0 20px;font-size:18px">Welcome to the pack, ${username}</h2>
-          <p style="line-height:1.6">Click the button below to verify your email. You'll need a verified email before converting WOLF to $BATTLE.</p>
-          <div style="text-align:center;margin:32px 0">
-            <a href="${verifyLink}" style="display:inline-block;padding:14px 32px;background:#FF2BD6;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;letter-spacing:1px;border:2.5px solid #0B0B1A;box-shadow:3px 3px 0 #0B0B1A">VERIFY EMAIL →</a>
-          </div>
-          <p style="color:#666;font-size:12px;line-height:1.6">If you didn't sign up, you can ignore this email.</p>
-          <p style="color:#666;font-size:12px">Or copy this link: <span style="color:#FF2BD6;word-break:break-all">${verifyLink}</span></p>
-        </div>
-      `,
-    });
-  } catch (e) {
-    console.error("verification email send failed:", e);
-  }
-}
+import { sendVerificationEmail } from "../lib/mailer";
 
 const router = Router();
 
