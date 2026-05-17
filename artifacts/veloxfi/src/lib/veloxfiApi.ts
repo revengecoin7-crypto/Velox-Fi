@@ -23,6 +23,9 @@ export function useVeloxfiStats(refreshMs = 30_000) {
 }
 
 // ── /veloxfi/leaderboard ───────────────────────────────────────────────────
+export type LeaderboardSort   = "battle" | "wolf" | "xp" | "refs" | "earned";
+export type LeaderboardPeriod = "all" | "today" | "week" | "month";
+
 export interface LeaderboardEntry {
   rank:          number;
   username:      string;
@@ -32,24 +35,32 @@ export interface LeaderboardEntry {
   level:         number;
   referralCount: number;
   walletAddress: string | null;
-  gamesPlayed:   number;
+  earnedAmount:  number;
   isYou:         boolean;
 }
 
 export interface LeaderboardResponse {
   leaderboard: LeaderboardEntry[];
   yourEntry:   LeaderboardEntry | null;
+  sort:        LeaderboardSort;
+  period:      LeaderboardPeriod;
 }
 
-export function useLeaderboard(username?: string | null, limit = 50, refreshMs = 30_000) {
+export function useLeaderboard(
+  username?: string | null,
+  limit = 50,
+  sort: LeaderboardSort = "battle",
+  period: LeaderboardPeriod = "all",
+  refreshMs = 30_000,
+) {
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   useEffect(() => {
-    const url = `/api/veloxfi/leaderboard?limit=${limit}${username ? `&username=${encodeURIComponent(username)}` : ""}`;
+    const url = `/api/veloxfi/leaderboard?limit=${limit}&sort=${sort}&period=${period}${username ? `&username=${encodeURIComponent(username)}` : ""}`;
     const f = () => fetch(url).then(r => r.json()).then(setData).catch(() => {});
     f();
     const id = setInterval(f, refreshMs);
     return () => clearInterval(id);
-  }, [username, limit, refreshMs]);
+  }, [username, limit, sort, period, refreshMs]);
   return data;
 }
 

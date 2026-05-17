@@ -1,8 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist, veloxfiActivity } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist, veloxfiActivity, veloxfiWolfEarnings } from "@workspace/db/schema";
 import { getPetBonusPercent } from "./veloxfi-pet";
-import { eq, sql, isNull, desc } from "drizzle-orm";
+import { eq, sql, isNull, desc, gte, and } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -240,23 +240,121 @@ router.get("/veloxfi/me", requireAuth as any, async (req: any, res) => {
   }
 });
 
+// Map period query param to a start date (UTC) — null = no time filter.
+function periodStart(period: string): Date | null {
+  const now = new Date();
+  if (period === "today") {
+    const d = new Date(now); d.setUTCHours(0, 0, 0, 0); return d;
+  }
+  if (period === "week") {
+    const d = new Date(now); d.setUTCDate(d.getUTCDate() - 7); return d;
+  }
+  if (period === "month") {
+    const d = new Date(now); d.setUTCDate(d.getUTCDate() - 30); return d;
+  }
+  return null;
+}
+
 router.get("/veloxfi/leaderboard", async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit ?? "50")) || 50));
     const requester = typeof req.query.username === "string" ? req.query.username : null;
+    const sort   = String(req.query.sort   ?? "battle"); // battle|wolf|xp|refs|earned
+    const period = String(req.query.period ?? "all");     // all|today|week|month
+
+    // ── Earnings view: per-period sum from veloxfi_wolf_earnings ──────────
+    if (sort === "earned") {
+      const since = periodStart(period);
+      const whereClause = since ? gte(veloxfiWolfEarnings.createdAt, since) : undefined;
+
+      const earned = await db
+        .select({
+          username: veloxfiWolfEarnings.username,
+          total:    sql<number>`coalesce(sum(${veloxfiWolfEarnings.amount}), 0)::int`,
+        })
+        .from(veloxfiWolfEarnings)
+        .where(whereClause as any)
+        .groupBy(veloxfiWolfEarnings.username)
+        .orderBy(sql`coalesce(sum(${veloxfiWolfEarnings.amount}), 0) desc`)
+        .limit(limit);
+
+      // Pull user info for the winners in one round-trip.
+      const usernames = earned.map(e => e.username);
+      const users = usernames.length === 0 ? [] : await db
+        .select({
+          username: veloxfiUsers.username, tokens: veloxfiUsers.tokens, wolf: veloxfiUsers.wolf,
+          xp: veloxfiUsers.xp, referralCount: veloxfiUsers.referralCount, walletAddress: veloxfiUsers.walletAddress,
+        })
+        .from(veloxfiUsers);
+      const userByName = new Map(users.map(u => [u.username, u]));
+
+      const leaderboard = earned.map((e, i) => {
+        const u = userByName.get(e.username);
+        return {
+          rank:          i + 1,
+          username:      e.username,
+          tokens:        Number(u?.tokens ?? 0),
+          wolf:          u?.wolf ?? 0,
+          xp:            u?.xp ?? 0,
+          level:         Math.max(1, Math.floor((u?.xp ?? 0) / 1000) + 1),
+          referralCount: u?.referralCount ?? 0,
+          walletAddress: u?.walletAddress ?? null,
+          earnedAmount:  e.total,
+          isYou:         requester != null && e.username.toLowerCase() === requester.toLowerCase(),
+        };
+      });
+
+      let yourEntry: typeof leaderboard[number] | null = null;
+      if (requester && !leaderboard.some(l => l.isYou)) {
+        const [me] = await db
+          .select({ total: sql<number>`coalesce(sum(${veloxfiWolfEarnings.amount}), 0)::int` })
+          .from(veloxfiWolfEarnings)
+          .where(and(eq(veloxfiWolfEarnings.username, requester), whereClause as any));
+        if (me && me.total > 0) {
+          const [{ rank }] = await db
+            .select({
+              rank: sql<number>`(select count(*)::int from (select username, coalesce(sum(amount),0) as t from ${veloxfiWolfEarnings} ${since ? sql`where created_at >= ${since}` : sql``} group by username) sub where sub.t > ${me.total}) + 1`,
+            })
+            .from(veloxfiWolfEarnings).limit(1);
+          const u = (await db.select().from(veloxfiUsers).where(eq(veloxfiUsers.username, requester)))[0];
+          yourEntry = {
+            rank: Number(rank),
+            username: requester,
+            tokens: Number(u?.tokens ?? 0),
+            wolf: u?.wolf ?? 0,
+            xp: u?.xp ?? 0,
+            level: Math.max(1, Math.floor((u?.xp ?? 0) / 1000) + 1),
+            referralCount: u?.referralCount ?? 0,
+            walletAddress: u?.walletAddress ?? null,
+            earnedAmount: me.total,
+            isYou: true,
+          };
+        }
+      }
+
+      res.json({ leaderboard, yourEntry, sort, period });
+      return;
+    }
+
+    // ── Balance-based views: snapshot sort, period ignored ────────────────
+    const sortCol =
+      sort === "wolf" ? veloxfiUsers.wolf
+      : sort === "xp" ? veloxfiUsers.xp
+      : sort === "refs" ? veloxfiUsers.referralCount
+      : veloxfiUsers.tokens; // 'battle' default
 
     const rows = await db
       .select({
-        username:       veloxfiUsers.username,
-        tokens:         veloxfiUsers.tokens,
-        wolf:           veloxfiUsers.wolf,
-        xp:             veloxfiUsers.xp,
-        referralCount:  veloxfiUsers.referralCount,
-        walletAddress:  veloxfiUsers.walletAddress,
-        createdAt:      veloxfiUsers.createdAt,
+        username:      veloxfiUsers.username,
+        tokens:        veloxfiUsers.tokens,
+        wolf:          veloxfiUsers.wolf,
+        xp:            veloxfiUsers.xp,
+        referralCount: veloxfiUsers.referralCount,
+        walletAddress: veloxfiUsers.walletAddress,
+        createdAt:     veloxfiUsers.createdAt,
       })
       .from(veloxfiUsers)
-      .orderBy(desc(veloxfiUsers.tokens))
+      .orderBy(desc(sortCol))
       .limit(limit);
 
     const leaderboard = rows.map((r, i) => ({
@@ -268,28 +366,24 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
       level:         Math.max(1, Math.floor((r.xp ?? 0) / 1000) + 1),
       referralCount: r.referralCount ?? 0,
       walletAddress: r.walletAddress ?? null,
+      earnedAmount:  0,
       isYou:         requester != null && r.username.toLowerCase() === requester.toLowerCase(),
     }));
 
-    // Find requester's rank if they're outside the returned page
     let yourEntry: typeof leaderboard[number] | null = null;
     if (requester && !leaderboard.some(l => l.isYou)) {
       const [me] = await db
-        .select({
-          username:      veloxfiUsers.username,
-          tokens:        veloxfiUsers.tokens,
-          wolf:          veloxfiUsers.wolf,
-          xp:            veloxfiUsers.xp,
-          referralCount: veloxfiUsers.referralCount,
-          walletAddress: veloxfiUsers.walletAddress,
-          createdAt:     veloxfiUsers.createdAt,
-        })
+        .select()
         .from(veloxfiUsers)
         .where(eq(veloxfiUsers.username, requester));
-
       if (me) {
+        const meVal =
+          sort === "wolf" ? (me.wolf ?? 0)
+          : sort === "xp" ? (me.xp ?? 0)
+          : sort === "refs" ? (me.referralCount ?? 0)
+          : Number(me.tokens ?? 0);
         const [{ rank }] = await db
-          .select({ rank: sql<number>`(select count(*)::int from ${veloxfiUsers} u where u.tokens > ${me.tokens}) + 1` })
+          .select({ rank: sql<number>`(select count(*)::int from ${veloxfiUsers} u where ${sortCol} > ${meVal}) + 1` })
           .from(veloxfiUsers)
           .limit(1);
         yourEntry = {
@@ -301,12 +395,13 @@ router.get("/veloxfi/leaderboard", async (req, res) => {
           level:         Math.max(1, Math.floor((me.xp ?? 0) / 1000) + 1),
           referralCount: me.referralCount ?? 0,
           walletAddress: me.walletAddress ?? null,
+          earnedAmount:  0,
           isYou:         true,
         };
       }
     }
 
-    res.json({ leaderboard, yourEntry });
+    res.json({ leaderboard, yourEntry, sort, period });
   } catch (e) {
     console.error("veloxfi/leaderboard error:", e);
     res.status(500).json({ error: "Server error." });
@@ -434,6 +529,13 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
       type:     "claim",
       username: user.username,
       message:  `claimed ${wolfEarned} WOLF${bonusNote}`,
+    });
+
+    // Earnings log — feeds the period-bound leaderboard.
+    await db.insert(veloxfiWolfEarnings).values({
+      username: user.username,
+      source:   "mining",
+      amount:   wolfEarned,
     });
 
     res.json({

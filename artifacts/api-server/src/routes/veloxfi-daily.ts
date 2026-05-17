@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiActivity, veloxfiDailyActions } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiActivity, veloxfiDailyActions, veloxfiWolfEarnings } from "@workspace/db/schema";
 import { and, desc, eq, gte } from "drizzle-orm";
 
 const router = Router();
@@ -67,6 +67,16 @@ async function awardWolf(username: string, amount: number) {
 
 async function logAction(username: string, actionType: string, rewardWolf: number) {
   await db.insert(veloxfiDailyActions).values({ username, actionType, rewardWolf });
+  // Also feed the period-bound leaderboard if there was a reward.
+  if (rewardWolf > 0) {
+    const source =
+      actionType === "spin"                    ? "spin" :
+      actionType.startsWith("chest_")          ? "chest" :
+      actionType.startsWith("milestone_")      ? "milestone" :
+      actionType.startsWith("bounty_")         ? "bounty" :
+      "daily";
+    await db.insert(veloxfiWolfEarnings).values({ username, source, amount: rewardWolf });
+  }
 }
 
 // ── GET /veloxfi/daily/status ────────────────────────────────────────────────
