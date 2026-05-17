@@ -141,7 +141,7 @@ export default function ProfilePage() {
   const stats = calcUserStats(user);
   const profile = useProfileData(token);
   const [copied, setCopied] = useState(false);
-  const refLink = `veloxfi.io/?ref=${stats.username}`;
+  const refLink = `veloxfi.io/r/${stats.username}`;
   const xp = stats.xp;
   const xpPct = Math.min((xp / stats.xpToNextLevel) * 100, 100);
 

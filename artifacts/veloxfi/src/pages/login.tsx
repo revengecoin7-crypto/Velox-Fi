@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
+import { getPendingReferral, clearPendingReferral } from "@/lib/referral";
 
 export default function Login() {
   const { login, register } = useAuth();
@@ -14,6 +15,16 @@ export default function Login() {
   const [checked, setChecked] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If someone arrived via /r/<code> or ?ref=<code>, pre-fill the field and
+  // open the Register tab.
+  useEffect(() => {
+    const pending = getPendingReferral();
+    if (pending) {
+      setReferral(pending);
+      setMode("register");
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -34,8 +45,12 @@ export default function Login() {
     setLoading(true);
     const res = await register(username, email, password, referral.trim() || undefined);
     setLoading(false);
-    if (res.ok) setSuccess(true);
-    else setErr(res.error ?? "Registration failed.");
+    if (res.ok) {
+      clearPendingReferral();
+      setSuccess(true);
+    } else {
+      setErr(res.error ?? "Registration failed.");
+    }
   }
 
   return (

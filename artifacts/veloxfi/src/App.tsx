@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, useRoute } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WalletProvider } from "@/context/WalletContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { recordPageView, heartbeat } from "@/lib/analytics";
+import { captureReferralFromUrl, setPendingReferral } from "@/lib/referral";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Leaderboard from "@/pages/leaderboard";
@@ -29,11 +30,27 @@ const queryClient = new QueryClient();
 
 function Analytics() {
   const [location] = useLocation();
-  useEffect(() => { recordPageView(location); }, [location]);
+  useEffect(() => {
+    recordPageView(location);
+    // Pick up ?ref=username from anywhere on the site (homepage, presale, ...)
+    captureReferralFromUrl();
+  }, [location]);
   useEffect(() => {
     const id = setInterval(() => heartbeat(location), 30_000);
     return () => clearInterval(id);
   }, [location]);
+  return null;
+}
+
+// Short-link handler for veloxfi.io/r/<username> — stores the referrer in
+// localStorage and bounces to /login (register tab).
+function ReferralRedirect() {
+  const [, params] = useRoute("/r/:code");
+  const [, navigate] = useLocation();
+  useEffect(() => {
+    if (params?.code) setPendingReferral(params.code);
+    navigate("/login");
+  }, [params?.code, navigate]);
   return null;
 }
 
@@ -62,6 +79,7 @@ function Router() {
         <Route path="/blog" component={Blog} />
         <Route path="/buy" component={Presale} />
         <Route path="/presale" component={Presale} />
+        <Route path="/r/:code" component={ReferralRedirect} />
         <Route component={NotFound} />
       </Switch>
     </>
