@@ -4,12 +4,21 @@ import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
 import { calcUserStats, type UserStats } from "@/lib/userStats";
 
+// Mirrors the flat JSON shape returned by GET /veloxfi/profile.
 interface ProfileData {
-  user:      { username: string; tokens: number; xp: number; referralCount: number };
-  stats:     { totalBattles: number; totalWins: number; totalLosses: number; totalTokens: number };
-  battles:   any[];
-  achievements: { achievementId: string; earnedAt: string }[];
-  missions:  {
+  username:      string;
+  email:         string;
+  tokens:        number;
+  wolf:          number;
+  xp:            number;
+  level:         number;
+  levelName:     string;
+  referralCount: number;
+  referralTokens: number;
+  stats?:        { totalBattles: number; totalWins: number; totalLosses: number; totalTokens: number };
+  battles?:      any[];
+  achievements?: { id: string; earnedAt: string }[];
+  missions?:     {
     date:           string;
     battlesPlayed:  number;
     thirtyMinWins:  number;
@@ -151,14 +160,14 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const refCount    = (user as any)?.referralCount  ?? profile?.user.referralCount ?? 0;
-  const refTokens   = (user as any)?.referralTokens ?? 0;
-  const achievementIds = new Set((profile?.achievements ?? []).map(a => a.achievementId));
+  const refCount    = (user as any)?.referralCount  ?? profile?.referralCount  ?? 0;
+  const refTokens   = (user as any)?.referralTokens ?? profile?.referralTokens ?? 0;
+  const achievementIds = new Set((profile?.achievements ?? []).map(a => a.id));
 
   const oneTime = ONE_TIME_DEFS.map(d => ({
     ...d,
     unlocked: d.unlocked(stats, refCount, achievementIds),
-    earnedAt: profile?.achievements.find(a => a.achievementId === d.id)?.earnedAt ?? null,
+    earnedAt: profile?.achievements?.find(a => a.id === d.id)?.earnedAt ?? null,
   }));
 
   const tiered = TIERED_DEFS.map(t => {
