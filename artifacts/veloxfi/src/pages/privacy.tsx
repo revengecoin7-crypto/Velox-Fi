@@ -25,7 +25,7 @@ Security: To detect, investigate, and prevent fraudulent activity, unauthorized 
 
 Analytics: To understand how users interact with the Platform in aggregate, enabling us to identify areas for improvement and measure the effectiveness of new features.
 
-Legal compliance: To comply with applicable laws, regulations, and lawful requests from government authorities, including compliance with sanctions screening obligations.
+Legal compliance: To comply with applicable laws, regulations, and lawful requests from government authorities.
 
 Communication: To respond to user inquiries and, where you have opted in, to send you updates about Platform developments and new features.
 

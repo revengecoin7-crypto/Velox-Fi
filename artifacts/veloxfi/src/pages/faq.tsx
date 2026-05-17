@@ -26,8 +26,6 @@ const FAQS: Faq[] = [
     a: "Yes. Registering and mining WOLF is completely free. You only need a wallet when you convert WOLF to $BATTLE tokens, which get sent to your Solana address." },
   { q: "How can I join the community?",          emoji: "🌐", color: "var(--lavender)",
     a: <>Join our Telegram at <a href="https://t.me/VeloxFiOfficial" target="_blank" rel="noreferrer" style={{ color: "var(--magenta)", fontWeight: 700 }}>t.me/VeloxFiOfficial</a> or follow us on X at <a href="https://x.com/Battle767629" target="_blank" rel="noreferrer" style={{ color: "var(--magenta)", fontWeight: 700 }}>x.com/Battle767629</a>. We're active 24/7.</> },
-  { q: "Is VeloxFi available in the US?",        emoji: "🚫", color: "var(--tomato)",
-    a: "No. VeloxFi is not available to US residents due to regulatory restrictions." },
 ];
 
 export default function FAQ() {
