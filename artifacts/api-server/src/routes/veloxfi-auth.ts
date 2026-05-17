@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
+import { veloxfiUsers, veloxfiClaims, veloxfiWaitlist, veloxfiActivity } from "@workspace/db/schema";
 import { eq, sql, isNull, desc } from "drizzle-orm";
 import { updateAndCheckMissions } from "./veloxfi-battles";
 import bcrypt from "bcryptjs";
@@ -229,6 +229,10 @@ router.get("/veloxfi/me", requireAuth as any, async (req: any, res) => {
       xp: user.xp ?? 0,
       level: meXPInfo.level,
       levelName: meXPInfo.levelName,
+      dailyStreak: user.dailyStreak ?? 0,
+      lastMiningClaimAt: user.lastMiningClaimAt ?? null,
+      referralCount: user.referralCount ?? 0,
+      referralTokens: user.referralTokens ?? 0,
     });
   } catch (e) {
     res.status(500).json({ error: "Server error." });
@@ -354,6 +358,28 @@ router.post("/veloxfi/mining/start", requireAuth as any, async (req: any, res) =
   }
 });
 
+// Tier bonus is awarded on each claim based on the user's WOLF balance
+// at the moment of claiming (Bronze=0, Silver=10, Gold=25, Diamond=50, Alpha=100).
+function tierBonusPercent(wolf: number): number {
+  if (wolf >= 100_000) return 100;
+  if (wolf >=  20_000) return 50;
+  if (wolf >=   5_000) return 25;
+  if (wolf >=   1_000) return 10;
+  return 0;
+}
+
+function isSameUtcDay(a: Date, b: Date): boolean {
+  return a.getUTCFullYear() === b.getUTCFullYear()
+      && a.getUTCMonth()    === b.getUTCMonth()
+      && a.getUTCDate()     === b.getUTCDate();
+}
+
+function isYesterdayUtc(prev: Date, now: Date): boolean {
+  const oneDay = new Date(now);
+  oneDay.setUTCDate(oneDay.getUTCDate() - 1);
+  return isSameUtcDay(prev, oneDay);
+}
+
 router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;
@@ -361,15 +387,59 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
     if (mining.status === 'inactive') {
       res.status(400).json({ error: "No active mining session." }); return;
     }
-    const wolfEarned = mining.status === 'complete'
+
+    // Base WOLF earned from elapsed minutes (capped at MAX_WOLF_PER_SESSION).
+    const baseWolf = mining.status === 'complete'
       ? MAX_WOLF_PER_SESSION
       : Math.max(1, Math.floor(((Date.now() - user.wolfMiningStart!.getTime())) / 60000) * WOLF_PER_MINUTE);
+
+    // Apply tier bonus based on current WOLF balance (before this claim).
+    const bonusPct   = tierBonusPercent(user.wolf ?? 0);
+    const wolfEarned = Math.floor(baseWolf * (1 + bonusPct / 100));
+
+    // Daily streak: increment if last claim was yesterday, reset if older,
+    // unchanged if already claimed today, start at 1 if never claimed.
+    const now = new Date();
+    const prevClaim = user.lastMiningClaimAt ? new Date(user.lastMiningClaimAt) : null;
+    let newStreak: number;
+    if (!prevClaim)                       newStreak = 1;
+    else if (isSameUtcDay(prevClaim, now)) newStreak = user.dailyStreak ?? 1;
+    else if (isYesterdayUtc(prevClaim, now)) newStreak = (user.dailyStreak ?? 0) + 1;
+    else                                   newStreak = 1;
+
     const newWolfBalance = (user.wolf ?? 0) + wolfEarned;
+    const newXp          = (user.xp ?? 0) + wolfEarned; // 1 WOLF = 1 XP
+
     await db.update(veloxfiUsers)
-      .set({ wolf: newWolfBalance, wolfMiningStart: null })
+      .set({
+        wolf:              newWolfBalance,
+        wolfMiningStart:   null,
+        xp:                newXp,
+        dailyStreak:       newStreak,
+        lastMiningClaimAt: now,
+      })
       .where(eq(veloxfiUsers.username, user.username));
-    res.json({ ok: true, wolfEarned, newWolfBalance, battleBalance: user.tokens });
+
+    // Activity feed entry — visible in /mine live feed and admin.
+    const bonusNote = bonusPct > 0 ? ` (+${bonusPct}% tier bonus)` : "";
+    await db.insert(veloxfiActivity).values({
+      type:     "claim",
+      username: user.username,
+      message:  `claimed ${wolfEarned} WOLF${bonusNote}`,
+    });
+
+    res.json({
+      ok: true,
+      wolfEarned,
+      baseWolf,
+      bonusPct,
+      newWolfBalance,
+      battleBalance: user.tokens,
+      newXp,
+      dailyStreak: newStreak,
+    });
   } catch (e) {
+    console.error("mining/claim error:", e);
     res.status(500).json({ error: "Server error." });
   }
 });

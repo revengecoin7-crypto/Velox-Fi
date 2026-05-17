@@ -19,4 +19,6 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   claimedAt:          timestamp("claimed_at"),
   activeBattle:       text("active_battle"),
   xp:                 integer("xp").notNull().default(0),
+  dailyStreak:        integer("daily_streak").notNull().default(0),
+  lastMiningClaimAt:  timestamp("last_mining_claim_at"),
 });

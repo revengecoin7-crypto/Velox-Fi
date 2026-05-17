@@ -109,6 +109,9 @@ function buildUser(api: Record<string, unknown>, daily: DailyData): User {
   const wolfMiningStart = api.wolfMiningStart
     ? new Date(api.wolfMiningStart as string).getTime()
     : null;
+  // Prefer DB-tracked streak (set by mining/claim); fall back to localStorage
+  // for users who haven't claimed yet under the new schema.
+  const apiStreak = typeof api.dailyStreak === "number" ? api.dailyStreak : null;
   return {
     username:        String(api.username ?? ""),
     email:           String(api.email ?? ""),
@@ -118,7 +121,7 @@ function buildUser(api: Record<string, unknown>, daily: DailyData): User {
     wolfMiningStart,
     lastMineSession: wolfMiningStart,
     lastDailyReward: daily.lastDailyReward,
-    dailyStreak:     daily.dailyStreak,
+    dailyStreak:     apiStreak ?? daily.dailyStreak,
     id:              String(api.username ?? ""),
     conversions:     [],
     totalMined:      0,
@@ -228,7 +231,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { ok, data } = await apiFetch<Record<string, unknown>>("/veloxfi/mining/claim", { method: "POST" }, token);
     if (!ok) return 0;
     const wolfEarned = Number(data.wolfEarned ?? 0);
-    setUser(u => u ? { ...u, wolf: Number(data.newWolfBalance ?? u.wolf), wolfMiningStart: null, lastMineSession: null } : u);
+    const newStreak  = typeof data.dailyStreak === "number" ? data.dailyStreak : null;
+    setUser(u => u ? {
+      ...u,
+      wolf:            Number(data.newWolfBalance ?? u.wolf),
+      wolfMiningStart: null,
+      lastMineSession: null,
+      dailyStreak:     newStreak ?? u.dailyStreak,
+    } : u);
     return wolfEarned;
   }
 
