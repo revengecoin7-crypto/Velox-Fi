@@ -29,6 +29,10 @@ function useSupplyStatus() {
   return { supply, refresh: () => fetch("/api/veloxfi/supply-status").then(r => r.json()).then(setSupply).catch(() => {}) };
 }
 
+// Mirrors MIN_WITHDRAW_BATTLE in the backend. Anything below this loses money
+// once you factor in Solana ATA rent (~0.002 SOL per new recipient).
+const MIN_WITHDRAW_BATTLE = 10;
+
 function fmtBattle(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
@@ -58,6 +62,11 @@ export default function Convert() {
     setWithdrawStatus("idle"); setWithdrawMsg("");
     const amt = Number(withdrawAmount);
     if (!Number.isFinite(amt) || amt <= 0) { setWithdrawStatus("error"); setWithdrawMsg("Enter a valid amount."); return; }
+    if (amt < MIN_WITHDRAW_BATTLE) {
+      setWithdrawStatus("error");
+      setWithdrawMsg(`Minimum withdrawal is ${MIN_WITHDRAW_BATTLE} $BATTLE — keep mining to reach the threshold!`);
+      return;
+    }
     if (amt > user.battle) { setWithdrawStatus("error"); setWithdrawMsg(`You only have ${user.battle.toFixed(4)} $BATTLE.`); return; }
     if (!walletInput.trim()) { setWithdrawStatus("error"); setWithdrawMsg("Save your Solana wallet address first (form above)."); return; }
     if (walletInput.trim() !== user.wallet) await setWallet(walletInput.trim());
@@ -373,6 +382,11 @@ export default function Convert() {
                 <div className="display tabular" style={{ fontSize: 32, color: "var(--magenta)" }}>
                   {user!.battle.toFixed(4)} $BATTLE
                 </div>
+                <div className="mono" style={{ fontSize: 10, color: user!.battle >= MIN_WITHDRAW_BATTLE ? "var(--lime)" : "var(--mute)", marginTop: 4 }}>
+                  {user!.battle >= MIN_WITHDRAW_BATTLE
+                    ? `✓ Above the ${MIN_WITHDRAW_BATTLE} $BATTLE minimum`
+                    : `Minimum ${MIN_WITHDRAW_BATTLE} $BATTLE — need ${(MIN_WITHDRAW_BATTLE - user!.battle).toFixed(4)} more`}
+                </div>
               </div>
 
               <div style={{ marginBottom: 16 }}>
@@ -382,14 +396,17 @@ export default function Convert() {
                     type="number"
                     value={withdrawAmount}
                     onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawStatus("idle"); }}
-                    min={0}
+                    min={MIN_WITHDRAW_BATTLE}
                     max={user!.battle}
                     step="0.0001"
-                    placeholder="Enter $BATTLE amount…"
+                    placeholder={`Min ${MIN_WITHDRAW_BATTLE} $BATTLE…`}
                     className="input"
                     style={{ flex: 1 }}
                   />
                   <button className="btn sm primary" onClick={() => setWithdrawAmount(String(user!.battle))}>MAX</button>
+                </div>
+                <div className="mono" style={{ fontSize: 10, color: "var(--mute)", marginTop: 6 }}>
+                  Why a minimum? Each on-chain payout costs Solana network fees (~0.002 SOL). Below {MIN_WITHDRAW_BATTLE} $BATTLE the fees would exceed the payout.
                 </div>
               </div>
 
@@ -420,20 +437,22 @@ export default function Convert() {
               })()}
 
               <button
-                className={`btn lg ${Number(withdrawAmount) > 0 && Number(withdrawAmount) <= user!.battle && user!.emailVerified ? "primary" : "ghost"}`}
+                className={`btn lg ${Number(withdrawAmount) >= MIN_WITHDRAW_BATTLE && Number(withdrawAmount) <= user!.battle && user!.emailVerified ? "primary" : "ghost"}`}
                 style={{ width: "100%", justifyContent: "center" }}
                 onClick={handleWithdraw}
-                disabled={withdrawing || !user!.emailVerified || Number(withdrawAmount) <= 0 || Number(withdrawAmount) > user!.battle}
+                disabled={withdrawing || !user!.emailVerified || Number(withdrawAmount) < MIN_WITHDRAW_BATTLE || Number(withdrawAmount) > user!.battle}
               >
                 {withdrawing
                   ? "Submitting…"
                   : !user!.emailVerified
                     ? "Verify email first"
                     : Number(withdrawAmount) <= 0
-                      ? "Enter $BATTLE amount"
-                      : Number(withdrawAmount) > user!.battle
-                        ? "Insufficient balance"
-                        : `Withdraw ${Number(withdrawAmount).toFixed(4)} $BATTLE to wallet`}
+                      ? `Enter $BATTLE amount (min ${MIN_WITHDRAW_BATTLE})`
+                      : Number(withdrawAmount) < MIN_WITHDRAW_BATTLE
+                        ? `Minimum ${MIN_WITHDRAW_BATTLE} $BATTLE`
+                        : Number(withdrawAmount) > user!.battle
+                          ? "Insufficient balance"
+                          : `Withdraw ${Number(withdrawAmount).toFixed(4)} $BATTLE to wallet`}
               </button>
             </div>
 

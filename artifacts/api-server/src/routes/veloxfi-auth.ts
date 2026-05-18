@@ -223,6 +223,11 @@ router.get("/veloxfi/user/:username", requireAuth as any, async (req: any, res) 
   });
 });
 
+// Smallest withdrawal we'll process on-chain. Anything smaller costs more in
+// Solana fees (~0.002 SOL rent per new recipient ATA) than the payout itself
+// is worth at current $BATTLE price.
+const MIN_WITHDRAW_BATTLE = 10;
+
 router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
   try {
     const user = req.veloxfiUser;
@@ -239,6 +244,9 @@ router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
     const claimAmt = Number(req.body.amount);
     if (!Number.isFinite(claimAmt) || claimAmt <= 0) {
       res.status(400).json({ error: "Enter a valid amount to withdraw." }); return;
+    }
+    if (claimAmt < MIN_WITHDRAW_BATTLE) {
+      res.status(400).json({ error: `Minimum withdrawal is ${MIN_WITHDRAW_BATTLE} $BATTLE — keep mining to reach the threshold!` }); return;
     }
     if (claimAmt > numericTokens) {
       res.status(400).json({ error: "Withdraw amount exceeds your $BATTLE balance." }); return;
