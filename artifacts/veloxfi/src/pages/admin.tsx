@@ -548,6 +548,7 @@ function AdminPool() {
 
 function AdminTx() {
   const { claims, refresh } = useAdminClaims();
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   async function markPaid(id: number) {
     if (!confirm("Mark this claim as paid?")) return;
@@ -559,6 +560,12 @@ function AdminTx() {
     if (!confirm("Revert this claim to pending?")) return;
     await fetch(`/api/veloxfi/admin/claims/${id}/paid`, { method: "DELETE", headers: adminHeaders() });
     refresh();
+  }
+
+  async function copyAddr(id: number, addr: string) {
+    try { await navigator.clipboard.writeText(addr); } catch { /* ignore */ }
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(c => (c === id ? null : c)), 1800);
   }
 
   const pending = claims.filter(c => !c.paidAt);
@@ -578,22 +585,51 @@ function AdminTx() {
         {claims.length === 0 ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--mute)", fontSize: 13 }}>No claims requested yet.</div>
         ) : claims.map((c, i) => (
-          <div key={c.id} className="row" style={{ padding: "12px 22px", borderBottom: i < claims.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", gap: 14, background: c.paidAt ? "var(--cream-soft)" : "var(--paper)" }}>
-            <span className="pill" style={{ background: c.paidAt ? "var(--lime)" : "var(--yellow)", fontSize: 10, padding: "2px 8px", minWidth: 60, justifyContent: "center" }}>
-              {c.paidAt ? "PAID" : "PENDING"}
-            </span>
-            <div style={{ flex: 2, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>{c.username}</div>
-              <div className="mono" style={{ fontSize: 10, color: "var(--mute)" }}>{shortAddr(c.walletAddress)}</div>
+          <div key={c.id} style={{ padding: "14px 22px", borderBottom: i < claims.length - 1 ? "1px dashed rgba(11,11,26,0.12)" : "none", background: c.paidAt ? "var(--cream-soft)" : "var(--paper)" }}>
+            <div className="row" style={{ gap: 14, alignItems: "center" }}>
+              <span className="pill" style={{ background: c.paidAt ? "var(--lime)" : "var(--yellow)", fontSize: 10, padding: "2px 8px", minWidth: 60, justifyContent: "center" }}>
+                {c.paidAt ? "PAID" : "PENDING"}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{c.username}</div>
+              </div>
+              <div style={{ width: 150, textAlign: "right" }} className="display tabular">
+                <span style={{ color: "#0E6A2A", fontSize: 13 }}>{Number(c.amount).toFixed(4)} $BATTLE</span>
+              </div>
+              <div className="mono" style={{ width: 90, fontSize: 11, color: "var(--mute)", textAlign: "right" }}>{relTime(c.requestedAt)}</div>
+              <div style={{ width: 100, textAlign: "right" }}>
+                {c.paidAt
+                  ? <button className="btn sm ghost" onClick={() => markUnpaid(c.id)}>Revert</button>
+                  : <button className="btn sm primary" onClick={() => markPaid(c.id)}>Mark paid</button>}
+              </div>
             </div>
-            <div style={{ width: 130, textAlign: "right" }} className="display tabular">
-              <span style={{ color: "#0E6A2A", fontSize: 13 }}>{Number(c.amount).toFixed(4)} $BATTLE</span>
-            </div>
-            <div className="mono" style={{ width: 90, fontSize: 11, color: "var(--mute)", textAlign: "right" }}>{relTime(c.requestedAt)}</div>
-            <div style={{ width: 100, textAlign: "right" }}>
-              {c.paidAt
-                ? <button className="btn sm ghost" onClick={() => markUnpaid(c.id)}>Revert</button>
-                : <button className="btn sm primary" onClick={() => markPaid(c.id)}>Mark paid</button>}
+            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "rgba(11,11,26,0.04)", border: "1.5px solid rgba(11,11,26,0.12)", borderRadius: 8 }}>
+              <span className="mono" style={{ fontSize: 9, color: "var(--mute)", textTransform: "uppercase", letterSpacing: 1, flexShrink: 0 }}>Wallet</span>
+              <input
+                className="mono"
+                readOnly
+                value={c.walletAddress}
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+                style={{ flex: 1, minWidth: 0, fontSize: 12, padding: "4px 8px", background: "var(--paper)", border: "1.5px solid var(--ink)", borderRadius: 6, color: "var(--ink)", fontFamily: "var(--mono)" }}
+              />
+              <button
+                className="btn sm"
+                onClick={() => copyAddr(c.id, c.walletAddress)}
+                style={{ background: copiedId === c.id ? "var(--lime)" : "var(--cyan)", color: copiedId === c.id ? "var(--ink)" : "var(--ink)", fontSize: 11, flexShrink: 0 }}
+                title="Copy full wallet address to clipboard"
+              >
+                {copiedId === c.id ? "✓ Copied" : "📋 Copy"}
+              </button>
+              <a
+                href={`https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn sm ghost"
+                style={{ fontSize: 11, flexShrink: 0 }}
+                title="Open pump.fun in a new tab"
+              >
+                ↗ pump.fun
+              </a>
             </div>
           </div>
         ))}
