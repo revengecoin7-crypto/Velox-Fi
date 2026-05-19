@@ -655,11 +655,23 @@ const WOLF_PER_BATTLE = 5000;
 // on pump.fun. Once distributed, new conversion requests go to a waitlist.
 const BATTLE_SUPPLY_CAP = 95_000_000;
 
-async function getDistributedBattle(): Promise<number> {
-  // $BATTLE leaves the buyback pool either way: it can still be sitting in
-  // a user's in-app balance, OR it has already been withdrawn (claim row).
-  // Counting only user balances would cause the pool to "refill" the moment
-  // a user clicks Withdraw, which is wrong — that $BATTLE is gone for good.
+// Public-facing "distributed" counter shown on the home page / convert page.
+// Counts only $BATTLE that has actually left admin's wallet (paid claims).
+// In-app balances and pending claims don't count — the project owner hasn't
+// physically sent anything yet.
+async function getPaidOutBattle(): Promise<number> {
+  const [paid] = await db
+    .select({ total: sql<number>`coalesce(sum(${veloxfiClaims.amount}), 0)::float8` })
+    .from(veloxfiClaims)
+    .where(sql`${veloxfiClaims.paidAt} is not null`);
+  return Number(paid?.total ?? 0);
+}
+
+// Internal cap-enforcement counter. Counts every $BATTLE that has been
+// committed — in-app balances + all claims regardless of paid status.
+// This is what prevents conversions from exceeding the 95M cap and over-
+// promising what we own.
+async function getCommittedBattle(): Promise<number> {
   const [users] = await db
     .select({ total: sql<number>`coalesce(sum(${veloxfiUsers.tokens}), 0)::float8` })
     .from(veloxfiUsers);
@@ -671,7 +683,8 @@ async function getDistributedBattle(): Promise<number> {
 
 router.get("/veloxfi/supply-status", async (_req, res) => {
   try {
-    const distributed = await getDistributedBattle();
+    // Public counter: only on-chain payouts (paid claims) reduce remaining.
+    const distributed = await getPaidOutBattle();
     const remaining   = Math.max(0, BATTLE_SUPPLY_CAP - distributed);
     const percentUsed = BATTLE_SUPPLY_CAP > 0 ? (distributed / BATTLE_SUPPLY_CAP) * 100 : 0;
 
@@ -710,9 +723,10 @@ router.post("/veloxfi/convert-wolf", requireAuth as any, async (req: any, res) =
     }
     const battleEarned = amount / WOLF_PER_BATTLE;
 
-    // Check supply cap — if exceeded, route the request to the waitlist
-    // instead of distributing tokens we don't own.
-    const distributed = await getDistributedBattle();
+    // Check supply cap against committed $BATTLE (in-app balances + all
+    // claims). This is stricter than the public counter — it prevents users
+    // from converting past the 95M cap even though paid claims are still low.
+    const distributed = await getCommittedBattle();
     if (distributed + battleEarned > BATTLE_SUPPLY_CAP) {
       const [entry] = await db.insert(veloxfiWaitlist).values({
         username:      user.username,
