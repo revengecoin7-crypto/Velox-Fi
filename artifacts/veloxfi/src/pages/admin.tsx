@@ -310,6 +310,30 @@ function AdminUsers() {
     }
   }
 
+  async function deleteUser(username: string) {
+    // Two-step confirm because this is irreversible across 12 tables.
+    if (!confirm(`PERMANENTLY delete ${username}?\n\nThis wipes the user from every veloxfi_* table (claims, battles, pets, activity, daily actions, wolf earnings, audit log, etc.).\n\nThere is NO undo.`)) return;
+    const typed = prompt(`Type the username "${username}" to confirm deletion:`);
+    if (typed !== username) {
+      alert("Username did not match. Deletion cancelled.");
+      return;
+    }
+    setResetting(username);
+    try {
+      const r = await fetch(`/api/veloxfi/admin/users/${encodeURIComponent(username)}`, {
+        method: "DELETE",
+        headers: adminHeaders(),
+      });
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        alert(`Delete failed: ${data?.error ?? r.status}`);
+      }
+      refresh();
+    } finally {
+      setResetting("");
+    }
+  }
+
   return (
     <div>
       <div className="row" style={{ marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
@@ -362,7 +386,7 @@ function AdminUsers() {
           <div style={{ width: 80, textAlign: "right" }}>WOLF</div>
           <div style={{ width: 100, textAlign: "right" }}>$BATTLE</div>
           <div style={{ width: 100 }}>Status</div>
-          <div style={{ width: 70, textAlign: "right" }}>Actions</div>
+          <div style={{ width: 110, textAlign: "right" }}>Actions</div>
         </div>
         {stats == null ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--mute)" }}>Loading users…</div>
@@ -410,13 +434,22 @@ function AdminUsers() {
                   {u.walletAddress ? "✓ linked" : "no wallet"}
                 </span>
               </div>
-              <div style={{ width: 70, textAlign: "right" }}>
+              <div style={{ width: 110, display: "flex", justifyContent: "flex-end", gap: 4 }}>
                 <button
                   className="btn sm"
-                  style={{ background: "var(--tomato)", color: "white", fontSize: 11 }}
+                  style={{ background: "var(--yellow)", color: "var(--ink)", fontSize: 11, padding: "4px 7px" }}
                   disabled={resetting === u.username}
                   onClick={() => resetBalance(u.username)}
-                  title="Reset WOLF and $BATTLE to 0"
+                  title="Reset WOLF and $BATTLE to 0 (keeps the account)"
+                >
+                  {resetting === u.username ? "…" : "↺"}
+                </button>
+                <button
+                  className="btn sm"
+                  style={{ background: "var(--tomato)", color: "white", fontSize: 11, padding: "4px 7px" }}
+                  disabled={resetting === u.username}
+                  onClick={() => deleteUser(u.username)}
+                  title="PERMANENTLY delete this user from every table"
                 >
                   {resetting === u.username ? "…" : "🗑"}
                 </button>

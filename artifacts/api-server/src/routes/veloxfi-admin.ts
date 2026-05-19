@@ -1,6 +1,19 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { veloxfiUsers, veloxfiBattles, veloxfiClaims, veloxfiWaitlist } from "@workspace/db/schema";
+import {
+  veloxfiUsers,
+  veloxfiBattles,
+  veloxfiClaims,
+  veloxfiWaitlist,
+  veloxfiAchievements,
+  veloxfiMissions,
+  veloxfiActivity,
+  veloxfiDailyActions,
+  veloxfiPets,
+  veloxfiPetAccessories,
+  veloxfiWolfEarnings,
+  veloxfiAuditLog,
+} from "@workspace/db/schema";
 import { eq, desc, sql, isNotNull, isNull } from "drizzle-orm";
 import { sendConversionPaidEmail } from "../lib/mailer";
 
@@ -161,6 +174,53 @@ router.put("/veloxfi/admin/users/:username/reset", requireAdmin as any, async (r
   } catch (e) {
     console.error("admin/users/reset error:", e);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Full purge of every row that references a username, across all 12
+// veloxfi tables. Used to clean up test accounts. Destructive — there is
+// no undo. The order matters only loosely (no FK constraints), but we
+// keep the parent veloxfi_users row last so partial failures don't
+// orphan the user record.
+router.delete("/veloxfi/admin/users/:username", requireAdmin as any, async (req: any, res: any) => {
+  try {
+    const username = String(req.params.username ?? "");
+    if (!username) {
+      res.status(400).json({ error: "Missing username." }); return;
+    }
+
+    // Existence check so the response is honest about what happened.
+    const [existing] = await db.select({ u: veloxfiUsers.username }).from(veloxfiUsers).where(eq(veloxfiUsers.username, username));
+    if (!existing) {
+      res.status(404).json({ error: "User not found." }); return;
+    }
+
+    // Wipe child rows first.
+    await db.delete(veloxfiActivity).where(eq(veloxfiActivity.username, username));
+    await db.delete(veloxfiClaims).where(eq(veloxfiClaims.username, username));
+    await db.delete(veloxfiBattles).where(eq(veloxfiBattles.username, username));
+    await db.delete(veloxfiWolfEarnings).where(eq(veloxfiWolfEarnings.username, username));
+    await db.delete(veloxfiMissions).where(eq(veloxfiMissions.username, username));
+    await db.delete(veloxfiAchievements).where(eq(veloxfiAchievements.username, username));
+    await db.delete(veloxfiAuditLog).where(eq(veloxfiAuditLog.username, username));
+    await db.delete(veloxfiDailyActions).where(eq(veloxfiDailyActions.username, username));
+    await db.delete(veloxfiPets).where(eq(veloxfiPets.username, username));
+    await db.delete(veloxfiPetAccessories).where(eq(veloxfiPetAccessories.username, username));
+    await db.delete(veloxfiWaitlist).where(eq(veloxfiWaitlist.username, username));
+
+    // Other users may have this username as their referredBy. Clear that
+    // pointer so the deleted account isn't dangling-referenced.
+    await db.update(veloxfiUsers)
+      .set({ referredBy: null })
+      .where(eq(veloxfiUsers.referredBy, username));
+
+    // Finally, the parent row.
+    await db.delete(veloxfiUsers).where(eq(veloxfiUsers.username, username));
+
+    res.json({ ok: true, deleted: username });
+  } catch (e) {
+    console.error("admin/users/delete error:", e);
+    res.status(500).json({ error: "Server error." });
   }
 });
 
