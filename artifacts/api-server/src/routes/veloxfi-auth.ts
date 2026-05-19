@@ -656,10 +656,17 @@ const WOLF_PER_BATTLE = 5000;
 const BATTLE_SUPPLY_CAP = 95_000_000;
 
 async function getDistributedBattle(): Promise<number> {
-  const [row] = await db
+  // $BATTLE leaves the buyback pool either way: it can still be sitting in
+  // a user's in-app balance, OR it has already been withdrawn (claim row).
+  // Counting only user balances would cause the pool to "refill" the moment
+  // a user clicks Withdraw, which is wrong — that $BATTLE is gone for good.
+  const [users] = await db
     .select({ total: sql<number>`coalesce(sum(${veloxfiUsers.tokens}), 0)::float8` })
     .from(veloxfiUsers);
-  return Number(row?.total ?? 0);
+  const [claims] = await db
+    .select({ total: sql<number>`coalesce(sum(${veloxfiClaims.amount}), 0)::float8` })
+    .from(veloxfiClaims);
+  return Number(users?.total ?? 0) + Number(claims?.total ?? 0);
 }
 
 router.get("/veloxfi/supply-status", async (_req, res) => {
