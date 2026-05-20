@@ -224,7 +224,7 @@ export default function Home() {
                       {fmtBattle(supply.remaining)} <span style={{ fontSize: 16, color: "var(--magenta)" }}>$BATTLE left</span>
                     </div>
                     <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
-                      of {fmtBattle(supply.cap)} bought back on pump.fun · {supply.percentUsed.toFixed(2)}% claimed
+                      of {fmtBattle(supply.cap)} bought back on pump.fun · <span style={{ color: "var(--lime)" }}>{supply.distributed.toLocaleString("en-US", { maximumFractionDigits: 2 })} $BATTLE paid out</span>
                     </div>
                   </div>
                   {supply.poolDepleted ? (
