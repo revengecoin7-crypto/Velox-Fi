@@ -561,4 +561,7 @@ body {
 
   /* Convert page: hold-tier grid stacks */
   .hold-tier-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+
+  /* Home page: help CTA stacks on mobile */
+  .help-cta-grid { grid-template-columns: 1fr !important; gap: 18px !important; }
 }

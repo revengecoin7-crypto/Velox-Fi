@@ -340,6 +340,47 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ── NEED HELP CTA ── */}
+          <section>
+            <div className="card ink" style={{ padding: 32, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1.2px, transparent 1.2px)", backgroundSize: "14px 14px" }} />
+              <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 28, alignItems: "center" }} className="help-cta-grid">
+                <div>
+                  <div className="eyebrow" style={{ color: "var(--cyan)" }}>Need help?</div>
+                  <h2 className="display" style={{ fontSize: 36, lineHeight: 1.05, color: "white", marginTop: 8 }}>
+                    Stuck on something?<br/>Hit us up.
+                  </h2>
+                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginTop: 12, maxWidth: 480, lineHeight: 1.55 }}>
+                    Lost your mining session, claim not arrived, wallet issue, or just a question about how everything works — drop us a message. We're active 24/7 in Telegram and reply to X DMs throughout the day.
+                  </p>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <a
+                    href="https://t.me/VeloxFiOfficial"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn lg primary"
+                    style={{ justifyContent: "center", fontSize: 16 }}
+                  >
+                    ✈ Telegram · t.me/VeloxFiOfficial
+                  </a>
+                  <a
+                    href="https://x.com/Battle767629"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn lg"
+                    style={{ justifyContent: "center", background: "var(--paper)", fontSize: 16 }}
+                  >
+                    𝕏 DM · @Battle767629
+                  </a>
+                  <div className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", textAlign: "center", marginTop: 4 }}>
+                    Typical reply within 2-4 hours
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* ── FOOTER ── */}
           <footer style={{ borderTop: "2.5px solid var(--ink)", paddingTop: 26, marginTop: 16 }}>
             <div className="row" style={{ alignItems: "flex-start", gap: 36 }}>
