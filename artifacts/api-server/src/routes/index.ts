@@ -16,6 +16,7 @@ import veloxfiAdminRouter from "./veloxfi-admin";
 import veloxfiPasswordRouter from "./veloxfi-password";
 import veloxfiDailyRouter from "./veloxfi-daily";
 import veloxfiPetRouter from "./veloxfi-pet";
+import veloxfiBuyBonusRouter from "./veloxfi-buy-bonus";
 import tokenStatsRouter from "./token-stats";
 
 const router: IRouter = Router();
@@ -63,6 +64,7 @@ router.use(veloxfiAdminRouter);
 router.use(veloxfiPasswordRouter);
 router.use(veloxfiDailyRouter);
 router.use(veloxfiPetRouter);
+router.use(veloxfiBuyBonusRouter);
 router.use(tokenStatsRouter);
 
 export default router;

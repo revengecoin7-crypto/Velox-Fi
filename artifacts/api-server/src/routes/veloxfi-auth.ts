@@ -587,7 +587,11 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
     const tierPct = tierBonusPercent(user.wolf ?? 0);
     const petPct  = await getPetBonusPercent(user.username);
     const bonusPct = tierPct + petPct;
-    const wolfEarned = Math.floor(baseWolf * (1 + bonusPct / 100));
+    // Buy-bonus multiplier (1, 10, 100 or 1000) applies on top of every
+    // other modifier so a 1000x user always earns 1000x what a non-buyer
+    // earns, regardless of tier/pet stack.
+    const buyMult    = Math.max(1, user.buyBonusTier ?? 1);
+    const wolfEarned = Math.floor(baseWolf * (1 + bonusPct / 100)) * buyMult;
 
     // Daily streak: increment if last claim was yesterday, reset if older,
     // unchanged if already claimed today, start at 1 if never claimed.
@@ -616,6 +620,7 @@ router.post("/veloxfi/mining/claim", requireAuth as any, async (req: any, res) =
     const bonusParts: string[] = [];
     if (tierPct > 0) bonusParts.push(`+${tierPct}% tier`);
     if (petPct  > 0) bonusParts.push(`+${petPct}% pet`);
+    if (buyMult > 1) bonusParts.push(`×${buyMult} buy bonus`);
     const bonusNote = bonusParts.length ? ` (${bonusParts.join(", ")})` : "";
     await db.insert(veloxfiActivity).values({
       type:     "claim",

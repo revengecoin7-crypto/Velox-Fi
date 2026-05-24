@@ -25,4 +25,13 @@ export const veloxfiUsers = pgTable("veloxfi_users", {
   emailVerifyToken:   text("email_verify_token"),
   lastMiningCompleteEmailAt: timestamp("last_mining_complete_email_at"),
   registrationIp:     varchar("registration_ip", { length: 64 }),
+  // Buy bonus — multiplier earned by buying $BATTLE on pump.fun.
+  // Cumulative SOL spent on verified buy txs; tier is the multiplier
+  // applied to every reward path (mining + Daily Den).
+  buyBonusSol:        doublePrecision("buy_bonus_sol").notNull().default(0),
+  buyBonusTier:       integer("buy_bonus_tier").notNull().default(1),
+  // Snapshot of $BATTLE balance at the moment of the last buy claim.
+  // Used by the sell-detection scheduler to decide if the user dumped.
+  buyBonusBattleHeld: doublePrecision("buy_bonus_battle_held").notNull().default(0),
+  lastSellCheckAt:    timestamp("last_sell_check_at"),
 });

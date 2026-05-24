@@ -15,3 +15,4 @@ export * from "./veloxfi-daily-actions";
 export * from "./veloxfi-pets";
 export * from "./veloxfi-wolf-earnings";
 export * from "./veloxfi-audit-log";
+export * from "./veloxfi-buy-bonus-claims";

@@ -167,13 +167,14 @@ router.post("/veloxfi/daily/spin", requireAuth as any, async (req: any, res) => 
 
     if (already) { res.status(409).json({ error: "Already spun today.", lastReward: already.rewardWolf }); return; }
 
-    const reward = pickWeighted(SPIN_REWARDS, SPIN_WEIGHTS);
+    const baseReward = pickWeighted(SPIN_REWARDS, SPIN_WEIGHTS);
+    const reward = baseReward * Math.max(1, user.buyBonusTier ?? 1);
     await awardWolf(user.username, reward);
     await logAction(user.username, "spin", reward);
     await db.insert(veloxfiActivity).values({
       type: "spin",
       username: user.username,
-      message: `won ${reward} WOLF on the daily spin`,
+      message: `won ${reward} WOLF on the daily spin${(user.buyBonusTier ?? 1) > 1 ? ` (×${user.buyBonusTier} buy bonus)` : ""}`,
     });
 
     res.json({ ok: true, reward, newWolfBalance: (user.wolf ?? 0) + reward });
@@ -209,13 +210,14 @@ router.post("/veloxfi/daily/chest/:tier", requireAuth as any, async (req: any, r
       }
     }
 
-    const reward = Math.floor(def.min + Math.random() * (def.max - def.min));
+    const baseReward = Math.floor(def.min + Math.random() * (def.max - def.min));
+    const reward = baseReward * Math.max(1, user.buyBonusTier ?? 1);
     await awardWolf(user.username, reward);
     await logAction(user.username, `chest_${tier}`, reward);
     await db.insert(veloxfiActivity).values({
       type: "chest",
       username: user.username,
-      message: `opened a ${tier} chest for ${reward} WOLF`,
+      message: `opened a ${tier} chest for ${reward} WOLF${(user.buyBonusTier ?? 1) > 1 ? ` (×${user.buyBonusTier} buy bonus)` : ""}`,
     });
 
     res.json({ ok: true, reward, tier, newWolfBalance: (user.wolf ?? 0) + reward });
@@ -229,8 +231,8 @@ router.post("/veloxfi/daily/chest/:tier", requireAuth as any, async (req: any, r
 router.post("/veloxfi/daily/milestone/:day", requireAuth as any, async (req: any, res) => {
   try {
     const day = parseInt(String(req.params.day), 10);
-    const reward = MILESTONES[day];
-    if (!reward) { res.status(400).json({ error: "Unknown milestone." }); return; }
+    const baseReward = MILESTONES[day];
+    if (!baseReward) { res.status(400).json({ error: "Unknown milestone." }); return; }
     const user = req.veloxfiUser as typeof veloxfiUsers.$inferSelect;
     if ((user.dailyStreak ?? 0) < day) {
       res.status(400).json({ error: `Streak must be at least ${day} days.` }); return;
@@ -246,12 +248,13 @@ router.post("/veloxfi/daily/milestone/:day", requireAuth as any, async (req: any
       .limit(1);
     if (already) { res.status(409).json({ error: "Milestone already claimed." }); return; }
 
+    const reward = baseReward * Math.max(1, user.buyBonusTier ?? 1);
     await awardWolf(user.username, reward);
     await logAction(user.username, `milestone_${day}`, reward);
     await db.insert(veloxfiActivity).values({
       type: "milestone",
       username: user.username,
-      message: `hit day ${day} streak and claimed ${reward} WOLF`,
+      message: `hit day ${day} streak and claimed ${reward} WOLF${(user.buyBonusTier ?? 1) > 1 ? ` (×${user.buyBonusTier} buy bonus)` : ""}`,
     });
     // Notify the user — best-effort, never blocks the claim response.
     sendMilestoneEmail(user.email, user.username, day, reward).catch(() => {});
@@ -285,15 +288,16 @@ router.post("/veloxfi/daily/bounty/:id", requireAuth as any, async (req: any, re
       .limit(1);
     if (already) { res.status(409).json({ error: "Bounty already claimed." }); return; }
 
-    await awardWolf(user.username, def.reward);
-    await logAction(user.username, id, def.reward);
+    const reward = def.reward * Math.max(1, user.buyBonusTier ?? 1);
+    await awardWolf(user.username, reward);
+    await logAction(user.username, id, reward);
     await db.insert(veloxfiActivity).values({
       type: "bounty",
       username: user.username,
-      message: `claimed bounty ${id.replace("bounty_", "").replace("_", " ")} for ${def.reward} WOLF`,
+      message: `claimed bounty ${id.replace("bounty_", "").replace("_", " ")} for ${reward} WOLF${(user.buyBonusTier ?? 1) > 1 ? ` (×${user.buyBonusTier} buy bonus)` : ""}`,
     });
 
-    res.json({ ok: true, reward: def.reward, id, newWolfBalance: (user.wolf ?? 0) + def.reward });
+    res.json({ ok: true, reward, id, newWolfBalance: (user.wolf ?? 0) + reward });
   } catch (e) {
     console.error("daily/bounty error:", e);
     res.status(500).json({ error: "Server error." });
