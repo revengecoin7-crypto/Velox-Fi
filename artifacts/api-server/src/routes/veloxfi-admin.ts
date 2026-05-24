@@ -5,9 +5,9 @@ import {
   veloxfiBattles,
   veloxfiClaims,
   veloxfiWaitlist,
+  veloxfiActivity,
   veloxfiAchievements,
   veloxfiMissions,
-  veloxfiActivity,
   veloxfiDailyActions,
   veloxfiPets,
   veloxfiPetAccessories,
@@ -41,27 +41,13 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
       .select({ count: sql<number>`count(*)::int` })
       .from(veloxfiUsers);
 
-    const [battleStats] = await db
-      .select({
-        total:       sql<number>`count(*)::int`,
-        tokensTotal: sql<number>`coalesce(sum(tokens_earned),0)::int`,
-      })
-      .from(veloxfiBattles);
-
-    const [battlesTodayStats] = await db
-      .select({
-        total:       sql<number>`count(*)::int`,
-        tokensTotal: sql<number>`coalesce(sum(tokens_earned),0)::int`,
-      })
-      .from(veloxfiBattles)
+    // New users today (registrations since UTC midnight).
+    const [newToday] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(veloxfiUsers)
       .where(sql`created_at >= current_date`);
 
-    const recentBattles = await db
-      .select()
-      .from(veloxfiBattles)
-      .orderBy(desc(veloxfiBattles.createdAt))
-      .limit(20);
-
+    // User list — kept here because the Users tab still consumes it.
     const users = await db
       .select({
         username:          veloxfiUsers.username,
@@ -72,42 +58,35 @@ router.get("/veloxfi/admin/stats", requireAdmin as any, async (_req: any, res: a
         walletAddress:     veloxfiUsers.walletAddress,
         registrationIp:    veloxfiUsers.registrationIp,
         claimedAt:         veloxfiUsers.claimedAt,
-        totalBattles:      sql<number>`count(${veloxfiBattles.id})::int`,
-        totalTokensEarned: sql<number>`coalesce(sum(${veloxfiBattles.tokensEarned}),0)::int`,
       })
       .from(veloxfiUsers)
-      .leftJoin(veloxfiBattles, eq(veloxfiUsers.username, veloxfiBattles.username))
-      .groupBy(
-        veloxfiUsers.username,
-        veloxfiUsers.email,
-        veloxfiUsers.tokens,
-        veloxfiUsers.wolf,
-        veloxfiUsers.createdAt,
-        veloxfiUsers.walletAddress,
-        veloxfiUsers.registrationIp,
-        veloxfiUsers.claimedAt,
-      )
       .orderBy(desc(veloxfiUsers.createdAt));
 
-    const dailyBattles = await db
+    // Daily new-user registrations for the last 7 days — feeds the chart
+    // that used to plot battles (which no longer exist).
+    const dailyRegistrations = await db
       .select({
         date:  sql<string>`date_trunc('day', created_at)::date::text`,
         count: sql<number>`count(*)::int`,
       })
-      .from(veloxfiBattles)
+      .from(veloxfiUsers)
       .where(sql`created_at >= current_date - interval '6 days'`)
       .groupBy(sql`date_trunc('day', created_at)::date`)
       .orderBy(sql`date_trunc('day', created_at)::date`);
 
+    // Recent activity feed — replaces the legacy 'last 10 fights' list.
+    const recentActivity = await db
+      .select()
+      .from(veloxfiActivity)
+      .orderBy(desc(veloxfiActivity.createdAt))
+      .limit(15);
+
     res.json({
-      totalUsers:      userCount?.count     || 0,
-      battlesAllTime:  battleStats?.total   || 0,
-      tokensAllTime:   battleStats?.tokensTotal || 0,
-      battlesToday:    battlesTodayStats?.total       || 0,
-      tokensToday:     battlesTodayStats?.tokensTotal || 0,
-      recentBattles,
+      totalUsers:        userCount?.count   || 0,
+      newUsersToday:     newToday?.count    || 0,
       users,
-      dailyBattles,
+      dailyRegistrations,
+      recentActivity,
     });
   } catch (e) {
     console.error("admin/stats error:", e);

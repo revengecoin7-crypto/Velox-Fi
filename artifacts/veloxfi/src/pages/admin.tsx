@@ -47,27 +47,30 @@ function useAdminWaitlist() {
 }
 
 interface AdminUser {
-  username:          string;
-  email:             string;
-  tokens:            number;
-  wolf:              number;
-  createdAt:         string;
-  walletAddress:     string | null;
-  registrationIp:    string | null;
-  claimedAt:         string | null;
-  totalBattles:      number;
-  totalTokensEarned: number;
+  username:       string;
+  email:          string;
+  tokens:         number;
+  wolf:           number;
+  createdAt:      string;
+  walletAddress:  string | null;
+  registrationIp: string | null;
+  claimedAt:      string | null;
+}
+
+interface AdminActivity {
+  id:        number;
+  type:      string;
+  username:  string;
+  message:   string;
+  createdAt: string;
 }
 
 interface AdminStats {
-  totalUsers:     number;
-  battlesAllTime: number;
-  tokensAllTime:  number;
-  battlesToday:   number;
-  tokensToday:    number;
-  recentBattles:  any[];
-  users:          AdminUser[];
-  dailyBattles:   { date: string; count: number }[];
+  totalUsers:          number;
+  newUsersToday:       number;
+  users:               AdminUser[];
+  dailyRegistrations:  { date: string; count: number }[];
+  recentActivity:      AdminActivity[];
 }
 
 function useAdminStats() {
@@ -164,25 +167,29 @@ function AdminOverview() {
         <KpiCard
           label="Total holders"
           value={stats ? stats.totalUsers.toLocaleString() : "—"}
-          sub={stats ? `${stats.battlesToday} battles today` : ""}
+          sub={stats ? `${stats.newUsersToday} new today` : ""}
           color="var(--cyan)"
         />
         <KpiCard
-          label="$BATTLE earned · all-time"
-          value={stats ? fmtBattle(stats.tokensAllTime) : "—"}
-          sub={stats ? `${stats.battlesAllTime.toLocaleString()} battles played` : ""}
+          label="Pool · committed"
+          value={supply ? fmtBattle(supply.distributed) : "—"}
+          sub={supply ? `${supply.percentUsed.toFixed(4)}% of 95M cap` : ""}
           color="var(--magenta)"
         />
         <KpiCard
-          label="Distributed · all-time"
-          value={supply ? fmtBattle(supply.distributed) : "—"}
-          sub={supply ? `${supply.percentUsed.toFixed(2)}% of pool used` : ""}
+          label="Pool · paid out"
+          value={supply ? supply.distributed.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
+          sub={supply ? `Waitlist: ${supply.waitlistCount} pending` : ""}
           color="var(--yellow)"
         />
         <KpiCard
           label="Pool remaining"
-          value={supply ? fmtBattle(supply.remaining) : "—"}
-          sub={supply ? `Waitlist: ${supply.waitlistCount} pending` : ""}
+          value={supply
+            ? supply.remaining > supply.cap - 10_000
+              ? supply.remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })
+              : fmtBattle(supply.remaining)
+            : "—"}
+          sub={supply ? `${(100 - supply.percentUsed).toFixed(2)}% available` : ""}
           color="var(--lime)"
           down={!!supply && supply.percentUsed >= 90}
         />
@@ -192,21 +199,23 @@ function AdminOverview() {
         <div className="card">
           <div className="row" style={{ justifyContent: "space-between" }}>
             <div>
-              <div className="eyebrow">Battles · last 7 days</div>
+              <div className="eyebrow">New holders · last 7 days</div>
               <h2 className="display" style={{ fontSize: 26, lineHeight: 1, marginTop: 4 }}>
-                {stats ? `${stats.dailyBattles.reduce((s, d) => s + d.count, 0).toLocaleString()} battles` : "—"}
+                {stats ? `${stats.dailyRegistrations.reduce((s, d) => s + d.count, 0).toLocaleString()} new accounts` : "—"}
               </h2>
             </div>
           </div>
           <div style={{ marginTop: 18, height: 200 }}>
-            {stats && stats.dailyBattles.length > 0 ? <DailyBattlesChart data={stats.dailyBattles} /> : <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--mute)" }}>No battle data yet.</div>}
+            {stats && stats.dailyRegistrations.length > 0
+              ? <DailyChart data={stats.dailyRegistrations} color="var(--cyan)" />
+              : <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--mute)" }}>No new accounts yet.</div>}
           </div>
         </div>
 
         <div className="card cream">
           <div className="eyebrow">Pool health · live</div>
           <div className="display" style={{ fontSize: 32, lineHeight: 1, marginTop: 6 }}>
-            {supply ? `${(100 - supply.percentUsed).toFixed(1)}% available` : "—"}
+            {supply ? `${(100 - supply.percentUsed).toFixed(2)}% available` : "—"}
           </div>
           <div style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: 6 }}>
             {supply
@@ -226,28 +235,45 @@ function AdminOverview() {
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 14 }}>
-          <div><div className="eyebrow">Recent battles</div><h2 style={{ fontSize: 22 }}>Last 10 fights</h2></div>
+          <div><div className="eyebrow">Live activity</div><h2 style={{ fontSize: 22 }}>What's happening right now</h2></div>
         </div>
-        {stats && stats.recentBattles.length > 0 ? (
+        {stats && stats.recentActivity.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {stats.recentBattles.slice(0, 10).map((b: any) => (
-              <div key={b.id} className="row" style={{ padding: "8px 10px", borderRadius: 8, background: "var(--cream)", gap: 10, fontSize: 13 }}>
-                <span className="pill" style={{ fontSize: 10, background: b.result === "win" ? "var(--lime)" : "var(--tomato)", color: b.result === "win" ? "var(--ink)" : "white", padding: "2px 7px" }}>{b.result}</span>
-                <div style={{ flex: 1, fontWeight: 600 }}>{b.username}</div>
-                <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>+{b.tokensEarned} BATTLE</div>
-                <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{relTime(b.createdAt)}</div>
-              </div>
-            ))}
+            {stats.recentActivity.map((a) => {
+              const tone = activityTone(a.type);
+              return (
+                <div key={a.id} className="row" style={{ padding: "8px 10px", borderRadius: 8, background: "var(--cream)", gap: 10, fontSize: 13 }}>
+                  <span className="pill" style={{ fontSize: 10, background: tone.bg, color: tone.text, padding: "2px 7px", minWidth: 70, justifyContent: "center" }}>{a.type}</span>
+                  <div style={{ fontWeight: 600 }}>{a.username}</div>
+                  <div style={{ flex: 1, color: "var(--ink-soft)" }}>{a.message}</div>
+                  <div className="mono" style={{ fontSize: 11, color: "var(--mute)" }}>{relTime(a.createdAt)}</div>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <div style={{ fontSize: 13, color: "var(--mute)", textAlign: "center", padding: 14 }}>No battles played yet.</div>
+          <div style={{ fontSize: 13, color: "var(--mute)", textAlign: "center", padding: 14 }}>No activity yet.</div>
         )}
       </div>
     </div>
   );
 }
 
-function DailyBattlesChart({ data }: { data: { date: string; count: number }[] }) {
+function activityTone(type: string): { bg: string; text: string } {
+  switch (type) {
+    case "claim":      return { bg: "var(--lime)",    text: "var(--ink)" };
+    case "convert":    return { bg: "var(--magenta)", text: "white" };
+    case "withdraw":   return { bg: "var(--tomato)",  text: "white" };
+    case "spin":       return { bg: "var(--cyan)",    text: "var(--ink)" };
+    case "chest":      return { bg: "var(--yellow)",  text: "var(--ink)" };
+    case "milestone":  return { bg: "#9b6cff",        text: "white" };
+    case "bounty":     return { bg: "#ff8a3d",        text: "white" };
+    case "buy_bonus":  return { bg: "var(--ink)",     text: "var(--lime)" };
+    default:           return { bg: "var(--cream)",   text: "var(--ink-soft)" };
+  }
+}
+
+function DailyChart({ data, color }: { data: { date: string; count: number }[]; color: string }) {
   const max = Math.max(1, ...data.map(d => d.count));
   const w = data.length > 0 ? 100 / data.length : 100;
   return (
@@ -255,7 +281,7 @@ function DailyBattlesChart({ data }: { data: { date: string; count: number }[] }
       {[0, 25, 50, 75].map(y => <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="rgba(11,11,26,0.12)" strokeWidth="0.3" />)}
       {data.map((d, i) => {
         const h = (d.count / max) * 90;
-        return <rect key={d.date} x={i * w + 0.5} y={100 - h} width={w - 1} height={h} fill="var(--cyan)" />;
+        return <rect key={d.date} x={i * w + 0.5} y={100 - h} width={w - 1} height={h} fill={color} />;
       })}
     </svg>
   );
