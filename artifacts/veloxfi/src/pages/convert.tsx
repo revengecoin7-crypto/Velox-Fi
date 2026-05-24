@@ -31,7 +31,7 @@ function useSupplyStatus() {
 
 // Mirrors MIN_WITHDRAW_BATTLE in the backend. Anything below this loses money
 // once you factor in Solana ATA rent (~0.002 SOL per new recipient).
-const MIN_WITHDRAW_BATTLE = 10;
+const MIN_WITHDRAW_BATTLE = 100;
 
 function fmtBattle(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
