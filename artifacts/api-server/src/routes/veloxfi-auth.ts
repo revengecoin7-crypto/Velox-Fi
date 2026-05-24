@@ -226,7 +226,7 @@ router.get("/veloxfi/user/:username", requireAuth as any, async (req: any, res) 
 // Smallest withdrawal we'll process on-chain. Anything smaller costs more in
 // Solana fees (~0.002 SOL rent per new recipient ATA) than the payout itself
 // is worth at current $BATTLE price.
-const MIN_WITHDRAW_BATTLE = 100;
+const MIN_WITHDRAW_BATTLE = 50;
 
 router.post("/veloxfi/claim", requireAuth as any, async (req: any, res) => {
   try {
