@@ -18,6 +18,7 @@ const NAV = [
       { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
       { href: "/profile",   label: "Profile",     icon: UserIcon },
       { href: "/convert",   label: "Wallet",      icon: WalletIcon },
+      { href: "/buy-bonus", label: "Buy Bonus",   icon: BoltIcon, badge: "10×" },
     ],
   },
   {
@@ -245,6 +246,9 @@ function HelpIcon({ size = 16 }: { size?: number }) {
 }
 function ShopIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1.5-5h15L21 9" /><path d="M3 9h18v11H3z" /><path d="M9 9V4M15 9V4" /></svg>;
+}
+function BoltIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" /></svg>;
 }
 function TelegramIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" /></svg>;

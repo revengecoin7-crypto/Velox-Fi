@@ -18,6 +18,7 @@ import Daily from "@/pages/daily";
 import Pet from "@/pages/pet";
 import Factions from "@/pages/factions";
 import Convert from "@/pages/convert";
+import BuyBonus from "@/pages/buy-bonus";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Profile from "@/pages/profile";
@@ -90,6 +91,7 @@ function Router() {
         <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/profile" component={Profile} />
         <Route path="/convert" component={Convert} />
+        <Route path="/buy-bonus" component={BuyBonus} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/admin" component={Admin} />
