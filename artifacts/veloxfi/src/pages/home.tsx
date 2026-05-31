@@ -125,6 +125,7 @@ export default function Home() {
                   {!caCopied && <span style={{ fontSize: 10 }}>📋</span>}
                 </button>
                 <a className="btn sm" href="https://pump.fun/coin/HAytudteqxtE4yFUF9Y8SN7LJz7VeCSERKVdwggDpump" target="_blank" rel="noreferrer">P pump.fun</a>
+                <a className="btn sm" href="https://dexscreener.com/solana/8fvesmuxqxpwj5e255mfrzzw5kdrj1qd7kqbh8m2a7ur" target="_blank" rel="noreferrer">📊 DEX Screener</a>
                 <a className="btn sm" href="https://x.com/Battle767629" target="_blank" rel="noreferrer">𝕏 X</a>
                 <a className="btn sm" href="https://t.me/VeloxFiOfficial" target="_blank" rel="noreferrer">✈ Telegram</a>
               </div>

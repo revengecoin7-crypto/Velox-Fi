@@ -25,6 +25,7 @@ const NAV = [
     group: "RESOURCES",
     items: [
       { href: "/buy",        label: "Buy $BATTLE", icon: ShopIcon },
+      { href: "https://dexscreener.com/solana/8fvesmuxqxpwj5e255mfrzzw5kdrj1qd7kqbh8m2a7ur", label: "DEX Screener", icon: ChartIcon, badge: "LIVE", external: true },
       { href: "/whitepaper", label: "Whitepaper",  icon: BookIcon },
       { href: "/roadmap",    label: "Roadmap",     icon: MapIcon },
       { href: "/blog",       label: "Blog",        icon: PenIcon },
@@ -140,15 +141,33 @@ export function Sidebar() {
               const isActive = location === item.href;
               const Icon = item.icon;
               if (item.href === "/login" && user) return null;
+              const inner = (
+                <>
+                  <span className="ico"><Icon size={16} /></span>
+                  {item.label}
+                  {item.badge && <span className="badge">{item.badge}</span>}
+                </>
+              );
+              if (item.external) {
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="sb-item"
+                  >
+                    {inner}
+                  </a>
+                );
+              }
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={`sb-item${isActive ? " active" : ""}`}
                 >
-                  <span className="ico"><Icon size={16} /></span>
-                  {item.label}
-                  {item.badge && <span className="badge">{item.badge}</span>}
+                  {inner}
                 </Link>
               );
             })}
@@ -249,6 +268,9 @@ function ShopIcon({ size = 16 }: { size?: number }) {
 }
 function BoltIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" /></svg>;
+}
+function ChartIcon({ size = 16 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></svg>;
 }
 function TelegramIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" /></svg>;
