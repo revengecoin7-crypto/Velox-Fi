@@ -12,7 +12,7 @@ const PHASES: { num: number; label: string; emoji: string; status: Status; color
   { num: 3, label: "Distribute",      emoji: "💱", status: "upcoming", color: "var(--yellow)",
     items: ["Capped buyback distribution pool (95M $BATTLE)", "Conversion waitlist when pool depletes", "Live emission tracker on homepage", "Transparent buyback receipts", "Holder count >5k"] },
   { num: 4, label: "Scale",           emoji: "🚀", status: "upcoming", color: "var(--magenta)",
-    items: ["DexScreener listing (post-migration)", "Raydium liquidity migration", "Native mobile experience", "CEX listing pursuit", "Ambassador program"] },
+    items: ["CoinGecko listing", "Raydium liquidity migration", "Native mobile experience", "CEX listing pursuit", "Ambassador program"] },
   { num: 5, label: "Global expansion", emoji: "🌍", status: "upcoming", color: "var(--lavender)",
     items: ["Community treasury and DAO voting", "Wolf NFT mint", "Multi-language platform support", "Merch drop and IRL meetups", "Cross-chain bridge"] },
 ];

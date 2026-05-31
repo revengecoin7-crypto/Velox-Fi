@@ -12,7 +12,7 @@ const PHASES = [
   { num: "01", name: "Build & launch",    done: true,  color: "var(--lime)",     items: ["$BATTLE live on pump.fun", "Free 4-hour mining sessions", "Wallet linking + Solana payouts", "Website live at veloxfi.io"] },
   { num: "02", name: "Grow",              done: false, color: "var(--cyan)",     items: ["Live leaderboard", "Mobile-friendly experience", "Daily streak rewards", "Referral system"] },
   { num: "03", name: "Distribute",        done: false, color: "var(--yellow)",   items: ["Capped buyback pool (95M $BATTLE)", "Waitlist when pool depletes", "Live emission tracker", "Transparent buyback receipts"] },
-  { num: "04", name: "Scale",             done: false, color: "var(--magenta)",  items: ["Raydium liquidity migration", "DexScreener listing", "CEX listing pursuit", "Ambassador program"] },
+  { num: "04", name: "Scale",             done: false, color: "var(--magenta)",  items: ["Raydium liquidity migration", "CoinGecko listing", "CEX listing pursuit", "Ambassador program"] },
   { num: "05", name: "Global expansion",  done: false, color: "var(--lavender)", items: ["Community treasury and DAO", "Wolf NFT mint", "Multi-language platform", "Merch drop and IRL meetups"] },
 ];
 
