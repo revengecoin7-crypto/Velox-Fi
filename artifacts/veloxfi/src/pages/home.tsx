@@ -271,7 +271,7 @@ export default function Home() {
               <div style={{ position: "relative", display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 18 }}>
                 <div style={{ position: "absolute", left: 14, right: 14, top: 13, height: 0, borderTop: "2px dashed rgba(11,11,26,0.12)", zIndex: 0 }} />
                 {[
-                  { q: "Q1", t: "Howl begins",   items: ["Pump.fun launch", "Mining v1 live", "Wallet linking", "DEXTools listing"], done: true },
+                  { q: "Q1", t: "Howl begins",   items: ["Pump.fun launch", "Mining v1 live", "Wallet linking", "Solscan verified"], done: true },
                   { q: "Q2", t: "Pack grows",    items: ["Leaderboard live", "Daily streak rewards", "Mobile-friendly UI", "Referral system"], done: true },
                   { q: "Q3", t: "Distribution",  items: ["$BATTLE buyback pool", "Conversion waitlist", "Live emission tracker", "DEX Screener listing", "Holder count >5k"], done: false, now: true },
                   { q: "Q4", t: "Listings",      items: ["Raydium migration", "Tier-2 CEX listing", "Cross-chain bridge", "Audit + transparency report"], done: false },
