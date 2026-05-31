@@ -273,7 +273,7 @@ export default function Home() {
                 {[
                   { q: "Q1", t: "Howl begins",   items: ["Pump.fun launch", "Mining v1 live", "Wallet linking", "DEXTools listing"], done: true },
                   { q: "Q2", t: "Pack grows",    items: ["Leaderboard live", "Daily streak rewards", "Mobile-friendly UI", "Referral system"], done: true },
-                  { q: "Q3", t: "Distribution",  items: ["$BATTLE buyback pool", "Conversion waitlist", "Live emission tracker", "Holder count >5k"], done: false, now: true },
+                  { q: "Q3", t: "Distribution",  items: ["$BATTLE buyback pool", "Conversion waitlist", "Live emission tracker", "DEX Screener listing", "Holder count >5k"], done: false, now: true },
                   { q: "Q4", t: "Listings",      items: ["Raydium migration", "Tier-2 CEX listing", "Cross-chain bridge", "Audit + transparency report"], done: false },
                   { q: "Q1+", t: "Pack future",  items: ["Wolf NFT mint", "Community treasury", "Merch drop", "IRL meetups"], done: false },
                 ].map((r) => (
